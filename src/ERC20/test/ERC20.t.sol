@@ -75,19 +75,7 @@ contract ERC20BaseTest is TestUtils {
 
         assertEq(_token.allowance(self, account_), initialAmount_ + addedAmount_);
     }
-
-
-
-
 }
-
-
-
-
-
-
-
-
 
 /*
 
