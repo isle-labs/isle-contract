@@ -5,11 +5,13 @@ import { PRBTest } from "@prb/test/PRBTest.sol";
 import { console2 } from "forge-std/console2.sol";
 import { StdCheats } from "forge-std/StdCheats.sol";
 
+import { InvariantTest, TestUtils } from "contract-test-utils/test.sol";
+
 import { IERC20 } from "../interfaces/IERC20.sol";
 import { ERC20 } from "../ERC20.sol";
 import { MockERC20 } from "./mocks/MockERC20.sol";
 
-contract ERC20BaseTest is PRBTest {
+contract ERC20BaseTest is TestUtils {
     address internal immutable self = address(this);
 
     bytes internal constant ARITHMETIC_ERROR = abi.encodeWithSignature("Panic(uint256)", 0x11);
@@ -59,9 +61,23 @@ contract ERC20BaseTest is PRBTest {
     }
 
     function testFuzz_approve(address account_, uint256 amount_) public {
+        assertTrue(_token.approve(account_, amount_));
 
-
+        assertEq(_token.allowance(self, account_), amount_);
     }
+
+    function testFuzz_increaseAllowance(address account_, uint256 initialAmount_, uint256 addedAmount_) public {
+        initialAmount_ = constrictToRange(initialAmount_, 0, type(uin256).max / 2);
+        addedAmount_ = constrictToRange(initialAmount_, 0, type(uin256).max / 2);
+
+        _token.approve(account_, initialAmount_);
+        _token.increaseAllowance(account_, addedAmount_);
+
+        assertEq(_token.allowance(self, account_), initialAmount_ + addedAmount_);
+    }
+
+
+
 
 }
 
