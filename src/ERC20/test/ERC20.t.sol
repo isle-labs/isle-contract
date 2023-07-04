@@ -7,14 +7,15 @@ import { StdCheats } from "forge-std/StdCheats.sol";
 
 import { InvariantTest, TestUtils } from "contract-test-utils/test.sol";
 
+import { ERC20User } from "./accounts/ERC20User.sol";
+
 import { IERC20 } from "../interfaces/IERC20.sol";
 import { ERC20 } from "../ERC20.sol";
 import { MockERC20 } from "./mocks/MockERC20.sol";
+import { IERC20Errors } from "../interfaces/IERC20Errors.sol";
 
-contract ERC20BaseTest is TestUtils {
+contract ERC20BaseTest is TestUtils, IERC20Errors {
     address internal immutable self = address(this);
-
-    bytes internal constant ARITHMETIC_ERROR = abi.encodeWithSignature("Panic(uint256)", 0x11);
 
     MockERC20 internal _token;
 
@@ -61,19 +62,182 @@ contract ERC20BaseTest is TestUtils {
     }
 
     function testFuzz_approve(address account_, uint256 amount_) public {
+        vm.assume(account_ != address(0));
+
         assertTrue(_token.approve(account_, amount_));
 
         assertEq(_token.allowance(self, account_), amount_);
     }
 
     function testFuzz_increaseAllowance(address account_, uint256 initialAmount_, uint256 addedAmount_) public {
-        initialAmount_ = constrictToRange(initialAmount_, 0, type(uin256).max / 2);
-        addedAmount_ = constrictToRange(initialAmount_, 0, type(uin256).max / 2);
+        vm.assume(account_ != address(0));
+
+        initialAmount_ = constrictToRange(initialAmount_, 0, type(uint256).max / 2);
+        addedAmount_ = constrictToRange(initialAmount_, 0, type(uint256).max / 2);
 
         _token.approve(account_, initialAmount_);
         _token.increaseAllowance(account_, addedAmount_);
 
         assertEq(_token.allowance(self, account_), initialAmount_ + addedAmount_);
+    }
+
+    function testFuzz_decreaseAllowance_infiniteApproval(address account_, uint256 subtractedAmount_) public {
+        vm.assume(account_ != address(0));
+
+        uint256 MAX_UINT256 = type(uint256).max;
+
+        subtractedAmount_ = constrictToRange(subtractedAmount_, 0, MAX_UINT256);
+
+        _token.approve(account_, MAX_UINT256);
+        _token.decreaseAllowance(account_, subtractedAmount_);
+
+        assertEq(_token.allowance(self, account_), MAX_UINT256);
+    }
+
+    function testFuzz_decreaseAllowance_nonInfiniteApproval(address account_, uint256 initialAmount_, uint256 subtractedAmount_) public {
+        vm.assume(account_ != address(0));
+
+        initialAmount_ = constrictToRange(initialAmount_, 0, type(uint256).max - 1);
+        subtractedAmount_ = constrictToRange(subtractedAmount_, 0, initialAmount_);
+
+        _token.approve(account_, initialAmount_);
+
+        assertEq(_token.allowance(self, account_), initialAmount_);
+
+        assertTrue(_token.decreaseAllowance(account_, subtractedAmount_));
+
+        assertEq(_token.allowance(self, account_), initialAmount_ - subtractedAmount_);
+    }
+
+    function testFuzz_transfer(address recipient_, uint256 amount_) public {
+        vm.assume(recipient_ != address(0));
+
+        _token.mint(self, amount_);
+
+        assertEq(_token.balanceOf(self), amount_);
+
+        assertTrue(_token.transfer(recipient_, amount_));
+
+        if (self == recipient_) {
+            assertEq(_token.balanceOf(self), amount_);
+        } else {
+            assertEq(_token.balanceOf(self), 0);
+            assertEq(_token.balanceOf(recipient_), amount_);
+        }
+    }
+
+    function testFuzz_transferFrom(address recipient_, uint256 approval_, uint256 amount_) public {
+        vm.assume(recipient_ != address(0));
+
+        approval_ = constrictToRange(approval_, 0, type(uint256).max - 1);
+        amount_   = constrictToRange(amount_,   0, approval_);
+
+        ERC20User owner = new ERC20User();
+
+        _token.mint(address(owner), amount_);
+        owner.erc20_approve(address(_token), self, approval_);
+
+        assertTrue(_token.transferFrom(address(owner), recipient_, amount_));
+
+        assertEq(_token.totalSupply(), amount_);
+
+        approval_ = address(owner) == self ? approval_ : approval_ - amount_;
+
+        assertEq(_token.allowance(address(owner), self), approval_);
+
+        if (address(owner) == recipient_) {
+            assertEq(_token.balanceOf(address(owner)), amount_);
+        } else {
+            assertEq(_token.balanceOf(address(owner)), 0);
+            assertEq(_token.balanceOf(recipient_), amount_);
+        }
+    }
+
+    function testFuzz_transferFrom_infiniteApproval(address recipient_, uint256 amount_) public {
+        vm.assume(recipient_ != address(0));
+
+        uint256 MAX_UINT256 = type(uint256).max;
+
+        amount_ = constrictToRange(amount_, 0, MAX_UINT256);
+
+        ERC20User owner = new ERC20User();
+
+        _token.mint(address(owner), amount_);
+        owner.erc20_approve(address(_token), self, MAX_UINT256);
+
+        assertEq(_token.balanceOf(address(owner)),       amount_);
+        assertEq(_token.totalSupply(),                   amount_);
+        assertEq(_token.allowance(address(owner), self), MAX_UINT256);
+
+        assertTrue(_token.transferFrom(address(owner), recipient_, amount_));
+
+        assertEq(_token.totalSupply(),                   amount_);
+        assertEq(_token.allowance(address(owner), self), MAX_UINT256);
+
+        if (address(owner) == recipient_) {
+            assertEq(_token.balanceOf(address(owner)), amount_);
+        } else {
+            assertEq(_token.balanceOf(address(owner)), 0);
+            assertEq(_token.balanceOf(recipient_),     amount_);
+        }
+    }
+
+
+    function testFuzz_transfer_insufficientBalance(address recipient_, uint256 amount_) public {
+
+        vm.assume(recipient_ != address(0));
+        vm.assume(amount_ > 0);
+
+        ERC20User account = new ERC20User();
+
+        _token.mint(address(account), amount_ - 1);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC20InsufficientBalance.selector, address(account), amount_ - 1, amount_));
+        account.erc20_transfer(address(_token), recipient_, amount_);
+
+        _token.mint(address(account), 1);
+        account.erc20_transfer(address(_token), recipient_, amount_);
+
+        assertEq(_token.balanceOf(recipient_), amount_);
+    }
+
+    function testFuzz_transferFrom_insufficientAllowance(address recipient_, uint256 amount_) public {
+        vm.assume(recipient_ != address(0));
+        vm.assume(amount_ > 0);
+
+        ERC20User owner = new ERC20User();
+
+        _token.mint(address(owner), amount_);
+
+        owner.erc20_approve(address(_token), self, amount_ - 1);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC20InsufficientAllowance.selector, self, amount_ - 1, amount_));
+
+        _token.transferFrom(address(owner), recipient_, amount_);
+
+        owner.erc20_approve(address(_token), self, amount_);
+        _token.transferFrom(address(owner), recipient_, amount_);
+
+        assertEq(_token.balanceOf(recipient_), amount_);
+    }
+
+    function testFuzz_transferFrom_insufficientBalance(address recipient_, uint256 amount_) public {
+        vm.assume(recipient_ != address(0));
+        vm.assume(amount_ > 0);
+
+        ERC20User owner = new ERC20User();
+
+        _token.mint(address(owner), amount_ - 1);
+        owner.erc20_approve(address(_token), self, amount_);
+
+        vm.expectRevert(abi.encodeWithSelector(ERC20InsufficientBalance.selector, address(owner), amount_ - 1, amount_));
+
+        _token.transferFrom(address(owner), recipient_, amount_);
+
+        _token.mint(address(owner), 1);
+        _token.transferFrom(address(owner), recipient_, amount_);
+
+        assertEq(_token.balanceOf(recipient_), amount_);
     }
 }
 

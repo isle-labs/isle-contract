@@ -24,12 +24,6 @@ contract ERC20 is IERC20, IERC20Errors {
 
     mapping(address => mapping(address => uint256)) public override allowance;
 
-    /**
-     * @dev Indicates a failed `decreaseAllowance` request.
-     */
-    error ERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
-
-
     /* ERC-2612 */
 
     // PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256
@@ -160,7 +154,7 @@ contract ERC20 is IERC20, IERC20Errors {
         uint256 spenderAllowance = allowance[owner_][spender_]; // Cache to memory
 
         if (spenderAllowance < subtractedAmount_) {
-            revert ERC20FailedDecreaseAllowance(spender_, spenderAllowance, subtractedAmount_);
+            revert ERC20InsufficientAllowance(spender_, spenderAllowance, subtractedAmount_);
         }
 
         if (spenderAllowance != type(uint256).max) {
