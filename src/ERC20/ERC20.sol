@@ -64,7 +64,15 @@ contract ERC20 is IERC20, IERC20Errors {
         return true;
     }
 
-    function increaseAllowance(address spender_, uint256 addedAmount_) public virtual override returns (bool success_) {
+    function increaseAllowance(
+        address spender_,
+        uint256 addedAmount_
+    )
+        public
+        virtual
+        override
+        returns (bool success_)
+    {
         _approve(msg.sender, spender_, allowance[msg.sender][spender_] + addedAmount_);
         return true;
     }
@@ -87,21 +95,20 @@ contract ERC20 is IERC20, IERC20Errors {
         // Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
         // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}.
         require(
-            uint256(s_) <= uint256(0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) &&
-            (v_ == 27 || v_ == 28),
+            uint256(s_) <= uint256(0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0)
+                && (v_ == 27 || v_ == 28),
             "ERC20:P:MALLEABLE"
         );
 
         // Nonce realistically cannot overflow
         unchecked {
-            bytes32 digest =
-                keccak256(
-                    abi.encodePacked(
-                        "\x19\x01",
-                        DOMAIN_SEPARATOR(),
-                        keccak256(abi.encode(PERMIT_TYPEHASH, owner_, spender_, amount_, nonces[owner_]++, deadline_))
-                    )
-                );
+            bytes32 digest = keccak256(
+                abi.encodePacked(
+                    "\x19\x01",
+                    DOMAIN_SEPARATOR(),
+                    keccak256(abi.encode(PERMIT_TYPEHASH, owner_, spender_, amount_, nonces[owner_]++, deadline_))
+                )
+            );
 
             address recoveredAddress = ecrecover(digest, v_, r_, s_);
             require(recoveredAddress != address(0) && recoveredAddress == owner_, "ERC20:P:INVALID_SIGNATURE");
@@ -115,7 +122,16 @@ contract ERC20 is IERC20, IERC20Errors {
         return true;
     }
 
-    function transferFrom(address owner_, address recipient_, uint256 amount_) public virtual override returns (bool success_) {
+    function transferFrom(
+        address owner_,
+        address recipient_,
+        uint256 amount_
+    )
+        public
+        virtual
+        override
+        returns (bool success_)
+    {
         _decreaseAllowance(owner_, msg.sender, amount_);
         _transfer(owner_, recipient_, amount_);
         return true;

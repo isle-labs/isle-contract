@@ -4,8 +4,7 @@ pragma solidity ^0.8.19;
 import { ERC20 } from "../../ERC20.sol";
 
 contract MockERC20 is ERC20 {
-
-    constructor(string memory name_, string memory symbol_, uint8 decimals_) ERC20(name_, symbol_, decimals_) {}
+    constructor(string memory name_, string memory symbol_, uint8 decimals_) ERC20(name_, symbol_, decimals_) { }
 
     // Implements the mint and burn mechanisms for testing purposes
     function mint(address recipient_, uint256 amount_) external {
@@ -15,5 +14,4 @@ contract MockERC20 is ERC20 {
     function burn(address owner_, uint256 amount_) external {
         _burn(owner_, amount_);
     }
-
 }
