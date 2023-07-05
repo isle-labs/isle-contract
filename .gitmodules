@@ -9,3 +9,6 @@
 [submodule "lib/contract-test-utils"]
 	path = lib/contract-test-utils
 	url = https://github.com/YHTerrance/contract-test-utils
+[submodule "lib/lopo-proxy-factory"]
+	path = lib/lopo-proxy-factory
+	url = https://github.com/YHTerrance/lopo-proxy-factory
