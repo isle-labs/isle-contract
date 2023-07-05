@@ -10,12 +10,13 @@ fuzz = { runs = 1_000 }
 gas_reports = ["*"]
 libs = ["lib"]
 optimizer = true
-optimizer_runs = 10_000
+optimizer_runs = 1_000
 out = "out"
 script = "script"
 solc = "0.8.19"
 src = "src"
 test = "src"
+verbosity = 2
 
 [profile.ci]
 fuzz = { runs = 10_000 }
