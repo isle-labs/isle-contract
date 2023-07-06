@@ -6,7 +6,7 @@ import { IERC20Errors } from "./interfaces/IERC20Errors.sol";
 
 /**
  *  @title Modern ERC-20 implementation.
- *  @dev   Inspired by https://github.com/maple-labs/erc20/blob/main/contracts/ERC20.sol
+ *  @dev   Inspired by https://github.com/lopo-labs/erc20/blob/main/contracts/ERC20.sol
  *        and https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol
  */
 

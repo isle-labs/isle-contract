@@ -1,12 +1,27 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
+/// @title ILopoLoanEvents defines the events for a LopoLoan.
 interface ILopoLoanEvents {
+
     /**
      *  @dev   Borrower was accepted, and set to a new account.
      *  @param borrower_ The address of the new borrower.
      */
     event BorrowerAccepted(address indexed borrower_);
+
+    /**
+     *  @dev   Collateral was posted.
+     *  @param amount_ The amount of collateral posted.
+     */
+    event CollateralPosted(uint256 amount_);
+
+    /**
+     *  @dev   Collateral was removed.
+     *  @param amount_      The amount of collateral removed.
+     *  @param destination_ The recipient of the collateral removed.
+     */
+    event CollateralRemoved(uint256 amount_, address indexed destination_);
 
     /**
      *  @dev   The loan was funded.
@@ -68,14 +83,14 @@ interface ILopoLoanEvents {
      *                       [1]: delegateServiceFee
      */
     event Initialized(
-        address indexed borrower_,
-        address indexed lender_,
-        address indexed feeManager_,
-        address[2] assets_,
-        uint256[3] termDetails_,
-        uint256[3] amounts_,
-        uint256[4] rates_,
-        uint256[2] fees_
+        address    indexed borrower_,
+        address    indexed lender_,
+        address    indexed feeManager_,
+        address[2]         assets_,
+        uint256[3]         termDetails_,
+        uint256[3]         amounts_,
+        uint256[4]         rates_,
+        uint256[2]         fees_
     );
 
     /**
@@ -98,6 +113,33 @@ interface ILopoLoanEvents {
      *  @param feesPaid_      The portion of the total amount that went towards fees.
      */
     event LoanClosed(uint256 principalPaid_, uint256 interestPaid_, uint256 feesPaid_);
+
+    /**
+     *  @dev   The terms of the refinance proposal were accepted.
+     *  @param refinanceCommitment_ The hash of the refinancer, deadline, and calls proposed.
+     *  @param refinancer_          The address that will execute the refinance.
+     *  @param deadline_            The deadline for accepting the new terms.
+     *  @param calls_               The individual calls for the refinancer contract.
+     */
+    event NewTermsAccepted(bytes32 refinanceCommitment_, address refinancer_, uint256 deadline_, bytes[] calls_);
+
+    /**
+     *  @dev   A refinance was proposed.
+     *  @param refinanceCommitment_ The hash of the refinancer, deadline, and calls proposed.
+     *  @param refinancer_          The address that will execute the refinance.
+     *  @param deadline_            The deadline for accepting the new terms.
+     *  @param calls_               The individual calls for the refinancer contract.
+     */
+    event NewTermsProposed(bytes32 refinanceCommitment_, address refinancer_, uint256 deadline_, bytes[] calls_);
+
+    /**
+     *  @dev   The terms of the refinance proposal were rejected.
+     *  @param refinanceCommitment_ The hash of the refinancer, deadline, and calls proposed.
+     *  @param refinancer_          The address that will execute the refinance.
+     *  @param deadline_            The deadline for accepting the new terms.
+     *  @param calls_               The individual calls for the refinancer contract.
+     */
+    event NewTermsRejected(bytes32 refinanceCommitment_, address refinancer_, uint256 deadline_, bytes[] calls_);
 
     /**
      *  @dev   Payments were made.
@@ -134,4 +176,5 @@ interface ILopoLoanEvents {
      *  @param destination_ The recipient of the token.
      */
     event Skimmed(address indexed token_, uint256 amount_, address indexed destination_);
+
 }

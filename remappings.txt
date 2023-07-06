@@ -2,4 +2,5 @@
 forge-std/=lib/forge-std/src/
 contract-test-utils=lib/contract-test-utils/contracts/
 lopo-proxy-factory=lib/lopo-proxy-factory/contracts/
+erc20-helper=lib/erc20-helper/src/
 src/=src/

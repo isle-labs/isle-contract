@@ -6,16 +6,10 @@ import { ILopoProxied } from "lopo-proxy-factory/interfaces/ILopoProxied.sol";
 import { ILopoLoanEvents } from "./ILopoLoanEvents.sol";
 
 /// @title LopoLoan implements a primitive loan with additional functionality, and is intended to be proxied.
-interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
-    /**
-     *
-     */
-    /**
-     * State Variables                                                                                                                **
-     */
-    /**
-     *
-     */
+interface ILopoLoan is ILopoProxied, ILopoLoanEvents {
+    /**************************************************************************************************************************************/
+    /*** State Variables                                                                                                                ***/
+    /**************************************************************************************************************************************/
 
     /**
      *  @dev The borrower of the loan, responsible for repayments.
@@ -24,11 +18,25 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
 
     /**
      *  @dev The fee rate (applied to principal) to close the loan.
-     *       This value should be configured so that it is less expensive to close a loan with more than one payment
-     * remaining, but
+     *       This value should be configured so that it is less expensive to close a loan with more than one payment remaining, but
      *       more expensive to close it if on the last payment.
      */
     function closingRate() external view returns (uint256 closingRate_);
+
+    /**
+     *  @dev The amount of collateral posted against outstanding (drawn down) principal.
+     */
+    function collateral() external view returns (uint256 collateral_);
+
+    /**
+     *  @dev The address of the asset deposited by the borrower as collateral, if needed.
+     */
+    function collateralAsset() external view returns (address collateralAsset_);
+
+    /**
+     *  @dev The amount of collateral required if all of the principal required is drawn down.
+     */
+    function collateralRequired() external view returns (uint256 collateralRequired_);
 
     /**
      *  @dev The amount of funds that have yet to be drawn down by the borrower.
@@ -98,6 +106,16 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
     function originalNextPaymentDueDate() external view returns (uint256 originalNextPaymentDueDate_);
 
     /**
+     *  @dev The specified time between loan payments.
+     */
+    function paymentInterval() external view returns (uint256 paymentInterval_);
+
+    /**
+     *  @dev The number of payment installments remaining for the loan.
+     */
+    function paymentsRemaining() external view returns (uint256 paymentsRemaining_);
+
+    /**
      *  @dev The address of the pending borrower.
      */
     function pendingBorrower() external view returns (address pendingBorrower_);
@@ -118,14 +136,18 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
     function principalRequested() external view returns (uint256 principalRequested_);
 
     /**
-     *
+     *  @dev The hash of the proposed refinance agreement.
      */
+    function refinanceCommitment() external view returns (bytes32 refinanceCommitment_);
+
     /**
-     * State Changing Functions                                                                                                       **
+     *  @dev Amount of unpaid interest that has accrued before a refinance was accepted.
      */
-    /**
-     *
-     */
+    function refinanceInterest() external view returns (uint256 refinanceInterest_);
+
+    /**************************************************************************************************************************************/
+    /*** State Changing Functions                                                                                                       ***/
+    /**************************************************************************************************************************************/
 
     /**
      *  @dev Accept the borrower role, must be called by pendingBorrower.
@@ -144,18 +166,12 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @param  calls_               The encoded arguments to be passed to refinancer.
      *  @return refinanceCommitment_ The hash of the accepted refinance agreement.
      */
-    function acceptNewTerms(
-        address refinancer_,
-        uint256 deadline_,
-        bytes[] calldata calls_
-    )
-        external
-        returns (bytes32 refinanceCommitment_);
+    function acceptNewTerms(address refinancer_, uint256 deadline_, bytes[] calldata calls_)
+        external returns (bytes32 refinanceCommitment_);
 
     /**
      *  @dev    Repay all principal and interest and close a loan.
-     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN
-     * USING `skim`.
+     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN USING `skim`.
      *  @param  amount_    An amount to pull from the caller, if any.
      *  @return principal_ The portion of the amount paying back principal.
      *  @return interest_  The portion of the amount paying interest.
@@ -185,8 +201,7 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
 
     /**
      *  @dev    Make a payment to the loan.
-     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN
-     * USING `skim`.
+     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN USING `skim`.
      *  @param  amount_    An amount to pull from the caller, if any.
      *  @return principal_ The portion of the amount paying back principal.
      *  @return interest_  The portion of the amount paying interest fees.
@@ -196,8 +211,7 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
 
     /**
      *  @dev    Post collateral to the loan.
-     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN
-     * USING `skim`.
+     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN USING `skim`.
      *  @param  amount_           An amount to pull from the caller, if any.
      *  @return collateralPosted_ The amount posted.
      */
@@ -210,13 +224,8 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @param  calls_               The encoded arguments to be passed to refinancer.
      *  @return refinanceCommitment_ The hash of the proposed refinance agreement.
      */
-    function proposeNewTerms(
-        address refinancer_,
-        uint256 deadline_,
-        bytes[] calldata calls_
-    )
-        external
-        returns (bytes32 refinanceCommitment_);
+    function proposeNewTerms(address refinancer_, uint256 deadline_, bytes[] calldata calls_)
+        external returns (bytes32 refinanceCommitment_);
 
     /**
      *  @dev    Nullify the current proposed terms.
@@ -225,13 +234,8 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @param  calls_               The encoded arguments to be passed to refinancer.
      *  @return refinanceCommitment_ The hash of the rejected refinance agreement.
      */
-    function rejectNewTerms(
-        address refinancer_,
-        uint256 deadline_,
-        bytes[] calldata calls_
-    )
-        external
-        returns (bytes32 refinanceCommitment_);
+    function rejectNewTerms(address refinancer_, uint256 deadline_, bytes[] calldata calls_)
+        external returns (bytes32 refinanceCommitment_);
 
     /**
      *  @dev   Remove collateral from the loan (opposite of posting collateral).
@@ -251,14 +255,11 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @return collateralRepossessed_ The amount of collateral asset repossessed.
      *  @return fundsRepossessed_      The amount of funds asset repossessed.
      */
-    function repossess(address destination_)
-        external
-        returns (uint256 collateralRepossessed_, uint256 fundsRepossessed_);
+    function repossess(address destination_) external returns (uint256 collateralRepossessed_, uint256 fundsRepossessed_);
 
     /**
      *  @dev    Return funds to the loan (opposite of drawing down).
-     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN
-     * USING `skim`.
+     *          FUNDS SHOULD NOT BE TRANSFERRED TO THIS CONTRACT NON-ATOMICALLY. IF THEY ARE, THE BALANCE MAY BE STOLEN USING `skim`.
      *  @param  amount_        An amount to pull from the caller, if any.
      *  @return fundsReturned_ The amount returned.
      */
@@ -284,15 +285,9 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      */
     function skim(address token_, address destination_) external returns (uint256 skimmed_);
 
-    /**
-     *
-     */
-    /**
-     * View Functions                                                                                                                 **
-     */
-    /**
-     *
-     */
+    /**************************************************************************************************************************************/
+    /*** View Functions                                                                                                                 ***/
+    /**************************************************************************************************************************************/
 
     /**
      *  @dev    Returns the excess collateral that can be removed.
@@ -305,10 +300,7 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @param  drawdown_             The amount desired to be drawn down.
      *  @return additionalCollateral_ The additional collateral that must be posted, if any.
      */
-    function getAdditionalCollateralRequiredFor(uint256 drawdown_)
-        external
-        view
-        returns (uint256 additionalCollateral_);
+    function getAdditionalCollateralRequiredFor(uint256 drawdown_) external view returns (uint256 additionalCollateral_);
 
     /**
      *  @dev    Get the breakdown of the total payment needed to satisfy an early repayment to close the loan.
@@ -316,10 +308,7 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @return interest_  The portion of the total amount that will go towards interest fees.
      *  @return fees_      The portion of the total amount that will go towards fees.
      */
-    function getClosingPaymentBreakdown()
-        external
-        view
-        returns (uint256 principal_, uint256 interest_, uint256 fees_);
+    function getClosingPaymentBreakdown() external view returns (uint256 principal_, uint256 interest_, uint256 fees_);
 
     /**
      *  @dev    Get the breakdown of the total payment needed to satisfy the next payment installment.
@@ -341,21 +330,17 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *                      [1] Platform fees.
      */
     function getNextPaymentDetailedBreakdown()
-        external
-        view
-        returns (uint256 principal_, uint256[3] memory interest_, uint256[2] memory fees_);
+        external view returns (uint256 principal_, uint256[3] memory interest_, uint256[2] memory fees_);
 
     /**
-     *  @dev    Get the extra interest that will be charged according to loan terms before refinance, based on a given
-     * timestamp.
+     *  @dev    Get the extra interest that will be charged according to loan terms before refinance, based on a given timestamp.
      *  @param  timestamp_       The timestamp when the new terms will be accepted.
      *  @return proRataInterest_ The interest portion to be added in the next payment.
      */
     function getRefinanceInterest(uint256 timestamp_) external view returns (uint256 proRataInterest_);
 
     /**
-     *  @dev    Get the amount on an asset that in not accounted for by the accounting variables (and thus can be
-     * skimmed).
+     *  @dev    Get the amount on an asset that in not accounted for by the accounting variables (and thus can be skimmed).
      *  @param  asset_             The address of a asset contract.
      *  @return unaccountedAmount_ The amount that is not accounted for.
      */
@@ -371,4 +356,5 @@ interface IMapleLoan is ILopoProxied, ILopoLoanEvents {
      *  @return isImpaired_ Is the loan impaired or not.
      */
     function isImpaired() external view returns (bool isImpaired_);
+
 }
