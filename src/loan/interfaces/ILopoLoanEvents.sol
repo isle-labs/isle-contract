@@ -68,14 +68,14 @@ interface ILopoLoanEvents {
      *                       [1]: delegateServiceFee
      */
     event Initialized(
-        address    indexed borrower_,
-        address    indexed lender_,
-        address    indexed feeManager_,
-        address[2]         assets_,
-        uint256[3]         termDetails_,
-        uint256[3]         amounts_,
-        uint256[4]         rates_,
-        uint256[2]         fees_
+        address indexed borrower_,
+        address indexed lender_,
+        address indexed feeManager_,
+        address[2] assets_,
+        uint256[3] termDetails_,
+        uint256[3] amounts_,
+        uint256[4] rates_,
+        uint256[2] fees_
     );
 
     /**
