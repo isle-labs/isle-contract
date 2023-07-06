@@ -12,3 +12,6 @@
 [submodule "lib/lopo-proxy-factory"]
 	path = lib/lopo-proxy-factory
 	url = https://github.com/YHTerrance/lopo-proxy-factory
+[submodule "lib/erc20-helper"]
+	path = lib/erc20-helper
+	url = https://github.com/YHTerrance/erc20-helper
