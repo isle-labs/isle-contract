@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.7;
+pragma solidity 0.8.19;
 
-import { Address, TestUtils } from "../modules/contract-test-utils/contracts/test.sol";
-import { MockERC20 }          from "../modules/erc20/contracts/test/mocks/MockERC20.sol";
+import { Address, TestUtils } from "contract-test-utils/test.sol";
+import { MockERC20 }          from "../../erc20/test/mocks/MockERC20.sol";
 
 import { ConstructableLopoLoan } from "./harnesses/LopoLoanHarnesses.sol";
 

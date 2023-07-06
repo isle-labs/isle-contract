@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
-import { Address, TestUtils } from "../modules/contract-test-utils/contracts/test.sol";
+import { Address, TestUtils } from "contract-test-utils/test.sol";
 
-import { LopoLoan }            from "../contracts/LopoLoan.sol";
-import { LopoLoanFactory }     from "../contracts/LopoLoanFactory.sol";
-import { LopoLoanInitializer } from "../contracts/LopoLoanInitializer.sol";
+import { LopoLoan }            from "../LopoLoan.sol";
+import { LopoLoanFactory }     from "../LopoLoanFactory.sol";
+import { LopoLoanInitializer } from "../LopoLoanInitializer.sol";
 
 import { MockFeeManager, MockGlobals, MockLoanManager, MockLoanManagerFactory } from "./mocks/Mocks.sol";
 
-import { Proxy } from "../modules/Lopo-proxy-factory/modules/proxy-factory/contracts/Proxy.sol";
+import { Proxy } from "proxy-factory/Proxy.sol";
 
 contract LopoLoanFactoryTest is TestUtils {
 

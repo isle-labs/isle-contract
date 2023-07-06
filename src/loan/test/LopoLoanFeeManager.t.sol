@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity 0.8.7;
+pragma solidity 0.8.19;
 
-import { Address, TestUtils } from "../modules/contract-test-utils/contracts/test.sol";
-import { MockERC20 }          from "../modules/erc20/contracts/test/mocks/MockERC20.sol";
+import { Address, TestUtils } from "contract-test-utils/test.sol";
+import { MockERC20 }          from "../../erc20/test/mocks/MockERC20.sol";
 
-import { LopoLoan }            from "../contracts/LopoLoan.sol";
-import { LopoLoanFactory }     from "../contracts/LopoLoanFactory.sol";
-import { LopoLoanInitializer } from "../contracts/LopoLoanInitializer.sol";
-import { LopoLoanFeeManager }  from "../contracts/LopoLoanFeeManager.sol";
+import { LopoLoan }            from "../LopoLoan.sol";
+import { LopoLoanFactory }     from "../LopoLoanFactory.sol";
+import { LopoLoanInitializer } from "../LopoLoanInitializer.sol";
+import { LopoLoanFeeManager }  from "../LopoLoanFeeManager.sol";
 
 import { MockGlobals, MockLoanManager, MockPoolManager } from "./mocks/Mocks.sol";
 
