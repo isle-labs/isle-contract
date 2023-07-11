@@ -8,14 +8,14 @@ cbor_metadata = false
 evm_version = "paris"
 fuzz = { runs = 1_000 }
 gas_reports = ["*"]
-libs = ["lib"]
+libs = ["modules"]
 optimizer = true
 optimizer_runs = 1_000
 out = "out"
 script = "script"
 solc = "0.8.19"
-src = "src"
-test = "src"
+src = "contracts"
+test = "tests"
 verbosity = 2
 
 [profile.ci]

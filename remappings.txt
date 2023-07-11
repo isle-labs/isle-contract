@@ -1,7 +1,7 @@
-@prb/test/=lib/prb-test/src/
+contract-test-utils/=lib/contract-test-utils/contracts/
+ds-test/=lib/forge-std/lib/ds-test/src/
+erc20-helper/=lib/erc20-helper/src/
 forge-std/=lib/forge-std/src/
-contract-test-utils=lib/contract-test-utils/contracts/
-lopo-proxy-factory=lib/lopo-proxy-factory/contracts/
-proxy-factory=lib/proxy-factory/contracts/
-erc20-helper=lib/erc20-helper/src/
-src/=src/
+lopo-proxy-factory/=lib/lopo-proxy-factory/contracts/
+prb-test/=lib/prb-test/src/
+proxy-factory/=lib/proxy-factory/contracts/
