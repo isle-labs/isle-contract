@@ -4,3 +4,6 @@
 [submodule "modules/erc20"]
 	path = modules/erc20
 	url = https://github.com/maple-labs/erc20
+[submodule "modules/fixed-term-loan"]
+	path = modules/fixed-term-loan
+	url = https://github.com/maple-labs/fixed-term-loan
