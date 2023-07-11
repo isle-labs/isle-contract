@@ -1,6 +1,0 @@
-[submodule "modules/address-registry"]
-	path = modules/address-registry
-	url = https://github.com/YHTerrance/address-registry
-[submodule "modules/erc20"]
-	path = modules/erc20
-	url = https://github.com/YHTerrance/erc20
