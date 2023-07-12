@@ -1,7 +1,4 @@
-contract-test-utils/=lib/contract-test-utils/contracts/
-ds-test/=lib/forge-std/lib/ds-test/src/
-erc20-helper/=lib/erc20-helper/src/
-forge-std/=lib/forge-std/src/
-lopo-proxy-factory/=lib/lopo-proxy-factory/contracts/
-prb-test/=lib/prb-test/src/
-proxy-factory/=lib/proxy-factory/contracts/
+@ds-test/=modules/forge-std/lib/ds-test/src/
+@forge-std/=modules/forge-std/src/
+@prb-test/=modules/prb-test/src/
+@openzeppelin/=modules/openzeppelin-contracts/
