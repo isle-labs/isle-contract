@@ -1,10 +1,10 @@
 {
-  "name": "@YHTerrance/lopo-protocol",
+  "name": "lopo-protocol",
   "description": "",
   "version": "1.0.0",
   "author": {
-    "name": "YHTerrance",
-    "url": "https://github.com/YHTerrance"
+    "name": "bsostech",
+    "url": "https://github.com/bsostech"
   },
   "devDependencies": {
     "prettier": "^2.8.7",
