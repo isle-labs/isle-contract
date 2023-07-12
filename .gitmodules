@@ -1,9 +1,9 @@
-[submodule "modules/contract-test-utils"]
-	path = modules/contract-test-utils
-	url = https://github.com/maple-labs/contract-test-utils
-[submodule "modules/erc20"]
-	path = modules/erc20
-	url = https://github.com/maple-labs/erc20
-[submodule "modules/fixed-term-loan"]
-	path = modules/fixed-term-loan
-	url = https://github.com/maple-labs/fixed-term-loan
+[submodule "modules/openzeppelin-contracts"]
+	path = modules/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "modules/prb-test"]
+	path = modules/prb-test
+	url = https://github.com/PaulRBerg/prb-test
+[submodule "modules/forge-std"]
+	path = modules/forge-std
+	url = https://github.com/foundry-rs/forge-std

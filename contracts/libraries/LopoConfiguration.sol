@@ -7,6 +7,7 @@ library LopoConfiguration {
     struct PoolConfiguration {
         address governor;
         address pauseGuardian;
+        address poolManager;
         address baseToken;
         address baseTokenPriceFeed;
 
