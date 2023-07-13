@@ -1,12 +1,26 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
-import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
+import { IPoolEvents } from "./pool/IPoolEvents.sol";
 
 // Reference: https://github.com/maple-labs/pool-v2/blob/main/contracts/interfaces/IPool.sol
 
-interface IPool is IERC20, IERC4626 {
+interface IPool {
+
+    //  State Variables                                                                                                               ***/
+
+    /**
+     *  @dev    The amount of shares that will be burned during the first deposit/mint.
+     *  @return bootstrapMint_ The amount of shares to be burned.
+     */
+    function BOOTSTRAP_MINT() external view returns (uint256 bootstrapMint_);
+
+    /**
+     *  @dev    The address of the account that is allowed to update the vesting schedule.
+     *  @return configurator_ The address of the pool configurator.
+     */
+    function configurator() external view returns (address configurator_);
+
     /**************************************************************************************************************************************/
     /*** LP Functions                                                                                                                   ***/
     /**************************************************************************************************************************************/
