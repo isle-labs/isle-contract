@@ -1,23 +1,23 @@
+
 # Lopo Protocol
-
-## What's Inside
-
-- [Forge](https://github.com/foundry-rs/foundry/blob/master/forge): compile, test, fuzz, format, and deploy smart
-  contracts
-- [Forge Std](https://github.com/foundry-rs/forge-std): collection of helpful contracts and cheatcodes for testing
-- [PRBTest](https://github.com/PaulRBerg/prb-test): modern collection of testing assertions and logging utilities
-- [Prettier](https://github.com/prettier/prettier): code formatter for non-Solidity files
-- [Solhint Community](https://github.com/solhint-community/solhint-community): linter for Solidity code
 
 ## Getting Started
 
+0. If you are on VS Code, install Nomicfoundation/hardhat-solidity or JuanBlanco/solidity (choose juse one for solidity) and Tamasfe/even-better-toml as extensions. ([Learn more](https://book.getfoundry.sh/config/vscode#integrating-with-vscode))
 
-### GitHub Actions
+1. Install [Forge](https://book.getfoundry.sh/getting-started/installation) and [pnpm](https://pnpm.io/installation)
 
-Contracts will be linted and tested on every push and pull
-request made to the `main` branch.
+2. Install npm packages
 
-You can edit the CI script in [.github/workflows/ci.yml](./.github/workflows/ci.yml).
+    ```sh
+    pnpm install
+    ```
+
+3. Install foundry libraries
+
+    ```sh
+    forge install
+    ```
 
 ## Writing Tests
 
@@ -109,10 +109,3 @@ Run the tests:
 ```sh
 $ forge test
 ```
-
-## Notes
-
-## Related Efforts
-
-## License
-
