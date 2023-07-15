@@ -2,107 +2,47 @@
 pragma solidity 0.8.19;
 
 import { IPoolEvents } from "./pool/IPoolEvents.sol";
+import { IERC4626 } from "./IERC4626.sol";
+import { IERC20 } from "./IERC20.sol";
 
-// Reference: https://github.com/maple-labs/pool-v2/blob/main/contracts/interfaces/IPool.sol
+interface IPool is IERC20, IERC4626 {
 
-interface IPool {
+    /* ========== Events ========== */
+    event SharesRemoved(address indexed owner_, uint256 shares_);
 
-    //  State Variables                                                                                                               ***/
-
-    /**
-     *  @dev    The amount of shares that will be burned during the first deposit/mint.
-     *  @return bootstrapMint_ The amount of shares to be burned.
-     */
-    function BOOTSTRAP_MINT() external view returns (uint256 bootstrapMint_);
-
-    /**
-     *  @dev    The address of the account that is allowed to update the vesting schedule.
-     *  @return configurator_ The address of the pool configurator.
-     */
+    /* ========== State Variables ========== */
     function configurator() external view returns (address configurator_);
 
-    /**************************************************************************************************************************************/
-    /*** LP Functions                                                                                                                   ***/
-    /**************************************************************************************************************************************/
-
-    /**
-     *  @dev    Does a ERC4626 `deposit` with a ERC-2612 `permit`.
-     *  @param  assets_   The amount of `asset` to deposit.
-     *  @param  receiver_ The receiver of the shares.
-     *  @param  deadline_ The timestamp after which the `permit` signature is no longer valid.
-     *  @param  v_        ECDSA signature v component.
-     *  @param  r_        ECDSA signature r component.
-     *  @param  s_        ECDSA signature s component.
-     *  @return shares_   The amount of shares minted.
-     */
-    function depositWithPermit(uint256 assets_, address receiver_, uint256 deadline_, uint8 v_, bytes32 r_, bytes32 s_)
+    /* ========== LP Functions ========== */
+    function depositWithPermit(
+        uint256 assets,
+        address receiver,
+        uint256 deadline,
+        uint8   v,
+        bytes32 r,
+        bytes32 s
+    )
         external returns (uint256 shares_);
 
-    /**
-     *  @dev    Does a ERC4626 `mint` with a ERC-2612 `permit`.
-     *  @param  shares_    The amount of `shares` to mint.
-     *  @param  receiver_  The receiver of the shares.
-     *  @param  maxAssets_ The maximum amount of assets that can be taken, as per the permit.
-     *  @param  deadline_  The timestamp after which the `permit` signature is no longer valid.
-     *  @param  v_         ECDSA signature v component.
-     *  @param  r_         ECDSA signature r component.
-     *  @param  s_         ECDSA signature s component.
-     *  @return assets_    The amount of shares deposited.
-     */
-    function mintWithPermit(uint256 shares_, address receiver_, uint256 maxAssets_, uint256 deadline_, uint8 v_, bytes32 r_, bytes32 s_)
+    function mintWithPermit(
+        uint256 shares,
+        address receiver,
+        uint256 maxAssets,
+        uint256 deadline,
+        uint8   v,
+        bytes32 r,
+        bytes32 s
+    )
         external returns (uint256 assets_);
 
-    /**************************************************************************************************************************************/
-    /*** Withdrawal Request Functions                                                                                                   ***/
-    /**************************************************************************************************************************************/
-
-    /**
-     *  @dev    Removes shares from the withdrawal mechanism, can only be called after the beginning of the withdrawal window has passed.
-     *  @param  shares_         The amount of shares to redeem.
-     *  @param  owner_          The owner of the shares.
-     *  @return sharesReturned_ The amount of shares withdrawn.
-     */
+    /* ========== Withdrawal Request Functions ========== */
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);
-
-    /**
-     *  @dev    Requests a redemption of shares from the pool.
-     *  @param  shares_       The amount of shares to redeem.
-     *  @param  owner_        The owner of the shares.
-     *  @return escrowShares_ The amount of shares sent to escrow.
-     */
     function requestRedeem(uint256 shares_, address owner_) external returns (uint256 escrowShares_);
-
-    /**
-     *  @dev    Requests a withdrawal of assets from the pool.
-     *  @param  assets_       The amount of assets to withdraw.
-     *  @param  owner_        The owner of the shares.
-     *  @return escrowShares_ The amount of shares sent to escrow.
-     */
     function requestWithdraw(uint256 assets_, address owner_) external returns (uint256 escrowShares_);
 
-    /**************************************************************************************************************************************/
-    /*** View Functions                                                                                                                 ***/
-    /**************************************************************************************************************************************/
-
-    /**
-     *  @dev    Returns the amount of underlying assets owned by the specified account.
-     *  @param  account_ Address of the account.
-     *  @return assets_  Amount of assets owned.
-     */
-    function balanceOfAssets(address account_) external view returns (uint256 assets_);
-
-    /**
-     *  @dev    Returns the amount of exit assets for the input amount.
-     *  @param  shares_ The amount of shares to convert to assets.
-     *  @return assets_ Amount of assets able to be exited.
-     */
+    /* ========== View Functions ========== */
+    function balanceOfAssets(address account_) external view returns (uint256 asseets_);
     function convertToExitAssets(uint256 shares_) external view returns (uint256 assets_);
-
-    /**
-     *  @dev    Returns the amount of exit shares for the input amount.
-     *  @param  assets_ The amount of assets to convert to shares.
-     *  @return shares_ Amount of shares able to be exited.
-     */
     function convertToExitShares(uint256 assets_) external view returns (uint256 shares_);
 
     /**

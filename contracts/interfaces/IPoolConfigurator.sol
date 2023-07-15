@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
-import { IPoolControllerActions } from "./pool/IPoolControllerActions.sol";
-import { IPoolControllerStorage } from "./pool/IPoolControllerStorage.sol";
-import { IPoolControllerEvents } from "./pool/IPoolControllerEvents.sol";
+import { IPoolConfiguratorActions } from "./pool/IPoolConfiguratorActions.sol";
+import { IPoolConfiguratorStorage } from "./pool/IPoolConfiguratorStorage.sol";
+import { IPoolConfiguratorEvents } from "./pool/IPoolConfiguratorEvents.sol";
 
-interface IPoolController is IPoolControllerActions, IPoolControllerStorage, IPoolControllerEvents{
+interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorage, IPoolConfiguratorEvents{
 
 }

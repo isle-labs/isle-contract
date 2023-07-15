@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 pragma solidity ^0.8.7;
 
+import { IERC20Errors } from "../vendor/interfaces/IERC20Errors.sol";
+
 /// @title Interface of the ERC20 standard as defined in the EIP, including EIP-2612 permit functionality.
-interface IERC20 {
+interface IERC20 is IERC20Errors {
 
     /**************************************************************************************************************************************/
     /*** Events                                                                                                                         ***/

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-interface IPoolControllerStorage {
+interface IPoolConfiguratorStorage {
 
     /**
      *  @dev    Returns whether or not a pool is active.

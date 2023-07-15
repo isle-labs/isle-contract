@@ -3,9 +3,11 @@
 
 pragma solidity ^0.8.0;
 
-import "./ERC20.sol";
-import "./interfaces/IERC4626.sol";
-import "./utils/math/Math.sol";
+import { ERC20 } from "./ERC20.sol";
+import { IERC20 } from "../interfaces/IERC20.sol";
+import { IERC4626 } from  "../interfaces/IERC4626.sol";
+import { Math } from "../vendor/utils/math/Math.sol";
+import { SafeERC20 } from "../vendor/utils/SafeERC20.sol";
 
 /**
  * @dev Implementation of the ERC4626 "Tokenized Vault Standard" as defined in
@@ -66,7 +68,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      */
     function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
         (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
-            abi.encodeWithSelector(IERC20Metadata.decimals.selector)
+            abi.encodeWithSelector(IERC20.decimals.selector)
         );
         if (success && encodedDecimals.length >= 32) {
             uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
@@ -83,7 +85,7 @@ abstract contract ERC4626 is ERC20, IERC4626 {
      * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
      *
      */
-    function decimals() public view virtual override(ERC20) returns (uint8) {
+    function decimals() public view virtual override(ERC20, IERC20) returns (uint8) {
         return _underlyingDecimals + _decimalsOffset();
     }
 
@@ -157,6 +159,20 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         return shares;
     }
 
+    function depositWithPermit(
+        uint256 assets,
+        address receiver,
+        uint256 deadline,
+        uint8   v,
+        bytes32 r,
+        bytes32 s
+    )
+        public virtual returns (uint256)
+    {
+        _asset.permit(_msgSender(), address(this), assets, deadline, v, r, s);
+        return deposit(assets, receiver);
+    }
+
     /** @dev See {IERC4626-mint}.
      *
      * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
@@ -166,6 +182,28 @@ abstract contract ERC4626 is ERC20, IERC4626 {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
+        _deposit(_msgSender(), receiver, assets, shares);
+
+        return assets;
+    }
+
+    function mintWithPermit(
+        uint256 shares,
+        address receiver,
+        uint256 maxAssets,
+        uint256 deadline,
+        uint8   v,
+        bytes32 r,
+        bytes32 s
+    )
+        public virtual returns (uint256)
+    {
+        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+
+        uint256 assets = previewMint(shares);
+        require((assets = previewMint(shares)) <= maxAssets, "ERC4626: Insufficient permit");
+
+        _asset.permit(_msgSender(), address(this), maxAssets, deadline, v, r, s);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;

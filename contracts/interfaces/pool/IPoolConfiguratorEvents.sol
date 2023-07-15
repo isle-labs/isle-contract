@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-interface IPoolCOnfiguratorEvents {
+interface IPoolConfiguratorEvents {
 
     /**
      *  @dev   Emitted when cover is deposited.
