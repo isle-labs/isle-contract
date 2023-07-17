@@ -7,7 +7,7 @@ library LopoConfiguration {
     struct PoolConfiguration {
         address governor;
         address pauseGuardian;
-        address poolManager;
+        address poolAdmin;
         address baseToken;
         address baseTokenPriceFeed;
 
@@ -19,7 +19,7 @@ library LopoConfiguration {
         uint104 baseBorrowMin;
 
         uint24 withdrawalFee;
-        uint24 poolManagerFee;
+        uint24 poolAdminFee;
         uint24 protocolFee;
     }
 }

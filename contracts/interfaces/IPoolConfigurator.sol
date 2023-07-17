@@ -5,6 +5,6 @@ import { IPoolConfiguratorActions } from "./pool/IPoolConfiguratorActions.sol";
 import { IPoolConfiguratorStorage } from "./pool/IPoolConfiguratorStorage.sol";
 import { IPoolConfiguratorEvents } from "./pool/IPoolConfiguratorEvents.sol";
 
-interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorage, IPoolConfiguratorEvents{
+interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorage, IPoolConfiguratorEvents {
 
 }
