@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import {UD60x18, ud} from "@prb/math/UD60x18.sol";
-
 interface ILopoGlobals {
     /*** Events ***/
 
@@ -45,7 +43,9 @@ interface ILopoGlobals {
      * @param _previousMinPoolLiquidityRatio The previous minimum pool liquidity ratio.
      * @param _currentMinPoolLiquidityRatio The new minimum pool liquidity ratio.
      */
-    event MinPoolLiquidityRatioSet(uint256 indexed _previousMinPoolLiquidityRatio, uint256 indexed _currentMinPoolLiquidityRatio);
+    event MinPoolLiquidityRatioSet(
+        uint256 indexed _previousMinPoolLiquidityRatio, uint256 indexed _currentMinPoolLiquidityRatio
+    );
 
     /**
      * @dev The protocol fee rate has been set.
@@ -67,7 +67,6 @@ interface ILopoGlobals {
      * @param _isEnabled The enabled state of the pool.
      */
     event IsEnabledSet(address indexed _poolManager, bool _isEnabled);
-
 
     /**
      *  @dev   A valid borrower was set.
@@ -97,11 +96,32 @@ interface ILopoGlobals {
      */
     event ValidPoolDelegateSet(address indexed _account, bool _isValid);
 
+    /**
+     * @dev The minimum deposit limit has been set.
+     * @param _poolManager The address of the pool manager.
+     * @param _previousMinDepositLimit The previous minimum deposit limit.
+     * @param _currentMinDepositLimit The new minimum deposit limit.
+     */
+    event MinDepositLimitSet(
+        address indexed _poolManager, uint256 indexed _previousMinDepositLimit, uint256 indexed _currentMinDepositLimit
+    );
+
+    /**
+     * @dev The withdrawal duration in days has been set.
+     * @param _poolManager The address of the pool manager.
+     * @param _previousWithdrawalDurationInDays The previous withdrawal duration in days.
+     * @param _currentWithdrawalDurationInDays The new withdrawal duration in days.
+     */
+    event WithdrawalDurationInDaysSet(
+        address indexed _poolManager,
+        uint256 indexed _previousWithdrawalDurationInDays,
+        uint256 indexed _currentWithdrawalDurationInDays
+    );
 
     /*** View Function ***/
     function lopoVault() external view returns (address _lopoVault);
 
-    // function governor() external view returns (address _governor);
+    function governor() external view returns (address _governor);
 
     function migrationAdmin() external view returns (address _migrationAdmin);
 
@@ -116,13 +136,11 @@ interface ILopoGlobals {
     function isPoolAsset(address _asset) external view returns (bool _isPoolAsset);
 
     // function isPoolDelegate(address _delegate) external view returns (bool _isPoolDelegate);
-    
-    function poolDelegates(address _poolDelegate) external view returns (address ownedPoolManager, bool isPoolDelegate);
 
-    function isContractPaused(address _contract) external view returns (bool _isContractPaused);
-
-    //  function isFactory(bytes32 _factoryId, address _factory) external view returns (bool _isFactory);
-
+    function poolDelegates(address _poolDelegate)
+        external
+        view
+        returns (address ownedPoolManager, bool isPoolDelegate);
 
 
 }
