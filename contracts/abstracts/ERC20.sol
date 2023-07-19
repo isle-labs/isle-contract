@@ -212,13 +212,15 @@ abstract contract ERC20 is Context, IERC20 {
     function decreaseAllowance(address spender, uint256 requestedDecrease) public virtual returns (bool) {
         address owner = _msgSender();
         uint256 currentAllowance = allowance(owner, spender);
+
         if (currentAllowance < requestedDecrease) {
             revert ERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
         }
-        unchecked {
-            _approve(owner, spender, currentAllowance - requestedDecrease);
+        else if (currentAllowance < type(uint256).max) {
+            unchecked {
+                _approve(owner, spender, currentAllowance - requestedDecrease);
+            }
         }
-
         return true;
     }
 
