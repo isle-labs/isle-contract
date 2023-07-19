@@ -1,12 +1,14 @@
 build:
-	forge build --contracts contracts/receivables/ReceivableStorage.sol
+	forge build --contracts contracts/globals/lopoGlobals.sol
 # --force --extra-output-files abi
 
 test:
 	forge test \
-	--match-contract LopoPoolAssetTest \
+	--contracts contracts/receivable/receivable \
+	--match-contract ReceivableTest \
 	--match-test test_console \
-	--contracts src/protocol-lite \
 	-vvv 
+
+
 # --chain-id 1337 \
 --rpc-url ${GOERLI_RPC} \	
