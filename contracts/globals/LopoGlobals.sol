@@ -2,18 +2,21 @@
 pragma solidity 0.8.19;
 
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
-import {UD60x18, ud} from "@prb/math/UD60x18.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 contract LopoGlobals is ILopoGlobals {
-
-    /*** Structs ***/
+    /**
+     * Structs **
+     */
 
     struct PoolDelegate {
         address ownedPoolManager;
-        bool    isPoolDelegate;
+        bool isPoolDelegate;
     }
 
-    /*** Storage ***/
+    /**
+     * Storage **
+     */
 
     address public override lopoVault;
     address public override migrationAdmin;
@@ -22,10 +25,11 @@ contract LopoGlobals is ILopoGlobals {
     bool public override protocolPaused;
 
     // configs share by all pools
-    UD60x18 public override riskFreeRate; 
+    UD60x18 public override riskFreeRate;
     UD60x18 public override minPoolLiquidityRatio;
     UD60x18 public override protocolFeeRate;
-    
+
+    mapping(address => bool) public override isReceivable;
     mapping(address => bool) public override isBorrower;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
@@ -39,35 +43,41 @@ contract LopoGlobals is ILopoGlobals {
     mapping(address => uint256) public override minCoverAmount;
     mapping(address => uint256) public override exitFeePercent;
     mapping(address => uint256) public override insuranceFeePercent;
-    
-    mapping(address => PoolDelegate) public override poolDelegates;  
 
-    /*** Modifiers ***/
+    mapping(address => PoolDelegate) public override poolDelegates;
+
+    /**
+     * Modifiers **
+     */
 
     modifier onlyGovernor() {
         _checkIsLopoGovernor();
         _;
     }
 
-    /*** Governor Transfer Functions ***/
+    /**
+     * Governor Transfer Functions **
+     */
 
     function acceptLopoGovernor() external override {
         require(msg.sender == pendingLopoGovernor, "LG:Caller_Not_Pending_Gov");
-        emit GovernorshipTransferred(admin(), msg.sender);
+        // emit GovernorshipAccepted(admin(), msg.sender);
         pendingLopoGovernor = address(0);
         // lopoGovernor = msg.sender;
-        _setAddress(ADMIN_SLOT, msg.sender);
+        // _setAddress(ADMIN_SLOT, msg.sender);
     }
 
     function setPendingLopoGovernor(address _pendingGovernor) external override onlyGovernor {
         emit PendingGovernorSet(pendingLopoGovernor = _pendingGovernor);
     }
 
-    /*** Global Setters ***/
+    /**
+     * Global Setters **
+     */
 
-    // function activePoolManager(address _poolManager) external override onlyGovernor {
-    
-    // }
+    function activatePoolManager(address _poolManager) external override onlyGovernor {
+
+    }
 
     function setLopoVault(address _vault) external override onlyGovernor {
         require(_vault != address(0), "LG:Invalid_Vault");
@@ -80,21 +90,29 @@ contract LopoGlobals is ILopoGlobals {
     //     migrationAdmin = _migrationAdmin;
     // }
 
-    /*** Boolean Setters ***/
+    /**
+     * Boolean Setters **
+     */
 
     function setProtocolPause(bool _protocolPaused) external override onlyGovernor {
-        emit ProtocolPauseSet(
-            msg.sender,
-            protocolPaused = _protocolPaused
-        );
+        emit ProtocolPauseSet(msg.sender, protocolPaused = _protocolPaused);
     }
 
-    /*** Allowlist Setters ***/
+    /**
+     * Allowlist Setters **
+     */
 
     function setIsEnabled(address _poolManager, bool _isEnabled) external override onlyGovernor {
         isEnabled[_poolManager] = _isEnabled;
         emit IsEnabledSet(_poolManager, _isEnabled);
     }
+
+    function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
+        require(_receivable != address(0), "LG:SVPD:ZERO_ADDR");
+        isReceivable[_receivable] = _isValid;
+        emit ValidReceivableSet(_receivable, _isValid);
+    }
+
 
     function setValidBorrower(address _borrower, bool _isValid) external override onlyGovernor {
         isBorrower[_borrower] = _isValid;
@@ -121,9 +139,12 @@ contract LopoGlobals is ILopoGlobals {
         emit ValidPoolDelegateSet(_account, _isValid);
     }
 
-    /*** Cover Setters ***/
+    /**
+     * Cover Setters **
+     */
 
-    // function setMaxCoverLiquidationPercent(address _poolManager, uint256 _maxCoverLiquidationPercent) external override onlyGovernor {
+    // function setMaxCoverLiquidationPercent(address _poolManager, uint256 _maxCoverLiquidationPercent) external
+    // override onlyGovernor {
     //     require(_maxCoverLiquidationPercent <= HUNDRED_PERCENT, "LG:SMCLP:GT_100");
     //     maxCoverLiquidationPercent[_poolManager] = _maxCoverLiquidationPercent;
     //     emit MaxCoverLiquidationPercentSet(_poolManager, _maxCoverLiquidationPercent);
@@ -134,41 +155,58 @@ contract LopoGlobals is ILopoGlobals {
     //     emit MinCoverAmountSet(_poolManager, _minCoverAmount);
     // }
 
-    
-
-    /*** Fee Setters ***/
+    /**
+     * Fee Setters **
+     */
 
     function setRiskFreeRate(UD60x18 _riskFreeRate) external override onlyGovernor {
-        emit RiskFreeRateSet(riskFreeRate.intoUint256(), _riskFreeRate.intoUint256());
+        require(_riskFreeRate <= ud(1e18), "LG:SRFR:GT_1");
+        emit RiskFreeRateSet(_riskFreeRate.intoUint256());
         riskFreeRate = _riskFreeRate;
     }
 
     function setMinPoolLiquidityRatio(UD60x18 _minPoolLiquidityRatio) external override onlyGovernor {
-        emit MinPoolLiquidityRatioSet(minPoolLiquidityRatio.intoUint256(), _minPoolLiquidityRatio.intoUint256());
+        require(_minPoolLiquidityRatio <= ud(1e18), "LG:SMPR:GT_1");
+        emit MinPoolLiquidityRatioSet(_minPoolLiquidityRatio.intoUint256());
         minPoolLiquidityRatio = _minPoolLiquidityRatio;
     }
 
     function setProtocolFeeRate(UD60x18 _protocolFeeRate) external override onlyGovernor {
-        emit ProtocolFeeRateSet(protocolFeeRate.intoUint256(), _protocolFeeRate.intoUint256());
+        require(_protocolFeeRate <= ud(1e18), "LG:SPFR:GT_1");
+        emit ProtocolFeeRateSet(_protocolFeeRate.intoUint256());
         protocolFeeRate = _protocolFeeRate;
     }
 
-    /*** Pool Restriction Setters ***/
+    /**
+     * Pool Restriction Setters **
+     */
 
     function setMinDepositLimit(address _poolManager, UD60x18 _minDepositLimit) external override onlyGovernor {
-        emit MinDepositLimitSet(_poolManager, minDepositLimit[_poolManager].intoUint256(), _minDepositLimit.intoUint256());
+        emit MinDepositLimitSet(
+            _poolManager,  _minDepositLimit.intoUint256()
+        );
         minDepositLimit[_poolManager] = _minDepositLimit;
     }
 
-    function setWithdrawalDurationInDays(address _poolManager, uint256 _withdrawalDurationInDays) external override onlyGovernor {
-        emit WithdrawalDurationInDaysSet(_poolManager, withdrawalDurationInDays[_poolManager], _withdrawalDurationInDays);
+    function setWithdrawalDurationInDays(
+        address _poolManager,
+        uint256 _withdrawalDurationInDays
+    )
+        external
+        onlyGovernor
+    {
+        emit WithdrawalDurationInDaysSet(
+            _poolManager,  _withdrawalDurationInDays
+        );
         withdrawalDurationInDays[_poolManager] = _withdrawalDurationInDays;
     }
 
-    /*** View Function ***/
+    /**
+     * View Function **
+     */
 
     function governor() external view override returns (address governor_) {
-        governor_ = admin();
+        // governor_ = admin();
     }
 
     function isPoolDelegate(address account_) external view override returns (bool isPoolDelegate_) {
@@ -179,10 +217,12 @@ contract LopoGlobals is ILopoGlobals {
         poolManager_ = poolDelegates[account_].ownedPoolManager;
     }
 
-    /*** Helper Function ***/
+    /**
+     * Helper Function **
+     */
 
     function _checkIsLopoGovernor() internal view {
-        require(msg.sender == admin(), "LG:Caller_Not_Gov");
+        // require(msg.sender == admin(), "LG:Caller_Not_Gov");
     }
 
     function _setAddress(bytes32 _slot, address _value) private {
@@ -190,5 +230,4 @@ contract LopoGlobals is ILopoGlobals {
             sstore(_slot, _value)
         }
     }
-
 }
