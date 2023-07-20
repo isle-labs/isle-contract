@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
+
+import { ERC20, IERC20, IERC20Metadata } from "@openzeppelin/token/ERC20/ERC20.sol";
+import { ERC20Permit, IERC20Permit } from "@openzeppelin/token/ERC20/extensions/ERC20Permit.sol";
+
+import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
+import { Math } from "@openzeppelin/utils/math/Math.sol";
 
 import { IPool } from "./interfaces/IPool.sol";
-import { IERC20 } from "./interfaces/IERC20.sol";
-import { ERC20 } from "./abstracts/ERC20.sol";
-import { SafeERC20 } from "./vendor/utils/SafeERC20.sol";
-import { Math } from "./vendor/utils/math/Math.sol";
 import { IPoolConfiguratorLike } from "./interfaces/Interfaces.sol";
 
 
-contract Pool is IPool, ERC20 {
+contract Pool is IPool, ERC20Permit {
 
     using Math for uint256;
 
     address public configurator; // The address of the pool configurator that manages administrative functionality.
-    IERC20 private immutable _asset; // The address of the underlying asset.
+    ERC20Permit private immutable _asset; // The address of the underlying asset.
 
     uint8 private immutable _underlyingDecimals;
 
@@ -26,7 +28,7 @@ contract Pool is IPool, ERC20 {
         string memory name_,
         string memory symbol_
     )
-        ERC20(name_, symbol_)
+        ERC20Permit(name_) ERC20(name_, symbol_)
     {
         require(asset_ != address(0), "P:C:ZERO_ASSET");
         require((configurator = configurator_) != address(0), "P:C:ZERO_MANAGER");
@@ -37,9 +39,8 @@ contract Pool is IPool, ERC20 {
 
         require(IERC20(asset_).approve(configurator_, type(uint256).max), "P:C:FAILED_APPROVE");
 
-        (bool success, uint8 assetDecimals) = _tryGetAssetDecimals(IERC20(asset_));
-        _underlyingDecimals = success ? assetDecimals : 18;
-        _asset = IERC20(asset_);
+        _underlyingDecimals = 18;
+        _asset = ERC20Permit(asset_);
     }
 
     /* ========== LP Functions ========== */
@@ -161,22 +162,6 @@ contract Pool is IPool, ERC20 {
     }
 
     /* ========== Internal Functions ========== */
-    /**
-     * @dev Attempts to fetch the asset decimals. A return value of false indicates that the attempt failed in some way.
-     */
-    function _tryGetAssetDecimals(IERC20 asset_) private view returns (bool, uint8) {
-        (bool success, bytes memory encodedDecimals) = address(asset_).staticcall(
-            abi.encodeWithSelector(IERC20.decimals.selector)
-        );
-        if (success && encodedDecimals.length >= 32) {
-            uint256 returnedDecimals = abi.decode(encodedDecimals, (uint256));
-            if (returnedDecimals <= type(uint8).max) {
-                return (true, uint8(returnedDecimals));
-            }
-        }
-        return (false, 0);
-    }
-
     function _convertToShares(uint256 assets_, Math.Rounding rounding_) internal view virtual returns (uint256 shares_) {
         shares_ = assets_.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding_);
     }
@@ -309,7 +294,7 @@ contract Pool is IPool, ERC20 {
      * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
      *
      */
-    function decimals() public view override(ERC20, IERC20) returns (uint8) {
+    function decimals() public view override(IERC20Metadata, ERC20) returns (uint8) {
         return _underlyingDecimals + _decimalsOffset();
     }
 

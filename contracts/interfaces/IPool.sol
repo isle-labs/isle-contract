@@ -2,10 +2,9 @@
 pragma solidity 0.8.19;
 
 import { IPoolEvents } from "./pool/IPoolEvents.sol";
-import { IERC4626 } from "./IERC4626.sol";
-import { IERC20 } from "./IERC20.sol";
+import { IERC4626 } from "@openzeppelin/interfaces/IERC4626.sol";
 
-interface IPool is IERC20, IERC4626 {
+interface IPool is IERC4626 {
 
     /* ========== Events ========== */
     event SharesRemoved(address indexed owner_, uint256 shares_);

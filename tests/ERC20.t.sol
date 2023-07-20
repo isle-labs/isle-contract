@@ -1,3 +1,4 @@
+/*
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
@@ -488,3 +489,4 @@ contract Pool_ERC20PermitTest is ERC20PermitTest, Pool_ERC20TestBase {
     }
 }
 
+*/

@@ -70,7 +70,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage {
         emit SetAsActive(active = active_);
     }
 
-    /* Pool Delegate Admin Functions */
+    /* Pool Admin Functions */
     function addLoanManager(address loanManagerFactory_) external view override whenNotPaused onlyPoolAdminOrNotConfigured returns (address loanManager_) {
         loanManagerFactory_;
         loanManager_ = address(0); // TODO: Actually deploy loan manager

@@ -1,4 +1,4 @@
 @ds-test/=modules/forge-std/lib/ds-test/src/
 @forge-std/=modules/forge-std/src/
 @prb-test/=modules/prb-test/src/
-@openzeppelin/=modules/openzeppelin-contracts/
+@openzeppelin/=modules/openzeppelin-contracts/contracts/
