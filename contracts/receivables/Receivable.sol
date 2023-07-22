@@ -23,7 +23,7 @@ contract Receivable is
 
     /*** Modifier ***/
     modifier onlyBuyer() {
-        require(globals_.isBorrower(msg.sender), "RECV:CALLER_NOT_BUYER");
+        require(globals_.isBuyer(msg.sender), "RECV:CALLER_NOT_BUYER");
         _;
     }
 
@@ -99,7 +99,7 @@ contract Receivable is
             currencyCode: _currencyCode
         });
 
-        _safeMint(msg.sender, tokenId);
+        _safeMint(_seller, tokenId);
         uint256 faceAmountToUint256 = _faceAmount.intoUint256();
         emit AssetCreated(msg.sender, _seller, tokenId, faceAmountToUint256, _repaymentTimestamp);
 

@@ -31,6 +31,7 @@ contract LopoGlobals is ILopoGlobals {
 
     mapping(address => bool) public override isReceivable;
     mapping(address => bool) public override isBorrower;
+    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
 
@@ -117,6 +118,11 @@ contract LopoGlobals is ILopoGlobals {
     function setValidBorrower(address _borrower, bool _isValid) external override onlyGovernor {
         isBorrower[_borrower] = _isValid;
         emit ValidBorrowerSet(_borrower, _isValid);
+    }
+
+    function setValidBuyer(address _buyer, bool _isValid) external override onlyGovernor {
+        isBuyer[_buyer] = _isValid;
+        emit ValidBuyerSet(_buyer, _isValid);
     }
 
     function setValidCollateralAsset(address _collateralAsset, bool _isValid) external override onlyGovernor {
@@ -206,6 +212,7 @@ contract LopoGlobals is ILopoGlobals {
      */
 
     function governor() external view override returns (address governor_) {
+        governor_ = address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2);
         // governor_ = admin();
     }
 

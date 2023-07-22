@@ -114,6 +114,7 @@ interface ILopoGlobals {
      */
     event ValidReceivableSet(address indexed receivable_, bool isValid_);
 
+    event ValidBuyerSet(address indexed buyer_, bool isValid_);
 
     event RiskFreeRateSet(uint256 indexed riskFreeRate_);
 
@@ -160,6 +161,8 @@ interface ILopoGlobals {
     function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
     function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
+
+    function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
      *  @dev    Gets the validity of a collateral asset.
@@ -317,6 +320,8 @@ interface ILopoGlobals {
     function setValidPoolDelegate(address poolDelegate_, bool isValid_) external;
 
     function setValidReceivable(address receivable_, bool isValid_) external;
+
+    function setValidBuyer(address buyer_, bool isValid_) external;
 
     function setRiskFreeRate(UD60x18 riskFreeRate_) external;
 
