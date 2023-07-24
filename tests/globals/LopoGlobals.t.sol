@@ -10,7 +10,7 @@ contract LopoGlobalsTest is Test {
     address internal GOVERNOR;
     LopoGlobals internal globals;
 
-    function setUp() virtual public {
+    function setUp() public virtual {
         globals = new LopoGlobals();
         GOVERNOR = globals.governor();
         vm.prank(GOVERNOR);

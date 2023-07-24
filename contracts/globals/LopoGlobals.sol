@@ -76,9 +76,7 @@ contract LopoGlobals is ILopoGlobals {
      * Global Setters **
      */
 
-    function activatePoolManager(address _poolManager) external override onlyGovernor {
-
-    }
+    function activatePoolManager(address _poolManager) external override onlyGovernor { }
 
     function setLopoVault(address _vault) external override onlyGovernor {
         require(_vault != address(0), "LG:Invalid_Vault");
@@ -113,7 +111,6 @@ contract LopoGlobals is ILopoGlobals {
         isReceivable[_receivable] = _isValid;
         emit ValidReceivableSet(_receivable, _isValid);
     }
-
 
     function setValidBorrower(address _borrower, bool _isValid) external override onlyGovernor {
         isBorrower[_borrower] = _isValid;
@@ -188,9 +185,7 @@ contract LopoGlobals is ILopoGlobals {
      */
 
     function setMinDepositLimit(address _poolManager, UD60x18 _minDepositLimit) external override onlyGovernor {
-        emit MinDepositLimitSet(
-            _poolManager,  _minDepositLimit.intoUint256()
-        );
+        emit MinDepositLimitSet(_poolManager, _minDepositLimit.intoUint256());
         minDepositLimit[_poolManager] = _minDepositLimit;
     }
 
@@ -201,9 +196,7 @@ contract LopoGlobals is ILopoGlobals {
         external
         onlyGovernor
     {
-        emit WithdrawalDurationInDaysSet(
-            _poolManager,  _withdrawalDurationInDays
-        );
+        emit WithdrawalDurationInDaysSet(_poolManager, _withdrawalDurationInDays);
         withdrawalDurationInDays[_poolManager] = _withdrawalDurationInDays;
     }
 

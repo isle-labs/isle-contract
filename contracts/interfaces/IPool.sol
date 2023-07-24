@@ -7,9 +7,15 @@ import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 // Reference: https://github.com/maple-labs/pool-v2/blob/main/contracts/interfaces/IPool.sol
 
 interface IPool is IERC20, IERC4626 {
-    /**************************************************************************************************************************************/
-    /*** LP Functions                                                                                                                   ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * LP Functions                                                                                                                   **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Does a ERC4626 `deposit` with a ERC-2612 `permit`.
@@ -21,8 +27,16 @@ interface IPool is IERC20, IERC4626 {
      *  @param  s_        ECDSA signature s component.
      *  @return shares_   The amount of shares minted.
      */
-    function depositWithPermit(uint256 assets_, address receiver_, uint256 deadline_, uint8 v_, bytes32 r_, bytes32 s_)
-        external returns (uint256 shares_);
+    function depositWithPermit(
+        uint256 assets_,
+        address receiver_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    )
+        external
+        returns (uint256 shares_);
 
     /**
      *  @dev    Does a ERC4626 `mint` with a ERC-2612 `permit`.
@@ -35,15 +49,31 @@ interface IPool is IERC20, IERC4626 {
      *  @param  s_         ECDSA signature s component.
      *  @return assets_    The amount of shares deposited.
      */
-    function mintWithPermit(uint256 shares_, address receiver_, uint256 maxAssets_, uint256 deadline_, uint8 v_, bytes32 r_, bytes32 s_)
-        external returns (uint256 assets_);
-
-    /**************************************************************************************************************************************/
-    /*** Withdrawal Request Functions                                                                                                   ***/
-    /**************************************************************************************************************************************/
+    function mintWithPermit(
+        uint256 shares_,
+        address receiver_,
+        uint256 maxAssets_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    )
+        external
+        returns (uint256 assets_);
 
     /**
-     *  @dev    Removes shares from the withdrawal mechanism, can only be called after the beginning of the withdrawal window has passed.
+     *
+     */
+    /**
+     * Withdrawal Request Functions                                                                                                   **
+     */
+    /**
+     *
+     */
+
+    /**
+     *  @dev    Removes shares from the withdrawal mechanism, can only be called after the beginning of the withdrawal
+     * window has passed.
      *  @param  shares_         The amount of shares to redeem.
      *  @param  owner_          The owner of the shares.
      *  @return sharesReturned_ The amount of shares withdrawn.
@@ -66,9 +96,15 @@ interface IPool is IERC20, IERC4626 {
      */
     function requestWithdraw(uint256 assets_, address owner_) external returns (uint256 escrowShares_);
 
-    /**************************************************************************************************************************************/
-    /*** View Functions                                                                                                                 ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * View Functions                                                                                                                 **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Returns the amount of underlying assets owned by the specified account.

@@ -21,7 +21,9 @@ contract ReceivableStorage {
         uint16 currencyCode;
     }
 
-    /*** Below should be implemented in loanManager ***/
+    /**
+     * Below should be implemented in loanManager **
+     */
     // // The amount of the receivable that's been advanced to the seller
     // UD60x18 advanceAmount;
     // // The timestamp when the receivable was created

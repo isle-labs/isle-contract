@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 interface IPoolControllerEvents {
-
     /**
      *  @dev   Emitted when cover is deposited.
      *  @param amount_ The amount of cover deposited.

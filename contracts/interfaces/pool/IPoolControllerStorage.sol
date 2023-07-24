@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 interface IPoolControllerStorage {
-
     /**
      *  @dev    Returns whether or not a pool is active.
      *  @return active_ True if the pool is active.

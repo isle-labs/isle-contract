@@ -2,9 +2,15 @@
 pragma solidity 0.8.19;
 
 interface IPoolControllerActions {
-    /**************************************************************************************************************************************/
-    /*** Ownership Transfer Functions                                                                                                   ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Ownership Transfer Functions                                                                                                   **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev Accepts the role of pool manager.
@@ -17,9 +23,15 @@ interface IPoolControllerActions {
      */
     function setPendingPoolManager(address pendingPoolManager_) external;
 
-    /**************************************************************************************************************************************/
-    /*** Administrative Functions                                                                                                       ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Administrative Functions                                                                                                       **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Adds a new loan Controller.
@@ -76,9 +88,15 @@ interface IPoolControllerActions {
      */
     function setWithdrawalController(address withdrawalController_) external;
 
-    /**************************************************************************************************************************************/
-    /*** Funding Functions                                                                                                              ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Funding Functions                                                                                                              **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev   LoanController can request funds from the pool via the poolController.
@@ -87,9 +105,15 @@ interface IPoolControllerActions {
      */
     function requestFunds(address destination_, uint256 principal_) external;
 
-    /**************************************************************************************************************************************/
-    /*** Liquidation Functions                                                                                                          ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Liquidation Functions                                                                                                          **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev   Finishes the collateral liquidation
@@ -104,9 +128,15 @@ interface IPoolControllerActions {
      */
     function triggerDefault(address loan_, address liquidatorFactory_) external;
 
-    /**************************************************************************************************************************************/
-    /*** Exit Functions                                                                                                                 ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Exit Functions                                                                                                                 **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Processes a redemptions of shares for assets from the pool.
@@ -116,7 +146,11 @@ interface IPoolControllerActions {
      *  @return redeemableShares_ The amount of shares redeemed.
      *  @return resultingAssets_  The amount of assets withdrawn.
      */
-    function processRedeem(uint256 shares_, address owner_, address sender_)
+    function processRedeem(
+        uint256 shares_,
+        address owner_,
+        address sender_
+    )
         external
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
@@ -128,7 +162,11 @@ interface IPoolControllerActions {
      *  @return redeemableShares_ The amount of shares redeemed.
      *  @return resultingAssets_  The amount of assets withdrawn.
      */
-    function processWithdraw(uint256 assets_, address owner_, address sender_)
+    function processWithdraw(
+        uint256 assets_,
+        address owner_,
+        address sender_
+    )
         external
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
@@ -155,11 +193,17 @@ interface IPoolControllerActions {
      *  @param owner_  The address of the owner of the shares.
      *  @param sender_ The address of the sender of the shares.
      */
-     function requestWithdraw(uint256 shares_, uint256 assets_, address owner_, address sender_) external;
+    function requestWithdraw(uint256 shares_, uint256 assets_, address owner_, address sender_) external;
 
-    /**************************************************************************************************************************************/
-    /*** Cover Functions                                                                                                                ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * Cover Functions                                                                                                                **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev   Deposits cover into the pool.
@@ -174,9 +218,15 @@ interface IPoolControllerActions {
      */
     function withdrawCover(uint256 amount_, address recipient_) external;
 
-    /**************************************************************************************************************************************/
-    /*** LP Token View Functions                                                                                                        ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * LP Token View Functions                                                                                                        **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Returns the amount of exit shares for the input amount.
@@ -192,7 +242,13 @@ interface IPoolControllerActions {
      *  @return escrowShares_ The amount of escrowed shares.
      *  @return destination_  The address of the destination.
      */
-    function getEscrowParams(address owner_, uint256 shares_) external view returns (uint256 escrowShares_, address destination_);
+    function getEscrowParams(
+        address owner_,
+        uint256 shares_
+    )
+        external
+        view
+        returns (uint256 escrowShares_, address destination_);
 
     /**
      *  @dev   Gets the amount of assets that can be deposited.
@@ -238,9 +294,15 @@ interface IPoolControllerActions {
      */
     function previewWithdraw(address owner_, uint256 assets_) external view returns (uint256 shares_);
 
-    /**************************************************************************************************************************************/
-    /*** View Functions                                                                                                                 ***/
-    /**************************************************************************************************************************************/
+    /**
+     *
+     */
+    /**
+     * View Functions                                                                                                                 **
+     */
+    /**
+     *
+     */
 
     /**
      *  @dev    Checks if a scheduled call can be executed.
@@ -250,8 +312,13 @@ interface IPoolControllerActions {
      *  @return canCall_      True if the call can be executed, false otherwise.
      *  @return errorMessage_ The error message if the call cannot be executed.
      */
-    function canCall(bytes32 functionId_, address caller_, bytes memory data_)
-        external view
+    function canCall(
+        bytes32 functionId_,
+        address caller_,
+        bytes memory data_
+    )
+        external
+        view
         returns (bool canCall_, string memory errorMessage_);
 
     /**

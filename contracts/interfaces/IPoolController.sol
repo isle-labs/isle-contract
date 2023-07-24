@@ -5,6 +5,4 @@ import { IPoolControllerActions } from "./pool/IPoolControllerActions.sol";
 import { IPoolControllerStorage } from "./pool/IPoolControllerStorage.sol";
 import { IPoolControllerEvents } from "./pool/IPoolControllerEvents.sol";
 
-interface IPoolController is IPoolControllerActions, IPoolControllerStorage, IPoolControllerEvents{
-
-}
+interface IPoolController is IPoolControllerActions, IPoolControllerStorage, IPoolControllerEvents { }
