@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { IPoolConfiguratorStorage } from "../interfaces/pool/IPoolConfiguratorStorage.sol";
+import { IPoolConfiguratorStorage } from "./interfaces/pool/IPoolConfiguratorStorage.sol";
 
 abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
     uint256 internal _locked;
@@ -12,8 +12,7 @@ abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
     address public override asset;
     address public override pool;
 
-    address public override poolAdminCover;
-    address public override withdrawalManager;
+    uint256 public poolCover;
 
     bool public override active;
     bool public override configured;
@@ -21,8 +20,5 @@ abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
 
     uint256 public override liquidityCap;
 
-    mapping(address => bool) public override isLoanManager;
     mapping(address => bool) public override isValidLender;
-
-    address[] public override loanManagerList;
 }

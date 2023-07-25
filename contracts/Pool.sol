@@ -23,8 +23,6 @@ contract Pool is IPool, ERC20Permit {
     constructor(
         address configurator_,
         address asset_,
-        address destination_,
-        uint256 initialSupply_,
         string memory name_,
         string memory symbol_
     )
@@ -32,11 +30,6 @@ contract Pool is IPool, ERC20Permit {
     {
         require(asset_ != address(0), "P:C:ZERO_ASSET");
         require((configurator = configurator_) != address(0), "P:C:ZERO_MANAGER");
-
-        if (initialSupply_ != 0) {
-            _mint(destination_, initialSupply_);
-        }
-
         require(IERC20(asset_).approve(configurator_, type(uint256).max), "P:C:FAILED_APPROVE");
 
         _underlyingDecimals = 18;
