@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Enumer
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
+import { IReceivable } from "./interfaces/IReceivable.sol";
 import { ILopoGlobalsLike } from "./interfaces/Interfaces.sol";
 
 contract Receivable is
@@ -15,7 +16,8 @@ contract Receivable is
     Initializable,
     ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
-    ERC721BurnableUpgradeable
+    ERC721BurnableUpgradeable,
+    IReceivable
 {
     /**
      * Storage **
