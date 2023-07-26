@@ -30,20 +30,20 @@ abstract contract VersionedInitializable {
     modifier initializer() {
         uint256 revision = getRevision();
         require(
-        initializing || isConstructor() || revision > lastInitializedRevision,
-        'Contract instance has already been initialized'
+            initializing || isConstructor() || revision > lastInitializedRevision,
+            "Contract instance has already been initialized"
         );
 
         bool isTopLevelCall = !initializing;
         if (isTopLevelCall) {
-        initializing = true;
-        lastInitializedRevision = revision;
+            initializing = true;
+            lastInitializedRevision = revision;
         }
 
         _;
 
         if (isTopLevelCall) {
-        initializing = false;
+            initializing = false;
         }
     }
 
@@ -67,7 +67,7 @@ abstract contract VersionedInitializable {
         uint256 cs;
         //solium-disable-next-line
         assembly {
-        cs := extcodesize(address())
+            cs := extcodesize(address())
         }
         return cs == 0;
     }

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { ITransparentUpgradeableProxy, TransparentUpgradeableProxy } from "@openzeppelin/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {
+    ITransparentUpgradeableProxy,
+    TransparentUpgradeableProxy
+} from "@openzeppelin/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
@@ -54,16 +57,15 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         address asset,
         string memory name,
         string memory symbol
-    ) external override onlyAdmin {
+    )
+        external
+        override
+        onlyAdmin
+    {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
 
-        bytes memory params = abi.encodeWithSignature(
-            "initialize(address,address,string,string)",
-            address(this),
-            asset,
-            name,
-            symbol
-        );
+        bytes memory params =
+            abi.encodeWithSignature("initialize(address,address,string,string)", address(this), asset, name, symbol);
 
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
@@ -167,7 +169,8 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     /**
      * @notice Returns the the implementation contract of the proxy contract by its identifier.
      * @dev It returns ZERO if there is no registered address with the given id
-     * @dev It reverts if the registered address with the given id is not `InitializableImmutableAdminUpgradeabilityProxy`
+     * @dev It reverts if the registered address with the given id is not
+     * `InitializableImmutableAdminUpgradeabilityProxy`
      * @param id The id
      * @return The address of the implementation contract
      */

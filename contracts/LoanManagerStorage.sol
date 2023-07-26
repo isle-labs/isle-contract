@@ -4,17 +4,12 @@ pragma solidity 0.8.19;
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 
 abstract contract LoanManagerStorage is ILoanManager {
-
     struct Loan {
         address borrower;
-
         uint256 principal;
-
         uint256 interestRate;
         uint256 lateInterestPremiumRate;
-
         uint256 issuanceRate;
-
         uint256 startDate;
         uint256 dueDate;
         uint256 gracePeriod;

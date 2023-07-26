@@ -4,7 +4,6 @@ pragma solidity 0.8.19;
 import { IERC4626 } from "@openzeppelin/interfaces/IERC4626.sol";
 
 interface IPool is IERC4626 {
-
     /* ========== Events ========== */
     event OwnershipAccepted(address indexed previousOwner_, address indexed newOwner_);
     event PendingOwnerSet(address indexed owner_, address indexed pendingOwner_);
@@ -20,22 +19,24 @@ interface IPool is IERC4626 {
         uint256 assets,
         address receiver,
         uint256 deadline,
-        uint8   v,
+        uint8 v,
         bytes32 r,
         bytes32 s
     )
-        external returns (uint256 shares_);
+        external
+        returns (uint256 shares_);
 
     function mintWithPermit(
         uint256 shares,
         address receiver,
         uint256 maxAssets,
         uint256 deadline,
-        uint8   v,
+        uint8 v,
         bytes32 r,
         bytes32 s
     )
-        external returns (uint256 assets_);
+        external
+        returns (uint256 assets_);
 
     /* ========== Withdrawal Request Functions ========== */
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);

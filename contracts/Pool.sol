@@ -10,9 +10,7 @@ import { Math } from "@openzeppelin/utils/math/Math.sol";
 import { IPool } from "./interfaces/IPool.sol";
 import { IPoolConfiguratorLike } from "./interfaces/Interfaces.sol";
 
-
 contract Pool is IPool, ERC20Permit {
-
     using Math for uint256;
 
     address public configurator; // The address of the pool configurator that manages administrative functionality.
@@ -26,7 +24,8 @@ contract Pool is IPool, ERC20Permit {
         string memory name_,
         string memory symbol_
     )
-        ERC20Permit(name_) ERC20(name_, symbol_)
+        ERC20Permit(name_)
+        ERC20(name_, symbol_)
     {
         require(asset_ != address(0), "P:C:ZERO_ASSET");
         require((configurator = configurator_) != address(0), "P:C:ZERO_MANAGER");
@@ -38,7 +37,9 @@ contract Pool is IPool, ERC20Permit {
 
     /* ========== LP Functions ========== */
 
-    /** @dev See {IERC4626-deposit}. */
+    /**
+     * @dev See {IERC4626-deposit}.
+     */
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
         require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
 
@@ -52,17 +53,19 @@ contract Pool is IPool, ERC20Permit {
         uint256 assets,
         address receiver,
         uint256 deadline,
-        uint8   v,
+        uint8 v,
         bytes32 r,
         bytes32 s
     )
-        external returns (uint256)
+        external
+        returns (uint256)
     {
         _asset.permit(_msgSender(), address(this), assets, deadline, v, r, s);
         return deposit(assets, receiver);
     }
 
-    /** @dev See {IERC4626-mint}.
+    /**
+     * @dev See {IERC4626-mint}.
      *
      * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
      * In this case, the shares will be minted without requiring any assets to be deposited.
@@ -81,11 +84,12 @@ contract Pool is IPool, ERC20Permit {
         address receiver,
         uint256 maxAssets,
         uint256 deadline,
-        uint8   v,
+        uint8 v,
         bytes32 r,
         bytes32 s
     )
-        external returns (uint256)
+        external
+        returns (uint256)
     {
         require(shares <= maxMint(receiver), "ERC4626: mint more than max");
 
@@ -98,7 +102,9 @@ contract Pool is IPool, ERC20Permit {
         return assets;
     }
 
-    /** @dev See {IERC4626-withdraw}. */
+    /**
+     * @dev See {IERC4626-withdraw}.
+     */
     function withdraw(uint256 assets, address receiver, address owner) public override returns (uint256) {
         require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
 
@@ -108,7 +114,9 @@ contract Pool is IPool, ERC20Permit {
         return shares;
     }
 
-    /** @dev See {IERC4626-redeem}. */
+    /**
+     * @dev See {IERC4626-redeem}.
+     */
     function redeem(uint256 shares, address receiver, address owner) public override returns (uint256) {
         require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
 
@@ -120,8 +128,9 @@ contract Pool is IPool, ERC20Permit {
 
     /* ========== Withdrawal Request Functions ========== */
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_) {
-        if (_msgSender() != owner_)
+        if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), shares_);
+        }
 
         emit SharesRemoved(owner_, sharesReturned_ = IPoolConfiguratorLike(configurator).removeShares(shares_, owner_));
     }
@@ -129,13 +138,15 @@ contract Pool is IPool, ERC20Permit {
     function requestRedeem(uint256 shares_, address owner_) external returns (uint256 escrowShares_) {
         address destination_;
 
-        ( escrowShares_, destination_ ) = IPoolConfiguratorLike(configurator).getEscrowParams(owner_, shares_);
+        (escrowShares_, destination_) = IPoolConfiguratorLike(configurator).getEscrowParams(owner_, shares_);
 
-        if (_msgSender() != owner_)
+        if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), escrowShares_);
+        }
 
-        if (escrowShares_ != 0 && destination_ != address(0))
+        if (escrowShares_ != 0 && destination_ != address(0)) {
             _transfer(owner_, destination_, escrowShares_);
+        }
 
         IPoolConfiguratorLike(configurator).requestRedeem(escrowShares_, owner_, _msgSender());
     }
@@ -143,32 +154,75 @@ contract Pool is IPool, ERC20Permit {
     function requestWithdraw(uint256 assets_, address owner_) external returns (uint256 escrowShares_) {
         address destination_;
 
-        ( escrowShares_, destination_ ) = IPoolConfiguratorLike(configurator).getEscrowParams(owner_, convertToExitShares(assets_));
+        (escrowShares_, destination_) =
+            IPoolConfiguratorLike(configurator).getEscrowParams(owner_, convertToExitShares(assets_));
 
-        if (_msgSender() != owner_)
+        if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), escrowShares_);
+        }
 
-        if (escrowShares_ != 0 && destination_ != address(0))
+        if (escrowShares_ != 0 && destination_ != address(0)) {
             _transfer(owner_, destination_, escrowShares_);
+        }
 
         IPoolConfiguratorLike(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
     }
 
     /* ========== Internal Functions ========== */
-    function _convertToShares(uint256 assets_, Math.Rounding rounding_) internal view virtual returns (uint256 shares_) {
+    function _convertToShares(
+        uint256 assets_,
+        Math.Rounding rounding_
+    )
+        internal
+        view
+        virtual
+        returns (uint256 shares_)
+    {
         shares_ = assets_.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() + 1, rounding_);
     }
 
-    function _convertToExitShares(uint256 assets_, Math.Rounding rounding_) internal view virtual returns (uint256 shares_) {
-        shares_ = assets_.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() - unrealizedLosses() - unrealizedGains() + 1, rounding_);
+    function _convertToExitShares(
+        uint256 assets_,
+        Math.Rounding rounding_
+    )
+        internal
+        view
+        virtual
+        returns (uint256 shares_)
+    {
+        shares_ = assets_.mulDiv(
+            totalSupply() + 10 ** _decimalsOffset(),
+            totalAssets() - unrealizedLosses() - unrealizedGains() + 1,
+            rounding_
+        );
     }
 
-    function _convertToAssets(uint256 shares_, Math.Rounding rounding_) internal view virtual returns (uint256 assets_) {
+    function _convertToAssets(
+        uint256 shares_,
+        Math.Rounding rounding_
+    )
+        internal
+        view
+        virtual
+        returns (uint256 assets_)
+    {
         assets_ = shares_.mulDiv(totalAssets() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding_);
     }
 
-    function _convertToExitAssets(uint256 shares_, Math.Rounding rounding_) internal view virtual returns (uint256 assets_) {
-        assets_ = shares_.mulDiv(totalAssets() - unrealizedLosses() - unrealizedGains() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding_);
+    function _convertToExitAssets(
+        uint256 shares_,
+        Math.Rounding rounding_
+    )
+        internal
+        view
+        virtual
+        returns (uint256 assets_)
+    {
+        assets_ = shares_.mulDiv(
+            totalAssets() - unrealizedLosses() - unrealizedGains() + 1,
+            totalSupply() + 10 ** _decimalsOffset(),
+            rounding_
+        );
     }
 
     /**
@@ -191,13 +245,7 @@ contract Pool is IPool, ERC20Permit {
     /**
      * @dev Withdraw/redeem common workflow.
      */
-    function _withdraw(
-        address caller,
-        address receiver,
-        address owner,
-        uint256 assets,
-        uint256 shares
-    ) internal {
+    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) internal {
         if (caller != owner) {
             _spendAllowance(owner, caller, shares);
         }
@@ -218,7 +266,7 @@ contract Pool is IPool, ERC20Permit {
         return 0;
     }
 
-     /* ========== Public View Functions ========== */
+    /* ========== Public View Functions ========== */
     function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
         balanceOfAssets_ = convertToAssets(balanceOf(account_));
     }
@@ -271,12 +319,16 @@ contract Pool is IPool, ERC20Permit {
         unrealizedLosses_ = IPoolConfiguratorLike(configurator).unrealizedLosses();
     }
 
-    /** @dev See {IERC4626-previewDeposit}. */
+    /**
+     * @dev See {IERC4626-previewDeposit}.
+     */
     function previewDeposit(uint256 assets_) public view override returns (uint256 shares_) {
         shares_ = _convertToShares(assets_, Math.Rounding.Down);
     }
 
-    /** @dev See {IERC4626-previewMint}. */
+    /**
+     * @dev See {IERC4626-previewMint}.
+     */
     function previewMint(uint256 shares_) public view override returns (uint256 assets_) {
         assets_ = _convertToAssets(shares_, Math.Rounding.Up);
     }
@@ -291,12 +343,16 @@ contract Pool is IPool, ERC20Permit {
         return _underlyingDecimals + _decimalsOffset();
     }
 
-    /** @dev See {IERC4626-asset}. */
+    /**
+     * @dev See {IERC4626-asset}.
+     */
     function asset() public view override returns (address) {
         return address(_asset);
     }
 
-    /** @dev See {IERC4626-totalAssets}. */
+    /**
+     * @dev See {IERC4626-totalAssets}.
+     */
     function totalAssets() public view override returns (uint256) {
         return _asset.balanceOf(address(this));
     }

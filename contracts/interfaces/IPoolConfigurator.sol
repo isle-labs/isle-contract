@@ -6,7 +6,6 @@ import { IPoolConfiguratorStorage } from "./pool/IPoolConfiguratorStorage.sol";
 import { IPoolConfiguratorEvents } from "./pool/IPoolConfiguratorEvents.sol";
 
 interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorage, IPoolConfiguratorEvents {
-
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -38,7 +37,13 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
 
     /* LP Token */
     function convertToExitShares(uint256 amount_) external view returns (uint256 shares_);
-    function getEscrowParams(address owner_, uint256 shares_) external view returns (uint256 escrowShares_, address destination_);
+    function getEscrowParams(
+        address owner_,
+        uint256 shares_
+    )
+        external
+        view
+        returns (uint256 escrowShares_, address destination_);
     function maxDeposit(address receiver_) external view returns (uint256 maxAssets_);
     function maxMint(address receiver_) external view returns (uint256 maxShares_);
     function maxRedeem(address owner_) external view returns (uint256 maxShares_);
@@ -76,10 +81,18 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function triggerDefault(uint16 loanId_) external;
 
     /* Exit Functions */
-    function processRedeem(uint256 shares_, address owner_, address sender_)
+    function processRedeem(
+        uint256 shares_,
+        address owner_,
+        address sender_
+    )
         external
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
-    function processWithdraw(uint256 assets_, address owner_, address sender_)
+    function processWithdraw(
+        uint256 assets_,
+        address owner_,
+        address sender_
+    )
         external
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);

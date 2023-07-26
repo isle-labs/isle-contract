@@ -6,7 +6,9 @@ interface ILopoGlobals {
                                 EVENTS
     //////////////////////////////////////////////////////////////////////////*/
     event Initialized();
-    event PoolConfiguratorOwnershipTransferred(address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_);
+    event PoolConfiguratorOwnershipTransferred(
+        address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
@@ -17,9 +19,11 @@ interface ILopoGlobals {
     function ownedPoolConfigurator(address account_) external view returns (address poolConfigurator_);
     function transferOwnedPoolConfigurator(address fromPoolAdmin_, address toPoolAdmin_) external;
     function governor() external view returns (address governor_);
-    function maxCoverLiquidationPercent(address poolConfigurator_) external view returns (uint256 maxCoverLiquidationPercent_);
+    function maxCoverLiquidationPercent(address poolConfigurator_)
+        external
+        view
+        returns (uint256 maxCoverLiquidationPercent_);
     function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
-
 }

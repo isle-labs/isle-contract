@@ -3,10 +3,6 @@ pragma solidity 0.8.19;
 
 import { PRBTest } from "@prb-test/PRBTest.sol";
 
-contract TestUtils is PRBTest {
-}
+contract TestUtils is PRBTest { }
 
-contract Address {
-
-}
-
+contract Address { }

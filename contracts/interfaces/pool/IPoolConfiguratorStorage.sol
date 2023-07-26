@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 interface IPoolConfiguratorStorage {
-
     function active() external view returns (bool active_);
     function asset() external view returns (address asset_);
     function configured() external view returns (bool configured_);

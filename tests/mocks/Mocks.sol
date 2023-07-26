@@ -11,7 +11,8 @@ import { PoolConfiguratorStorage } from "../../contracts/PoolConfiguratorStorage
 
 contract MockERC20Pool is Pool {
 
-    constructor(address configurator_, address asset_, string memory name_, string memory symbol_) Pool(configurator_, asset_, address(0), 0, name_, symbol_) {
+constructor(address configurator_, address asset_, string memory name_, string memory symbol_) Pool(configurator_,
+asset_, address(0), 0, name_, symbol_) {
         MockERC20(asset_).approve(configurator_, type(uint256).max);
     }
 
@@ -42,5 +43,4 @@ contract MockPoolConfigurator is PoolConfiguratorStorage {
     mapping(address => uint256) public maxMint;
     mapping(address => uint256) public maxRedeem;
     mapping(address => uint256) public maxWithdraw;
-}
-*/
+}*/

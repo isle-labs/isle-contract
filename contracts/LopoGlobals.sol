@@ -7,7 +7,6 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { Adminable } from "./abstracts/Adminable.sol";
 
 contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
-
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,9 +70,8 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     }
 
     function isFunctionPaused(address contract_, bytes4 sig_) public view override returns (bool functionIsPaused_) {
-        functionIsPaused_ = (protocolPaused || isContractPaused[contract_]) &&  !isFunctionUnpaused[contract_][sig_];
+        functionIsPaused_ = (protocolPaused || isContractPaused[contract_]) && !isFunctionUnpaused[contract_][sig_];
     }
-
 
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
@@ -103,7 +101,4 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
 
         emit PoolConfiguratorOwnershipTransferred(fromPoolAdmin_, toPoolAdmin_, msg.sender);
     }
-
-
-
 }

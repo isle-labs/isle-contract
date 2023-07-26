@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 interface ILoanManager {
-
     function triggerDefault(uint16 loanId_) external returns (uint256 totalLosses_);
     function unrealizedLosses() external view returns (uint128 unrealizedLosses_);
     function assetsUnderManagement() external view returns (uint256 assetsUnderManagement_);

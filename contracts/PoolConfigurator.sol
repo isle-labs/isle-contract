@@ -18,7 +18,7 @@ import { WithdrawalManager } from "./WithdrawalManager.sol";
 import { Errors } from "./libraries/Errors.sol";
 
 contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, VersionedInitializable {
-    uint256 public constant HUNDRED_PERCENT = 100_0000; // Four decimal precision.
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // Four decimal precision.
     uint256 public constant POOL_CONFIGURATOR_REVISION = 0x1;
 
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
@@ -71,7 +71,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         address poolAdmin_,
         string memory name_,
         string memory symbol_
-    ) external initializer {
+    )
+        external
+        initializer
+    {
         /* Checks */
         if (ADDRESSES_PROVIDER != provider_) {
             revert Errors.InvalidAddressProvider({
@@ -194,7 +197,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         if (IERC20(pool_).totalSupply() == 0) {
             revert Errors.PoolConfigurator_PoolZeroSupply();
         }
-        if (!_hasSufficientCover(address(globals_), asset_)) {
+        if (!_hasSufficientCover(address(globals_))) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
         if (destination_ == address(0)) {
@@ -222,7 +225,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         uint256 shares_,
         address owner_,
         address sender_
-    ) external override whenNotPaused onlyPool returns (uint256 redeemableShares_, uint256 resultingAssets_) {
+    )
+        external
+        override
+        whenNotPaused
+        onlyPool
+        returns (uint256 redeemableShares_, uint256 resultingAssets_)
+    {
         if (owner_ != sender_ && IPool(pool).allowance(owner_, sender_) == 0) {
             revert Errors.PoolConfigurator_NoAllowance({ owner: owner_, spender: sender_ });
         }
@@ -234,7 +243,14 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         uint256 assets_,
         address owner_,
         address sender_
-    ) external view override whenNotPaused onlyPool returns (uint256 redeemableShares_, uint256 resultingAssets_) {
+    )
+        external
+        view
+        override
+        whenNotPaused
+        onlyPool
+        returns (uint256 redeemableShares_, uint256 resultingAssets_)
+    {
         assets_;
         owner_;
         sender_;
@@ -246,10 +262,15 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function removeShares(
         uint256 shares_,
         address owner_
-    ) external override whenNotPaused onlyPool returns (uint256 sharesReturned_) {
+    )
+        external
+        override
+        whenNotPaused
+        onlyPool
+        returns (uint256 sharesReturned_)
+    {
         emit SharesRemoved(
-            owner_,
-            sharesReturned_ = IWithdrawalManager(withdrawalManager()).removeShares(shares_, owner_)
+            owner_, sharesReturned_ = IWithdrawalManager(withdrawalManager()).removeShares(shares_, owner_)
         );
     }
 
@@ -275,7 +296,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         uint256 assets_,
         address owner_,
         address sender_
-    ) external view override whenNotPaused {
+    )
+        external
+        view
+        override
+        whenNotPaused
+    {
         shares_;
         assets_;
         owner_;
@@ -309,7 +335,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     /* View Functions */
 
     function hasSufficientCover() public view override returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = _hasSufficientCover(globals(), asset);
+        hasSufficientCover_ = _hasSufficientCover(globals());
     }
 
     function implementation() external pure returns (address implementation_) {
@@ -328,7 +354,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function getEscrowParams(
         address,
         uint256 shares_
-    ) external view override returns (uint256 escrowShares_, address destination_) {
+    )
+        external
+        view
+        override
+        returns (uint256 escrowShares_, address destination_)
+    {
         // NOTE: `owner_` param not named to avoid compiler warning.
         (escrowShares_, destination_) = (shares_, address(this));
     }
@@ -360,12 +391,22 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         (, assets_) = IWithdrawalManager(withdrawalManager()).previewRedeem(owner_, shares_);
     }
 
-    function previewWithdraw(address owner_, uint256 assets_) external view virtual override returns (uint256 shares_) {
+    function previewWithdraw(
+        address owner_,
+        uint256 assets_
+    )
+        external
+        view
+        virtual
+        override
+        returns (uint256 shares_)
+    {
         (, shares_) = IWithdrawalManager(withdrawalManager()).previewWithdraw(owner_, assets_);
     }
 
     function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and `totalAssets` does not.
+        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
+        // `totalAssets` does not.
         unrealizedLosses_ = _min(ILoanManager(loanManager()).unrealizedLosses(), totalAssets());
     }
 
@@ -406,15 +447,15 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         }
     }
 
-    function _hasSufficientCover(address globals_, address asset_) internal view returns (bool hasSufficientCover_) {
+    function _hasSufficientCover(address globals_) internal view returns (bool hasSufficientCover_) {
         hasSufficientCover_ = poolCover >= ILopoGlobals(globals_).minCoverAmount(address(this));
     }
 
     function _handleCover(uint256 losses_) internal {
         address globals_ = globals();
 
-        uint256 availableCover_ = (poolCover * ILopoGlobals(globals_).maxCoverLiquidationPercent(address(this))) /
-            HUNDRED_PERCENT;
+        uint256 availableCover_ =
+            (poolCover * ILopoGlobals(globals_).maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
 
         uint256 toPool_ = _min(availableCover_, losses_);
 
