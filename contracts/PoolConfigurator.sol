@@ -9,13 +9,12 @@ import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IPool } from "./interfaces/IPool.sol";
-
 import { Pool } from "./Pool.sol";
 import { PoolConfiguratorStorage } from "./PoolConfiguratorStorage.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
-import { LoanManager } from "./LoanManager.sol";
-import { WithdrawalManager } from "./WithdrawalManager.sol";
+
 import { Errors } from "./libraries/Errors.sol";
+import { PoolDeployLogic } from "./libraries/PoolDeployLogic.sol";
 
 contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, VersionedInitializable {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // Four decimal precision.
@@ -61,8 +60,8 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
                                 INITIALIZERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IPoolAddressesProvider provider) {
-        ADDRESSES_PROVIDER = provider;
+    constructor(IPoolAddressesProvider provider_) {
+        ADDRESSES_PROVIDER = provider_;
     }
 
     function initialize(
@@ -98,7 +97,8 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         /* Effects */
         asset = asset_;
         poolAdmin = poolAdmin_;
-        pool = address(new Pool(address(this), asset_, name_, symbol_));
+        pool = PoolDeployLogic.createPool(address(this), asset_, name_, symbol_);
+
         emit Initialized(poolAdmin_, asset_, pool);
     }
 
