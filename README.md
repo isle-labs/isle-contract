@@ -1,9 +1,10 @@
-
 # Lopo Protocol
 
 ## Getting Started
 
-0. If you are on VS Code, install Nomicfoundation/hardhat-solidity or JuanBlanco/solidity (choose juse one for solidity) and Tamasfe/even-better-toml as extensions. ([Learn more](https://book.getfoundry.sh/config/vscode#integrating-with-vscode))
+0. If you are on VS Code, install Nomicfoundation/hardhat-solidity or JuanBlanco/solidity (select one for solidity) and
+   Tamasfe/even-better-toml as extensions.
+   ([Learn more](https://book.getfoundry.sh/config/vscode#integrating-with-vscode))
 
 1. Install [Forge](https://book.getfoundry.sh/getting-started/installation) and [pnpm](https://pnpm.io/installation)
 

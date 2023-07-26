@@ -4,6 +4,7 @@ cache
 lib
 node_modules
 out
+modules
 
 # files
 *.env
