@@ -27,7 +27,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     mapping(address => bool) public override isPoolAsset;
 
     mapping(address => uint256) public override maxCoverLiquidationPercent;
-    mapping(address => uint256) public override minCover;
+    mapping(address => uint256) public override minCoverAmount;
 
     bool public protocolPaused;
 

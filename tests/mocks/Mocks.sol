@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
+/*
 import { MockERC20 } from "./MockERC20.sol";
 
 import { Pool } from "../../contracts/Pool.sol";
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 
-import { PoolConfiguratorStorage } from "../../contracts/proxy/PoolConfiguratorStorage.sol";
+import { PoolConfiguratorStorage } from "../../contracts/PoolConfiguratorStorage.sol";
 
 contract MockERC20Pool is Pool {
 
@@ -42,3 +43,4 @@ contract MockPoolConfigurator is PoolConfiguratorStorage {
     mapping(address => uint256) public maxRedeem;
     mapping(address => uint256) public maxWithdraw;
 }
+*/

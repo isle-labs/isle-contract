@@ -144,19 +144,6 @@ interface IPoolAddressesProvider {
     function setAddress(bytes32 id, address newAddress) external;
 
     /**
-     * @notice Returns the address of the Pool proxy.
-     * @return The Pool proxy address
-     */
-    function getPool() external view returns (address);
-
-    /**
-     * @notice Updates the implementation of the Pool, or creates a proxy
-     * setting the new `pool` implementation when the function is called for the first time.
-     * @param newPoolImpl The new Pool implementation
-     */
-    function setPoolImpl(address newPoolImpl) external;
-
-    /**
      * @notice Returns the address of the PoolConfigurator proxy.
      * @return The PoolConfigurator proxy address
      */

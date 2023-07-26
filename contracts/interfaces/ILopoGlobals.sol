@@ -18,7 +18,7 @@ interface ILopoGlobals {
     function transferOwnedPoolConfigurator(address fromPoolAdmin_, address toPoolAdmin_) external;
     function governor() external view returns (address governor_);
     function maxCoverLiquidationPercent(address poolConfigurator_) external view returns (uint256 maxCoverLiquidationPercent_);
-    function minCover(address poolConfigurator_) external view returns (uint256 minCover_);
+    function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
 

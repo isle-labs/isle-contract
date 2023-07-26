@@ -7,17 +7,16 @@ import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 
 contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
-
     string private _marketId;
 
     mapping(bytes32 => address) private _addresses;
 
-    bytes32 private constant POOL = 'POOL';
-    bytes32 private constant POOL_CONFIGURATOR = 'POOL_CONFIGURATOR';
-    bytes32 private constant LOPO_GLOBALS = 'LOPO_GLOBALS';
-    bytes32 private constant LOAN_MANAGER = 'LOAN_MANAGER';
-    bytes32 private constant WITHDRAWAL_MANAGER = 'WITHDRAWAL_MANAGER';
-    bytes32 private constant PRICE_ORACLE = 'PRICE_ORACLE';
+    bytes32 private constant POOL = "POOL";
+    bytes32 private constant POOL_CONFIGURATOR = "POOL_CONFIGURATOR";
+    bytes32 private constant LOPO_GLOBALS = "LOPO_GLOBALS";
+    bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
+    bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
+    bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
 
     constructor(string memory marketId_, address owner_) {
         _marketId = marketId_;
@@ -33,10 +32,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setAddressAsProxy(
-        bytes32 id,
-        address newImplementationAddress
-    ) external override onlyAdmin {
+    function setAddressAsProxy(bytes32 id, address newImplementationAddress) external override onlyAdmin {
         address proxyAddress = _addresses[id];
         address oldImplementationAddress = _getProxyImplementation(id);
         _updateImpl(id, newImplementationAddress);
@@ -53,11 +49,21 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, address asset, string memory name, string memory symbol) external override onlyAdmin {
-
+    function setPoolConfiguratorImpl(
+        address newPoolConfiguratorImpl,
+        address asset,
+        string memory name,
+        string memory symbol
+    ) external override onlyAdmin {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
 
-        bytes memory params = abi.encodeWithSignature('initialize(address,address,string,string)', address(this), asset, name, symbol);
+        bytes memory params = abi.encodeWithSignature(
+            "initialize(address,address,string,string)",
+            address(this),
+            asset,
+            name,
+            symbol
+        );
 
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
@@ -120,16 +126,16 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /**
-   * @notice Internal function to update the implementation of a specific proxied component of the protocol.
-   * @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`
-   *   as implementation and calls the initialize() function on the proxy
-   * @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and
-   *   calls the initialize() function via upgradeToAndCall() in the proxy
-   * @param id The id of the proxy to be updated
-   * @param newAddress The address of the new implementation
-   */
+     * @notice Internal function to update the implementation of a specific proxied component of the protocol.
+     * @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`
+     *   as implementation and calls the initialize() function on the proxy
+     * @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and
+     *   calls the initialize() function via upgradeToAndCall() in the proxy
+     * @param id The id of the proxy to be updated
+     * @param newAddress The address of the new implementation
+     */
     function _updateImpl(bytes32 id, address newAddress) internal {
-        _updateImpl(id, newAddress, abi.encodeWithSignature('initialize(address)', address(this)));
+        _updateImpl(id, newAddress, abi.encodeWithSignature("initialize(address)", address(this)));
     }
 
     // Function overloading to support upgrades with custom params

@@ -35,6 +35,7 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
     /* LP Token */
     function convertToExitShares(uint256 amount_) external view returns (uint256 shares_);
     function getEscrowParams(address owner_, uint256 shares_) external view returns (uint256 escrowShares_, address destination_);
@@ -50,7 +51,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function governor() external view returns (address governor_);
     function loanManager() external view returns (address loanManager_);
     function hasSufficientCover() external view returns (bool hasSufficientCover_);
-    function loanManagerListLength() external view returns (uint256 loanManagerListLength_);
     function totalAssets() external view returns (uint256 totalAssets_);
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
 
@@ -63,19 +63,17 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setPendingPoolAdmin(address pendingPoolAdmin_) external;
 
     /* Administrative Functions */
-    function addLoanManager(address loanManagerFactory_) external returns (address loanManager_);
     function setActive(bool active_) external;
+    function completeConfiguration() external;
     function setAllowedLender(address lender_, bool isValid_) external;
-    function setIsLoanManager(address loanManager_, bool isLoanManager_) external;
     function setLiquidityCap(uint256 liquidityCap_) external;
     function setOpenToPublic() external;
-    function setWithdrawalManager(address withdrawalManager_) external;
 
     /* Funding Functions */
     function requestFunds(address destination_, uint256 principal_) external;
 
     /* Default Functions */
-    function triggerDefault(address loan_) external;
+    function triggerDefault(uint16 loanId_) external;
 
     /* Exit Functions */
     function processRedeem(uint256 shares_, address owner_, address sender_)

@@ -19,7 +19,7 @@ library Errors {
     error PoolConfigurator_Configured();
     error PoolConfigurator_Paused();
     error PoolConfigurator_NotPoolAdminOrGovernor();
-    error PoolConfigurator_NotPoolAdminAndConfigured();
+    error PoolConfigurator_ConfiguredAndNotPoolAdmin();
     error PoolConfigurator_InvalidPoolAdmin(address account);
     error PoolConfigurator_InvalidPoolAsset(address asset);
     error PoolConfigurator_IsAlreadyPoolAdmin(address account);
@@ -29,6 +29,9 @@ library Errors {
     error PoolConfigurator_DestinationIsZero();
     error PoolConfigurator_InsufficientLiquidity();
     error PoolConfigurator_InsufficientCover();
+    error PoolConfigurator_WithdrawalNotImplemented();
+    error PoolConfigurator_NoAllowance(address owner, address spender);
+    error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
