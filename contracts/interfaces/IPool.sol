@@ -47,16 +47,5 @@ interface IPool is IERC4626 {
     function balanceOfAssets(address account_) external view returns (uint256 asseets_);
     function convertToExitAssets(uint256 shares_) external view returns (uint256 assets_);
     function convertToExitShares(uint256 assets_) external view returns (uint256 shares_);
-
-    /**
-     *  @dev    Returns the amount unrealized gains.
-     *  @return unrealizedGains_ Amount of unrealized gains.
-     */
-    function unrealizedGains() external view returns (uint256 unrealizedGains_);
-
-    /**
-     *  @dev    Returns the amount unrealized losses.
-     *  @return unrealizedLosses_ Amount of unrealized losses.
-     */
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
 }

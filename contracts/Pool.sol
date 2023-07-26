@@ -8,7 +8,7 @@ import { SafeERC20 } from "@openzeppelin/token/ERC20/utils/SafeERC20.sol";
 import { Math } from "@openzeppelin/utils/math/Math.sol";
 
 import { IPool } from "./interfaces/IPool.sol";
-import { IPoolConfiguratorLike } from "./interfaces/Interfaces.sol";
+import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 
 contract Pool is IPool, ERC20Permit {
     using Math for uint256;
@@ -132,13 +132,13 @@ contract Pool is IPool, ERC20Permit {
             _spendAllowance(owner_, _msgSender(), shares_);
         }
 
-        emit SharesRemoved(owner_, sharesReturned_ = IPoolConfiguratorLike(configurator).removeShares(shares_, owner_));
+        emit SharesRemoved(owner_, sharesReturned_ = IPoolConfigurator(configurator).removeShares(shares_, owner_));
     }
 
     function requestRedeem(uint256 shares_, address owner_) external returns (uint256 escrowShares_) {
         address destination_;
 
-        (escrowShares_, destination_) = IPoolConfiguratorLike(configurator).getEscrowParams(owner_, shares_);
+        (escrowShares_, destination_) = IPoolConfigurator(configurator).getEscrowParams(owner_, shares_);
 
         if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), escrowShares_);
@@ -148,14 +148,14 @@ contract Pool is IPool, ERC20Permit {
             _transfer(owner_, destination_, escrowShares_);
         }
 
-        IPoolConfiguratorLike(configurator).requestRedeem(escrowShares_, owner_, _msgSender());
+        IPoolConfigurator(configurator).requestRedeem(escrowShares_, owner_, _msgSender());
     }
 
     function requestWithdraw(uint256 assets_, address owner_) external returns (uint256 escrowShares_) {
         address destination_;
 
         (escrowShares_, destination_) =
-            IPoolConfiguratorLike(configurator).getEscrowParams(owner_, convertToExitShares(assets_));
+            IPoolConfigurator(configurator).getEscrowParams(owner_, convertToExitShares(assets_));
 
         if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), escrowShares_);
@@ -165,7 +165,7 @@ contract Pool is IPool, ERC20Permit {
             _transfer(owner_, destination_, escrowShares_);
         }
 
-        IPoolConfiguratorLike(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
+        IPoolConfigurator(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
     }
 
     /* ========== Internal Functions ========== */
@@ -190,11 +190,8 @@ contract Pool is IPool, ERC20Permit {
         virtual
         returns (uint256 shares_)
     {
-        shares_ = assets_.mulDiv(
-            totalSupply() + 10 ** _decimalsOffset(),
-            totalAssets() - unrealizedLosses() - unrealizedGains() + 1,
-            rounding_
-        );
+        shares_ =
+            assets_.mulDiv(totalSupply() + 10 ** _decimalsOffset(), totalAssets() - unrealizedLosses() + 1, rounding_);
     }
 
     function _convertToAssets(
@@ -218,11 +215,8 @@ contract Pool is IPool, ERC20Permit {
         virtual
         returns (uint256 assets_)
     {
-        assets_ = shares_.mulDiv(
-            totalAssets() - unrealizedLosses() - unrealizedGains() + 1,
-            totalSupply() + 10 ** _decimalsOffset(),
-            rounding_
-        );
+        assets_ =
+            shares_.mulDiv(totalAssets() - unrealizedLosses() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding_);
     }
 
     /**
@@ -272,27 +266,27 @@ contract Pool is IPool, ERC20Permit {
     }
 
     function maxDeposit(address receiver_) public view override returns (uint256 maxAssets_) {
-        maxAssets_ = IPoolConfiguratorLike(configurator).maxDeposit(receiver_);
+        maxAssets_ = IPoolConfigurator(configurator).maxDeposit(receiver_);
     }
 
     function maxMint(address receiver_) public view override returns (uint256 maxShares_) {
-        maxShares_ = IPoolConfiguratorLike(configurator).maxMint(receiver_);
+        maxShares_ = IPoolConfigurator(configurator).maxMint(receiver_);
     }
 
     function maxWithdraw(address owner_) public view override returns (uint256 maxAssets_) {
-        maxAssets_ = IPoolConfiguratorLike(configurator).maxWithdraw(owner_);
+        maxAssets_ = IPoolConfigurator(configurator).maxWithdraw(owner_);
     }
 
     function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {
-        maxShares_ = IPoolConfiguratorLike(configurator).maxRedeem(owner_);
+        maxShares_ = IPoolConfigurator(configurator).maxRedeem(owner_);
     }
 
     function previewWithdraw(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = IPoolConfiguratorLike(configurator).previewWithdraw(assets_);
+        shares_ = IPoolConfigurator(configurator).previewWithdraw(msg.sender, assets_);
     }
 
     function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {
-        assets_ = IPoolConfiguratorLike(configurator).previewRedeem(shares_);
+        assets_ = IPoolConfigurator(configurator).previewRedeem(msg.sender, shares_);
     }
 
     function convertToShares(uint256 assets_) public view override returns (uint256 shares_) {
@@ -311,12 +305,8 @@ contract Pool is IPool, ERC20Permit {
         assets_ = _convertToExitAssets(shares_, Math.Rounding.Down);
     }
 
-    function unrealizedGains() public view override returns (uint256 unrealizedGains_) {
-        unrealizedGains_ = IPoolConfiguratorLike(configurator).unrealizedGains();
-    }
-
     function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        unrealizedLosses_ = IPoolConfiguratorLike(configurator).unrealizedLosses();
+        unrealizedLosses_ = IPoolConfigurator(configurator).unrealizedLosses();
     }
 
     /**
