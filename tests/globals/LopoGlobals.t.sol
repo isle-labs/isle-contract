@@ -8,18 +8,18 @@ import { LopoGlobals } from "../../contracts/LopoGlobals.sol";
 import "../BaseTest.t.sol";
 
 contract LopoGlobalsTest is BaseTest {
-    // function setUp() public virtual override {
-    //     vm.prank(GOVERNOR);
-    //     globals.setValidBorrower(GOVERNOR, true);
-    // }
+// function setUp() public virtual override {
+//     vm.prank(GOVERNOR);
+//     globals.setValidBorrower(GOVERNOR, true);
+// }
 
-    // function test_governor() public {
-    //     console.log("GOVERNOR: %s", GOVERNOR);
-    //     assertEq(GOVERNOR, address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2), "GOVERNOR should be this contract");
-    // }
+// function test_governor() public {
+//     console.log("GOVERNOR: %s", GOVERNOR);
+//     assertEq(GOVERNOR, address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2), "GOVERNOR should be this contract");
+// }
 
-    // function test_isBorrower() public {
-    //     console.log("GOVERNOR isBorrower: %s", globals.isBorrower(GOVERNOR));
-    //     assertTrue(globals.isBorrower(GOVERNOR), "GOVERNOR should be a borrower");
-    // }
+// function test_isBorrower() public {
+//     console.log("GOVERNOR isBorrower: %s", globals.isBorrower(GOVERNOR));
+//     assertTrue(globals.isBorrower(GOVERNOR), "GOVERNOR should be a borrower");
+// }
 }

@@ -8,32 +8,32 @@ import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 
 abstract contract BaseTest is Test {
-    // address internal GOVERNOR;
-    // LopoGlobals internal globals;
-    // uint256[] PRIVATE_KEYS;
-    // address[] ACCOUNTS;
+// address internal GOVERNOR;
+// LopoGlobals internal globals;
+// uint256[] PRIVATE_KEYS;
+// address[] ACCOUNTS;
 
-    // function setUp() public virtual {
-    //     globals = new LopoGlobals();
-    //     globals.initialize(address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2));
-    //     GOVERNOR = globals.governor();
+// function setUp() public virtual {
+//     globals = new LopoGlobals();
+//     globals.initialize(address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2));
+//     GOVERNOR = globals.governor();
 
-    //     PRIVATE_KEYS = vm.envUint("ANVIL_PRIVATE_KEYS", ",");
-    //     ACCOUNTS = vm.envAddress("ANVIL_ACCOUNTS", ",");
+//     PRIVATE_KEYS = vm.envUint("ANVIL_PRIVATE_KEYS", ",");
+//     ACCOUNTS = vm.envAddress("ANVIL_ACCOUNTS", ",");
 
-    //     vm.prank(GOVERNOR);
-    //     globals.setValidBorrower(GOVERNOR, true);
-    // }
+//     vm.prank(GOVERNOR);
+//     globals.setValidBorrower(GOVERNOR, true);
+// }
 
-    // function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
-    //     console.log("# ReceivableInfo -----------------------");
-    //     console.log("-> buyer: %s", RECVInfo.buyer);
-    //     console.log("-> seller: %s", RECVInfo.seller);
-    //     // notice that faceAmount is UD60x18
-    //     console.log("-> faceAmount: %s", RECVInfo.faceAmount.intoUint256());
-    //     console.log("-> repaymentTimestamp: %s", RECVInfo.repaymentTimestamp);
-    //     console.log("-> isValid: %s", RECVInfo.isValid);
-    //     console.log("-> currencyCode: %s", RECVInfo.currencyCode);
-    //     console.log(""); // for layout
-    // }
+// function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
+//     console.log("# ReceivableInfo -----------------------");
+//     console.log("-> buyer: %s", RECVInfo.buyer);
+//     console.log("-> seller: %s", RECVInfo.seller);
+//     // notice that faceAmount is UD60x18
+//     console.log("-> faceAmount: %s", RECVInfo.faceAmount.intoUint256());
+//     console.log("-> repaymentTimestamp: %s", RECVInfo.repaymentTimestamp);
+//     console.log("-> isValid: %s", RECVInfo.isValid);
+//     console.log("-> currencyCode: %s", RECVInfo.currencyCode);
+//     console.log(""); // for layout
+// }
 }
