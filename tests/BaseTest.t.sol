@@ -4,8 +4,8 @@ pragma solidity ^0.8.19;
 import "forge-std/Test.sol";
 import { console } from "forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { LopoGlobals } from "../contracts/globals/LopoGlobals.sol";
-import { ReceivableStorage } from "../contracts/receivables/ReceivableStorage.sol";
+import { LopoGlobals } from "../contracts/LopoGlobals.sol";
+import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 
 abstract contract BaseTest is Test {
     address internal GOVERNOR;

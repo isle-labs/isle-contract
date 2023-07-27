@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 import "../BaseTest.t.sol";
-import { ReceivableStorage } from "../../contracts/receivables/ReceivableStorage.sol";
-import { Receivable } from "../../contracts/receivables/Receivable.sol";
+import { ReceivableStorage } from "../../contracts/ReceivableStorage.sol";
+import { Receivable } from "../../contracts/Receivable.sol";
 
 contract ReceivableTest is BaseTest {
     Receivable receivable;

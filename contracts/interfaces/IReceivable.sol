@@ -25,7 +25,6 @@ interface IReceivable {
 
     function getReceivableInfoById(uint256 tokenId) external view returns (ReceivableStorage.ReceivableInfo memory);
 
-
     function setLopoGlobals(address _lopoGlobals) external;
 
     // View Functions

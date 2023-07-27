@@ -9,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721Burnab
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
-import { ILopoGlobalsLike } from "./interfaces/Interfaces.sol";
+import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 
 contract Receivable is
     ReceivableStorage,
@@ -23,7 +23,7 @@ contract Receivable is
      * Storage **
      */
     address public override lopoGlobals;
-    ILopoGlobalsLike globals_;
+    ILopoGlobals globals_;
 
     /**
      * Modifier **
@@ -34,7 +34,6 @@ contract Receivable is
     }
 
     modifier onlyGovernor() {
-        // msg.sender == ILopoGlobalsLike(lopoGlobals).governor()
         require(msg.sender == globals_.governor(), "RECV:NOT_GOVERNOR");
         _;
     }
@@ -43,8 +42,8 @@ contract Receivable is
     constructor(address _lopoGlobals) {
         _disableInitializers();
         // lopoGlobals need to be deployed first
-        require(ILopoGlobalsLike(lopoGlobals = _lopoGlobals).governor() != address(0), "RECV:C:INVALID_GLOBALS");
-        globals_ = ILopoGlobalsLike(lopoGlobals);
+        require(ILopoGlobals(lopoGlobals = _lopoGlobals).governor() != address(0), "RECV:C:INVALID_GLOBALS");
+        globals_ = ILopoGlobals(lopoGlobals);
     }
 
     /**
@@ -138,7 +137,7 @@ contract Receivable is
      */
 
     function setLopoGlobals(address _lopoGlobals) external override onlyGovernor {
-        require(ILopoGlobalsLike(_lopoGlobals).governor() != address(0), "RECV:SG:INVALID_GLOBALS");
+        require(ILopoGlobals(_lopoGlobals).governor() != address(0), "RECV:SG:INVALID_GLOBALS");
         lopoGlobals = _lopoGlobals;
     }
 
