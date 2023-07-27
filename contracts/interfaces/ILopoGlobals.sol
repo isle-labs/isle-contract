@@ -4,15 +4,14 @@ pragma solidity 0.8.19;
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 interface ILopoGlobals {
-    /**
-     *
-     */
-    /**
-     * Events                                                                                                                         **
-     */
-    /**
-     *
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                                EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    event Initialized();
+    event PoolConfiguratorOwnershipTransferred(
+        address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_
+    );
 
     /**
      *  @dev   The governorship has been accepted.
@@ -36,13 +35,6 @@ interface ILopoGlobals {
     event MaxCoverLiquidationPercentSet(address indexed poolManager_, uint256 maxCoverLiquidationPercent_);
 
     /**
-     *  @dev   The migration admin has been set.
-     *  @param previousMigrationAdmin_ The previous migration admin.
-     *  @param nextMigrationAdmin_     The new migration admin.
-     */
-    event MigrationAdminSet(address indexed previousMigrationAdmin_, address indexed nextMigrationAdmin_);
-
-    /**
      *  @dev   The minimum cover amount for the given pool manager has been set.
      *  @param poolManager_    The address of the pool manager.
      *  @param minCoverAmount_ The new value for the minimum cover amount.
@@ -54,13 +46,6 @@ interface ILopoGlobals {
      *  @param pendingGovernor_ The new pending governor.
      */
     event PendingGovernorSet(address indexed pendingGovernor_);
-
-    /**
-     *  @dev   The pool manager was activated.
-     *  @param poolManager_  The address of the pool manager.
-     *  @param poolDelegate_ The address of the pool delegate.
-     */
-    event PoolManagerActivated(address indexed poolManager_, address indexed poolDelegate_);
 
     /**
      *  @dev   The ownership of the pool manager was transferred.
@@ -101,13 +86,6 @@ interface ILopoGlobals {
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
     /**
-     *  @dev   A valid pool delegate was set.
-     *  @param account_ The address the account.
-     *  @param isValid_ The validity of the asset.
-     */
-    event ValidPoolDelegateSet(address indexed account_, bool isValid_);
-
-    /**
      * @dev A valid pool was set.
      * @param poolAddress_ The address of the pool.
      * @param isEnabled_     The validity of the pool.
@@ -133,15 +111,28 @@ interface ILopoGlobals {
 
     event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
 
-    /**
-     *
-     */
-    /**
-     * View Functions                                                                                                                 **
-     */
-    /**
-     *
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function poolAdmins(address poolAdmin_) external view returns (address ownedPoolConfigurator_, bool isPoolAdmin_);
+
+    function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
+
+    function ownedPoolConfigurator(address account_) external view returns (address poolConfigurator_);
+
+    function transferOwnedPoolConfigurator(address fromPoolAdmin_, address toPoolAdmin_) external;
+
+    function maxCoverLiquidationPercent(address poolConfigurator_)
+        external
+        view
+        returns (uint256 maxCoverLiquidationPercent_);
+
+    function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
+
+    function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
+
+    function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
 
     function insuranceFeePercent(address poolManager_) external view returns (uint256 insuranceFeePercent_);
 
@@ -191,47 +182,10 @@ interface ILopoGlobals {
     function isPoolAsset(address poolAsset_) external view returns (bool isPoolAsset_);
 
     /**
-     *  @dev    Gets the validity of a pool delegate.
-     *  @param  account_        The address of the account to query.
-     *  @return isPoolDelegate_ A boolean indicating the validity of the pool delegate.
-     */
-    function isPoolDelegate(address account_) external view returns (bool isPoolDelegate_);
-
-    /**
      *  @dev    Gets lopo vault address.
      *  @return lopoVault_ The address of the lopo vault.
      */
     function lopoVault() external view returns (address lopoVault_);
-
-    /**
-     *  @dev    Gets the maximum cover liquidation percent for a given pool manager.
-     *  @param  poolManager_                The address of the pool manager to query.
-     *  @return maxCoverLiquidationPercent_ The maximum cover liquidation percent.
-     */
-    function maxCoverLiquidationPercent(address poolManager_)
-        external
-        view
-        returns (uint256 maxCoverLiquidationPercent_);
-
-    /**
-     *  @dev    Gets migration admin address.
-     *  @return migrationAdmin_ The address of the migration admin.
-     */
-    function migrationAdmin() external view returns (address migrationAdmin_);
-
-    /**
-     *  @dev    Gets the minimum cover amount for a given pool manager.
-     *  @param  poolManager_    The address of the pool manager to query.
-     *  @return minCoverAmount_ The minimum cover amount.
-     */
-    function minCoverAmount(address poolManager_) external view returns (uint256 minCoverAmount_);
-
-    /**
-     *  @dev    Gets the address of the owner pool manager.
-     *  @param  account_     The address of the account to query.
-     *  @return poolManager_ The address of the pool manager.
-     */
-    function ownedPoolManager(address account_) external view returns (address poolManager_);
 
     /**
      *  @dev    Gets the pending governor address.
@@ -240,31 +194,10 @@ interface ILopoGlobals {
     function pendingLopoGovernor() external view returns (address pendingGovernor_);
 
     /**
-     *  @dev    Gets pool delegate address information.
-     *  @param  poolDelegate_    The address of the pool delegate to query.
-     *  @return ownedPoolManager The address of the pool manager owned by the pool delegate.
-     *  @return isPoolDelegate   A boolean indication weather or not the address passed is a current pool delegate.
-     */
-    function poolDelegates(address poolDelegate_)
-        external
-        view
-        returns (address ownedPoolManager, bool isPoolDelegate);
-
-    /**
      *  @dev    Gets the status of the protocol pause.
      *  @return protocolPaused_ A boolean indicating the status of the protocol pause.
      */
     function protocolPaused() external view returns (bool protocolPaused_);
-
-    /**
-     *
-     */
-    /**
-     * Governor Transfer Functions                                                                                                    **
-     */
-    /**
-     *
-     */
 
     /**
      *  @dev Accepts the governorship if the caller is the `pendingGovernor`.
@@ -278,42 +211,10 @@ interface ILopoGlobals {
     function setPendingLopoGovernor(address pendingGovernor_) external;
 
     /**
-     *
-     */
-    /**
-     * Global Setters                                                                                                                 **
-     */
-    /**
-     *
-     */
-
-    /**
-     *  @dev   Activates the pool manager.
-     *  @param poolManager_ The address of the pool manager to activate.
-     */
-    function activatePoolManager(address poolManager_) external;
-
-    /**
      *  @dev   Sets the address of the Lopo vault.
      *  @param lopoVault_ The address of the Lopo vault.
      */
     function setLopoVault(address lopoVault_) external;
-
-    // /**
-    //  *  @dev   Sets the address of the migration admin.
-    //  *  @param migrationAdmin_ The address of the migration admin.
-    //  */
-    // function setMigrationAdmin(address migrationAdmin_) external;
-
-    /**
-     *
-     */
-    /**
-     * Boolean Setters                                                                                                                **
-     */
-    /**
-     *
-     */
 
     function setIsEnabled(address poolAddress_, bool isEnabled_) external;
 
@@ -322,16 +223,6 @@ interface ILopoGlobals {
      *  @param protocolPaused_ A boolean indicating the status of the protocol pause.
      */
     function setProtocolPause(bool protocolPaused_) external;
-
-    /**
-     *
-     */
-    /**
-     * Allowlist Setters                                                                                                              **
-     */
-    /**
-     *
-     */
 
     /**
      *  @dev   Sets the validity of the borrower.
@@ -354,13 +245,6 @@ interface ILopoGlobals {
      */
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
-    /**
-     *  @dev   Sets the validity of the pool delegate.
-     *  @param poolDelegate_ The address of the pool delegate to set the validity for.
-     *  @param isValid_      A boolean indicating the validity of the pool delegate.
-     */
-    function setValidPoolDelegate(address poolDelegate_, bool isValid_) external;
-
     function setValidReceivable(address receivable_, bool isValid_) external;
 
     function setValidBuyer(address buyer_, bool isValid_) external;
@@ -372,56 +256,4 @@ interface ILopoGlobals {
     function setProtocolFeeRate(UD60x18 protocolFeeRate_) external;
 
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
-
-    /**
-     *
-     */
-    /**
-     * Cover Setters                                                                                                                  **
-     */
-    /**
-     *
-     */
-
-    /**
-     *  @dev   Sets the maximum cover liquidation percent for the given pool manager.
-     *  @param poolManager_                The address of the pool manager to set the maximum cover liquidation percent
-     * for.
-     *  @param maxCoverLiquidationPercent_ The maximum cover liquidation percent.
-     */
-    // function setMaxCoverLiquidationPercent(address poolManager_, uint256 maxCoverLiquidationPercent_) external;
-
-    /**
-     *  @dev   Sets the minimum cover amount for the given pool manager.
-     *  @param poolManager_    The address of the pool manager to set the minimum cover amount  for.
-     *  @param minCoverAmount_ The minimum cover amount.
-     */
-    // function setMinCoverAmount(address poolManager_, uint256 minCoverAmount_) external;
-
-    /**
-     *
-     */
-    /**
-     * Fee Setters                                                                                                                    **
-     */
-    /**
-     *
-     */
-
-    /**
-     *
-     */
-    /**
-     * Contact Control Functions                                                                                                      **
-     */
-    /**
-     *
-     */
-
-    /**
-     *  @dev   Transfer the ownership of the pool manager.
-     *  @param fromPoolDelegate_ The address of the pool delegate to transfer ownership from.
-     *  @param toPoolDelegate_   The address of the pool delegate to transfer ownership to.
-     */
-    // function transferOwnedPoolManager(address fromPoolDelegate_, address toPoolDelegate_) external;
 }

@@ -15,6 +15,7 @@ abstract contract BaseTest is Test {
 
     function setUp() public virtual {
         globals = new LopoGlobals();
+        globals.initialize(address(0x1c9b5a151e5e9de610a8dFa9B773E89CE6da69D2));
         GOVERNOR = globals.governor();
 
         PRIVATE_KEYS = vm.envUint("ANVIL_PRIVATE_KEYS", ",");
