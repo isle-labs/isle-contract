@@ -7,7 +7,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { LopoGlobals } from "../contracts/globals/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/receivables/ReceivableStorage.sol";
 
-contract BaseTest is Test {
+abstract contract BaseTest is Test {
     address internal GOVERNOR;
     LopoGlobals internal globals;
     uint256[] PRIVATE_KEYS;

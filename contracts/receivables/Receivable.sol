@@ -22,7 +22,7 @@ contract Receivable is
     /**
      * Storage **
      */
-    address public lopoGlobals;
+    address public override lopoGlobals;
     ILopoGlobalsLike globals_;
 
     /**
@@ -46,21 +46,6 @@ contract Receivable is
         require(ILopoGlobalsLike(lopoGlobals = _lopoGlobals).governor() != address(0), "RECV:C:INVALID_GLOBALS");
         globals_ = ILopoGlobalsLike(lopoGlobals);
     }
-
-    /**
-     * @dev Emitted when a new receivable is created.
-     */
-    event AssetCreated(
-        address indexed buyer,
-        address indexed seller,
-        uint256 indexed tokenId,
-        uint256 faceAmount,
-        uint256 repaymentTimestamp
-    );
-
-    // event AssetRepaid(address indexed buyer, address indexed seller, uint256 tokenId, uint256 repaidAmount);
-
-    // event AssetDefaulted(address indexed buyer, address indexed seller, uint256 tokenId, uint256 defaultAmount);
 
     /**
      * @dev Initializer that sets the default admin and buyer roles
@@ -90,6 +75,7 @@ contract Receivable is
         uint16 _currencyCode
     )
         external
+        override
         onlyBuyer
         returns (uint256 _tokenId)
     {
@@ -112,7 +98,7 @@ contract Receivable is
         return tokenId;
     }
 
-    function getReceivableInfoById(uint256 tokenId) external view returns (ReceivableInfo memory) {
+    function getReceivableInfoById(uint256 tokenId) external view override returns (ReceivableInfo memory) {
         return idToReceivableInfo[tokenId];
     }
 
@@ -151,7 +137,7 @@ contract Receivable is
      * Globals Setters **
      */
 
-    function setLopoGlobals(address _lopoGlobals) external onlyGovernor {
+    function setLopoGlobals(address _lopoGlobals) external override onlyGovernor {
         require(ILopoGlobalsLike(_lopoGlobals).governor() != address(0), "RECV:SG:INVALID_GLOBALS");
         lopoGlobals = _lopoGlobals;
     }
