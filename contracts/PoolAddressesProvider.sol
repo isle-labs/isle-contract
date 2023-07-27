@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {
     ITransparentUpgradeableProxy,
     TransparentUpgradeableProxy
-} from "@openzeppelin/proxy/transparent/TransparentUpgradeableProxy.sol";
+} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";

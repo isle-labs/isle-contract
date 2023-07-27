@@ -7,7 +7,7 @@ pragma solidity >=0.8.19;
 /// in the constructor.
 interface IAdminable {
     /*//////////////////////////////////////////////////////////////////////////
-                                       EVENTS
+                                    EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when the admin is transferred.
@@ -16,14 +16,14 @@ interface IAdminable {
     event TransferAdmin(address indexed oldAdmin, address indexed newAdmin);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                 CONSTANT FUNCTIONS
+                                CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice The address of the admin account or contract.
     function admin() external view returns (address);
 
     /*//////////////////////////////////////////////////////////////////////////
-                               NON-CONSTANT FUNCTIONS
+                                NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Transfers the contract admin to a new address.

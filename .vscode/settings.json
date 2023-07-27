@@ -58,5 +58,6 @@
         "**/yarn-error.log": true,
         "**/.yalc": true,
         "modules/**/*": true
-    }
+    },
+    "solidity.defaultCompiler": "localNodeModule"
 }

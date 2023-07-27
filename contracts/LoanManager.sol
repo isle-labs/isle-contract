@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { SafeCast } from "@openzeppelin/utils/math/SafeCast.sol";
-import { SignedMath } from "@openzeppelin/utils/math/SignedMath.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
+import { SignedMath } from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
