@@ -6,8 +6,9 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Adminable } from "./abstracts/Adminable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
+contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
     /*//////////////////////////////////////////////////////////////////////////
                                 Struct
@@ -58,12 +59,8 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address governor_) external initializer {
-        if (governor_ == address(0)) {
-            revert Errors.Globals_AdminZeroAddress();
-        }
-        if (governor_ != admin) {
-            transferAdmin(governor_);
-        }
+        // transferAdmin(governor_);
+        admin = governor_;
         emit Initialized();
     }
 
@@ -202,17 +199,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
         emit ValidPoolAssetSet(_poolAsset, _isValid);
     }
 
-    // function setValidPoolDelegate(address _account, bool _isValid) external override onlyGovernor {
-    //     require(_account != address(0), "LG:SVPD:ZERO_ADDR");
-
-    //     // Cannot remove pool delegates that own a pool manager.
-    //     require(_isValid || poolDelegates[_account].ownedPoolConfigurator == address(0),
-    // "LG:SVPD:OWNS_POOL_MANAGER");
-
-    //     poolDelegates[_account].isPoolDelegate = _isValid;
-    //     emit ValidPoolDelegateSet(_account, _isValid);
-    // }
-
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
@@ -260,12 +246,25 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _checkIsLopoGovernor() internal view {
-        // require(msg.sender == admin(), "LG:Caller_Not_Gov");
+        // require(msg.sender == admin, "LG:Caller_Not_Gov");
+        if (msg.sender != admin) {
+            revert Errors.Globals_CallerNotGovernor(admin, msg.sender);
+        }
     }
 
     function _setAddress(bytes32 _slot, address _value) private {
         assembly {
             sstore(_slot, _value)
         }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            UUPS FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
+
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 }

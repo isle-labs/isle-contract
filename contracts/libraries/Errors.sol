@@ -62,4 +62,6 @@ library Errors {
     error Globals_AlreadyHasConfigurator(address poolAdmin, address poolConfigurator);
 
     error Globals_AdminZeroAddress();
+
+    error Globals_CallerNotGovernor(address governor, address caller);
 }
