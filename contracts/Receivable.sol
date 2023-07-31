@@ -8,10 +8,10 @@ import { ERC721EnumerableUpgradeable } from
 import { ERC721BurnableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { Adminable } from "./abstracts/Adminable.sol";
 import { Errors } from "./libraries/Errors.sol";
 

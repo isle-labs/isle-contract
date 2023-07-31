@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import "forge-std/Test.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
@@ -8,7 +9,7 @@ import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
-abstract contract BaseTest is PRBTest {
+contract BaseTest is PRBTest {
     LopoGlobals globalsV1;
 
     UUPSProxy LopoProxy;
@@ -45,11 +46,9 @@ abstract contract BaseTest is PRBTest {
         GOVERNOR = wrappedLopoProxyV1.governor();
     }
 
-    function test_setUpState() public view {
-        console.log("-> governor: %s", wrappedLopoProxyV1.governor());
-        console.log("-> LopoProxy: %s", address(LopoProxy));
-        console.log("-> wrappedLopoProxyV1: %s", address(wrappedLopoProxyV1));
-        console.log("-> globalsV1: %s", address(globalsV1));
+    function test_setUpState() public {
+        assertEq(wrappedLopoProxyV1.governor(), DEFAULT_GOVERNOR);
+        assertEq(address(wrappedLopoProxyV1), address(LopoProxy));
     }
 
     function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {

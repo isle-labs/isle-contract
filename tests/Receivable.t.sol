@@ -49,17 +49,9 @@ contract ReceivableTest is BaseTest {
         wrappedReceivableProxyV1.createReceivable(DEFAULT_SELLER, ud(1000e18), block.timestamp + 1 days, 804);
 
         uint256 tokenId = wrappedReceivableProxyV1.tokenOfOwnerByIndex(address(DEFAULT_SELLER), 0);
-        console.log("# Receivable ERC721 ------------------------------");
-        console.log("-> tokenId: %s", tokenId);
-        console.log("-> ownerOf(tokenId): %s", wrappedReceivableProxyV1.ownerOf(tokenId));
-        console.log("-> balanceOf(DEFAULT_SELLER): %s", wrappedReceivableProxyV1.balanceOf(DEFAULT_SELLER));
-        console.log("-> totalSupply: %s", wrappedReceivableProxyV1.totalSupply());
-        console.log("-> tokenByIndex(0): %s", wrappedReceivableProxyV1.tokenByIndex(0));
-        console.log(""); // for layout
 
         // RecevableInfo
         ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxyV1.getReceivableInfoById(tokenId);
-        _printReceivableInfo(RECVInfo);
 
         // assertions
         assertEq(tokenId, 0);
@@ -86,7 +78,6 @@ contract ReceivableTest is BaseTest {
 
         receivableV2 = new MockReceivableV2();
 
-        console.log("wrappedReceivableProxyV1.governor(): %s", wrappedReceivableProxyV1.governor());
         vm.prank(wrappedReceivableProxyV1.governor());
         wrappedReceivableProxyV1.upgradeTo(address(receivableV2));
 
@@ -95,21 +86,12 @@ contract ReceivableTest is BaseTest {
 
         // @notice Receivable is already initialized, so we cannot call initialize() again
         string memory text = wrappedReceivableProxyV2.upgradeV2Test();
-        console.log("text: %s", text);
         assertEq(text, "ReceivableV2");
 
         uint256 tokenId = wrappedReceivableProxyV2.tokenOfOwnerByIndex(address(DEFAULT_SELLER), 0);
-        console.log("# Receivable ERC721 ------------------------------");
-        console.log("-> tokenId: %s", tokenId);
-        console.log("-> ownerOf(tokenId): %s", wrappedReceivableProxyV2.ownerOf(tokenId));
-        console.log("-> balanceOf(DEFAULT_SELLER): %s", wrappedReceivableProxyV2.balanceOf(DEFAULT_SELLER));
-        console.log("-> totalSupply: %s", wrappedReceivableProxyV2.totalSupply());
-        console.log("-> tokenByIndex(0): %s", wrappedReceivableProxyV2.tokenByIndex(0));
-        console.log(""); // for layout
 
         // RecevableInfo
         ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxyV2.getReceivableInfoById(tokenId);
-        _printReceivableInfo(RECVInfo);
 
         // assertions
         assertEq(tokenId, 0);

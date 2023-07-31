@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { Errors } from "../contracts/libraries/Errors.sol";
 import { MockLopoGlobalsV2 } from "./mocks/MockLopoGlobalsV2.sol";
 import "./BaseTest.t.sol";
 
@@ -37,48 +38,40 @@ contract LopoGlobalsTest is BaseTest {
         // re-wrap the proxy to the new implementation
         wrappedLopoProxyV2 = MockLopoGlobalsV2(address(LopoProxy));
 
-        console.log("-> GOVERNORV1: %s", wrappedLopoProxyV1.governor());
-        console.log("-> GovernorV2 before initialize: %s", wrappedLopoProxyV2.governor());
         assertEq(wrappedLopoProxyV2.governor(), DEFAULT_GOVERNOR);
 
         wrappedLopoProxyV2.initialize(GOVERNORV2);
 
-        console.log("-> GovernorV2 after initialize: %s", wrappedLopoProxyV2.governor());
         assertEq(wrappedLopoProxyV2.governor(), GOVERNORV2);
 
-        console.log("-> wrappedLopoProxyV1.isBuyer(DEFAULT_BUYER): %s", wrappedLopoProxyV1.isBuyer(DEFAULT_BUYER));
-        console.log("-> wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER): %s", wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
         assertTrue(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
 
-        console.log("-> wrappedLopoProxyV1.isBuyer(DEFAULT_SELLER): %s", wrappedLopoProxyV1.isBuyer(DEFAULT_SELLER));
         vm.prank(GOVERNORV2);
         wrappedLopoProxyV2.setValidBuyer(DEFAULT_SELLER, true);
-        console.log("-> wrappedLopoProxyV1.isBuyer(DEFAULT_SELLER): %s", wrappedLopoProxyV1.isBuyer(DEFAULT_SELLER));
-        console.log("-> wrappedLopoProxyV2.isBuyer(DEFAULT_SELLER): %s", wrappedLopoProxyV2.isBuyer(DEFAULT_SELLER));
 
         // new function in V2
         string memory text = wrappedLopoProxyV2.upgradeV2Test();
-        console.log("-> text: %s", text);
         assertEq(text, "Hello World V2");
     }
 
     function test_setPendingLopoGovernor_and_acceptLopoGovernor() public {
-        console.log("Governor: %s", wrappedLopoProxyV1.governor());
-        console.log("pendingLopoGovernor before setting", wrappedLopoProxyV1.pendingLopoGovernor());
-
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(GOVERNORV2);
         vm.prank(GOVERNOR);
         wrappedLopoProxyV1.setPendingLopoGovernor(GOVERNORV2);
 
-        console.log("pendingLopoGovernor after setting", wrappedLopoProxyV1.pendingLopoGovernor());
         assertEq(wrappedLopoProxyV1.pendingLopoGovernor(), GOVERNORV2);
 
         vm.expectEmit(true, true, true, true);
         emit GovernorshipAccepted(GOVERNOR, GOVERNORV2);
         vm.prank(GOVERNORV2);
         wrappedLopoProxyV1.acceptLopoGovernor();
-        console.log("Governor after accepting: %s", wrappedLopoProxyV1.governor());
         assertEq(wrappedLopoProxyV1.governor(), GOVERNORV2);
+    }
+
+    function test_Revert_IfZeroAddress_setLopoVault() public {
+        vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setLopoVault(address(0));
     }
 }
