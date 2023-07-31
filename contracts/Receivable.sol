@@ -13,6 +13,7 @@ import { IReceivable } from "./interfaces/IReceivable.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { Adminable } from "./abstracts/Adminable.sol";
+import { Errors } from "./libraries/Errors.sol";
 
 contract Receivable is
     ReceivableStorage,
@@ -44,12 +45,16 @@ contract Receivable is
                             Modifiers
     //////////////////////////////////////////////////////////////////////////*/
     modifier onlyBuyer() {
-        require(globals_.isBuyer(msg.sender), "RECV:CALLER_NOT_BUYER");
+        if (!globals_.isBuyer(msg.sender)) {
+            revert Errors.Receivable_CallerNotBuyer(msg.sender);
+        }
         _;
     }
 
     modifier onlyGovernor() {
-        require(msg.sender == governor(), "RECV:NOT_GOVERNOR");
+        if (msg.sender != governor()) {
+            revert Errors.Receivable_CallerNotGovernor(governor(), msg.sender);
+        }
         _;
     }
 
@@ -65,7 +70,9 @@ contract Receivable is
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
-        require(ILopoGlobals(lopoGlobals = lopoGlobals_).governor() != address(0), "RECV:C:INVALID_GLOBALS");
+        if (ILopoGlobals(lopoGlobals = lopoGlobals_).governor() == address(0)) {
+            revert Errors.Receivable_InvalidGlobals(address(lopoGlobals_));
+        }
         globals_ = ILopoGlobals(lopoGlobals);
     }
 
@@ -151,7 +158,9 @@ contract Receivable is
     //////////////////////////////////////////////////////////////////////////*/
 
     function setLopoGlobals(address lopoGlobals_) external override onlyGovernor {
-        require(ILopoGlobals(lopoGlobals_).governor() != address(0), "RECV:SG:INVALID_GLOBALS");
+        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
+            revert Errors.Receivable_InvalidGlobals(lopoGlobals_);
+        }
         lopoGlobals = lopoGlobals_;
     }
 

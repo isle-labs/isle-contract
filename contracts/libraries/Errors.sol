@@ -64,4 +64,26 @@ library Errors {
     error Globals_AdminZeroAddress();
 
     error Globals_CallerNotGovernor(address governor, address caller);
+
+    error Globals_CallerNotPendingGovernor(address pendingGovernor, address caller);
+
+    error Globals_InvalidVault(address vault);
+
+    error Globals_InvalidReceivable(address receivable);
+
+    error Globals_RiskFreeRateGreaterThanOne(uint256 riskFreeRate);
+
+    error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
+
+    error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                Receivable
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error Receivable_CallerNotBuyer(address caller);
+
+    error Receivable_CallerNotGovernor(address governor, address caller);
+
+    error Receivable_InvalidGlobals(address globals);
 }

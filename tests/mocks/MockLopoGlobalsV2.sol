@@ -70,7 +70,6 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address governor_) external initializer {
-        // transferAdmin(governor_);
         admin = governor_;
         emit Initialized();
     }
@@ -146,11 +145,12 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
      */
 
     function acceptLopoGovernor() external override {
-        require(msg.sender == pendingLopoGovernor, "LG:Caller_Not_Pending_Gov");
-        // emit GovernorshipAccepted(admin(), msg.sender);
+        if (msg.sender != pendingLopoGovernor) {
+            revert Errors.Globals_CallerNotPendingGovernor(pendingLopoGovernor, msg.sender);
+        }
+        emit GovernorshipAccepted(admin, msg.sender);
         pendingLopoGovernor = address(0);
-        // lopoGovernor = msg.sender;
-        // _setAddress(ADMIN_SLOT, msg.sender);
+        admin = msg.sender;
     }
 
     function setPendingLopoGovernor(address _pendingGovernor) external override onlyGovernor {
@@ -162,7 +162,9 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     //////////////////////////////////////////////////////////////////////////*/
 
     function setLopoVault(address _vault) external override onlyGovernor {
-        require(_vault != address(0), "LG:Invalid_Vault");
+        if (lopoVault == address(0)) {
+            revert Errors.Globals_InvalidVault(_vault);
+        }
         emit LopoVaultSet(lopoVault, _vault);
         lopoVault = _vault;
     }
@@ -185,7 +187,9 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     }
 
     function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
-        require(_receivable != address(0), "LG:SVPD:ZERO_ADDR");
+        if (_receivable == address(0)) {
+            revert Errors.Globals_InvalidReceivable(_receivable);
+        }
         isReceivable[_receivable] = _isValid;
         emit ValidReceivableSet(_receivable, _isValid);
     }
@@ -215,19 +219,25 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     //////////////////////////////////////////////////////////////////////////*/
 
     function setRiskFreeRate(UD60x18 _riskFreeRate) external override onlyGovernor {
-        require(_riskFreeRate <= ud(1e18), "LG:SRFR:GT_1");
+        if (_riskFreeRate > ud(1e18)) {
+            revert Errors.Globals_RiskFreeRateGreaterThanOne(_riskFreeRate.intoUint256());
+        }
         emit RiskFreeRateSet(_riskFreeRate.intoUint256());
         riskFreeRate = _riskFreeRate;
     }
 
     function setMinPoolLiquidityRatio(UD60x18 _minPoolLiquidityRatio) external override onlyGovernor {
-        require(_minPoolLiquidityRatio <= ud(1e18), "LG:SMPR:GT_1");
+        if (_minPoolLiquidityRatio > ud(1e18)) {
+            revert Errors.Globals_MinPoolLiquidityRatioGreaterThanOne(_minPoolLiquidityRatio.intoUint256());
+        }
         emit MinPoolLiquidityRatioSet(_minPoolLiquidityRatio.intoUint256());
         minPoolLiquidityRatio = _minPoolLiquidityRatio;
     }
 
     function setProtocolFeeRate(UD60x18 _protocolFeeRate) external override onlyGovernor {
-        require(_protocolFeeRate <= ud(1e18), "LG:SPFR:GT_1");
+        if (_protocolFeeRate > ud(1e18)) {
+            revert Errors.Globals_ProtocolFeeRateGreaterThanOne(_protocolFeeRate.intoUint256());
+        }
         emit ProtocolFeeRateSet(_protocolFeeRate.intoUint256());
         protocolFeeRate = _protocolFeeRate;
     }
@@ -257,15 +267,8 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     //////////////////////////////////////////////////////////////////////////*/
 
     function _checkIsLopoGovernor() internal view {
-        // require(msg.sender == admin, "LG:Caller_Not_Gov");
         if (msg.sender != admin) {
             revert Errors.Globals_CallerNotGovernor(admin, msg.sender);
-        }
-    }
-
-    function _setAddress(bytes32 _slot, address _value) private {
-        assembly {
-            sstore(_slot, _value)
         }
     }
 
