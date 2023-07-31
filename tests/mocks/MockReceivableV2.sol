@@ -8,13 +8,13 @@ import { ERC721EnumerableUpgradeable } from
 import { ERC721BurnableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { ReceivableStorage } from "./ReceivableStorage.sol";
-import { IReceivable } from "./interfaces/IReceivable.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { ReceivableStorage } from "../../contracts/ReceivableStorage.sol";
+import { IReceivable } from "../../contracts/interfaces/IReceivable.sol";
+import { ILopoGlobals } from "../../contracts/interfaces/ILopoGlobals.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import { Adminable } from "./abstracts/Adminable.sol";
+import { Adminable } from "../../contracts/abstracts/Adminable.sol";
 
-contract Receivable is
+contract MockReceivableV2 is
     ReceivableStorage,
     Initializable,
     ERC721Upgradeable,
@@ -161,5 +161,9 @@ contract Receivable is
 
     function governor() public view override returns (address) {
         return globals_.governor();
+    }
+
+    function upgradeV2Test() public pure returns (string memory) {
+        return "ReceivableV2";
     }
 }

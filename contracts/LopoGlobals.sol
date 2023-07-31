@@ -70,7 +70,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address governor_) external initializer {
-        // transferAdmin(governor_);
         admin = governor_;
         emit Initialized();
     }

@@ -29,4 +29,6 @@ interface IReceivable {
 
     // View Functions
     function lopoGlobals() external view returns (address _lopoGlobals);
+
+    function governor() external view returns (address _governor);
 }

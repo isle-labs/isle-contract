@@ -11,8 +11,8 @@ import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 abstract contract BaseTest is PRBTest {
     LopoGlobals globalsV1;
 
-    UUPSProxy proxy;
-    LopoGlobals wrappedProxyV1;
+    UUPSProxy LopoProxy;
+    LopoGlobals wrappedLopoProxyV1;
 
     address DEFAULT_GOVERNOR;
     address DEFAULT_BUYER;
@@ -33,22 +33,22 @@ abstract contract BaseTest is PRBTest {
 
         globalsV1 = new LopoGlobals();
 
-        // deploy proxy and point it to the implementation
-        proxy = new UUPSProxy(address(globalsV1), "");
+        // deploy LopoProxy and point it to the implementation
+        LopoProxy = new UUPSProxy(address(globalsV1), "");
 
         // wrap in ABI to support easier calls
-        wrappedProxyV1 = LopoGlobals(address(proxy));
+        wrappedLopoProxyV1 = LopoGlobals(address(LopoProxy));
 
-        // // initialize the proxy, assign the governor
-        wrappedProxyV1.initialize(DEFAULT_GOVERNOR);
+        // initialize the LopoProxy, assign the governor
+        wrappedLopoProxyV1.initialize(DEFAULT_GOVERNOR);
 
-        GOVERNOR = wrappedProxyV1.governor();
+        GOVERNOR = wrappedLopoProxyV1.governor();
     }
 
     function test_setUpState() public view {
-        console.log("-> governor: %s", wrappedProxyV1.governor());
-        console.log("-> proxy: %s", address(proxy));
-        console.log("-> wrappedProxyV1: %s", address(wrappedProxyV1));
+        console.log("-> governor: %s", wrappedLopoProxyV1.governor());
+        console.log("-> LopoProxy: %s", address(LopoProxy));
+        console.log("-> wrappedLopoProxyV1: %s", address(wrappedLopoProxyV1));
         console.log("-> globalsV1: %s", address(globalsV1));
     }
 
