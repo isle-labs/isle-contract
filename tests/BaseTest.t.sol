@@ -8,13 +8,11 @@ import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
-contract BaseTest is PRBTest {
+abstract contract BaseTest is PRBTest {
     LopoGlobals globalsV1;
-    LopoGlobals globalsV2;
 
     UUPSProxy proxy;
     LopoGlobals wrappedProxyV1;
-    LopoGlobals wrappedProxyV2;
 
     address DEFAULT_GOVERNOR;
     address DEFAULT_BUYER;
@@ -47,8 +45,7 @@ contract BaseTest is PRBTest {
         GOVERNOR = wrappedProxyV1.governor();
     }
 
-    function test_setUpState() public {
-        console.log("-> address(this): %s", address(this));
+    function test_setUpState() public view {
         console.log("-> governor: %s", wrappedProxyV1.governor());
         console.log("-> proxy: %s", address(proxy));
         console.log("-> wrappedProxyV1: %s", address(wrappedProxyV1));

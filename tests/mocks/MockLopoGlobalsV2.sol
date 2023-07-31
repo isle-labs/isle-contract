@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { ILopoGlobals } from "../../contracts/interfaces/ILopoGlobals.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { Errors } from "./libraries/Errors.sol";
-import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
-import { Adminable } from "./abstracts/Adminable.sol";
+import { Errors } from "../../contracts/libraries/Errors.sol";
+import { VersionedInitializable } from "../../contracts/libraries/upgradability/VersionedInitializable.sol";
+import { Adminable } from "../../contracts/abstracts/Adminable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
-    uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
+contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
+    uint256 public constant LOPO_GLOBALS_REVISION = 0x2;
 
     /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
@@ -267,5 +267,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         assembly {
             sstore(_slot, _value)
         }
+    }
+
+    function upgradeV2Test() public pure returns (string memory) {
+        return "Hello World V2";
     }
 }
