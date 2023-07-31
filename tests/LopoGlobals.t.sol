@@ -8,6 +8,9 @@ contract LopoGlobalsTest is BaseTest {
     MockLopoGlobalsV2 globalsV2;
     MockLopoGlobalsV2 wrappedLopoProxyV2;
 
+    event GovernorshipAccepted(address indexed previousGovernor_, address indexed currentGovernor_);
+    event PendingGovernorSet(address indexed pendingGovernor_);
+
     address GOVERNORV2;
 
     function setUp() public override {
@@ -57,5 +60,25 @@ contract LopoGlobalsTest is BaseTest {
         string memory text = wrappedLopoProxyV2.upgradeV2Test();
         console.log("-> text: %s", text);
         assertEq(text, "Hello World V2");
+    }
+
+    function test_setPendingLopoGovernor_and_acceptLopoGovernor() public {
+        console.log("Governor: %s", wrappedLopoProxyV1.governor());
+        console.log("pendingLopoGovernor before setting", wrappedLopoProxyV1.pendingLopoGovernor());
+
+        vm.expectEmit(true, true, true, true);
+        emit PendingGovernorSet(GOVERNORV2);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setPendingLopoGovernor(GOVERNORV2);
+
+        console.log("pendingLopoGovernor after setting", wrappedLopoProxyV1.pendingLopoGovernor());
+        assertEq(wrappedLopoProxyV1.pendingLopoGovernor(), GOVERNORV2);
+
+        vm.expectEmit(true, true, true, true);
+        emit GovernorshipAccepted(GOVERNOR, GOVERNORV2);
+        vm.prank(GOVERNORV2);
+        wrappedLopoProxyV1.acceptLopoGovernor();
+        console.log("Governor after accepting: %s", wrappedLopoProxyV1.governor());
+        assertEq(wrappedLopoProxyV1.governor(), GOVERNORV2);
     }
 }
