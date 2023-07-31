@@ -52,9 +52,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function previewWithdraw(address owner_, uint256 assets_) external view returns (uint256 shares_);
 
     /* Others */
-    function globals() external view returns (address globals_);
-    function governor() external view returns (address governor_);
-    function loanManager() external view returns (address loanManager_);
     function hasSufficientCover() external view returns (bool hasSufficientCover_);
     function totalAssets() external view returns (uint256 totalAssets_);
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
@@ -75,7 +72,7 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setOpenToPublic() external;
 
     /* Funding Functions */
-    function requestFunds(address destination_, uint256 principal_) external;
+    function requestFunds(uint256 principal_) external;
 
     /* Default Functions */
     function triggerDefault(uint16 loanId_) external;

@@ -134,25 +134,30 @@ interface ILopoGlobals {
 
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
 
-    function insuranceFeePercent(address poolManager_) external view returns (uint256 insuranceFeePercent_);
-
     function exitFeePercent(address poolManager_) external view returns (uint256 exitFeePercent_);
 
     function withdrawalDurationInDays(address poolManager_) external view returns (uint256 withdrawalDurationInDays_);
 
     function minDepositLimit(address poolManager_) external view returns (UD60x18 minDepositLimit_);
 
-    function protocolFeeRate() external view returns (UD60x18 protocolFeeRate_);
-
     function minPoolLiquidityRatio() external view returns (UD60x18 minPoolLiquidityRatio_);
 
-    function riskFreeRate() external view returns (UD60x18 riskFreeRate_);
+    function riskFreeRate() external view returns (uint256 riskFreeRate_);
+
+    function gracePeriod() external view returns (uint256 gracePeriod_);
+
+    function lateInterestExcessRate() external view returns (uint256 lateInterestExcessRate_);
 
     /**
      *  @dev    Gets governor address.
      *  @return governor_ The address of the governor.
      */
     function governor() external view returns (address governor_);
+
+    function borrowers(address borrower_)
+        external
+        view
+        returns (bool isBorrower, uint256 riskPremium, uint256 discountRate, uint256 expirationTimestamp);
 
     /**
      *  @dev    Gets the validity of a borrower.
@@ -164,8 +169,6 @@ interface ILopoGlobals {
     function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
     function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
-
-    function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
      *  @dev    Gets the validity of a collateral asset.
@@ -247,13 +250,11 @@ interface ILopoGlobals {
 
     function setValidReceivable(address receivable_, bool isValid_) external;
 
-    function setValidBuyer(address buyer_, bool isValid_) external;
-
-    function setRiskFreeRate(UD60x18 riskFreeRate_) external;
+    function setRiskFreeRate(uint256 riskFreeRate_) external;
 
     function setMinPoolLiquidityRatio(UD60x18 minPoolLiquidityRatio_) external;
 
-    function setProtocolFeeRate(UD60x18 protocolFeeRate_) external;
-
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
+
+    function protocolFeeRate(address poolConfigurator_) external view returns (uint256 protocolFeeRate_);
 }

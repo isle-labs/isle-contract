@@ -27,8 +27,8 @@ contract Receivable is
     /**
      * Modifier **
      */
-    modifier onlyBuyer() {
-        require(globals_.isBuyer(msg.sender), "RECV:CALLER_NOT_BUYER");
+    modifier onlyBorrower() {
+        require(globals_.isBorrower(msg.sender), "RECV:CALLER_NOT_BUYER");
         _;
     }
 
@@ -74,7 +74,7 @@ contract Receivable is
     )
         external
         override
-        onlyBuyer
+        onlyBorrower
         returns (uint256 _tokenId)
     {
         uint256 tokenId = _tokenIdCounter;

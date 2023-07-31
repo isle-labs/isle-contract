@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { ReceivableStorage } from "../ReceivableStorage.sol";
 
