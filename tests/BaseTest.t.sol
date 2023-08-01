@@ -18,6 +18,7 @@ contract BaseTest is PRBTest {
     address DEFAULT_GOVERNOR;
     address DEFAULT_BUYER;
     address DEFAULT_SELLER;
+    address DEFAULT_POOL_ADMIN;
 
     address GOVERNOR;
 
@@ -31,6 +32,7 @@ contract BaseTest is PRBTest {
         DEFAULT_GOVERNOR = ACCOUNTS[0];
         DEFAULT_BUYER = ACCOUNTS[1];
         DEFAULT_SELLER = ACCOUNTS[2];
+        DEFAULT_POOL_ADMIN = ACCOUNTS[3];
 
         globalsV1 = new LopoGlobals();
 

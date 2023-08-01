@@ -86,13 +86,6 @@ interface ILopoGlobals {
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
     /**
-     * @dev A valid pool was set.
-     * @param poolAddress_ The address of the pool.
-     * @param isEnabled_     The validity of the pool.
-     */
-    event IsEnabledSet(address indexed poolAddress_, bool isEnabled_);
-
-    /**
      *  @dev   A valid receivable was set.
      *  @param receivable_ The address of the receivable.
      *  @param isValid_    The validity of the receivable.
@@ -163,8 +156,6 @@ interface ILopoGlobals {
 
     function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
-    function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
-
     function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
@@ -215,8 +206,6 @@ interface ILopoGlobals {
      *  @param lopoVault_ The address of the Lopo vault.
      */
     function setLopoVault(address lopoVault_) external;
-
-    function setIsEnabled(address poolAddress_, bool isEnabled_) external;
 
     /**
      *  @dev   Sets the protocol pause.

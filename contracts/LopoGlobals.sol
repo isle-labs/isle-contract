@@ -55,7 +55,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => bool) public override isPoolAsset;
 
     // configs by poolConfigurator
-    mapping(address => bool) public override isEnabled;
     mapping(address => UD60x18) public override minDepositLimit;
     mapping(address => uint256) public override withdrawalDurationInDays;
     // mapping(address => address) public override insurancePool; // this should be implemented in other place
@@ -178,14 +177,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ProtocolPauseSet(msg.sender, protocolPaused = _protocolPaused);
     }
 
-    /**
-     * Allowlist Setters **
-     */
-
-    function setIsEnabled(address _poolConfigurator, bool _isEnabled) external override onlyGovernor {
-        isEnabled[_poolConfigurator] = _isEnabled;
-        emit IsEnabledSet(_poolConfigurator, _isEnabled);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                            Allowlist Setters
+    //////////////////////////////////////////////////////////////////////////*/
 
     function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
         if (_receivable == address(0)) {

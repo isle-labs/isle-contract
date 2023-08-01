@@ -54,7 +54,6 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     mapping(address => bool) public override isPoolAsset;
 
     // configs by poolConfigurator
-    mapping(address => bool) public override isEnabled;
     mapping(address => UD60x18) public override minDepositLimit;
     mapping(address => uint256) public override withdrawalDurationInDays;
     // mapping(address => address) public override insurancePool; // this should be implemented in other place
@@ -180,11 +179,6 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     /**
      * Allowlist Setters **
      */
-
-    function setIsEnabled(address _poolConfigurator, bool _isEnabled) external override onlyGovernor {
-        isEnabled[_poolConfigurator] = _isEnabled;
-        emit IsEnabledSet(_poolConfigurator, _isEnabled);
-    }
 
     function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
         if (_receivable == address(0)) {
