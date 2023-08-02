@@ -140,9 +140,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         _;
     }
 
-    /**
-     * Governor Transfer Functions **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            Governor Transfer Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     function acceptLopoGovernor() external override {
         if (msg.sender != pendingLopoGovernor) {
@@ -180,6 +180,16 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     /*//////////////////////////////////////////////////////////////////////////
                             Allowlist Setters
     //////////////////////////////////////////////////////////////////////////*/
+
+    function setOwnedPoolConfigurator(address _poolAdmin, address _poolConfigurator) external override onlyGovernor {
+        PoolAdmin storage admin_ = poolAdmins[_poolAdmin];
+        if (admin_.ownedPoolConfigurator != address(0)) {
+            revert Errors.Globals_AlreadyHasConfigurator(_poolAdmin, admin_.ownedPoolConfigurator);
+        }
+        admin_.ownedPoolConfigurator = _poolConfigurator;
+        admin_.isPoolAdmin = true;
+        emit OwnedPoolConfiguratorSet(_poolAdmin, _poolConfigurator);
+    }
 
     function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
         if (_receivable == address(0)) {

@@ -103,4 +103,6 @@ interface ILopoGlobalsEvents {
     event MinDepositLimitSet(address indexed poolManager_, uint256 indexed minDepositLimit_);
 
     event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
+
+    event OwnedPoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
 }

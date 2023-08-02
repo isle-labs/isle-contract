@@ -77,6 +77,8 @@ library Errors {
 
     error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
 
+    error Globals_AlreadyHasPoolConfigurator(address poolAdmin, address poolConfigurator);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
     //////////////////////////////////////////////////////////////////////////*/
