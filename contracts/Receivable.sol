@@ -161,6 +161,7 @@ contract Receivable is
         if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
             revert Errors.Receivable_InvalidGlobals(lopoGlobals_);
         }
+        emit LopoGlobalsSet(lopoGlobals, lopoGlobals_);
         lopoGlobals = lopoGlobals_;
     }
 

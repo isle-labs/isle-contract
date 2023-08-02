@@ -22,6 +22,8 @@ contract ReceivableTest is BaseTest {
         uint256 repaymentTimestamp
     );
 
+    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
+
     function setUp() public virtual override {
         super.setUp();
         receivableV1 = new Receivable();
@@ -38,6 +40,10 @@ contract ReceivableTest is BaseTest {
         // onboard buyer
         vm.prank(GOVERNOR);
         wrappedLopoProxyV1.setValidBuyer(DEFAULT_BUYER, true);
+    }
+
+    function test_getImplementation() public {
+        assertEq(wrappedReceivableProxyV1.getImplementation(), address(receivableV1));
     }
 
     function test_createReceivable() public {
@@ -68,7 +74,7 @@ contract ReceivableTest is BaseTest {
         assertEq(RECVInfo.currencyCode, 804);
     }
 
-    function test_canUpgrade_readData() public {
+    function test_canUpgrade_readDataFromV1() public {
         vm.expectEmit(true, true, true, true);
         emit AssetCreated(DEFAULT_BUYER, DEFAULT_SELLER, 0, 1000e18, block.timestamp + 1 days);
 
@@ -106,5 +112,24 @@ contract ReceivableTest is BaseTest {
         assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
         assertEq(RECVInfo.isValid, true);
         assertEq(RECVInfo.currencyCode, 804);
+
+        // test getImplementation() in V2
+        assertEq(wrappedReceivableProxyV2.getImplementation(), address(receivableV2));
+    }
+
+    function test_setLopoGlobals() public {
+        assertEq(wrappedReceivableProxyV1.lopoGlobals(), address(wrappedLopoProxyV1));
+
+        // since Receivable also have governor(), we use ReceivableV1 to pretend new LopoGlobals
+        address mockLopoGlobals = address(wrappedReceivableProxyV1);
+        vm.expectEmit(true, true, true, true);
+        emit LopoGlobalsSet(address(wrappedLopoProxyV1), mockLopoGlobals);
+        vm.prank(wrappedReceivableProxyV1.governor());
+        wrappedReceivableProxyV1.setLopoGlobals(mockLopoGlobals);
+        assertEq(wrappedReceivableProxyV1.lopoGlobals(), mockLopoGlobals);
+    }
+
+    function test_governor() public {
+        assertEq(wrappedReceivableProxyV1.governor(), GOVERNOR);
     }
 }

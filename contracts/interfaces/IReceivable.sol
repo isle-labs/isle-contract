@@ -14,6 +14,8 @@ interface IReceivable {
         uint256 repaymentTimestamp
     );
 
+    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
+
     function createReceivable(
         address _seller,
         UD60x18 _faceAmount,
