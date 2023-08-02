@@ -104,7 +104,9 @@ interface ILopoGlobals {
 
     event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
 
-    event OwnedPoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
+    event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
+
+    event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
@@ -248,5 +250,7 @@ interface ILopoGlobals {
 
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
 
-    function setOwnedPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
+
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
 }

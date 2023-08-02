@@ -52,7 +52,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         assertEq(text, "Hello World V2");
     }
 
-    function test_setPendingLopoGovernor_and_acceptLopoGovernor() public {
+    function test_setPendingLopoGovernor_acceptLopoGovernor() public {
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(GOVERNORV2);
         vm.prank(GOVERNOR);
@@ -71,6 +71,53 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
         vm.prank(GOVERNOR);
         wrappedLopoProxyV1.setLopoVault(address(0));
+    }
+
+    function test_setProtocolPause() public {
+        vm.expectEmit(true, true, true, true);
+        emit ProtocolPauseSet(GOVERNOR, true);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setProtocolPause(true);
+        assertTrue(wrappedLopoProxyV1.protocolPaused());
+    }
+
+    function test_setValidPoolAdmin_setPoolConfigurator_transferOwnedPoolConfigurator() public {
+        address mockPoolAdmin = ACCOUNTS[7];
+        address mockNextPoolAdmin = ACCOUNTS[8];
+        address mockPoolConfigurator = ACCOUNTS[9];
+
+        // onboard the pool admin
+        vm.expectEmit(true, true, true, true);
+        emit ValidPoolAdminSet(mockPoolAdmin, true);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setValidPoolAdmin(mockPoolAdmin, true);
+        assertEq(wrappedLopoProxyV1.ownedPoolConfigurator(mockPoolAdmin), address(0));
+        assertEq(wrappedLopoProxyV1.isPoolAdmin(mockPoolAdmin), true);
+
+        // set the pool configurator to the pool admin
+        vm.expectEmit(true, true, true, true);
+        emit PoolConfiguratorSet(mockPoolAdmin, mockPoolConfigurator);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
+        assertEq(wrappedLopoProxyV1.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
+
+        // before onboard the next pool admin
+        assertTrue(!wrappedLopoProxyV1.isPoolAdmin(mockNextPoolAdmin));
+        assertEq(wrappedLopoProxyV1.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
+        // onboard the next pool admin
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setValidPoolAdmin(mockNextPoolAdmin, true);
+        assertTrue(wrappedLopoProxyV1.isPoolAdmin(mockNextPoolAdmin));
+
+        // transfer the pool configurator from the pool admin to the next pool admin
+        vm.expectEmit(true, true, true, true);
+        emit PoolConfiguratorOwnershipTransferred(mockPoolAdmin, mockNextPoolAdmin, mockPoolConfigurator);
+        vm.prank(mockPoolConfigurator);
+        wrappedLopoProxyV1.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
+        assertEq(wrappedLopoProxyV1.ownedPoolConfigurator(mockPoolAdmin), address(0));
+        assertEq(wrappedLopoProxyV1.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
+        assertTrue(wrappedLopoProxyV1.isPoolAdmin(mockPoolAdmin));
+        assertTrue(wrappedLopoProxyV1.isPoolAdmin(mockNextPoolAdmin));
     }
 
     function test_setValidReceivable() public {
@@ -154,5 +201,14 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.prank(GOVERNOR);
         wrappedLopoProxyV1.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
         assertEq(wrappedLopoProxyV1.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
+    }
+
+    function test_setWithdrawalDurationInDays() public {
+        address mockPoolConfigurator = ACCOUNTS[9];
+        vm.expectEmit(true, true, true, true);
+        emit WithdrawalDurationInDaysSet(mockPoolConfigurator, 30);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
+        assertEq(wrappedLopoProxyV1.withdrawalDurationInDays(mockPoolConfigurator), 30);
     }
 }

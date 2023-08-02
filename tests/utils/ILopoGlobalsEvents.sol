@@ -104,5 +104,7 @@ interface ILopoGlobalsEvents {
 
     event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
 
-    event OwnedPoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
+    event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
+
+    event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
 }

@@ -59,6 +59,8 @@ library Errors {
 
     error Globals_ToInvalidPoolAdmin(address poolAdmin);
 
+    error Globals_ToInvalidPoolConfigurator(address poolConfigurator);
+
     error Globals_AlreadyHasConfigurator(address poolAdmin, address poolConfigurator);
 
     error Globals_AdminZeroAddress();
@@ -76,8 +78,6 @@ library Errors {
     error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
 
     error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
-
-    error Globals_AlreadyHasPoolConfigurator(address poolAdmin, address poolConfigurator);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable

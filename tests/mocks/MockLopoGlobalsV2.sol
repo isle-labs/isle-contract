@@ -115,6 +115,7 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
             revert Errors.Globals_CallerNotPoolConfigurator(poolConfigurator_, msg.sender);
         }
 
+        // If the new pool admin already has a pool configurator, then we can't transfer the ownership
         if (!toAdmin_.isPoolAdmin) {
             revert Errors.Globals_ToInvalidPoolAdmin(toPoolAdmin_);
         }
@@ -180,14 +181,23 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
                             Allowlist Setters
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setOwnedPoolConfigurator(address _poolAdmin, address _poolConfigurator) external override onlyGovernor {
-        PoolAdmin storage admin_ = poolAdmins[_poolAdmin];
-        if (admin_.ownedPoolConfigurator != address(0)) {
-            revert Errors.Globals_AlreadyHasConfigurator(_poolAdmin, admin_.ownedPoolConfigurator);
+    function setValidPoolAdmin(address _poolAdmin, bool _isValid) external override onlyGovernor {
+        poolAdmins[_poolAdmin].isPoolAdmin = _isValid;
+        emit ValidPoolAdminSet(_poolAdmin, _isValid);
+    }
+
+    function setPoolConfigurator(address _poolAdmin, address _poolConfigurator) external override onlyGovernor {
+        if (!poolAdmins[_poolAdmin].isPoolAdmin) {
+            revert Errors.Globals_ToInvalidPoolAdmin(_poolAdmin);
         }
-        admin_.ownedPoolConfigurator = _poolConfigurator;
-        admin_.isPoolAdmin = true;
-        emit OwnedPoolConfiguratorSet(_poolAdmin, _poolConfigurator);
+        if (poolAdmins[_poolAdmin].ownedPoolConfigurator != address(0)) {
+            revert Errors.Globals_AlreadyHasConfigurator(_poolAdmin, poolAdmins[_poolAdmin].ownedPoolConfigurator);
+        }
+        if (_poolConfigurator == address(0)) {
+            revert Errors.Globals_ToInvalidPoolConfigurator(_poolConfigurator);
+        }
+        poolAdmins[_poolAdmin].ownedPoolConfigurator = _poolConfigurator;
+        emit PoolConfiguratorSet(_poolAdmin, _poolConfigurator);
     }
 
     function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
