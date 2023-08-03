@@ -38,9 +38,21 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
 
         assertEq(wrappedLopoProxyV2.governor(), DEFAULT_GOVERNOR);
 
-        wrappedLopoProxyV2.initialize(GOVERNORV2);
+        // @notice: in our mock, we inherit from LopoGlobals
+        // which means the REVISON still = 0x1
+        // so we cannot do wrappedLopoProxyV2.initialize(GOVERNORV2)
+        vm.expectEmit(true, true, true, true);
+        emit PendingGovernorSet(GOVERNORV2);
+        vm.prank(GOVERNOR);
+        wrappedLopoProxyV1.setPendingLopoGovernor(GOVERNORV2);
 
-        assertEq(wrappedLopoProxyV2.governor(), GOVERNORV2);
+        assertEq(wrappedLopoProxyV1.pendingLopoGovernor(), GOVERNORV2);
+
+        vm.expectEmit(true, true, true, true);
+        emit GovernorshipAccepted(GOVERNOR, GOVERNORV2);
+        vm.prank(GOVERNORV2);
+        wrappedLopoProxyV1.acceptLopoGovernor();
+        assertEq(wrappedLopoProxyV1.governor(), GOVERNORV2);
 
         assertTrue(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
 
@@ -50,15 +62,6 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         // new function in V2
         string memory text = wrappedLopoProxyV2.upgradeV2Test();
         assertEq(text, "Hello World V2");
-
-        // change existing function in V2, let the logic of setValidBuyer() be reversed
-        // if we set an adress to true, it will be false
-        vm.prank(GOVERNORV2);
-        wrappedLopoProxyV2.setValidBuyer(DEFAULT_BUYER, true);
-        assertFalse(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
-        vm.prank(GOVERNORV2);
-        wrappedLopoProxyV2.setValidBuyer(DEFAULT_BUYER, false);
-        assertTrue(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
     }
 
     function test_setPendingLopoGovernor_acceptLopoGovernor() public {

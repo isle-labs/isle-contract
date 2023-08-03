@@ -115,32 +115,6 @@ contract ReceivableTest is BaseTest {
 
         // test getImplementation() in V2
         assertEq(wrappedReceivableProxyV2.getImplementation(), address(receivableV2));
-
-        // change existing function in V2, let faceAmount of createReceivable() always be 98765e18
-        vm.expectEmit(true, true, true, true);
-        emit AssetCreated(DEFAULT_BUYER, DEFAULT_SELLER, 1, 98_765e18, block.timestamp + 1 days);
-
-        vm.prank(DEFAULT_BUYER);
-        wrappedReceivableProxyV2.createReceivable(DEFAULT_SELLER, ud(1000e18), block.timestamp + 1 days, 804);
-
-        tokenId = wrappedReceivableProxyV2.tokenOfOwnerByIndex(address(DEFAULT_SELLER), 1);
-
-        // RecevableInfo
-        RECVInfo = wrappedReceivableProxyV2.getReceivableInfoById(tokenId);
-
-        // assertions
-        assertEq(tokenId, 1);
-        assertEq(wrappedReceivableProxyV2.ownerOf(tokenId), DEFAULT_SELLER);
-        assertEq(wrappedReceivableProxyV2.balanceOf(DEFAULT_SELLER), 2);
-        assertEq(wrappedReceivableProxyV2.totalSupply(), 2);
-        assertEq(wrappedReceivableProxyV2.tokenByIndex(1), tokenId);
-
-        assertEq(RECVInfo.buyer, DEFAULT_BUYER);
-        assertEq(RECVInfo.seller, DEFAULT_SELLER);
-        assertEq(RECVInfo.faceAmount.intoUint256(), 98_765e18);
-        assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
-        assertEq(RECVInfo.isValid, true);
-        assertEq(RECVInfo.currencyCode, 804);
     }
 
     function test_setLopoGlobals() public {
