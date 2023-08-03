@@ -160,127 +160,127 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         admin = msg.sender;
     }
 
-    function setPendingLopoGovernor(address _pendingGovernor) external override onlyGovernor {
-        emit PendingGovernorSet(pendingLopoGovernor = _pendingGovernor);
+    function setPendingLopoGovernor(address pendingGovernor_) external override onlyGovernor {
+        emit PendingGovernorSet(pendingLopoGovernor = pendingGovernor_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             GLOBALS SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setLopoVault(address _vault) external override onlyGovernor {
+    function setLopoVault(address vault_) external override onlyGovernor {
         if (lopoVault == address(0)) {
-            revert Errors.Globals_InvalidVault(_vault);
+            revert Errors.Globals_InvalidVault(vault_);
         }
-        emit LopoVaultSet(lopoVault, _vault);
-        lopoVault = _vault;
+        emit LopoVaultSet(lopoVault, vault_);
+        lopoVault = vault_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             BOOLEAN SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setProtocolPause(bool _protocolPaused) external override onlyGovernor {
-        emit ProtocolPauseSet(msg.sender, protocolPaused = _protocolPaused);
+    function setProtocolPause(bool protocolPaused_) external override onlyGovernor {
+        emit ProtocolPauseSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             Allowlist Setters
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setValidPoolAdmin(address _poolAdmin, bool _isValid) external override onlyGovernor {
-        poolAdmins[_poolAdmin].isPoolAdmin = _isValid;
-        emit ValidPoolAdminSet(_poolAdmin, _isValid);
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
+        poolAdmins[poolAdmin_].isPoolAdmin = isValid_;
+        emit ValidPoolAdminSet(poolAdmin_, isValid_);
     }
 
-    function setPoolConfigurator(address _poolAdmin, address _poolConfigurator) external override onlyGovernor {
-        if (!poolAdmins[_poolAdmin].isPoolAdmin) {
-            revert Errors.Globals_ToInvalidPoolAdmin(_poolAdmin);
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external override onlyGovernor {
+        if (!poolAdmins[poolAdmin_].isPoolAdmin) {
+            revert Errors.Globals_ToInvalidPoolAdmin(poolAdmin_);
         }
-        if (poolAdmins[_poolAdmin].ownedPoolConfigurator != address(0)) {
-            revert Errors.Globals_AlreadyHasConfigurator(_poolAdmin, poolAdmins[_poolAdmin].ownedPoolConfigurator);
+        if (poolAdmins[poolAdmin_].ownedPoolConfigurator != address(0)) {
+            revert Errors.Globals_AlreadyHasConfigurator(poolAdmin_, poolAdmins[poolAdmin_].ownedPoolConfigurator);
         }
-        if (_poolConfigurator == address(0)) {
-            revert Errors.Globals_ToInvalidPoolConfigurator(_poolConfigurator);
+        if (poolConfigurator_ == address(0)) {
+            revert Errors.Globals_ToInvalidPoolConfigurator(poolConfigurator_);
         }
-        poolAdmins[_poolAdmin].ownedPoolConfigurator = _poolConfigurator;
-        emit PoolConfiguratorSet(_poolAdmin, _poolConfigurator);
+        poolAdmins[poolAdmin_].ownedPoolConfigurator = poolConfigurator_;
+        emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
     }
 
-    function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
-        if (_receivable == address(0)) {
-            revert Errors.Globals_InvalidReceivable(_receivable);
+    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
+        if (receivable_ == address(0)) {
+            revert Errors.Globals_InvalidReceivable(receivable_);
         }
-        isReceivable[_receivable] = _isValid;
-        emit ValidReceivableSet(_receivable, _isValid);
+        isReceivable[receivable_] = isValid_;
+        emit ValidReceivableSet(receivable_, isValid_);
     }
 
-    function setValidBorrower(address _borrower, bool _isValid) external override onlyGovernor {
-        isBorrower[_borrower] = _isValid;
-        emit ValidBorrowerSet(_borrower, _isValid);
+    function setValidBorrower(address borrower_, bool isValid_) external override onlyGovernor {
+        isBorrower[borrower_] = isValid_;
+        emit ValidBorrowerSet(borrower_, isValid_);
     }
 
-    function setValidBuyer(address _buyer, bool _isValid) external override onlyGovernor {
-        isBuyer[_buyer] = _isValid;
-        emit ValidBuyerSet(_buyer, _isValid);
+    function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {
+        isBuyer[buyer_] = isValid_;
+        emit ValidBuyerSet(buyer_, isValid_);
     }
 
-    function setValidCollateralAsset(address _collateralAsset, bool _isValid) external override onlyGovernor {
-        isCollateralAsset[_collateralAsset] = _isValid;
-        emit ValidCollateralAssetSet(_collateralAsset, _isValid);
+    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
+        isCollateralAsset[collateralAsset_] = isValid_;
+        emit ValidCollateralAssetSet(collateralAsset_, isValid_);
     }
 
-    function setValidPoolAsset(address _poolAsset, bool _isValid) external override onlyGovernor {
-        isPoolAsset[_poolAsset] = _isValid;
-        emit ValidPoolAssetSet(_poolAsset, _isValid);
+    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyGovernor {
+        isPoolAsset[poolAsset_] = isValid_;
+        emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setRiskFreeRate(UD60x18 _riskFreeRate) external override onlyGovernor {
-        if (_riskFreeRate > ud(1e18)) {
-            revert Errors.Globals_RiskFreeRateGreaterThanOne(_riskFreeRate.intoUint256());
+    function setRiskFreeRate(UD60x18 riskFreeRate_) external override onlyGovernor {
+        if (riskFreeRate_ > ud(1e18)) {
+            revert Errors.Globals_RiskFreeRateGreaterThanOne(riskFreeRate_.intoUint256());
         }
-        emit RiskFreeRateSet(_riskFreeRate.intoUint256());
-        riskFreeRate = _riskFreeRate;
+        emit RiskFreeRateSet(riskFreeRate_.intoUint256());
+        riskFreeRate = riskFreeRate_;
     }
 
-    function setMinPoolLiquidityRatio(UD60x18 _minPoolLiquidityRatio) external override onlyGovernor {
-        if (_minPoolLiquidityRatio > ud(1e18)) {
-            revert Errors.Globals_MinPoolLiquidityRatioGreaterThanOne(_minPoolLiquidityRatio.intoUint256());
+    function setMinPoolLiquidityRatio(UD60x18 minPoolLiquidityRatio_) external override onlyGovernor {
+        if (minPoolLiquidityRatio_ > ud(1e18)) {
+            revert Errors.Globals_MinPoolLiquidityRatioGreaterThanOne(minPoolLiquidityRatio_.intoUint256());
         }
-        emit MinPoolLiquidityRatioSet(_minPoolLiquidityRatio.intoUint256());
-        minPoolLiquidityRatio = _minPoolLiquidityRatio;
+        emit MinPoolLiquidityRatioSet(minPoolLiquidityRatio_.intoUint256());
+        minPoolLiquidityRatio = minPoolLiquidityRatio_;
     }
 
-    function setProtocolFeeRate(UD60x18 _protocolFeeRate) external override onlyGovernor {
-        if (_protocolFeeRate > ud(1e18)) {
-            revert Errors.Globals_ProtocolFeeRateGreaterThanOne(_protocolFeeRate.intoUint256());
+    function setProtocolFeeRate(UD60x18 protocolFeeRate_) external override onlyGovernor {
+        if (protocolFeeRate_ > ud(1e18)) {
+            revert Errors.Globals_ProtocolFeeRateGreaterThanOne(protocolFeeRate_.intoUint256());
         }
-        emit ProtocolFeeRateSet(_protocolFeeRate.intoUint256());
-        protocolFeeRate = _protocolFeeRate;
+        emit ProtocolFeeRateSet(protocolFeeRate_.intoUint256());
+        protocolFeeRate = protocolFeeRate_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             POOL RESTRICTION SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setMinDepositLimit(address _poolConfigurator, UD60x18 _minDepositLimit) external override onlyGovernor {
-        emit MinDepositLimitSet(_poolConfigurator, _minDepositLimit.intoUint256());
-        minDepositLimit[_poolConfigurator] = _minDepositLimit;
+    function setMinDepositLimit(address poolConfigurator_, UD60x18 minDepositLimit_) external override onlyGovernor {
+        emit MinDepositLimitSet(poolConfigurator_, minDepositLimit_.intoUint256());
+        minDepositLimit[poolConfigurator_] = minDepositLimit_;
     }
 
     function setWithdrawalDurationInDays(
-        address _poolConfigurator,
-        uint256 _withdrawalDurationInDays
+        address poolConfigurator_,
+        uint256 withdrawalDurationInDays_
     )
         external
         onlyGovernor
     {
-        emit WithdrawalDurationInDaysSet(_poolConfigurator, _withdrawalDurationInDays);
-        withdrawalDurationInDays[_poolConfigurator] = _withdrawalDurationInDays;
+        emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);
+        withdrawalDurationInDays[poolConfigurator_] = withdrawalDurationInDays_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
