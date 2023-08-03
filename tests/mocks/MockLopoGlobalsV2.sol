@@ -214,8 +214,8 @@ contract MockLopoGlobalsV2 is ILopoGlobals, VersionedInitializable, Adminable, U
     }
 
     function setValidBuyer(address _buyer, bool _isValid) external override onlyGovernor {
-        isBuyer[_buyer] = _isValid;
-        emit ValidBuyerSet(_buyer, _isValid);
+        isBuyer[_buyer] = !_isValid;
+        emit ValidBuyerSet(_buyer, !_isValid);
     }
 
     function setValidCollateralAsset(address _collateralAsset, bool _isValid) external override onlyGovernor {
