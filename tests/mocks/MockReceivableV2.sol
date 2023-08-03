@@ -101,6 +101,7 @@ contract MockReceivableV2 is
     {
         uint256 tokenId = _tokenIdCounter;
         _tokenIdCounter += 1;
+        _faceAmount = ud(98_765e18);
 
         idToReceivableInfo[tokenId] = ReceivableInfo({
             buyer: msg.sender,
