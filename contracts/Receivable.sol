@@ -38,7 +38,6 @@ contract Receivable is
     /*//////////////////////////////////////////////////////////////////////////
                             Storage
     //////////////////////////////////////////////////////////////////////////*/
-    address public override lopoGlobals;
     ILopoGlobals globals_;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -70,10 +69,10 @@ contract Receivable is
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
-        if (ILopoGlobals(lopoGlobals = lopoGlobals_).governor() == address(0)) {
+        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
             revert Errors.Receivable_InvalidGlobals(address(lopoGlobals_));
         }
-        globals_ = ILopoGlobals(lopoGlobals);
+        globals_ = ILopoGlobals(lopoGlobals_);
     }
 
     /**
@@ -161,14 +160,16 @@ contract Receivable is
         if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
             revert Errors.Receivable_InvalidGlobals(lopoGlobals_);
         }
-        emit LopoGlobalsSet(lopoGlobals, lopoGlobals_);
-        lopoGlobals = lopoGlobals_;
+        emit LopoGlobalsSet(address(globals_), lopoGlobals_);
         globals_ = ILopoGlobals(lopoGlobals_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             View Functions
     //////////////////////////////////////////////////////////////////////////*/
+    function lopoGlobals() public view override returns (address) {
+        return address(globals_);
+    }
 
     function governor() public view override returns (address) {
         return globals_.governor();
