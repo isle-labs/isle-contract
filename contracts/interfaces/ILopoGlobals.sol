@@ -86,13 +86,6 @@ interface ILopoGlobals {
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
     /**
-     * @dev A valid pool was set.
-     * @param poolAddress_ The address of the pool.
-     * @param isEnabled_     The validity of the pool.
-     */
-    event IsEnabledSet(address indexed poolAddress_, bool isEnabled_);
-
-    /**
      *  @dev   A valid receivable was set.
      *  @param receivable_ The address of the receivable.
      *  @param isValid_    The validity of the receivable.
@@ -110,6 +103,10 @@ interface ILopoGlobals {
     event MinDepositLimitSet(address indexed poolManager_, uint256 indexed minDepositLimit_);
 
     event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
+
+    event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
+
+    event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
@@ -163,8 +160,6 @@ interface ILopoGlobals {
 
     function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
-    function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
-
     function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
@@ -216,8 +211,6 @@ interface ILopoGlobals {
      */
     function setLopoVault(address lopoVault_) external;
 
-    function setIsEnabled(address poolAddress_, bool isEnabled_) external;
-
     /**
      *  @dev   Sets the protocol pause.
      *  @param protocolPaused_ A boolean indicating the status of the protocol pause.
@@ -256,4 +249,8 @@ interface ILopoGlobals {
     function setProtocolFeeRate(UD60x18 protocolFeeRate_) external;
 
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
+
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
+
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
 }

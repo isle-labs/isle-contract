@@ -7,26 +7,30 @@ import { ReceivableStorage } from "../ReceivableStorage.sol";
 interface IReceivable {
     // events
     event AssetCreated(
-        address indexed buyer,
-        address indexed seller,
-        uint256 indexed tokenId,
-        uint256 faceAmount,
-        uint256 repaymentTimestamp
+        address indexed buyer_,
+        address indexed seller_,
+        uint256 indexed tokenId_,
+        uint256 faceAmount_,
+        uint256 repaymentTimestamp_
     );
 
+    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
+
     function createReceivable(
-        address _seller,
-        UD60x18 _faceAmount,
-        uint256 _repaymentTimestamp,
-        uint16 _currencyCode
+        address seller_,
+        UD60x18 faceAmount_,
+        uint256 repaymentTimestam_,
+        uint16 currencyCode_
     )
         external
-        returns (uint256 _tokenId);
+        returns (uint256 tokenId_);
 
-    function getReceivableInfoById(uint256 tokenId) external view returns (ReceivableStorage.ReceivableInfo memory);
+    function getReceivableInfoById(uint256 tokenId_) external view returns (ReceivableStorage.ReceivableInfo memory);
 
-    function setLopoGlobals(address _lopoGlobals) external;
+    function setLopoGlobals(address lopoGlobals_) external;
 
     // View Functions
-    function lopoGlobals() external view returns (address _lopoGlobals);
+    function lopoGlobals() external view returns (address lopoGlobals_);
+
+    function governor() external view returns (address governor_);
 }

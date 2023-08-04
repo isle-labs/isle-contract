@@ -2,13 +2,18 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import { ERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import { ERC721EnumerableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import { ERC721BurnableUpgradeable } from
+    "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { Adminable } from "./abstracts/Adminable.sol";
+import { Errors } from "./libraries/Errors.sol";
 
 contract Receivable is
     ReceivableStorage,
@@ -16,88 +21,104 @@ contract Receivable is
     ERC721Upgradeable,
     ERC721EnumerableUpgradeable,
     ERC721BurnableUpgradeable,
+    UUPSUpgradeable,
+    Adminable,
     IReceivable
 {
-    /**
-     * Storage **
-     */
-    address public override lopoGlobals;
+    /*//////////////////////////////////////////////////////////////////////////
+                            UUPS FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
+
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            Storage
+    //////////////////////////////////////////////////////////////////////////*/
     ILopoGlobals globals_;
 
-    /**
-     * Modifier **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            Modifiers
+    //////////////////////////////////////////////////////////////////////////*/
     modifier onlyBuyer() {
-        require(globals_.isBuyer(msg.sender), "RECV:CALLER_NOT_BUYER");
+        if (!globals_.isBuyer(msg.sender)) {
+            revert Errors.Receivable_CallerNotBuyer(msg.sender);
+        }
         _;
     }
 
     modifier onlyGovernor() {
-        require(msg.sender == globals_.governor(), "RECV:NOT_GOVERNOR");
+        if (msg.sender != governor()) {
+            revert Errors.Receivable_CallerNotGovernor(governor(), msg.sender);
+        }
         _;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(address _lopoGlobals) {
-        _disableInitializers();
-        // lopoGlobals need to be deployed first
-        require(ILopoGlobals(lopoGlobals = _lopoGlobals).governor() != address(0), "RECV:C:INVALID_GLOBALS");
-        globals_ = ILopoGlobals(lopoGlobals);
+    constructor() {
+        // _disableInitializers();
     }
 
     /**
      * @dev Initializer that sets the default admin and buyer roles
      */
-    function initialize() public initializer {
+    function initialize(address lopoGlobals_) public initializer {
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
+        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
+            revert Errors.Receivable_InvalidGlobals(address(lopoGlobals_));
+        }
+        globals_ = ILopoGlobals(lopoGlobals_);
     }
 
     /**
      * @dev Buyer creates a new receivable
-     * @param _seller The address of the seller that's expected to receive payment for this receivable
-     * @param _faceAmount The amount of the receivable
-     * @param _repaymentTimestamp The timestamp when the receivable is expected to be repaid
-     * @param _currencyCode The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for
+     * @param seller_ The address of the seller that's expected to receive payment for this receivable
+     * @param faceAmount_ The amount of the receivable
+     * @param repaymentTimestamp_ The timestamp when the receivable is expected to be repaid
+     * @param currencyCode_ The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for
      * USD
-     * @return _tokenId The id of the newly created receivable
+     * @return tokenId_ The id of the newly created receivable
      * @notice Only the buyer can call this function
-     * @notice The input type of _faceAmount is UD60x18, which is a fixed-point number with 18 decimals
+     * @notice The input type of faceAmount_ is UD60x18, which is a fixed-point number with 18 decimals
      * @notice The event faceAmount is converted to decimal with 6 decimals
      */
     function createReceivable(
-        address _seller,
-        UD60x18 _faceAmount,
-        uint256 _repaymentTimestamp,
-        uint16 _currencyCode
+        address seller_,
+        UD60x18 faceAmount_,
+        uint256 repaymentTimestamp_,
+        uint16 currencyCode_
     )
         external
         override
         onlyBuyer
-        returns (uint256 _tokenId)
+        returns (uint256 tokenId_)
     {
-        uint256 tokenId = _tokenIdCounter;
-        _tokenIdCounter += 1;
+        uint256 tokenId = tokenIdCounter_;
+        tokenIdCounter_ += 1;
 
         idToReceivableInfo[tokenId] = ReceivableInfo({
             buyer: msg.sender,
-            seller: _seller,
-            faceAmount: _faceAmount,
-            repaymentTimestamp: _repaymentTimestamp,
+            seller: seller_,
+            faceAmount: faceAmount_,
+            repaymentTimestamp: repaymentTimestamp_,
             isValid: true,
-            currencyCode: _currencyCode
+            currencyCode: currencyCode_
         });
 
-        _safeMint(_seller, tokenId);
-        uint256 faceAmountToUint256 = _faceAmount.intoUint256();
-        emit AssetCreated(msg.sender, _seller, tokenId, faceAmountToUint256, _repaymentTimestamp);
+        _safeMint(seller_, tokenId);
+        uint256 faceAmountToUint256 = faceAmount_.intoUint256();
+        emit AssetCreated(msg.sender, seller_, tokenId, faceAmountToUint256, repaymentTimestamp_);
 
         return tokenId;
     }
 
-    function getReceivableInfoById(uint256 tokenId) external view override returns (ReceivableInfo memory) {
-        return idToReceivableInfo[tokenId];
+    function getReceivableInfoById(uint256 tokenId_) external view override returns (ReceivableInfo memory) {
+        return idToReceivableInfo[tokenId_];
     }
 
     // The following functions are overrides required by Solidity.
@@ -107,44 +128,50 @@ contract Receivable is
      * @notice not support batch transfer
      */
     function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 batchSize
+        address from_,
+        address to_,
+        uint256 tokenId_,
+        uint256 batchSize_
     )
         internal
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
     {
-        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+        super._beforeTokenTransfer(from_, to_, tokenId_, batchSize_);
     }
 
-    function _burn(uint256 tokenId) internal override(ERC721Upgradeable) {
-        super._burn(tokenId);
+    function _burn(uint256 tokenId_) internal override(ERC721Upgradeable) {
+        super._burn(tokenId_);
     }
 
-    function supportsInterface(bytes4 interfaceId)
+    function supportsInterface(bytes4 interfaceId_)
         public
         view
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return super.supportsInterface(interfaceId_);
     }
 
-    /**
-     * Globals Setters **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            Global Setter
+    //////////////////////////////////////////////////////////////////////////*/
 
-    function setLopoGlobals(address _lopoGlobals) external override onlyGovernor {
-        require(ILopoGlobals(_lopoGlobals).governor() != address(0), "RECV:SG:INVALID_GLOBALS");
-        lopoGlobals = _lopoGlobals;
+    function setLopoGlobals(address lopoGlobals_) external override onlyGovernor {
+        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
+            revert Errors.Receivable_InvalidGlobals(lopoGlobals_);
+        }
+        emit LopoGlobalsSet(address(globals_), lopoGlobals_);
+        globals_ = ILopoGlobals(lopoGlobals_);
     }
 
-    /**
-     * View Function **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+    function lopoGlobals() public view override returns (address) {
+        return address(globals_);
+    }
 
-    /**
-     * Helper Function **
-     */
+    function governor() public view override returns (address) {
+        return globals_.governor();
+    }
 }
