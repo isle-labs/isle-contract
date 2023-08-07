@@ -328,13 +328,16 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
 
         // Get buyer info
-        (bool isBorrower, uint256 riskPremium_, uint256 discountRate_, uint256 expirationTimestamp_) =
-            globals_.borrowers(receivableInfo_.buyer);
+        bool isBorrower_ =
+            globals_.isBorrower(receivableInfo_.buyer);
 
         // Only a borrower can create a loan
-        if (!isBorrower) {
+        if (!isBorrower_) {
             revert Errors.NotBorrower(receivableInfo_.buyer);
         }
+
+        uint256 riskPremium_ = globals_.riskPremiumFor(receivableInfo_.buyer);
+        uint256 expirationTimestamp_ = globals_.creditExpirationFor(receivableInfo_.buyer);
 
         // Check if borrower credit status has expired
         if (block.timestamp > expirationTimestamp_) {
@@ -353,7 +356,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         loans[loanId_] = LoanInfo({
             borrower: receivableInfo_.buyer,
             collateralTokenId: collateralTokenId_,
-            principal: receivableInfo_.faceAmount.intoUint256() * discountRate_ / PRECISION,
+            principal: receivableInfo_.faceAmount.intoUint256(),
             drawableFunds: uint256(0),
             interestRate: globals_.riskFreeRate() + riskPremium_,
             lateInterestPremiumRate: globals_.riskFreeRate() + riskPremium_ + globals_.lateInterestExcessRate(),

@@ -67,29 +67,71 @@ library Errors {
 
     error Globals_ToInvalidPoolAdmin(address poolAdmin);
 
+    error Globals_ToInvalidPoolConfigurator(address poolConfigurator);
+
     error Globals_AlreadyHasConfigurator(address poolAdmin, address poolConfigurator);
 
     error Globals_AdminZeroAddress();
+
+    error Globals_CallerNotGovernor(address governor, address caller);
+
+    error Globals_CallerNotPendingGovernor(address pendingGovernor, address caller);
+
+    error Globals_InvalidVault(address vault);
+
+    error Globals_InvalidReceivable(address receivable);
+
+    error Globals_RiskFreeRateGreaterThanOne(uint256 riskFreeRate);
+
+    error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
+
+    error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOAN MANAGER
     //////////////////////////////////////////////////////////////////////////*/
 
     error LoanManager_LoanInactive(uint16 loanId);
+
     error LoanManager_NotLoan(uint16 loanId);
+
     error LoanManager_PoolFundsTransferFailed();
+
     error LoanManager_PoolAdminFundsTransferFailed();
+
     error LoanManager_VaultFundsTransferFailed();
+
     error LoanManager_BorrowerFundsTransferFailed();
+
     error LoanManager_FundsTransferFailed();
+
     error LoanManager_LoanImpaired(uint16 loanId);
+
     error LoanManager_NotAuthorizedToRemoveLoanImpairment(uint16 loanId);
+
     error LoanManager_PastDueDate(uint16 loanId_);
+
     error LoanManager_NotImpaired(uint16 loanId_);
+
     error LoanManager_NotCorrectBorrower(uint16 loanId_, address expectedBorrower_);
+
     error LoanManager_DrawableFundsDecreased(uint16 loanId_);
+
     error LoanManager_InsufficientPayment(uint16 loanId_);
+
     error LoanManager_BorrowerCreditExpired(address borrower_, uint256 expirationTimestamp_);
+
     error LoanManager_InsufficientFunds(uint16 loanId_);
+
     error LoanManager_NotBuyerOrSeller();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                Receivable
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error Receivable_CallerNotBuyer(address caller);
+
+    error Receivable_CallerNotGovernor(address governor, address caller);
+
+    error Receivable_InvalidGlobals(address globals);
 }

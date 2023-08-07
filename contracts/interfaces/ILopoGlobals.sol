@@ -2,114 +2,9 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 
-interface ILopoGlobals {
-    /*//////////////////////////////////////////////////////////////////////////
-                                EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    event Initialized();
-    event PoolConfiguratorOwnershipTransferred(
-        address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_
-    );
-
-    /**
-     *  @dev   The governorship has been accepted.
-     *  @param previousGovernor_ The previous governor.
-     *  @param currentGovernor_  The new governor.
-     */
-    event GovernorshipAccepted(address indexed previousGovernor_, address indexed currentGovernor_);
-
-    /**
-     *  @dev   The address for the Lopo vault has been set.
-     *  @param previousLopoVault_ The previous vault.
-     *  @param currentLopoVault_  The new vault.
-     */
-    event LopoVaultSet(address indexed previousLopoVault_, address indexed currentLopoVault_);
-
-    /**
-     *  @dev   The max liquidation percent for the given pool manager has been set.
-     *  @param poolManager_                The address of the pool manager.
-     *  @param maxCoverLiquidationPercent_ The new value for the cover liquidation percent.
-     */
-    event MaxCoverLiquidationPercentSet(address indexed poolManager_, uint256 maxCoverLiquidationPercent_);
-
-    /**
-     *  @dev   The minimum cover amount for the given pool manager has been set.
-     *  @param poolManager_    The address of the pool manager.
-     *  @param minCoverAmount_ The new value for the minimum cover amount.
-     */
-    event MinCoverAmountSet(address indexed poolManager_, uint256 minCoverAmount_);
-
-    /**
-     *  @dev   The pending governor has been set.
-     *  @param pendingGovernor_ The new pending governor.
-     */
-    event PendingGovernorSet(address indexed pendingGovernor_);
-
-    /**
-     *  @dev   The ownership of the pool manager was transferred.
-     *  @param fromPoolDelegate_ The address of the previous pool delegate.
-     *  @param toPoolDelegate_   The address of the new pool delegate.
-     *  @param poolManager_      The address of the pool manager.
-     */
-    event PoolManagerOwnershipTransferred(
-        address indexed fromPoolDelegate_, address indexed toPoolDelegate_, address indexed poolManager_
-    );
-
-    /**
-     *  @dev   The protocol pause was set to a new state.
-     *  @param caller_         The address of the security admin or governor that performed the action.
-     *  @param protocolPaused_ The protocol paused state.
-     */
-    event ProtocolPauseSet(address indexed caller_, bool protocolPaused_);
-
-    /**
-     *  @dev   A valid borrower was set.
-     *  @param borrower_ The address of the borrower.
-     *  @param isValid_  The validity of the borrower.
-     */
-    event ValidBorrowerSet(address indexed borrower_, bool isValid_);
-
-    /**
-     *  @dev   A valid asset was set.
-     *  @param collateralAsset_ The address of the collateral asset.
-     *  @param isValid_         The validity of the collateral asset.
-     */
-    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
-
-    /**
-     *  @dev   A valid asset was set.
-     *  @param poolAsset_ The address of the asset.
-     *  @param isValid_   The validity of the asset.
-     */
-    event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
-
-    /**
-     * @dev A valid pool was set.
-     * @param poolAddress_ The address of the pool.
-     * @param isEnabled_     The validity of the pool.
-     */
-    event IsEnabledSet(address indexed poolAddress_, bool isEnabled_);
-
-    /**
-     *  @dev   A valid receivable was set.
-     *  @param receivable_ The address of the receivable.
-     *  @param isValid_    The validity of the receivable.
-     */
-    event ValidReceivableSet(address indexed receivable_, bool isValid_);
-
-    event ValidBuyerSet(address indexed buyer_, bool isValid_);
-
-    event RiskFreeRateSet(uint256 indexed riskFreeRate_);
-
-    event MinPoolLiquidityRatioSet(uint256 indexed minPoolLiquidityRatio_);
-
-    event ProtocolFeeRateSet(uint256 indexed protocolFeeRate_);
-
-    event MinDepositLimitSet(address indexed poolManager_, uint256 indexed minDepositLimit_);
-
-    event WithdrawalDurationInDaysSet(address indexed poolManager_, uint256 indexed withdrawalDurationInDays_);
+interface ILopoGlobals is ILopoGlobalsEvents {
 
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
@@ -129,6 +24,10 @@ interface ILopoGlobals {
         returns (uint256 maxCoverLiquidationPercent_);
 
     function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
+
+    function riskPremiumFor(address borrower_) external view returns (uint256 riskPremium_);
+
+    function creditExpirationFor(address borrower_) external view returns (uint256 creditExpiration_);
 
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
 
@@ -153,11 +52,6 @@ interface ILopoGlobals {
      *  @return governor_ The address of the governor.
      */
     function governor() external view returns (address governor_);
-
-    function borrowers(address borrower_)
-        external
-        view
-        returns (bool isBorrower, uint256 riskPremium, uint256 discountRate, uint256 expirationTimestamp);
 
     /**
      *  @dev    Gets the validity of a borrower.
@@ -219,20 +113,18 @@ interface ILopoGlobals {
      */
     function setLopoVault(address lopoVault_) external;
 
-    function setIsEnabled(address poolAddress_, bool isEnabled_) external;
-
     /**
      *  @dev   Sets the protocol pause.
      *  @param protocolPaused_ A boolean indicating the status of the protocol pause.
      */
     function setProtocolPause(bool protocolPaused_) external;
 
-    /**
-     *  @dev   Sets the validity of the borrower.
-     *  @param borrower_ The address of the borrower to set the validity for.
-     *  @param isValid_  A boolean indicating the validity of the borrower.
-     */
-    function setValidBorrower(address borrower_, bool isValid_) external;
+    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external;
+
+    function setValidBorrower(
+        address borrower_,
+        bool isValid_
+    ) external;
 
     /**
      *  @dev   Sets the validity of a collateral asset.
@@ -257,4 +149,7 @@ interface ILopoGlobals {
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
 
     function protocolFeeRate(address poolConfigurator_) external view returns (uint256 protocolFeeRate_);
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
+
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
 }

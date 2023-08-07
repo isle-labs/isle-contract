@@ -7,9 +7,24 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { Errors } from "./libraries/Errors.sol";
 import { Adminable } from "./abstracts/Adminable.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import { Errors } from "./libraries/Errors.sol";
 
-contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
+contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
+
+    uint256 public constant HUNDRED_PERCENT = 100_0000;   // 100.0000%
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            UUPS FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor {}
+
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Struct
     //////////////////////////////////////////////////////////////////////////*/
@@ -17,13 +32,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     struct PoolAdmin {
         address ownedPoolConfigurator;
         bool isPoolAdmin;
-    }
-
-    struct Borrower {
-        bool isBorrower;
-        uint256 riskPremium;
-        uint256 discountRate;
-        uint256 expirationDate;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -48,7 +56,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
 
-    // configs by poolConfigurator
+    // configs by poolAddressesProvider
     mapping(address => bool) public override isEnabled;
     mapping(address => UD60x18) public override minDepositLimit;
     mapping(address => uint256) public override withdrawalDurationInDays;
@@ -59,19 +67,18 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     mapping(address => uint256) public override protocolFeeRate;
 
     mapping(address => PoolAdmin) public override poolAdmins;
-    mapping(address => Borrower) public override borrowers;
+
+    // Borrower
+    mapping(address => bool) public override isBorrower;
+    mapping(address => uint256) public override riskPremiumFor;
+    mapping(address => uint256) public override creditExpirationFor;
 
     /*//////////////////////////////////////////////////////////////////////////
                             Initialization
     //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address governor_) external initializer {
-        if (governor_ == address(0)) {
-            revert Errors.Globals_AdminZeroAddress();
-        }
-        if (governor_ != admin) {
-            transferAdmin(governor_);
-        }
+        admin = governor_;
         emit Initialized();
     }
 
@@ -85,10 +92,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
 
     function isPoolAdmin(address account_) external view override returns (bool isPoolAdmin_) {
         isPoolAdmin_ = poolAdmins[account_].isPoolAdmin;
-    }
-
-    function isBorrower(address account_) external view override returns (bool isBorrower_) {
-        isBorrower_ = borrowers[account_].isBorrower;
     }
 
     function ownedPoolConfigurator(address account_) external view override returns (address poolConfigurator_) {
@@ -111,6 +114,13 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
                             NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev transfer ownership of poolConfigurator from one poolAdmin to another legal poolAdmin
+     * @param fromPoolAdmin_ address of poolAdmin to transfer from
+     * @param toPoolAdmin_ address of poolAdmin to transfer to
+     * @notice only poolConfigurator can call this function
+     * @notice only legal poolAdmin with no poolConfigurator can be transferred to
+     */
     function transferOwnedPoolConfigurator(address fromPoolAdmin_, address toPoolAdmin_) external override {
         PoolAdmin storage fromAdmin_ = poolAdmins[fromPoolAdmin_];
         PoolAdmin storage toAdmin_ = poolAdmins[toPoolAdmin_];
@@ -145,115 +155,132 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
         _;
     }
 
-    /**
-     * Governor Transfer Functions **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            Governor Transfer Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     function acceptLopoGovernor() external override {
-        require(msg.sender == pendingLopoGovernor, "LG:Caller_Not_Pending_Gov");
-        // emit GovernorshipAccepted(admin(), msg.sender);
+        if (msg.sender != pendingLopoGovernor) {
+            revert Errors.Globals_CallerNotPendingGovernor(pendingLopoGovernor, msg.sender);
+        }
+        emit GovernorshipAccepted(admin, msg.sender);
         pendingLopoGovernor = address(0);
-        // lopoGovernor = msg.sender;
-        // _setAddress(ADMIN_SLOT, msg.sender);
+        admin = msg.sender;
     }
 
-    function setPendingLopoGovernor(address _pendingGovernor) external override onlyGovernor {
-        emit PendingGovernorSet(pendingLopoGovernor = _pendingGovernor);
+    function setPendingLopoGovernor(address pendingGovernor_) external override onlyGovernor {
+        emit PendingGovernorSet(pendingLopoGovernor = pendingGovernor_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             GLOBALS SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setLopoVault(address _vault) external override onlyGovernor {
-        require(_vault != address(0), "LG:Invalid_Vault");
-        emit LopoVaultSet(lopoVault, _vault);
-        lopoVault = _vault;
+    function setLopoVault(address vault_) external override onlyGovernor {
+        if (lopoVault == address(0)) {
+            revert Errors.Globals_InvalidVault(vault_);
+        }
+        emit LopoVaultSet(lopoVault, vault_);
+        lopoVault = vault_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             BOOLEAN SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setProtocolPause(bool _protocolPaused) external override onlyGovernor {
-        emit ProtocolPauseSet(msg.sender, protocolPaused = _protocolPaused);
+    function setProtocolPause(bool protocolPaused_) external override onlyGovernor {
+        emit ProtocolPauseSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
-    /**
-     * Allowlist Setters **
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                            Allowlist Setters
+    //////////////////////////////////////////////////////////////////////////*/
 
-    function setIsEnabled(address _poolConfigurator, bool _isEnabled) external override onlyGovernor {
-        isEnabled[_poolConfigurator] = _isEnabled;
-        emit IsEnabledSet(_poolConfigurator, _isEnabled);
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
+        poolAdmins[poolAdmin_].isPoolAdmin = isValid_;
+        emit ValidPoolAdminSet(poolAdmin_, isValid_);
     }
 
-    function setValidReceivable(address _receivable, bool _isValid) external override onlyGovernor {
-        require(_receivable != address(0), "LG:SVPD:ZERO_ADDR");
-        isReceivable[_receivable] = _isValid;
-        emit ValidReceivableSet(_receivable, _isValid);
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external override onlyGovernor {
+        if (!poolAdmins[poolAdmin_].isPoolAdmin) {
+            revert Errors.Globals_ToInvalidPoolAdmin(poolAdmin_);
+        }
+        if (poolAdmins[poolAdmin_].ownedPoolConfigurator != address(0)) {
+            revert Errors.Globals_AlreadyHasConfigurator(poolAdmin_, poolAdmins[poolAdmin_].ownedPoolConfigurator);
+        }
+        if (poolConfigurator_ == address(0)) {
+            revert Errors.Globals_ToInvalidPoolConfigurator(poolConfigurator_);
+        }
+        poolAdmins[poolAdmin_].ownedPoolConfigurator = poolConfigurator_;
+        emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
     }
 
-    function setValidBorrower(address _borrower, bool _isValid) external override onlyGovernor {
-        borrowers[_borrower].isBorrower = _isValid;
-        emit ValidBorrowerSet(_borrower, _isValid);
+    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
+        if (receivable_ == address(0)) {
+            revert Errors.Globals_InvalidReceivable(receivable_);
+        }
+        isReceivable[receivable_] = isValid_;
+        emit ValidReceivableSet(receivable_, isValid_);
     }
 
-    function setValidCollateralAsset(address _collateralAsset, bool _isValid) external override onlyGovernor {
-        isCollateralAsset[_collateralAsset] = _isValid;
-        emit ValidCollateralAssetSet(_collateralAsset, _isValid);
+    function setValidBorrower(
+        address borrower_,
+        bool isValid_
+    ) external override onlyGovernor {
+        isBorrower[borrower_] = isValid_;
+        emit ValidBorrowerSet(borrower_, isValid_);
     }
 
-    function setValidPoolAsset(address _poolAsset, bool _isValid) external override onlyGovernor {
-        isPoolAsset[_poolAsset] = _isValid;
-        emit ValidPoolAssetSet(_poolAsset, _isValid);
+    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
+        isCollateralAsset[collateralAsset_] = isValid_;
+        emit ValidCollateralAssetSet(collateralAsset_, isValid_);
     }
 
-    // function setValidPoolDelegate(address _account, bool _isValid) external override onlyGovernor {
-    //     require(_account != address(0), "LG:SVPD:ZERO_ADDR");
-
-    //     // Cannot remove pool delegates that own a pool manager.
-    //     require(_isValid || poolDelegates[_account].ownedPoolConfigurator == address(0),
-    // "LG:SVPD:OWNS_POOL_MANAGER");
-
-    //     poolDelegates[_account].isPoolDelegate = _isValid;
-    //     emit ValidPoolDelegateSet(_account, _isValid);
-    // }
+    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyGovernor {
+        isPoolAsset[poolAsset_] = isValid_;
+        emit ValidPoolAssetSet(poolAsset_, isValid_);
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setRiskFreeRate(uint256 _riskFreeRate) external override onlyGovernor {
-        // require(_riskFreeRate <= ud(1e18), "LG:SRFR:GT_1");
-        // emit RiskFreeRateSet(_riskFreeRate.intoUint256());
-        riskFreeRate = _riskFreeRate;
+    function setRiskFreeRate(uint256 riskFreeRate_) external override onlyGovernor {
+        // if (riskFreeRate_ > ud(1e18)) {
+        //     revert Errors.Globals_RiskFreeRateGreaterThanOne(riskFreeRate_.intoUint256());
+        // }
+        emit RiskFreeRateSet(riskFreeRate_);
+        riskFreeRate = riskFreeRate_;
     }
 
-    function setMinPoolLiquidityRatio(UD60x18 _minPoolLiquidityRatio) external override onlyGovernor {
-        require(_minPoolLiquidityRatio <= ud(1e18), "LG:SMPR:GT_1");
-        emit MinPoolLiquidityRatioSet(_minPoolLiquidityRatio.intoUint256());
-        minPoolLiquidityRatio = _minPoolLiquidityRatio;
+    function setMinPoolLiquidityRatio(UD60x18 minPoolLiquidityRatio_) external override onlyGovernor {
+        if (minPoolLiquidityRatio_ > ud(1e18)) {
+            revert Errors.Globals_MinPoolLiquidityRatioGreaterThanOne(minPoolLiquidityRatio_.intoUint256());
+        }
+        emit MinPoolLiquidityRatioSet(minPoolLiquidityRatio_.intoUint256());
+        minPoolLiquidityRatio = minPoolLiquidityRatio_;
+    }
+
+    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external override onlyGovernor {
+        emit ProtocolFeeRateSet(pool_, protocolFeeRate_);
+        protocolFeeRate[pool_] = protocolFeeRate_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                             POOL RESTRICTION SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setMinDepositLimit(address _poolConfigurator, UD60x18 _minDepositLimit) external override onlyGovernor {
-        emit MinDepositLimitSet(_poolConfigurator, _minDepositLimit.intoUint256());
-        minDepositLimit[_poolConfigurator] = _minDepositLimit;
+    function setMinDepositLimit(address poolConfigurator_, UD60x18 minDepositLimit_) external override onlyGovernor {
+        emit MinDepositLimitSet(poolConfigurator_, minDepositLimit_.intoUint256());
+        minDepositLimit[poolConfigurator_] = minDepositLimit_;
     }
 
     function setWithdrawalDurationInDays(
-        address _poolConfigurator,
-        uint256 _withdrawalDurationInDays
-    )
-        external
-        onlyGovernor
-    {
-        emit WithdrawalDurationInDaysSet(_poolConfigurator, _withdrawalDurationInDays);
-        withdrawalDurationInDays[_poolConfigurator] = _withdrawalDurationInDays;
+        address poolConfigurator_,
+        uint256 withdrawalDurationInDays_
+    ) external onlyGovernor {
+        emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);
+        withdrawalDurationInDays[poolConfigurator_] = withdrawalDurationInDays_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -261,12 +288,8 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _checkIsLopoGovernor() internal view {
-        // require(msg.sender == admin(), "LG:Caller_Not_Gov");
-    }
-
-    function _setAddress(bytes32 _slot, address _value) private {
-        assembly {
-            sstore(_slot, _value)
+        if (msg.sender != admin) {
+            revert Errors.Globals_CallerNotGovernor(admin, msg.sender);
         }
     }
 }
