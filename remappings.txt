@@ -1,4 +1,3 @@
-@ds-test/=modules/forge-std/lib/ds-test/src/
 @forge-std/=modules/forge-std/src/
 @prb-test/=modules/prb-test/src/
 @prb/math/=modules/prb-math/src/
