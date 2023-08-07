@@ -5,7 +5,6 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 
 interface ILopoGlobals is ILopoGlobalsEvents {
-
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -121,10 +120,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
 
     function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external;
 
-    function setValidBorrower(
-        address borrower_,
-        bool isValid_
-    ) external;
+    function setValidBorrower(address borrower_, bool isValid_) external;
 
     /**
      *  @dev   Sets the validity of a collateral asset.

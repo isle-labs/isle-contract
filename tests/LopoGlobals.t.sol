@@ -12,7 +12,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     MockLopoGlobalsV2 globalsV2;
     MockLopoGlobalsV2 wrappedLopoProxyV2;
 
-    uint256 public constant HUNDRED_PERCENT = 100_0000;   // 100.0000%
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
     uint256 internal constant PROTOCOL_FEE = 5 * HUNDRED_PERCENT / 1000;
     address internal POOL_ADDRESS = address(new Address());
@@ -178,7 +178,6 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     }
 
     function test_setRiskFreeRate() public {
-
         uint256 newRiskFreeRate_ = 5 * HUNDRED_PERCENT;
         vm.expectEmit(true, true, true, true);
 
@@ -197,7 +196,6 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     }
 
     function test_setProtocolFeeRate() public {
-
         vm.expectEmit(true, true, true, true);
         emit ProtocolFeeRateSet(POOL_ADDRESS, PROTOCOL_FEE);
         vm.prank(GOVERNOR);

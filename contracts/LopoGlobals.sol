@@ -13,13 +13,13 @@ import { Errors } from "./libraries/Errors.sol";
 contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
 
-    uint256 public constant HUNDRED_PERCENT = 100_0000;   // 100.0000%
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
     /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor {}
+    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
 
     function getImplementation() external view returns (address) {
         return _getImplementation();
@@ -223,10 +223,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidReceivableSet(receivable_, isValid_);
     }
 
-    function setValidBorrower(
-        address borrower_,
-        bool isValid_
-    ) external override onlyGovernor {
+    function setValidBorrower(address borrower_, bool isValid_) external override onlyGovernor {
         isBorrower[borrower_] = isValid_;
         emit ValidBorrowerSet(borrower_, isValid_);
     }
@@ -278,7 +275,10 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     function setWithdrawalDurationInDays(
         address poolConfigurator_,
         uint256 withdrawalDurationInDays_
-    ) external onlyGovernor {
+    )
+        external
+        onlyGovernor
+    {
         emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);
         withdrawalDurationInDays[poolConfigurator_] = withdrawalDurationInDays_;
     }

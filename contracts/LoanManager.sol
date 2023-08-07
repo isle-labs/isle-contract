@@ -328,8 +328,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
 
         // Get buyer info
-        bool isBorrower_ =
-            globals_.isBorrower(receivableInfo_.buyer);
+        bool isBorrower_ = globals_.isBorrower(receivableInfo_.buyer);
 
         // Only a borrower can create a loan
         if (!isBorrower_) {
