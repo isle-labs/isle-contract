@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { Errors } from "../contracts/libraries/Errors.sol";
-import { MockLopoGlobalsV2 } from "./mocks/MockLopoGlobalsV2.sol";
-import { ILopoGlobalsEvents } from "./utils/ILopoGlobalsEvents.sol";
-import "./BaseTest.t.sol";
+import { Errors } from "../../contracts/libraries/Errors.sol";
+import { MockLopoGlobalsV2 } from "../mocks/MockLopoGlobalsV2.sol";
+import { ILopoGlobalsEvents } from "../utils/ILopoGlobalsEvents.sol";
+import "../BaseTest.t.sol";
 
 contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     MockLopoGlobalsV2 globalsV2;

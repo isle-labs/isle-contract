@@ -2,12 +2,12 @@
 pragma solidity 0.8.19;
 
 import { console } from "forge-std/console.sol";
-import { TestUtils, Address } from "./utils/TestUtils.sol";
-import { MockPoolConfigurator } from "./mocks/MockPoolConfigurator.sol";
-import { Pool, Math } from "../contracts/Pool.sol";
-import { MockERC20 } from "./mocks/MockERC20.sol";
-import { IERC20 } from "../contracts/interfaces/IERC20.sol";
-import { IPoolAddressesProvider } from "../contracts/interfaces/IPoolAddressesProvider.sol";
+import { TestUtils, Address } from "../utils/TestUtils.sol";
+import { MockPoolConfigurator } from "../mocks/MockPoolConfigurator.sol";
+import { Pool, Math } from "../../contracts/Pool.sol";
+import { MockERC20 } from "../mocks/MockERC20.sol";
+import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
+import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
 
 contract PoolBase is TestUtils {
     address POOL_ADMIN = address(new Address());
