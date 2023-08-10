@@ -9,6 +9,7 @@ contract PoolUnitTest is PoolBase {
 
     function setUp() public override {
         super.setUp();
+        asset.mint(caller, 1e6);
     }
 
     function test_deposit() public {
@@ -86,7 +87,7 @@ contract PoolUnitTest is PoolBase {
         (uint8 v, bytes32 r, bytes32 s) = _getValidPermitSignature(
             address(asset), caller, address(pool), 1000, 0, block.timestamp + 1 days, callerPrivateKey
         );
-        
+
         vm.prank(caller);
         pool.mintWithPermit(1000, receiver, 1000, block.timestamp + 1 days, v, r, s);
 
@@ -98,7 +99,7 @@ contract PoolUnitTest is PoolBase {
         assertAlmostEq(newReceiverShare, oldReceiverShare + 1000, _delta_);
         assertAlmostEq(newAllowance, 0, _delta_);
     }
-    
+
     //TODO: add a test that caller of withdraw() is not the owner of the assets
     function test_withdraw() public {
         vm.startPrank(caller);
@@ -108,18 +109,16 @@ contract PoolUnitTest is PoolBase {
 
         uint256 oldCallerAsset = asset.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
-        uint256 oldAllowance = asset.allowance(caller, address(pool));
 
         // notice that we are withdrawing assets from receiver, not caller
         vm.prank(receiver);
-        uint256 assets = pool.withdraw(1000, caller, receiver);
+        uint256 shares = pool.withdraw(1000, caller, receiver);
 
         uint256 newCallerAsset = asset.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = asset.allowance(caller, address(pool));
 
-        assertAlmostEq(newCallerAsset, oldCallerAsset + assets, _delta_);
-        assertAlmostEq(newReceiverShare, oldReceiverShare - assets, _delta_);
+        assertAlmostEq(newCallerAsset, oldCallerAsset + shares, _delta_);
+        assertAlmostEq(newReceiverShare, oldReceiverShare - shares, _delta_);
     }
 
     // TODO: add a test that caller of redeem() is not the owner of the shares
@@ -131,7 +130,6 @@ contract PoolUnitTest is PoolBase {
 
         uint256 oldCallerAsset = asset.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
-        uint256 oldAllowance = pool.allowance(caller, address(pool));
 
         // notice that we are redeeming shares from receiver
         vm.prank(receiver);
@@ -139,11 +137,48 @@ contract PoolUnitTest is PoolBase {
 
         uint256 newCallerAsset = asset.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = pool.allowance(caller, address(pool));
 
         assertAlmostEq(newCallerAsset, oldCallerAsset + assets, _delta_);
         assertAlmostEq(newReceiverShare, oldReceiverShare - assets, _delta_);
     }
+
+    //TODO: complete this test after implementing removeShares() in withdrawManager
+    function test_removeShares() public {
+        /*
+        vm.startPrank(caller);
+        asset.approve(address(pool), 1000);
+        uint256 shares = pool.deposit(1000, receiver);
+        vm.stopPrank();
+
+        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldReceiverShare = pool.balanceOf(receiver);
+        uint256 oldAllowance = pool.allowance(caller, address(pool));
+
+        console.log("oldCallerAsset", oldCallerAsset);
+        console.log("oldReceiverShare", oldReceiverShare);
+        console.log("oldAllowance", oldAllowance);
+
+        // notice that we are removing shares from receiver
+        vm.prank(receiver);
+        uint256 sharesReturned = pool.removeShares(shares, receiver);
+
+        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newReceiverShare = pool.balanceOf(receiver);
+        uint256 newAllowance = pool.allowance(caller, address(pool));
+
+        console.log("newCallerAsset", newCallerAsset);
+        console.log("newReceiverShare", newReceiverShare);
+        console.log("newAllowance", newAllowance);
+
+        assertAlmostEq(newCallerAsset, oldCallerAsset, _delta_);
+        assertAlmostEq(newReceiverShare, oldReceiverShare - sharesReturned, _delta_);
+        */
+    }
+    // TODO: complete this test after implementing withdrawManager
+    function test_requestRedeem() public { }
+
+    // TODO: complete this test after implementing withdrawManager
+    function test_requestWithdraw() public { }
 
     /* ========== Helper Functions ========== */
 
