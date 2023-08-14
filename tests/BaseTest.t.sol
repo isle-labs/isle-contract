@@ -1,54 +1,77 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "@forge-std/Test.sol";
+import { StdCheats } from "@forge-std/StdCheats.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "@forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
-contract BaseTest is PRBTest {
-    LopoGlobals globalsV1;
+abstract contract BaseTest is PRBTest, StdCheats {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
 
+    address payable governor;
+    address payable pool_admin;
+    address payable seller;
+    address payable buyer;
+    address payable sender;
+    address payable receiver;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+    ERC20 usdc;
+    LopoGlobals globalsV1;
     UUPSProxy LopoProxy;
     LopoGlobals wrappedLopoProxyV1;
 
-    address DEFAULT_GOVERNOR;
-    address DEFAULT_BUYER;
-    address DEFAULT_SELLER;
-
-    address GOVERNOR;
-
-    uint256[] PRIVATE_KEYS;
-    address[] ACCOUNTS;
-
     function setUp() public virtual {
-        PRIVATE_KEYS = vm.envUint("ANVIL_PRIVATE_KEYS", ",");
-        ACCOUNTS = vm.envAddress("ANVIL_ACCOUNTS", ",");
+        // create users for testing
+        governor = createUser("Governor");
+        pool_admin = createUser("PoolAdmin");
+        seller = createUser("Seller");
+        buyer = createUser("Buyer");
+        sender = createUser("Sender");
+        receiver = createUser("Receiver");
 
-        DEFAULT_GOVERNOR = ACCOUNTS[0];
-        DEFAULT_BUYER = ACCOUNTS[1];
-        DEFAULT_SELLER = ACCOUNTS[2];
-
+        // Deploy the base test contracts
+        usdc = new ERC20("USDC", "USDC");
         globalsV1 = new LopoGlobals();
-
         // deploy LopoProxy and point it to the implementation
         LopoProxy = new UUPSProxy(address(globalsV1), "");
-
         // wrap in ABI to support easier calls
         wrappedLopoProxyV1 = LopoGlobals(address(LopoProxy));
-
         // initialize the LopoProxy, assign the governor
-        wrappedLopoProxyV1.initialize(DEFAULT_GOVERNOR);
+        wrappedLopoProxyV1.initialize(governor);
 
-        GOVERNOR = wrappedLopoProxyV1.governor();
+        // label the base test contracts
+        vm.label(address(usdc), "USDC");
+        vm.label(address(globalsV1), "globalsV1");
+        vm.label(address(LopoProxy), "LopoProxy");
+        vm.label(address(wrappedLopoProxyV1), "wrappedLopoProxyV1");
     }
 
     function test_setUpState() public {
-        assertEq(wrappedLopoProxyV1.governor(), DEFAULT_GOVERNOR);
+        assertEq(wrappedLopoProxyV1.governor(), governor);
         assertEq(address(wrappedLopoProxyV1), address(LopoProxy));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Generates a user, labels its address, and funds it with test assets.
+    function createUser(string memory name) internal returns (address payable) {
+        address payable user = payable(makeAddr(name));
+        vm.deal({account: user, newBalance: 100 ether});
+        // deal({token: address(usdc), to: user, give: 1_000_000e6});
+        return user;
     }
 
     function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
