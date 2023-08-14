@@ -40,11 +40,15 @@ contract Receivable is
     //////////////////////////////////////////////////////////////////////////*/
     ILopoGlobals globals_;
 
+    /**
+     * Modifier **
+     */
+
     /*//////////////////////////////////////////////////////////////////////////
                             Modifiers
     //////////////////////////////////////////////////////////////////////////*/
     modifier onlyBuyer() {
-        if (!globals_.isBuyer(msg.sender)) {
+        if (!globals_.isBorrower(msg.sender)) {
             revert Errors.Receivable_CallerNotBuyer(msg.sender);
         }
         _;
@@ -98,10 +102,10 @@ contract Receivable is
         onlyBuyer
         returns (uint256 tokenId_)
     {
-        uint256 tokenId = tokenIdCounter_;
-        tokenIdCounter_ += 1;
+        tokenId_ = _tokenIdCounter;
+        _tokenIdCounter += 1;
 
-        idToReceivableInfo[tokenId] = ReceivableInfo({
+        idToReceivableInfo[tokenId_] = ReceivableInfo({
             buyer: msg.sender,
             seller: seller_,
             faceAmount: faceAmount_,
@@ -110,11 +114,11 @@ contract Receivable is
             currencyCode: currencyCode_
         });
 
-        _safeMint(seller_, tokenId);
+        _safeMint(seller_, tokenId_);
         uint256 faceAmountToUint256 = faceAmount_.intoUint256();
-        emit AssetCreated(msg.sender, seller_, tokenId, faceAmountToUint256, repaymentTimestamp_);
+        emit AssetCreated(msg.sender, seller_, tokenId_, faceAmountToUint256, repaymentTimestamp_);
 
-        return tokenId;
+        return tokenId_;
     }
 
     function getReceivableInfoById(uint256 tokenId_) external view override returns (ReceivableInfo memory) {

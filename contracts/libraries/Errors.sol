@@ -13,6 +13,14 @@ library Errors {
 
     error ERC20TransferFailed(address asset, address from, address to, uint256 amount);
 
+    error FunctionPaused(bytes4 sig);
+
+    error NotPoolAdminOrGovernor(address caller);
+
+    error NotPoolAdmin(address caller);
+
+    error NotBorrower(address caller);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -78,6 +86,44 @@ library Errors {
     error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
 
     error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                LOAN MANAGER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error LoanManager_LoanInactive(uint16 loanId);
+
+    error LoanManager_NotLoan(uint16 loanId);
+
+    error LoanManager_PoolFundsTransferFailed();
+
+    error LoanManager_PoolAdminFundsTransferFailed();
+
+    error LoanManager_VaultFundsTransferFailed();
+
+    error LoanManager_BorrowerFundsTransferFailed();
+
+    error LoanManager_FundsTransferFailed();
+
+    error LoanManager_LoanImpaired(uint16 loanId);
+
+    error LoanManager_NotAuthorizedToRemoveLoanImpairment(uint16 loanId);
+
+    error LoanManager_PastDueDate(uint16 loanId_);
+
+    error LoanManager_NotImpaired(uint16 loanId_);
+
+    error LoanManager_NotCorrectBorrower(uint16 loanId_, address expectedBorrower_);
+
+    error LoanManager_DrawableFundsDecreased(uint16 loanId_);
+
+    error LoanManager_InsufficientPayment(uint16 loanId_);
+
+    error LoanManager_BorrowerCreditExpired(address borrower_, uint256 expirationTimestamp_);
+
+    error LoanManager_InsufficientFunds(uint16 loanId_);
+
+    error LoanManager_NotBuyerOrSeller();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable

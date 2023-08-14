@@ -9,7 +9,7 @@ interface IPoolConfiguratorStorage {
     function pendingPoolAdmin() external view returns (address pendingPoolAdmin_);
     function pool() external view returns (address pool_);
     function poolAdmin() external view returns (address poolAdmin_);
-    function withdrawalManager() external view returns (address withdrawalManager_);
     function liquidityCap() external view returns (uint256 liquidityCap_);
     function isValidLender(address lender_) external view returns (bool isValidLender_);
+    function adminFeeRate() external view returns (uint256 adminFeeRate_);
 }

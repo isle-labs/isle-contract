@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 contract ReceivableStorage {
-    uint256 internal tokenIdCounter_;
+    uint256 internal _tokenIdCounter;
 
     struct ReceivableInfo {
         // The address of the buyer that's expected to pay for this receivable

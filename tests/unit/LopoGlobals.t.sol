@@ -1,14 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { Errors } from "../../contracts/libraries/Errors.sol";
-import { MockLopoGlobalsV2 } from "../mocks/MockLopoGlobalsV2.sol";
-import { ILopoGlobalsEvents } from "../utils/ILopoGlobalsEvents.sol";
-import "../BaseTest.t.sol";
+import { Errors } from "../contracts/libraries/Errors.sol";
+import { MockLopoGlobalsV2 } from "./mocks/MockLopoGlobalsV2.sol";
+import { ILopoGlobalsEvents } from "../contracts/interfaces/ILopoGlobalsEvents.sol";
+import { Address } from "./accounts/Address.sol";
+
+import "./BaseTest.t.sol";
 
 contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     MockLopoGlobalsV2 globalsV2;
     MockLopoGlobalsV2 wrappedLopoProxyV2;
+
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
+
+    uint256 internal constant PROTOCOL_FEE = 5 * HUNDRED_PERCENT / 1000;
+    address internal POOL_ADDRESS = address(new Address());
 
     address GOVERNORV2;
 
@@ -18,7 +25,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         GOVERNORV2 = ACCOUNTS[3];
 
         vm.prank(DEFAULT_GOVERNOR);
-        wrappedLopoProxyV1.setValidBuyer(DEFAULT_BUYER, true);
+        wrappedLopoProxyV1.setValidBorrower(DEFAULT_BUYER, true);
     }
 
     function test_canUpgrade() public {
@@ -54,10 +61,10 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         wrappedLopoProxyV1.acceptLopoGovernor();
         assertEq(wrappedLopoProxyV1.governor(), GOVERNORV2);
 
-        assertTrue(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
+        assertTrue(wrappedLopoProxyV2.isBorrower(DEFAULT_BUYER));
 
         vm.prank(GOVERNORV2);
-        assertFalse(wrappedLopoProxyV2.isBuyer(DEFAULT_SELLER));
+        assertFalse(wrappedLopoProxyV2.isBorrower(DEFAULT_SELLER));
 
         // new function in V2
         string memory text = wrappedLopoProxyV2.upgradeV2Test();
@@ -148,17 +155,6 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.prank(GOVERNOR);
         wrappedLopoProxyV1.setValidBorrower(mockBorrower, true);
         assertTrue(wrappedLopoProxyV1.isBorrower(mockBorrower));
-        assertFalse(wrappedLopoProxyV1.isBorrower(DEFAULT_BUYER));
-    }
-
-    function test_setValidBuyer() public {
-        address mockBuyer = ACCOUNTS[9];
-        vm.expectEmit(true, true, true, true);
-        emit ValidBuyerSet(mockBuyer, true);
-        vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setValidBuyer(mockBuyer, true);
-        assertTrue(wrappedLopoProxyV1.isBuyer(mockBuyer));
-        assertFalse(wrappedLopoProxyV1.isBuyer(DEFAULT_SELLER));
     }
 
     function test_setValidCollateralAsset() public {
@@ -181,13 +177,14 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         assertFalse(wrappedLopoProxyV1.isPoolAsset(DEFAULT_SELLER));
     }
 
-    // notice: input of the function is UD60x18, but the event emits uint256
     function test_setRiskFreeRate() public {
+        uint256 newRiskFreeRate_ = 5 * HUNDRED_PERCENT;
         vm.expectEmit(true, true, true, true);
-        emit RiskFreeRateSet(0.05e18);
+
+        emit RiskFreeRateSet(newRiskFreeRate_);
         vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setRiskFreeRate(ud(0.05e18));
-        assertEq(wrappedLopoProxyV1.riskFreeRate().intoUint256(), 0.05e18);
+        wrappedLopoProxyV1.setRiskFreeRate(newRiskFreeRate_);
+        assertEq(wrappedLopoProxyV1.riskFreeRate(), newRiskFreeRate_);
     }
 
     function test_setMinPoolLiquidityRatio() public {
@@ -200,10 +197,10 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
 
     function test_setProtocolFeeRate() public {
         vm.expectEmit(true, true, true, true);
-        emit ProtocolFeeRateSet(0.005e18);
+        emit ProtocolFeeRateSet(POOL_ADDRESS, PROTOCOL_FEE);
         vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setProtocolFeeRate(ud(0.005e18));
-        assertEq(wrappedLopoProxyV1.protocolFeeRate().intoUint256(), 0.005e18);
+        wrappedLopoProxyV1.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
+        assertEq(wrappedLopoProxyV1.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
     }
 
     function test_setMinDepositLimit() public {
