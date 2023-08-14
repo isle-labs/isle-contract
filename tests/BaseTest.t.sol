@@ -5,50 +5,57 @@ import { StdCheats } from "@forge-std/StdCheats.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "@forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20 } from "../contracts/ERC20.sol";
+import { IERC20 } from "../contracts/interfaces/IERC20.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
 abstract contract BaseTest is PRBTest, StdCheats {
+    struct Users {
+        address payable governor;
+        address payable pool_admin;
+        address payable seller;
+        address payable buyer;
+        address payable sender;
+        address payable receiver;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
 
-    address payable governor;
-    address payable pool_admin;
-    address payable seller;
-    address payable buyer;
-    address payable sender;
-    address payable receiver;
+    Users internal users;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
-    ERC20 usdc;
-    LopoGlobals globalsV1;
-    UUPSProxy LopoProxy;
-    LopoGlobals wrappedLopoProxyV1;
+    ERC20 internal usdc;
+    LopoGlobals internal globalsV1;
+    UUPSProxy internal LopoProxy;
+    LopoGlobals internal wrappedLopoProxyV1;
 
     function setUp() public virtual {
+        usdc = new ERC20("USDC", "USDC", 6);
+
         // create users for testing
-        governor = createUser("Governor");
-        pool_admin = createUser("PoolAdmin");
-        seller = createUser("Seller");
-        buyer = createUser("Buyer");
-        sender = createUser("Sender");
-        receiver = createUser("Receiver");
+        users = Users({
+            governor: createUser("Governor"),
+            pool_admin: createUser("PoolAdmin"),
+            seller: createUser("Seller"),
+            buyer: createUser("Buyer"),
+            sender: createUser("Sender"),
+            receiver: createUser("Receiver")
+        });
 
         // Deploy the base test contracts
-        usdc = new ERC20("USDC", "USDC");
         globalsV1 = new LopoGlobals();
         // deploy LopoProxy and point it to the implementation
         LopoProxy = new UUPSProxy(address(globalsV1), "");
         // wrap in ABI to support easier calls
         wrappedLopoProxyV1 = LopoGlobals(address(LopoProxy));
         // initialize the LopoProxy, assign the governor
-        wrappedLopoProxyV1.initialize(governor);
+        wrappedLopoProxyV1.initialize(users.governor);
 
         // label the base test contracts
         vm.label(address(usdc), "USDC");
@@ -57,9 +64,11 @@ abstract contract BaseTest is PRBTest, StdCheats {
         vm.label(address(wrappedLopoProxyV1), "wrappedLopoProxyV1");
     }
 
-    function test_setUpState() public {
-        assertEq(wrappedLopoProxyV1.governor(), governor);
+    function test_setUpStateBase() public {
+        assertEq(wrappedLopoProxyV1.governor(), users.governor);
         assertEq(address(wrappedLopoProxyV1), address(LopoProxy));
+        assertEq(address(users.governor).balance, 100 ether);
+        assertEq(usdc.balanceOf(address(users.seller)), 1_000_000e6);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -69,8 +78,8 @@ abstract contract BaseTest is PRBTest, StdCheats {
     /// @dev Generates a user, labels its address, and funds it with test assets.
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
-        vm.deal({account: user, newBalance: 100 ether});
-        // deal({token: address(usdc), to: user, give: 1_000_000e6});
+        vm.deal({ account: user, newBalance: 100 ether });
+        deal({token: address(usdc), to: user, give: 1_000_000e6});
         return user;
     }
 
