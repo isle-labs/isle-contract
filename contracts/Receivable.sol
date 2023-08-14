@@ -48,7 +48,7 @@ contract Receivable is
                             Modifiers
     //////////////////////////////////////////////////////////////////////////*/
     modifier onlyBuyer() {
-        if (!globals_.isBorrower(msg.sender)) {
+        if (!globals_.isBuyer(msg.sender)) {
             revert Errors.Receivable_CallerNotBuyer(msg.sender);
         }
         _;

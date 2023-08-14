@@ -43,6 +43,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     bool public override protocolPaused;
 
+    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public isFunctionUnpaused;
 
@@ -69,7 +70,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => PoolAdmin) public override poolAdmins;
 
     // Borrower
-    mapping(address => bool) public override isBorrower;
     mapping(address => uint256) public override riskPremiumFor;
     mapping(address => uint256) public override creditExpirationFor;
 
@@ -223,9 +223,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidReceivableSet(receivable_, isValid_);
     }
 
-    function setValidBorrower(address borrower_, bool isValid_) external override onlyGovernor {
-        isBorrower[borrower_] = isValid_;
-        emit ValidBorrowerSet(borrower_, isValid_);
+    function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {
+        isBuyer[buyer_] = isValid_;
+        emit ValidBuyerSet(buyer_, isValid_);
     }
 
     function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {

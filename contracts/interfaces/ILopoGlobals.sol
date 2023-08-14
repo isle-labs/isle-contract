@@ -52,16 +52,11 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function governor() external view returns (address governor_);
 
-    /**
-     *  @dev    Gets the validity of a borrower.
-     *  @param  borrower_   The address of the borrower to query.
-     *  @return isBorrower_ A boolean indicating the validity of the borrower.
-     */
-    function isBorrower(address borrower_) external view returns (bool isBorrower_);
-
     function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
     function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
+
+    function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
      *  @dev    Gets the validity of a collateral asset.
@@ -120,8 +115,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
 
     function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external;
 
-    function setValidBorrower(address borrower_, bool isValid_) external;
-
     /**
      *  @dev   Sets the validity of a collateral asset.
      *  @param collateralAsset_ The address of the collateral asset to set the validity for.
@@ -136,6 +129,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
+    function setValidBuyer(address buyer_, bool isValid_) external;
+
     function setValidReceivable(address receivable_, bool isValid_) external;
 
     function setRiskFreeRate(uint256 riskFreeRate_) external;
@@ -145,6 +140,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
 
     function protocolFeeRate(address poolConfigurator_) external view returns (uint256 protocolFeeRate_);
+
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
     function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;

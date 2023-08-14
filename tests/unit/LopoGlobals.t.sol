@@ -25,7 +25,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         GOVERNORV2 = ACCOUNTS[3];
 
         vm.prank(DEFAULT_GOVERNOR);
-        wrappedLopoProxyV1.setValidBorrower(DEFAULT_BUYER, true);
+        wrappedLopoProxyV1.setValidBuyer(DEFAULT_BUYER, true);
     }
 
     function test_canUpgrade() public {
@@ -61,10 +61,10 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         wrappedLopoProxyV1.acceptLopoGovernor();
         assertEq(wrappedLopoProxyV1.governor(), GOVERNORV2);
 
-        assertTrue(wrappedLopoProxyV2.isBorrower(DEFAULT_BUYER));
+        assertTrue(wrappedLopoProxyV2.isBuyer(DEFAULT_BUYER));
 
         vm.prank(GOVERNORV2);
-        assertFalse(wrappedLopoProxyV2.isBorrower(DEFAULT_SELLER));
+        assertFalse(wrappedLopoProxyV2.isBuyer(DEFAULT_SELLER));
 
         // new function in V2
         string memory text = wrappedLopoProxyV2.upgradeV2Test();
@@ -148,13 +148,13 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         assertTrue(wrappedLopoProxyV1.isReceivable(mockReceivable));
     }
 
-    function test_setValidBorrower() public {
-        address mockBorrower = ACCOUNTS[9];
+    function test_setValidBuyer() public {
+        address mockBuyer = ACCOUNTS[9];
         vm.expectEmit(true, true, true, true);
-        emit ValidBorrowerSet(mockBorrower, true);
+        emit ValidBuyerSet(mockBuyer, true);
         vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setValidBorrower(mockBorrower, true);
-        assertTrue(wrappedLopoProxyV1.isBorrower(mockBorrower));
+        wrappedLopoProxyV1.setValidBuyer(mockBuyer, true);
+        assertTrue(wrappedLopoProxyV1.isBuyer(mockBuyer));
     }
 
     function test_setValidCollateralAsset() public {

@@ -63,11 +63,11 @@ interface ILopoGlobalsEvents {
     event ProtocolPauseSet(address indexed caller_, bool protocolPaused_);
 
     /**
-     *  @dev   A valid borrower was set.
-     *  @param borrower_ The address of the borrower.
-     *  @param isValid_  The validity of the borrower.
+     *  @dev   A valid buyer was set.
+     *  @param buyer_ The address of the buyer.
+     *  @param isValid_  The validity of the buyer.
      */
-    event ValidBorrowerSet(address indexed borrower_, bool isValid_);
+    event ValidBuyerSet(address indexed buyer_, bool isValid_);
 
     /**
      *  @dev   A valid asset was set.
@@ -89,8 +89,6 @@ interface ILopoGlobalsEvents {
      *  @param isValid_    The validity of the receivable.
      */
     event ValidReceivableSet(address indexed receivable_, bool isValid_);
-
-    event ValidBuyerSet(address indexed buyer_, bool isValid_);
 
     event RiskFreeRateSet(uint256 indexed riskFreeRate_);
 
