@@ -107,29 +107,83 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         emit ConfigurationCompleted();
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
     function getRevision() internal pure virtual override returns (uint256 revision_) {
         revision_ = POOL_CONFIGURATOR_REVISION;
     }
 
-    /* Participants */
-    function withdrawalManager() public view override returns (address withdrawalManager_) {
-        withdrawalManager_ = ADDRESSES_PROVIDER.getWithdrawalManager();
+    /*//////////////////////////////////////////////////////////////////////////
+                            EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function hasSufficientCover() public view override returns (bool hasSufficientCover_) {
+        hasSufficientCover_ = _hasSufficientCover(_globals());
     }
 
-    function globals() public view override returns (address globals_) {
-        globals_ = ADDRESSES_PROVIDER.getLopoGlobals();
+    function totalAssets() public view override returns (uint256 totalAssets_) {
+        totalAssets_ = IERC20(asset).balanceOf(pool) + ILoanManager(_loanManager()).assetsUnderManagement();
     }
 
-    function loanManager() public view override returns (address loanManager_) {
-        loanManager_ = ADDRESSES_PROVIDER.getLoanManager();
+    function convertToExitShares(uint256 assets_) public view override returns (uint256 shares_) {
+        shares_ = IPool(pool).convertToExitShares(assets_);
     }
 
-    function governor() public view override returns (address governor_) {
-        governor_ = ILopoGlobals(globals()).governor();
+    function getEscrowParams(
+        address,
+        uint256 shares_
+    )
+        external
+        view
+        override
+        returns (uint256 escrowShares_, address destination_)
+    {
+        // NOTE: `owner_` param not named to avoid compiler warning.
+        (escrowShares_, destination_) = (shares_, address(this));
+    }
+
+    function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
+        maxAssets_ = _getMaxAssets(receiver_, totalAssets());
+    }
+
+    function maxMint(address receiver_) external view virtual override returns (uint256 maxShares_) {
+        uint256 totalAssets_ = totalAssets();
+        uint256 maxAssets_ = _getMaxAssets(receiver_, totalAssets_);
+
+        maxShares_ = IPool(pool).previewDeposit(maxAssets_);
+    }
+
+    function maxRedeem(address owner_) external view virtual override returns (uint256 maxShares_) {
+        address withdrawalManager_ = _withdrawalManager();
+
+        uint256 lockedShares_ = IWithdrawalManager(withdrawalManager_).lockedShares(owner_);
+        maxShares_ = IWithdrawalManager(withdrawalManager_).isInExitWindow(owner_) ? lockedShares_ : 0;
+    }
+
+    function maxWithdraw(address owner_) external view virtual override returns (uint256 maxAssets_) {
+        owner_; // Silence compiler warning
+        maxAssets_ = 0; // NOTE: always returns 0 as withdraw is not implemented
+    }
+
+    function previewRedeem(address owner_, uint256 shares_) external view virtual override returns (uint256 assets_) {
+        (, assets_) = IWithdrawalManager(_withdrawalManager()).previewRedeem(owner_, shares_);
+    }
+
+    function previewWithdraw(
+        address owner_,
+        uint256 assets_
+    )
+        external
+        view
+        virtual
+        override
+        returns (uint256 shares_)
+    {
+        (, shares_) = IWithdrawalManager(_withdrawalManager()).previewWithdraw(owner_, assets_);
+    }
+
+    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
+        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
+        // `totalAssets` does not.
+        unrealizedLosses_ = _min(ILoanManager(_loanManager()).unrealizedLosses(), totalAssets());
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -145,7 +199,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
             });
         }
 
-        ILopoGlobals(globals()).transferOwnedPoolConfigurator(poolAdmin, msg.sender);
+        ILopoGlobals(_globals()).transferOwnedPoolConfigurator(poolAdmin, msg.sender);
 
         emit PendingPoolAdminAccepted(poolAdmin, pendingPoolAdmin);
 
@@ -161,7 +215,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     /* Globals Admin Functions */
     function setActive(bool active_) external override whenNotPaused {
-        address globals_ = globals();
+        address globals_ = _globals();
         if (msg.sender != globals_) {
             revert Errors.InvalidCaller(msg.sender, globals_);
         }
@@ -183,13 +237,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Funding Functions */
-    function requestFunds(address destination_, uint256 principal_) external override whenNotPaused {
+    function requestFunds(uint256 principal_) external override whenNotPaused {
         address asset_ = asset;
         address pool_ = pool;
         address loanManager_ = ADDRESSES_PROVIDER.getLoanManager();
         address withdrawalManager_ = ADDRESSES_PROVIDER.getWithdrawalManager();
 
-        ILopoGlobals globals_ = ILopoGlobals(globals());
+        ILopoGlobals globals_ = ILopoGlobals(_globals());
 
         if (msg.sender != loanManager_) {
             revert Errors.PoolConfigurator_CallerNotLoanManager({ poolManager: loanManager_, caller: msg.sender });
@@ -200,11 +254,8 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         if (!_hasSufficientCover(address(globals_))) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
-        if (destination_ == address(0)) {
-            revert Errors.PoolConfigurator_DestinationIsZero();
-        }
-        if (!IERC20(asset_).transferFrom(pool_, destination_, principal_)) {
-            revert Errors.ERC20TransferFailed(asset_, pool_, destination_, principal_);
+        if (!IERC20(asset_).transferFrom(pool_, msg.sender, principal_)) {
+            revert Errors.ERC20TransferFailed(asset_, pool_, msg.sender, principal_);
         }
 
         uint256 lockedLiquidity_ = IWithdrawalManager(withdrawalManager_).lockedLiquidity();
@@ -216,8 +267,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     /* Loan Default Functions */
     function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdmin {
-        uint256 losses_ = ILoanManager(loanManager()).triggerDefault(loanId_);
-        _handleCover(losses_);
+        // Faulty implementation
+        (uint256 remainingLosses_, uint256 protocolFees_) = ILoanManager(_loanManager()).triggerDefault(loanId_);
+        protocolFees_;
+        _handleCover(remainingLosses_);
     }
 
     /* Pool Exit Functions */
@@ -235,7 +288,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         if (owner_ != sender_ && IPool(pool).allowance(owner_, sender_) == 0) {
             revert Errors.PoolConfigurator_NoAllowance({ owner: owner_, spender: sender_ });
         }
-        (redeemableShares_, resultingAssets_) = IWithdrawalManager(withdrawalManager()).processExit(shares_, owner_);
+        (redeemableShares_, resultingAssets_) = IWithdrawalManager(_withdrawalManager()).processExit(shares_, owner_);
         emit RedeemProcessed(owner_, redeemableShares_, resultingAssets_);
     }
 
@@ -270,13 +323,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         returns (uint256 sharesReturned_)
     {
         emit SharesRemoved(
-            owner_, sharesReturned_ = IWithdrawalManager(withdrawalManager()).removeShares(shares_, owner_)
+            owner_, sharesReturned_ = IWithdrawalManager(_withdrawalManager()).removeShares(shares_, owner_)
         );
     }
 
     function requestRedeem(uint256 shares_, address owner_, address sender_) external override whenNotPaused onlyPool {
         address pool_ = pool;
-        address withdrawalManager_ = withdrawalManager();
+        address withdrawalManager_ = _withdrawalManager();
 
         if (!IPool(pool_).approve(withdrawalManager_, shares_)) {
             revert Errors.PoolConfigurator_PoolApproveWithdrawalManagerFailed(shares_);
@@ -326,91 +379,33 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         IERC20(asset).transferFrom(address(this), recipient_, amount_);
 
         require(
-            poolCover >= ILopoGlobals(globals()).minCoverAmount(address(this)),
+            poolCover >= ILopoGlobals(_globals()).minCoverAmount(address(this)),
             "Pool Configurator: withdraw cover insufficient cover"
         );
         emit CoverWithdrawn(amount_);
     }
 
-    /* View Functions */
+    /*//////////////////////////////////////////////////////////////////////////
+                            INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
-    function hasSufficientCover() public view override returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = _hasSufficientCover(globals());
+    /* Address lookup functions */
+    function _withdrawalManager() internal view returns (address withdrawalManager_) {
+        withdrawalManager_ = ADDRESSES_PROVIDER.getWithdrawalManager();
     }
 
-    function implementation() external pure returns (address implementation_) {
-        implementation_ = address(0); // TODO: not implemented
+    function _globals() internal view returns (address globals_) {
+        globals_ = ADDRESSES_PROVIDER.getLopoGlobals();
     }
 
-    function totalAssets() public view override returns (uint256 totalAssets_) {
-        totalAssets_ = IERC20(asset).balanceOf(pool) + ILoanManager(loanManager()).assetsUnderManagement();
+    function _loanManager() internal view returns (address loanManager_) {
+        loanManager_ = ADDRESSES_PROVIDER.getLoanManager();
     }
 
-    /* LP Token View Functions */
-    function convertToExitShares(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = IPool(pool).convertToExitShares(assets_);
+    function _governor() internal view returns (address governor_) {
+        governor_ = ILopoGlobals(_globals()).governor();
     }
 
-    function getEscrowParams(
-        address,
-        uint256 shares_
-    )
-        external
-        view
-        override
-        returns (uint256 escrowShares_, address destination_)
-    {
-        // NOTE: `owner_` param not named to avoid compiler warning.
-        (escrowShares_, destination_) = (shares_, address(this));
-    }
-
-    function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
-        maxAssets_ = _getMaxAssets(receiver_, totalAssets());
-    }
-
-    function maxMint(address receiver_) external view virtual override returns (uint256 maxShares_) {
-        uint256 totalAssets_ = totalAssets();
-        uint256 maxAssets_ = _getMaxAssets(receiver_, totalAssets_);
-
-        maxShares_ = IPool(pool).previewDeposit(maxAssets_);
-    }
-
-    function maxRedeem(address owner_) external view virtual override returns (uint256 maxShares_) {
-        address withdrawalManager_ = withdrawalManager();
-
-        uint256 lockedShares_ = IWithdrawalManager(withdrawalManager_).lockedShares(owner_);
-        maxShares_ = IWithdrawalManager(withdrawalManager_).isInExitWindow(owner_) ? lockedShares_ : 0;
-    }
-
-    function maxWithdraw(address owner_) external view virtual override returns (uint256 maxAssets_) {
-        owner_; // Silence compiler warning
-        maxAssets_ = 0; // NOTE: always returns 0 as withdraw is not implemented
-    }
-
-    function previewRedeem(address owner_, uint256 shares_) external view virtual override returns (uint256 assets_) {
-        (, assets_) = IWithdrawalManager(withdrawalManager()).previewRedeem(owner_, shares_);
-    }
-
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        virtual
-        override
-        returns (uint256 shares_)
-    {
-        (, shares_) = IWithdrawalManager(withdrawalManager()).previewWithdraw(owner_, assets_);
-    }
-
-    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
-        // `totalAssets` does not.
-        unrealizedLosses_ = _min(ILoanManager(loanManager()).unrealizedLosses(), totalAssets());
-    }
-
-    /* Internal Functions */
     function _revertIfConfigured() internal view {
         if (configured) {
             revert Errors.PoolConfigurator_Configured();
@@ -418,7 +413,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     function _revertIfPaused() internal view {
-        if (ILopoGlobals(globals()).isFunctionPaused(msg.sig)) {
+        if (ILopoGlobals(_globals()).isFunctionPaused(msg.sig)) {
             revert Errors.PoolConfigurator_Paused();
         }
     }
@@ -430,7 +425,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     function _revertIfNotPoolAdminOrGovernor() internal view {
-        if (msg.sender != poolAdmin && msg.sender != governor()) {
+        if (msg.sender != poolAdmin && msg.sender != _governor()) {
             revert Errors.PoolConfigurator_NotPoolAdminOrGovernor();
         }
     }
@@ -452,7 +447,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     function _handleCover(uint256 losses_) internal {
-        address globals_ = globals();
+        address globals_ = _globals();
 
         uint256 availableCover_ =
             (poolCover * ILopoGlobals(globals_).maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;

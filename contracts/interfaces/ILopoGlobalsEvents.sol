@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-
 interface ILopoGlobalsEvents {
     /*//////////////////////////////////////////////////////////////////////////
                                 EVENTS
@@ -98,7 +96,7 @@ interface ILopoGlobalsEvents {
 
     event MinPoolLiquidityRatioSet(uint256 indexed minPoolLiquidityRatio_);
 
-    event ProtocolFeeRateSet(uint256 indexed protocolFeeRate_);
+    event ProtocolFeeRateSet(address indexed pool_, uint256 indexed protocolFeeRate_);
 
     event MinDepositLimitSet(address indexed poolManager_, uint256 indexed minDepositLimit_);
 

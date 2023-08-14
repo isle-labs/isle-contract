@@ -39,7 +39,7 @@ contract ReceivableTest is BaseTest {
 
         // onboard buyer
         vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setValidBuyer(DEFAULT_BUYER, true);
+        wrappedLopoProxyV1.setValidBorrower(DEFAULT_BUYER, true);
     }
 
     function test_getImplementation() public {

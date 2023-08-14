@@ -1,16 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { Errors } from "./libraries/Errors.sol";
+
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
+import { Errors } from "./libraries/Errors.sol";
 import { Adminable } from "./abstracts/Adminable.sol";
+import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { Errors } from "./libraries/Errors.sol";
 
 contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
+
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
     /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
@@ -43,27 +46,32 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => bool) public isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public isFunctionUnpaused;
 
-    // configs share by all pools
-    UD60x18 public override riskFreeRate;
+    // configs shared by all pools
+    uint256 public override riskFreeRate;
     UD60x18 public override minPoolLiquidityRatio;
-    UD60x18 public override protocolFeeRate;
+    uint256 public override gracePeriod;
+    uint256 public override lateInterestExcessRate;
 
     mapping(address => bool) public override isReceivable;
-    mapping(address => bool) public override isBorrower;
-    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
 
-    // configs by poolConfigurator
+    // configs by poolAddressesProvider
+    mapping(address => bool) public override isEnabled;
     mapping(address => UD60x18) public override minDepositLimit;
     mapping(address => uint256) public override withdrawalDurationInDays;
     // mapping(address => address) public override insurancePool; // this should be implemented in other place
     mapping(address => uint256) public override maxCoverLiquidationPercent;
     mapping(address => uint256) public override minCoverAmount;
     mapping(address => uint256) public override exitFeePercent;
-    mapping(address => uint256) public override insuranceFeePercent;
+    mapping(address => uint256) public override protocolFeeRate;
 
     mapping(address => PoolAdmin) public override poolAdmins;
+
+    // Borrower
+    mapping(address => bool) public override isBorrower;
+    mapping(address => uint256) public override riskPremiumFor;
+    mapping(address => uint256) public override creditExpirationFor;
 
     /*//////////////////////////////////////////////////////////////////////////
                             Initialization
@@ -220,11 +228,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidBorrowerSet(borrower_, isValid_);
     }
 
-    function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {
-        isBuyer[buyer_] = isValid_;
-        emit ValidBuyerSet(buyer_, isValid_);
-    }
-
     function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
         isCollateralAsset[collateralAsset_] = isValid_;
         emit ValidCollateralAssetSet(collateralAsset_, isValid_);
@@ -239,11 +242,11 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setRiskFreeRate(UD60x18 riskFreeRate_) external override onlyGovernor {
-        if (riskFreeRate_ > ud(1e18)) {
-            revert Errors.Globals_RiskFreeRateGreaterThanOne(riskFreeRate_.intoUint256());
-        }
-        emit RiskFreeRateSet(riskFreeRate_.intoUint256());
+    function setRiskFreeRate(uint256 riskFreeRate_) external override onlyGovernor {
+        // if (riskFreeRate_ > ud(1e18)) {
+        //     revert Errors.Globals_RiskFreeRateGreaterThanOne(riskFreeRate_.intoUint256());
+        // }
+        emit RiskFreeRateSet(riskFreeRate_);
         riskFreeRate = riskFreeRate_;
     }
 
@@ -255,12 +258,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         minPoolLiquidityRatio = minPoolLiquidityRatio_;
     }
 
-    function setProtocolFeeRate(UD60x18 protocolFeeRate_) external override onlyGovernor {
-        if (protocolFeeRate_ > ud(1e18)) {
-            revert Errors.Globals_ProtocolFeeRateGreaterThanOne(protocolFeeRate_.intoUint256());
-        }
-        emit ProtocolFeeRateSet(protocolFeeRate_.intoUint256());
-        protocolFeeRate = protocolFeeRate_;
+    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external override onlyGovernor {
+        emit ProtocolFeeRateSet(pool_, protocolFeeRate_);
+        protocolFeeRate[pool_] = protocolFeeRate_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
