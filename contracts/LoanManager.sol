@@ -143,10 +143,9 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     //////////////////////////////////////////////////////////////////////////*/
 
     function fundLoan(uint16 loanId_) external nonReentrant whenNotPaused onlyPoolAdmin {
-        ILopoGlobals globals_ = ILopoGlobals(_globals());
         LoanInfo memory loan_ = loans[loanId_];
 
-        if (!globals_.isBorrower(loan_.borrower)) {
+        if (!IPoolConfigurator(_poolConfigurator()).isBorrower(loan_.borrower)) {
             revert Errors.NotBorrower({ caller: msg.sender });
         }
 
@@ -328,7 +327,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
 
         // Get buyer info
-        bool isBorrower_ = globals_.isBorrower(receivableInfo_.buyer);
+        bool isBorrower_ = IPoolConfigurator(_poolConfigurator()).isBorrower(receivableInfo_.buyer);
 
         // Only a borrower can create a loan
         if (!isBorrower_) {

@@ -223,8 +223,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Pool Admin Functions */
-    function setAllowedLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit AllowedLenderSet(lender_, isValidLender[lender_] = isValid_);
+    function setValidBorrower(address borrower_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidBorrowerSet(borrower_, isBorrower[borrower_] = isValid_);
+    }
+
+    function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidLenderSet(lender_, isLender[lender_] = isValid_);
     }
 
     function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyPoolAdmin {
@@ -466,7 +470,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     function _getMaxAssets(address receiver_, uint256 totalAssets_) internal view returns (uint256 maxAssets_) {
-        bool depositAllowed_ = openToPublic || isValidLender[receiver_];
+        bool depositAllowed_ = openToPublic || isLender[receiver_];
         uint256 liquidityCap_ = liquidityCap;
         maxAssets_ = liquidityCap_ > totalAssets_ && depositAllowed_ ? liquidityCap_ - totalAssets_ : 0;
     }

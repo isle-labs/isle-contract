@@ -17,7 +17,8 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     event IsLoanManagerSet(address indexed loanManager_, bool isLoanManager_);
     event LiquidityCapSet(uint256 liquidityCap_);
     event LoanManagerAdded(address indexed loanManager_);
-    event AllowedLenderSet(address indexed lender_, bool isValid_);
+    event ValidBorrowerSet(address indexed borrower_, bool isValid_);
+    event ValidLenderSet(address indexed lender_, bool isValid_);
     event OpenToPublic();
     event PendingPoolAdminAccepted(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);
     event PendingPoolAdminSet(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);
@@ -67,7 +68,8 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     /* Administrative Functions */
     function setActive(bool active_) external;
     function completeConfiguration() external;
-    function setAllowedLender(address lender_, bool isValid_) external;
+    function setValidBorrower(address borrower_, bool isValid_) external;
+    function setValidLender(address lender_, bool isValid_) external;
     function setLiquidityCap(uint256 liquidityCap_) external;
     function setOpenToPublic() external;
 

@@ -21,5 +21,6 @@ abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
     uint256 public override liquidityCap;
     uint256 public override adminFeeRate;
 
-    mapping(address => bool) public override isValidLender;
+    mapping(address => bool) public override isBorrower;
+    mapping(address => bool) public override isLender;
 }
