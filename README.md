@@ -1,5 +1,14 @@
 # Lopo Protocol
 
+[![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] 
+
+[gha]: https://github.com/PaulRBerg/foundry-template/actions
+[gha-badge]: https://github.com/PaulRBerg/foundry-template/actions/workflows/ci.yml/badge.svg
+[foundry]: https://getfoundry.sh/
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
+
+This repository contains the core smart contracts for the Lopo Protocol.
+
 ## Getting Started
 
 0. If you are on VS Code, install Nomicfoundation/hardhat-solidity or JuanBlanco/solidity (select one for solidity) and
