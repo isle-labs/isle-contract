@@ -149,7 +149,6 @@ contract PoolUnitTest is PoolBase {
         assertAlmostEq(maxDeposit, type(uint256).max, _delta_);
     }
 
-    
     function test_maxMint() public {
         uint256 maxMint = pool.maxMint(caller);
         assertAlmostEq(maxMint, type(uint256).max, _delta_);
