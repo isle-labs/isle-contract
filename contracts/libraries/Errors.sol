@@ -21,6 +21,8 @@ library Errors {
 
     error NotBorrower(address caller);
 
+    error ProtocolPaused();
+
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -134,4 +136,13 @@ library Errors {
     error Receivable_CallerNotGovernor(address governor, address caller);
 
     error Receivable_InvalidGlobals(address globals);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                Withdrawal Manager
+    //////////////////////////////////////////////////////////////////////////*/
+    error WithdrawalManager_PoolNotSet();
+
+    error WithdrawalManager_ZeroWindow();
+
+    error WithdrawalManager_WindowGreaterThanCycle();
 }
