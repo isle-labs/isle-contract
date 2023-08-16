@@ -62,6 +62,9 @@ abstract contract BaseTest is PRBTest, StdCheats {
         vm.label(address(globalsV1), "globalsV1");
         vm.label(address(LopoProxy), "LopoProxy");
         vm.label(address(wrappedLopoProxyV1), "wrappedLopoProxyV1");
+
+        // onboard users
+        onboardUser();
     }
 
     function test_setUpStateBase() public {
@@ -81,6 +84,14 @@ abstract contract BaseTest is PRBTest, StdCheats {
         vm.deal({ account: user, newBalance: 100 ether });
         deal({ token: address(usdc), to: user, give: 1_000_000e6 });
         return user;
+    }
+
+    function onboardUser() internal {
+        vm.startPrank(users.governor);
+        wrappedLopoProxyV1.setValidBuyer(users.buyer, true);
+        wrappedLopoProxyV1.setValidPoolAdmin(users.pool_admin, true);
+        vm.stopPrank();
+        // TODO: onboard seller (borrower) in poolConfigurator
     }
 
     function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
