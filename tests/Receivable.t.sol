@@ -3,23 +3,14 @@ pragma solidity ^0.8.19;
 
 import "./BaseTest.t.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
+import { IReceivableEvent } from "../contracts/interfaces/IReceivableEvent.sol";
 import { Receivable } from "../contracts/Receivable.sol";
 import { MockReceivableV2 } from "./mocks/MockReceivableV2.sol";
 
-contract ReceivableTest is BaseTest {
+contract ReceivableTest is BaseTest, IReceivableEvent {
     Receivable receivableV1;
     UUPSProxy ReceivableProxy;
     Receivable wrappedReceivableProxyV1;
-
-    event AssetCreated(
-        address indexed buyer,
-        address indexed seller,
-        uint256 indexed tokenId,
-        uint256 faceAmount,
-        uint256 repaymentTimestamp
-    );
-
-    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
 
     function setUp() public virtual override {
         super.setUp();
