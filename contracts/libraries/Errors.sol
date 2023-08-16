@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19;
 
 library Errors {
@@ -123,7 +123,13 @@ library Errors {
 
     error LoanManager_InsufficientFunds(uint16 loanId_);
 
-    error LoanManager_NotBuyerOrSeller();
+    error LoanManager_BuyerNotWhitelisted();
+
+    error LoanManager_SellerNotWhitelisted();
+
+    error LoanManager_CallerNotBuyer();
+
+    error LoanManager_PrincipalRequestedTooLarge();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
