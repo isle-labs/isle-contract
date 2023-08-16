@@ -30,6 +30,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     /*//////////////////////////////////////////////////////////////////////////
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
+
     ERC20 internal usdc;
     LopoGlobals internal globalsV1;
     UUPSProxy internal LopoProxy;
