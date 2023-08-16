@@ -79,7 +79,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     function createUser(string memory name) internal returns (address payable) {
         address payable user = payable(makeAddr(name));
         vm.deal({ account: user, newBalance: 100 ether });
-        deal({token: address(usdc), to: user, give: 1_000_000e6});
+        deal({ token: address(usdc), to: user, give: 1_000_000e6 });
         return user;
     }
 

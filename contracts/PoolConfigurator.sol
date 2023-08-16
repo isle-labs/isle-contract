@@ -379,7 +379,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
-        
+
         require(
             IERC20(asset).transferFrom(address(this), recipient_, amount_),
             "Pool Configurator: Withdraw cover transfer failed"
