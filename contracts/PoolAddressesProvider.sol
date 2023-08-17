@@ -24,7 +24,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     constructor(string memory marketId_, address owner_, address lopoGlobals_) {
         _marketId = marketId_;
         _addresses[LOPO_GLOBALS] = lopoGlobals_;
-        transferAdmin(owner_);
+        admin = owner_;
     }
 
     function getMarketId() external view returns (string memory) {
@@ -55,19 +55,13 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     /// @inheritdoc IPoolAddressesProvider
     function setPoolConfiguratorImpl(
         address newPoolConfiguratorImpl,
-        address asset,
-        string memory name,
-        string memory symbol
+        bytes memory params
     )
         external
         override
         onlyAdmin
     {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
-
-        bytes memory params =
-            abi.encodeWithSignature("initialize(address,address,string,string)", address(this), asset, name, symbol);
-
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
     }
