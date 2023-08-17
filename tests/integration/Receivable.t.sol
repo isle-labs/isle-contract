@@ -1,32 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "../BaseTest.t.sol";
+import "./Integration.t.sol";
 import { IReceivableEvent } from "../../contracts/interfaces/IReceivableEvent.sol";
 import { Receivable } from "../../contracts/Receivable.sol";
 import { MockReceivableV2 } from "../mocks/MockReceivableV2.sol";
 
-contract ReceivableTest is BaseTest, IReceivableEvent {
-    Receivable receivableV1;
-    UUPSProxy ReceivableProxy;
-    Receivable wrappedReceivableProxyV1;
-
+contract ReceivableTest is IntegrationTest, IReceivableEvent {
     function setUp() public virtual override {
         super.setUp();
-        receivableV1 = new Receivable();
-
-        // deploy ReceivableProxy and point it to the implementation
-        ReceivableProxy = new UUPSProxy(address(receivableV1), "");
-
-        // wrap in ABI to support easier calls
-        wrappedReceivableProxyV1 = Receivable(address(ReceivableProxy));
-
-        // initialize the ReceivableProxy, assign the globals
-        wrappedReceivableProxyV1.initialize(address(wrappedLopoProxy));
     }
 
     function test_getImplementation() public {
-        assertEq(wrappedReceivableProxyV1.getImplementation(), address(receivableV1));
+        assertEq(wrappedReceivableProxy.getImplementation(), address(receivableV1));
     }
 
     function test_createReceivable() public {
@@ -35,19 +21,19 @@ contract ReceivableTest is BaseTest, IReceivableEvent {
 
         // caller of createReceivable() should be buyer
         vm.prank(users.buyer);
-        wrappedReceivableProxyV1.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
+        wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
 
-        uint256 tokenId = wrappedReceivableProxyV1.tokenOfOwnerByIndex(address(users.seller), 0);
+        uint256 tokenId = wrappedReceivableProxy.tokenOfOwnerByIndex(address(users.seller), 0);
 
         // RecevableInfo
-        ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxyV1.getReceivableInfoById(tokenId);
+        ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxy.getReceivableInfoById(tokenId);
 
         // assertions
         assertEq(tokenId, 0);
-        assertEq(wrappedReceivableProxyV1.ownerOf(tokenId), users.seller);
-        assertEq(wrappedReceivableProxyV1.balanceOf(users.seller), 1);
-        assertEq(wrappedReceivableProxyV1.totalSupply(), 1);
-        assertEq(wrappedReceivableProxyV1.tokenByIndex(0), tokenId);
+        assertEq(wrappedReceivableProxy.ownerOf(tokenId), users.seller);
+        assertEq(wrappedReceivableProxy.balanceOf(users.seller), 1);
+        assertEq(wrappedReceivableProxy.totalSupply(), 1);
+        assertEq(wrappedReceivableProxy.tokenByIndex(0), tokenId);
 
         assertEq(RECVInfo.buyer, users.buyer);
         assertEq(RECVInfo.seller, users.seller);
@@ -63,12 +49,12 @@ contract ReceivableTest is BaseTest, IReceivableEvent {
 
         // caller of createReceivable() should be buyer
         vm.prank(users.buyer);
-        wrappedReceivableProxyV1.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
+        wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
 
         MockReceivableV2 receivableV2 = new MockReceivableV2();
 
-        vm.prank(wrappedReceivableProxyV1.governor());
-        wrappedReceivableProxyV1.upgradeTo(address(receivableV2));
+        vm.prank(wrappedReceivableProxy.governor());
+        wrappedReceivableProxy.upgradeTo(address(receivableV2));
 
         // re-wrap the proxy to the new implementation
         MockReceivableV2 wrappedReceivableProxyV2 = MockReceivableV2(address(ReceivableProxy));
@@ -101,18 +87,18 @@ contract ReceivableTest is BaseTest, IReceivableEvent {
     }
 
     function test_setLopoGlobals() public {
-        assertEq(wrappedReceivableProxyV1.lopoGlobals(), address(wrappedLopoProxy));
+        assertEq(wrappedReceivableProxy.lopoGlobals(), address(wrappedLopoProxy));
 
         // since Receivable also have governor(), we use ReceivableV1 to pretend new LopoGlobals
-        address mockLopoGlobals = address(wrappedReceivableProxyV1);
+        address mockLopoGlobals = address(wrappedReceivableProxy);
         vm.expectEmit(true, true, true, true);
         emit LopoGlobalsSet(address(wrappedLopoProxy), mockLopoGlobals);
-        vm.prank(wrappedReceivableProxyV1.governor());
-        wrappedReceivableProxyV1.setLopoGlobals(mockLopoGlobals);
-        assertEq(wrappedReceivableProxyV1.lopoGlobals(), mockLopoGlobals);
+        vm.prank(wrappedReceivableProxy.governor());
+        wrappedReceivableProxy.setLopoGlobals(mockLopoGlobals);
+        assertEq(wrappedReceivableProxy.lopoGlobals(), mockLopoGlobals);
     }
 
     function test_governor() public {
-        assertEq(wrappedReceivableProxyV1.governor(), users.governor);
+        assertEq(wrappedReceivableProxy.governor(), users.governor);
     }
 }
