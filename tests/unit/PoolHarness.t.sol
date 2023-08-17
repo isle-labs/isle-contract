@@ -10,14 +10,14 @@ contract PoolHarnessTest is PoolBaseUint {
 
     function setUp() public override {
         super.setUp();
-        poolHarness = new PoolHarness(address(mockPoolConfigurator), address(asset), "lpToken", "LPT");
+        poolHarness = new PoolHarness(address(mockPoolConfigurator), address(usdc), "lpToken", "LPT");
     }
 
     function test_exposed_convertToShares() public {
         // ex. USDC decimals = 6
         // there are 1,000,000 USDC in the pool, deposited by other users
-        asset.mint(address(this), 1_000_000e6);
-        asset.approve(address(poolHarness), 1_000_000e6);
+        usdc.mint(address(this), 1_000_000e6);
+        usdc.approve(address(poolHarness), 1_000_000e6);
         poolHarness.deposit(1_000_000e6, address(this));
         // after 1 year, the pool has 1,050,000 USDC (earns 5% interest)
         _airdropToPoolHarness(50_000e6);
@@ -32,8 +32,8 @@ contract PoolHarnessTest is PoolBaseUint {
     function test_exposed_covertToExitShares() public {
         // ex. USDC decimals = 6
         // there are 1,000,000 USDC in the pool, deposited by other users
-        asset.mint(address(this), 1_000_000e6);
-        asset.approve(address(poolHarness), 1_000_000e6);
+        usdc.mint(address(this), 1_000_000e6);
+        usdc.approve(address(poolHarness), 1_000_000e6);
         poolHarness.deposit(1_000_000e6, address(this));
         // after 1 year, the pool has 1,050,000 USDC (earns 5% interest)
         _airdropToPoolHarness(50_000e6);
@@ -49,8 +49,8 @@ contract PoolHarnessTest is PoolBaseUint {
     function test_exposed_convertToAssets() public {
         // ex. USDC decimals = 6
         // there are 1,000,000 USDC in the pool, deposited by other users
-        asset.mint(address(this), 1_000_000e6);
-        asset.approve(address(poolHarness), 1_000_000e6);
+        usdc.mint(address(this), 1_000_000e6);
+        usdc.approve(address(poolHarness), 1_000_000e6);
         poolHarness.deposit(1_000_000e6, address(this));
         // after 1 year, the pool has 1,050,000 USDC (earns 5% interest)
         _airdropToPoolHarness(50_000e6);
@@ -65,8 +65,8 @@ contract PoolHarnessTest is PoolBaseUint {
     function test_exposed_convertToExitAssets() public {
         // ex. USDC decimals = 6
         // there are 1,000,000 USDC in the pool, deposited by other users
-        asset.mint(address(this), 1_000_000e6);
-        asset.approve(address(poolHarness), 1_000_000e6);
+        usdc.mint(address(this), 1_000_000e6);
+        usdc.approve(address(poolHarness), 1_000_000e6);
         poolHarness.deposit(1_000_000e6, address(this));
         // after 1 year, the pool has 1,050,000 USDC (earns 5% interest)
         _airdropToPoolHarness(50_000e6);
@@ -80,18 +80,18 @@ contract PoolHarnessTest is PoolBaseUint {
     }
 
     function test_exposed_deposit() public {
-        asset.mint(address(this), 1000e6);
-        asset.approve(address(poolHarness), 1000e6);
+        usdc.mint(address(this), 1000e6);
+        usdc.approve(address(poolHarness), 1000e6);
 
-        uint256 oldThisAsset = asset.balanceOf(address(this));
+        uint256 oldThisAsset = usdc.balanceOf(address(this));
         uint256 oldThisShare = poolHarness.balanceOf(address(this));
-        uint256 oldAllowance = asset.allowance(address(this), address(poolHarness));
+        uint256 oldAllowance = usdc.allowance(address(this), address(poolHarness));
 
         poolHarness.exposed_deposit(address(this), address(this), 500e6, 2000e6);
 
-        uint256 newThisAsset = asset.balanceOf(address(this));
+        uint256 newThisAsset = usdc.balanceOf(address(this));
         uint256 newThisShare = poolHarness.balanceOf(address(this));
-        uint256 newAllowance = asset.allowance(address(this), address(poolHarness));
+        uint256 newAllowance = usdc.allowance(address(this), address(poolHarness));
 
         assertAlmostEq(newThisAsset, oldThisAsset - 500e6, _delta_, "thisAsset");
         assertAlmostEq(newThisShare, oldThisShare + 2000e6, _delta_, "thisShare");
@@ -99,19 +99,19 @@ contract PoolHarnessTest is PoolBaseUint {
     }
 
     function test_exposed_withdraw() public {
-        asset.mint(address(this), 1000e6);
-        asset.approve(address(poolHarness), 1000e6);
+        usdc.mint(address(this), 1000e6);
+        usdc.approve(address(poolHarness), 1000e6);
         poolHarness.deposit(1000e6, address(this));
 
-        uint256 oldThisAsset = asset.balanceOf(address(this));
+        uint256 oldThisAsset = usdc.balanceOf(address(this));
         uint256 oldThisShare = poolHarness.balanceOf(address(this));
-        uint256 oldAllowance = asset.allowance(address(this), address(poolHarness));
+        uint256 oldAllowance = usdc.allowance(address(this), address(poolHarness));
 
         poolHarness.exposed_withdraw(address(this), address(this), address(this), 700e6, 1000e6);
 
-        uint256 newThisAsset = asset.balanceOf(address(this));
+        uint256 newThisAsset = usdc.balanceOf(address(this));
         uint256 newThisShare = poolHarness.balanceOf(address(this));
-        uint256 newAllowance = asset.allowance(address(this), address(poolHarness));
+        uint256 newAllowance = usdc.allowance(address(this), address(poolHarness));
 
         assertAlmostEq(newThisAsset, oldThisAsset + 700e6, _delta_, "thisAsset");
         assertAlmostEq(newThisShare, oldThisShare - 1000e6, _delta_, "thisShare");
@@ -124,6 +124,6 @@ contract PoolHarnessTest is PoolBaseUint {
 
     /* ========== Helper Functions ========== */
     function _airdropToPoolHarness(uint256 amount) internal {
-        asset.mint(address(poolHarness), amount);
+        usdc.mint(address(poolHarness), amount);
     }
 }

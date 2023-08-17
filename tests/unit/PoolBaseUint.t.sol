@@ -12,7 +12,7 @@ import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddresse
 contract PoolBaseUint is TestUtils {
     address POOL_ADMIN = address(new Address());
 
-    MockERC20 asset;
+    MockERC20 usdc;
     Pool pool;
     MockPoolConfigurator mockPoolConfigurator;
 
@@ -29,9 +29,9 @@ contract PoolBaseUint is TestUtils {
         caller = ACCOUNTS[8];
         receiver = ACCOUNTS[9];
 
-        asset = new MockERC20("Asset", "ASSET", 6);
+        usdc = new MockERC20("Asset", "ASSET", 6);
         mockPoolConfigurator = new MockPoolConfigurator(mockPoolAddressProvider);
-        pool = new Pool(address(mockPoolConfigurator), address(asset), "lpToken", "LPT");
+        pool = new Pool(address(mockPoolConfigurator), address(usdc), "lpToken", "LPT");
     }
 }
 

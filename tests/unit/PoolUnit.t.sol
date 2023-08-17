@@ -11,23 +11,23 @@ contract PoolUnitTest is PoolBaseUint {
 
     function setUp() public override {
         super.setUp();
-        asset.mint(caller, 1000e6);
+        usdc.mint(caller, 1000e6);
     }
 
     function test_deposit() public {
         vm.prank(caller);
-        asset.approve(address(pool), 1000);
+        usdc.approve(address(pool), 1000);
 
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
-        uint256 oldAllowance = asset.allowance(caller, address(pool));
+        uint256 oldAllowance = usdc.allowance(caller, address(pool));
 
         vm.prank(caller);
         pool.deposit(1000, receiver);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = asset.allowance(caller, address(pool));
+        uint256 newAllowance = usdc.allowance(caller, address(pool));
 
         assertAlmostEq(newCallerAsset, oldCallerAsset - 1000, _delta_);
         assertAlmostEq(newReceiverShare, oldReceiverShare + 1000, _delta_);
@@ -38,20 +38,20 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_depositWithPermit() public {
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
 
         uint256 callerPrivateKey = PRIVATE_KEYS[8];
         (uint8 v, bytes32 r, bytes32 s) = _getValidPermitSignature(
-            address(asset), caller, address(pool), 1000, 0, block.timestamp + 1 days, callerPrivateKey
+            address(usdc), caller, address(pool), 1000, 0, block.timestamp + 1 days, callerPrivateKey
         );
 
         vm.prank(caller);
         pool.depositWithPermit(1000, receiver, block.timestamp + 1 days, v, r, s);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = asset.allowance(caller, address(pool));
+        uint256 newAllowance = usdc.allowance(caller, address(pool));
 
         assertAlmostEq(newCallerAsset, oldCallerAsset - 1000, _delta_);
         assertAlmostEq(newReceiverShare, oldReceiverShare + 1000, _delta_);
@@ -60,18 +60,18 @@ contract PoolUnitTest is PoolBaseUint {
 
     function test_mint() public {
         vm.prank(caller);
-        asset.approve(address(pool), 1000);
+        usdc.approve(address(pool), 1000);
 
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
-        uint256 oldAllowance = asset.allowance(caller, address(pool));
+        uint256 oldAllowance = usdc.allowance(caller, address(pool));
 
         vm.prank(caller);
         pool.mint(1000, receiver);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = asset.allowance(caller, address(pool));
+        uint256 newAllowance = usdc.allowance(caller, address(pool));
 
         assertAlmostEq(newCallerAsset, oldCallerAsset - 1000, _delta_);
         assertAlmostEq(newReceiverShare, oldReceiverShare + 1000, _delta_);
@@ -82,20 +82,20 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_mintWithPermit() public {
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
 
         uint256 callerPrivateKey = PRIVATE_KEYS[8];
         (uint8 v, bytes32 r, bytes32 s) = _getValidPermitSignature(
-            address(asset), caller, address(pool), 1000, 0, block.timestamp + 1 days, callerPrivateKey
+            address(usdc), caller, address(pool), 1000, 0, block.timestamp + 1 days, callerPrivateKey
         );
 
         vm.prank(caller);
         pool.mintWithPermit(1000, receiver, 1000, block.timestamp + 1 days, v, r, s);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
-        uint256 newAllowance = asset.allowance(caller, address(pool));
+        uint256 newAllowance = usdc.allowance(caller, address(pool));
 
         assertAlmostEq(newCallerAsset, oldCallerAsset - 1000, _delta_);
         assertAlmostEq(newReceiverShare, oldReceiverShare + 1000, _delta_);
@@ -105,14 +105,14 @@ contract PoolUnitTest is PoolBaseUint {
     function test_withdraw() public {
         _callerDepositToReceiver(caller, receiver, 1000);
 
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
 
-        // notice that we are withdrawing assets from receiver, not caller
+        // notice that we are withdrawing usdcs from receiver, not caller
         vm.prank(receiver);
         uint256 shares = pool.withdraw(1000, caller, receiver);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
 
         assertAlmostEq(newCallerAsset, oldCallerAsset + shares, _delta_);
@@ -122,18 +122,18 @@ contract PoolUnitTest is PoolBaseUint {
     function test_redeem() public {
         uint256 shares = _callerDepositToReceiver(caller, receiver, 1000);
 
-        uint256 oldCallerAsset = asset.balanceOf(caller);
+        uint256 oldCallerAsset = usdc.balanceOf(caller);
         uint256 oldReceiverShare = pool.balanceOf(receiver);
 
         // notice that we are redeeming shares from receiver
         vm.prank(receiver);
-        uint256 assets = pool.redeem(shares, caller, receiver);
+        uint256 usdcs = pool.redeem(shares, caller, receiver);
 
-        uint256 newCallerAsset = asset.balanceOf(caller);
+        uint256 newCallerAsset = usdc.balanceOf(caller);
         uint256 newReceiverShare = pool.balanceOf(receiver);
 
-        assertAlmostEq(newCallerAsset, oldCallerAsset + assets, _delta_);
-        assertAlmostEq(newReceiverShare, oldReceiverShare - assets, _delta_);
+        assertAlmostEq(newCallerAsset, oldCallerAsset + usdcs, _delta_);
+        assertAlmostEq(newReceiverShare, oldReceiverShare - usdcs, _delta_);
     }
 
     /* ========== Public View Functions ========== */
@@ -165,17 +165,17 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_previewWithdraw() public {
-        uint256 assets = pool.previewRedeem(1000e6);
-        assertAlmostEq(assets, 1000e6, _delta_);
+        uint256 usdcs = pool.previewRedeem(1000e6);
+        assertAlmostEq(usdcs, 1000e6, _delta_);
     }
 
     function test_previewRedeem() public {
-        uint256 assets = pool.previewRedeem(1000e6);
-        assertAlmostEq(assets, 1000e6, _delta_);
+        uint256 usdcs = pool.previewRedeem(1000e6);
+        assertAlmostEq(usdcs, 1000e6, _delta_);
     }
 
     function test_convertToShares() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.convertToShares(1000e6);
@@ -184,7 +184,7 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_convertToExitShares() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.convertToExitShares(1000e6);
@@ -194,21 +194,21 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_convertToAssets() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
-        uint256 assets = pool.convertToAssets(1000e6);
+        uint256 usdcs = pool.convertToAssets(1000e6);
         UD60x18 result = ud(1000e6).mul(ud(1_050_000e6 + 1)).div(ud(1_000_000e6 + 1));
-        assertAlmostEq(assets, result.intoUint256(), _delta_);
+        assertAlmostEq(usdcs, result.intoUint256(), _delta_);
     }
 
     function test_convertToExitAssets() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
-        uint256 assets = pool.convertToExitAssets(1000e6);
+        uint256 usdcs = pool.convertToExitAssets(1000e6);
         UD60x18 result = ud(1000e6).mul(ud(1_050_000e6 - 5000e6 + 1)).div(ud(1_000_000e6 + 1));
-        assertAlmostEq(assets, result.intoUint256(), _delta_);
+        assertAlmostEq(usdcs, result.intoUint256(), _delta_);
     }
 
     function test_unrealizedLosses() public {
@@ -216,7 +216,7 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_previewDeposit() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.previewDeposit(1000e6);
@@ -225,25 +225,25 @@ contract PoolUnitTest is PoolBaseUint {
     }
 
     function test_previewMint() public {
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
-        uint256 assets = pool.previewMint(1000e6);
+        uint256 usdcs = pool.previewMint(1000e6);
         UD60x18 result = ud(1000e6).mul(ud(1_050_000e6 + 1)).div(ud(1_000_000e6 + 1));
-        assertAlmostEq(assets, result.intoUint256(), _delta_);
+        assertAlmostEq(usdcs, result.intoUint256(), _delta_);
     }
 
     function test_decimals() public {
         assertEq(pool.decimals(), 18);
     }
 
-    function test_asset() public {
-        assertEq(pool.asset(), address(asset));
+    function test_usdc() public {
+        assertEq(pool.asset(), address(usdc));
     }
 
     function test_totalAssets() public {
         assertEq(pool.totalAssets(), 0);
-        asset.mint(caller, 1_000_000e6);
+        usdc.mint(caller, 1_000_000e6);
         _callerDepositToReceiver(caller, receiver, 1_000_000e6);
         assertEq(pool.totalAssets(), 1_000_000e6);
         _airdropToPool(50_000e6);
@@ -294,18 +294,18 @@ contract PoolUnitTest is PoolBaseUint {
     function _callerDepositToReceiver(
         address caller_,
         address receiver_,
-        uint256 assets_
+        uint256 usdcs_
     )
         internal
         returns (uint256 shares_)
     {
         vm.startPrank(caller_);
-        asset.approve(address(pool), assets_);
-        shares_ = pool.deposit(assets_, receiver_);
+        usdc.approve(address(pool), usdcs_);
+        shares_ = pool.deposit(usdcs_, receiver_);
         vm.stopPrank();
     }
 
     function _airdropToPool(uint256 amount) internal {
-        asset.mint(address(pool), amount);
+        usdc.mint(address(pool), amount);
     }
 }
