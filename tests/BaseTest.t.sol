@@ -5,8 +5,7 @@ import { StdCheats } from "@forge-std/StdCheats.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "@forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { ERC20 } from "../contracts/ERC20.sol";
-import { IERC20 } from "../contracts/interfaces/IERC20.sol";
+import { MockERC20 } from "./mocks/MockERC20.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
@@ -31,7 +30,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ERC20 internal usdc;
+    MockERC20 internal usdc;
     LopoGlobals internal globalsV1;
     UUPSProxy internal LopoProxy;
     LopoGlobals internal wrappedLopoProxy;
@@ -41,7 +40,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new ERC20("USDC", "USDC", 6);
+        usdc = new MockERC20("USDC", "USDC", 6);
 
         // create users for testing
         users = Users({
@@ -56,10 +55,10 @@ abstract contract BaseTest is PRBTest, StdCheats {
         _setUpGlobals();
 
         // label the base test contracts
-        _labelContracts();
+        _labelBaseContracts();
 
         // onboard users
-        _onboardUsers();
+        _onboardUsersAndAssets();
     }
 
     function test_setUpStateBase() public {
@@ -84,7 +83,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
         wrappedLopoProxy.initialize(users.governor);
     }
 
-    function _labelContracts() internal {
+    function _labelBaseContracts() internal {
         vm.label(address(usdc), "USDC");
         vm.label(address(globalsV1), "globalsV1");
         vm.label(address(LopoProxy), "LopoProxy");
@@ -99,8 +98,9 @@ abstract contract BaseTest is PRBTest, StdCheats {
         return user;
     }
 
-    function _onboardUsers() internal {
+    function _onboardUsersAndAssets() internal {
         vm.startPrank(users.governor);
+        wrappedLopoProxy.setValidPoolAsset(address(usdc), true);
         wrappedLopoProxy.setValidBuyer(users.buyer, true);
         wrappedLopoProxy.setValidPoolAdmin(users.pool_admin, true);
         vm.stopPrank();
