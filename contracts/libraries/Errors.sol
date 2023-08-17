@@ -59,6 +59,7 @@ library Errors {
 
     error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
 
+
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
@@ -130,6 +131,14 @@ library Errors {
     error LoanManager_CallerNotBuyer();
 
     error LoanManager_PrincipalRequestedTooLarge();
+
+    error LoanManager_InvalidLoanStatus(uint16 loanId_);
+
+    error LoanManager_NotBuyer();
+
+    error LoanManager_NotSeller();
+
+    error LoanManager_LoanAlreadyFunded(uint16 loanId_);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
