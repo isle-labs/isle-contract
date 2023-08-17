@@ -21,8 +21,9 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
     bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
 
-    constructor(string memory marketId_, address owner_) {
+    constructor(string memory marketId_, address owner_, address lopoGlobals_) {
         _marketId = marketId_;
+        _addresses[LOPO_GLOBALS] = lopoGlobals_;
         transferAdmin(owner_);
     }
 
