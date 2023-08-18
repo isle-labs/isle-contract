@@ -59,6 +59,8 @@ library Errors {
 
     error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
 
+    error PoolConfigurator_ERC20TransferFromFailed(address asset, address from, address to, uint256 amount);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
