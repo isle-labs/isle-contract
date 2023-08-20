@@ -16,7 +16,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
         address payable pool_admin;
         address payable seller;
         address payable buyer;
-        address payable sender;
+        address payable caller;
         address payable receiver;
     }
 
@@ -48,7 +48,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
             pool_admin: _createUser("PoolAdmin"),
             seller: _createUser("Seller"),
             buyer: _createUser("Buyer"),
-            sender: _createUser("Sender"),
+            caller: _createUser("Sender"),
             receiver: _createUser("Receiver")
         });
 
