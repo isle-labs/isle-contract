@@ -186,6 +186,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         unrealizedLosses_ = _min(ILoanManager(_loanManager()).unrealizedLosses(), totalAssets());
     }
 
+    function getPool() external view override returns (address pool_) {
+        pool_ = pool;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

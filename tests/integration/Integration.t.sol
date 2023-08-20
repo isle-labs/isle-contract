@@ -9,6 +9,7 @@ import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddresse
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { LoanManager } from "../../contracts/LoanManager.sol";
 import { WithdrawalManager } from "../../contracts/WithdrawalManager.sol";
+import { IPool } from "../../contracts/interfaces/IPool.sol";
 import "../BaseTest.t.sol";
 
 contract IntegrationTest is BaseTest {
@@ -34,6 +35,8 @@ contract IntegrationTest is BaseTest {
     LoanManager internal wrappedLoanManagerProxy;
     WithdrawalManager internal wrappedWithdrawalManagerProxy;
 
+    IPool internal pool;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
@@ -51,6 +54,8 @@ contract IntegrationTest is BaseTest {
         // record that the pool admin owns specific pool configuarator
         vm.prank(users.governor);
         wrappedLopoProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
+
+        pool = IPool(wrappedPoolConfiguratorProxy.getPool());
     }
 
     function test_setUpStateIntegration() public {
