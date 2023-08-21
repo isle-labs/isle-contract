@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "./PoolBase.t.sol";
+import "./PoolBaseUint.t.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-contract PoolHarnessTest is PoolBase {
+contract PoolHarnessTest is PoolBaseUint {
     PoolHarness poolHarness;
     uint256 internal _delta_ = 1e6; // in USDC's case
 
