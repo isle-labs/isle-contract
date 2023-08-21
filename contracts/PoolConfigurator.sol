@@ -190,6 +190,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         pool_ = pool;
     }
 
+    function getPoolAdmin() external view override returns (address poolAdmin_) {
+        poolAdmin_ = poolAdmin;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
