@@ -58,7 +58,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
         _labelBaseContracts();
 
         // onboard users
-        _onboardUsersAndAssets();
+        _onboardUsersAndAssetsToGlobals();
     }
 
     function test_setUpStateBase() public {
@@ -98,7 +98,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
         return user;
     }
 
-    function _onboardUsersAndAssets() internal {
+    function _onboardUsersAndAssetsToGlobals() internal {
         vm.startPrank(users.governor);
         wrappedLopoProxy.setValidPoolAsset(address(usdc), true);
         wrappedLopoProxy.setValidBuyer(users.buyer, true);

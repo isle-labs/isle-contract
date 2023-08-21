@@ -56,6 +56,10 @@ contract IntegrationTest is BaseTest {
         wrappedLopoProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
 
         pool = IPool(wrappedPoolConfiguratorProxy.getPool());
+
+        _approveProtocol();
+
+        _onboardUsersToConfigurator();
     }
 
     function test_setUpStateIntegration() public {
@@ -140,5 +144,21 @@ contract IntegrationTest is BaseTest {
         vm.label(address(wrappedPoolConfiguratorProxy), "WrappedPoolConfiguratorProxy");
         vm.label(address(wrappedLoanManagerProxy), "WrappedLoanManagerProxy");
         vm.label(address(wrappedWithdrawalManagerProxy), "WrappedWithdrawalManagerProxy");
+    }
+
+    function _approveProtocol() internal {
+        vm.startPrank(users.caller);
+        usdc.approve(address(pool), type(uint256).max);
+
+        changePrank(users.receiver);
+        usdc.approve(address(pool), type(uint256).max);
+
+        vm.stopPrank();
+    }
+
+    function _onboardUsersToConfigurator() internal {
+        vm.startPrank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
+        vm.stopPrank();
     }
 }
