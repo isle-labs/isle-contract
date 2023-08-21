@@ -36,7 +36,9 @@ contract Pool is IPool, ERC20Permit {
         _asset = ERC20Permit(asset_);
     }
 
-    /* ========== LP Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                LP Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev See {IERC4626-deposit}.
@@ -128,7 +130,10 @@ contract Pool is IPool, ERC20Permit {
         return assets;
     }
 
-    /* ========== Withdrawal Request Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Withdrawal Request Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_) {
         if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), shares_);
@@ -170,7 +175,10 @@ contract Pool is IPool, ERC20Permit {
         IPoolConfigurator(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
     }
 
-    /* ========== Internal Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Internal Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function _convertToShares(
         uint256 assets_,
         Math.Rounding rounding_
@@ -262,7 +270,10 @@ contract Pool is IPool, ERC20Permit {
         return 0;
     }
 
-    /* ========== Public View Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Public View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
         balanceOfAssets_ = convertToAssets(balanceOf(account_));
     }

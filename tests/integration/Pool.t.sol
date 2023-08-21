@@ -13,6 +13,10 @@ contract PoolTest is IntegrationTest {
     uint256 internal _skOwner = 1;
     uint256 internal _nonce = 0;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public override {
         super.setUp();
 
@@ -133,7 +137,10 @@ contract PoolTest is IntegrationTest {
         // assertAlmostEq(newReceiverShare, oldReceiverShare - usdcs, _delta_);
     }
 
-    /* ========== Withdrawal Request Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Withdrawal Request Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     // TODO: complete these tests after implementing WithdrawalManager
     function test_removeShares() public { }
 
@@ -141,7 +148,9 @@ contract PoolTest is IntegrationTest {
 
     function requestWithdraw() public { }
 
-    /* ========== Public View Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Public View Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_balanceOfAssets() public {
         _setPoolLiquidityCap(1_000_000e6);
@@ -280,7 +289,9 @@ contract PoolTest is IntegrationTest {
         assertEq(pool.totalAssets(), 1_050_000e6);
     }
 
-    /* ========== Helper Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     // Returns a valid `permit` signature signed by this contract's `owner` address
     function _getValidPermitSignature(
