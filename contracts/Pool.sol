@@ -28,7 +28,7 @@ contract Pool is IPool, ERC20Permit {
         ERC20(name_, symbol_)
     {
         require(asset_ != address(0), "P:C:ZERO_ASSET");
-        require((configurator = configurator_) != address(0), "P:C:ZERO_MANAGER");
+        require((configurator = configurator_) != address(0), "P:C:ZERO_CONFIGURATOR");
         require(IERC20(asset_).approve(configurator_, type(uint256).max), "P:C:FAILED_APPROVE");
 
         _underlyingDecimals = 18;
