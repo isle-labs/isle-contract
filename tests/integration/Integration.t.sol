@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { ITransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import { Errors } from "../../contracts/libraries/Errors.sol";
 import { Receivable } from "../../contracts/Receivable.sol";
 import { PoolAddressesProvider } from "../../contracts/PoolAddressesProvider.sol";
 import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";

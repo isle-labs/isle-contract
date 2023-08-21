@@ -110,7 +110,7 @@ contract PoolTest is IntegrationTest {
         _callerDepositToReceiver(users.caller, users.receiver, 1000e6);
 
         // we didn't implement withdraw function
-        vm.expectRevert(bytes("ERC4626: withdraw more than max"));
+        vm.expectRevert(abi.encodeWithSelector(Errors.Pool_WithdrawMoreThanMax.selector, 1000e6, 0));
         // notice that we are withdrawing usdcs from users.receiver, not users.caller
         vm.startPrank(users.receiver);
         pool.withdraw(1000e6, users.caller, users.receiver);

@@ -134,4 +134,24 @@ library Errors {
     error Receivable_CallerNotGovernor(address governor, address caller);
 
     error Receivable_InvalidGlobals(address globals);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                Pool
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error Pool_ZeroAsset();
+
+    error Pool_ZeroConfigurator();
+
+    error Pool_FailedApprove();
+
+    error Pool_DepositMoreThanMax(uint256 assets, uint256 maxDeposit);
+
+    error Pool_MintMoreThanMax(uint256 shares, uint256 maxMint);
+
+    error Pool_InsufficientPermit(uint256 assets, uint256 permits);
+
+    error Pool_WithdrawMoreThanMax(uint256 assets, uint256 maxWithdraw);
+
+    error Pool_RedeemMoreThanMax(uint256 shares, uint256 maxRedeem);
 }
