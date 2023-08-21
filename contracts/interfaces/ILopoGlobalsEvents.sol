@@ -33,13 +33,6 @@ interface ILopoGlobalsEvents {
     event MaxCoverLiquidationPercentSet(address indexed poolManager_, uint256 maxCoverLiquidationPercent_);
 
     /**
-     *  @dev   The minimum cover amount for the given pool manager has been set.
-     *  @param poolManager_    The address of the pool manager.
-     *  @param minCoverAmount_ The new value for the minimum cover amount.
-     */
-    event MinCoverAmountSet(address indexed poolManager_, uint256 minCoverAmount_);
-
-    /**
      *  @dev   The pending governor has been set.
      *  @param pendingGovernor_ The new pending governor.
      */
@@ -103,4 +96,6 @@ interface ILopoGlobalsEvents {
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
 
     event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
+
+    event MinCoverAmountSet(address indexed poolConfigurator_, uint256 indexed minCoverAmount_);
 }

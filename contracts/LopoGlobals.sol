@@ -267,6 +267,11 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
                             POOL RESTRICTION SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function setMinCoverAmount(address poolConfigurator_, uint256 minCoverAmount_) external override onlyGovernor {
+        emit MinCoverAmountSet(poolConfigurator_, minCoverAmount_);
+        minCoverAmount[poolConfigurator_] = minCoverAmount_;
+    }
+
     function setMinDepositLimit(address poolConfigurator_, UD60x18 minDepositLimit_) external override onlyGovernor {
         emit MinDepositLimitSet(poolConfigurator_, minDepositLimit_.intoUint256());
         minDepositLimit[poolConfigurator_] = minDepositLimit_;
