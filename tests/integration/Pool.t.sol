@@ -4,8 +4,6 @@ pragma solidity ^0.8.19;
 import "./Integration.t.sol";
 import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
 
-// Notice: In this test, we only focus on the function that will interact with other contracts.
-// i
 contract PoolTest is IntegrationTest {
     uint256 internal _delta_ = 1e6;
 
