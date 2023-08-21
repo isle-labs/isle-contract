@@ -23,6 +23,10 @@ contract PoolTest is IntegrationTest {
         _owner = vm.addr(_skOwner);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                TEST FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_deposit() public {
         _setPoolLiquidityCap(1_000_000e6);
         assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
