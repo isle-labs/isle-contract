@@ -162,4 +162,40 @@ contract IntegrationTest is BaseTest {
         wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
         vm.stopPrank();
     }
+
+    function _callerDepositToReceiver(
+        address caller_,
+        address receiver_,
+        uint256 assets_
+    )
+        internal
+        returns (uint256 shares_)
+    {
+        vm.startPrank(caller_);
+        shares_ = pool.deposit(assets_, receiver_);
+        vm.stopPrank();
+    }
+
+    function _callerMintToReceiver(
+        address caller_,
+        address receiver_,
+        uint256 shares_
+    )
+        internal
+        returns (uint256 assets_)
+    {
+        vm.startPrank(caller_);
+        assets_ = pool.mint(shares_, receiver_);
+        vm.stopPrank();
+    }
+
+    function _airdropToPool(uint256 amount) internal {
+        usdc.mint(address(pool), amount);
+    }
+
+    function _setPoolLiquidityCap(uint256 liquidityCap_) internal {
+        vm.startPrank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setLiquidityCap(liquidityCap_);
+        vm.stopPrank();
+    }
 }
