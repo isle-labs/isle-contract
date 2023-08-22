@@ -104,15 +104,13 @@ library Errors {
 
     error LoanManager_BorrowerFundsTransferFailed();
 
-    error LoanManager_FundsTransferFailed();
-
     error LoanManager_LoanImpaired(uint16 loanId);
 
     error LoanManager_NotAuthorizedToRemoveLoanImpairment(uint16 loanId);
 
     error LoanManager_PastDueDate(uint16 loanId_);
 
-    error LoanManager_NotImpaired(uint16 loanId_);
+    error LoanManager_LoanNotImpaired(uint16 loanId_);
 
     error LoanManager_NotCorrectBorrower(uint16 loanId_, address expectedBorrower_);
 
@@ -128,7 +126,9 @@ library Errors {
 
     error LoanManager_SellerNotWhitelisted();
 
-    error LoanManager_CallerNotBuyer();
+    error LoanManager_CallerNotBuyer(address expectedBuyer_);
+
+    error LoanManager_CallerNotSeller(address expectedSeller_);
 
     error LoanManager_PrincipalRequestedTooLarge();
 
@@ -139,6 +139,8 @@ library Errors {
     error LoanManager_NotSeller();
 
     error LoanManager_LoanAlreadyFunded(uint16 loanId_);
+
+    error LoanManager_LoanWithdrawnOrNotActive(uint16 loanId_);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable

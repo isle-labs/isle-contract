@@ -9,19 +9,33 @@ abstract contract LoanManagerStorage is ILoanManager {
                                     STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
 
+    enum LoanStatus {
+        PENDING,
+        ACTIVE,
+        IMPAIRED,
+        DEFAULTED
+    }
+
     struct LoanInfo {
-        address borrower;
+        LoanStatus status;
+
+        bool withdrawn;
+
+        address buyer;
+        address seller;
+
         uint256 collateralTokenId;
+
         uint256 principal;
-        uint256 drawableFunds;
+
         uint256 interestRate;
         uint256 lateInterestPremiumRate;
+        uint256 fee;
+
         uint256 startDate;
         uint256 dueDate;
         uint256 originalDueDate;
-        uint256 issuanceRate;
         uint256 gracePeriod;
-        bool isImpaired;
     }
 
     struct LiquidationInfo {
@@ -66,10 +80,11 @@ abstract contract LoanManagerStorage is ILoanManager {
     address public fundsAsset;
     address public collateralAsset;
 
-    mapping(uint16 => LoanInfo) public loans;
     mapping(uint16 => Impairment) public impairmentFor;
     mapping(uint256 => PaymentInfo) public payments;
     mapping(uint256 => SortedPayment) public sortedPayments;
     mapping(uint16 => LiquidationInfo) public liquidationInfoFor;
     mapping(uint16 => uint24) public paymentIdOf;
+
+    mapping(uint16 => LoanInfo) internal _loans;
 }
