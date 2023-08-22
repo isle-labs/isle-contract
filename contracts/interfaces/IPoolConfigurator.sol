@@ -47,7 +47,7 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setValidBorrower(address borrower_, bool isValid_) external;
     function setValidLender(address lender_, bool isValid_) external;
     function setLiquidityCap(uint256 liquidityCap_) external;
-    function setOpenToPublic() external;
+    function setOpenToPublic(bool isOpenToPublic_) external;
 
     /* Funding Functions */
     function requestFunds(uint256 principal_) external;

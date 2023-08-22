@@ -243,9 +243,9 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         emit LiquidityCapSet(liquidityCap = liquidityCap_);
     }
 
-    function setOpenToPublic() external override whenNotPaused onlyPoolAdmin {
-        openToPublic = true;
-        emit OpenToPublic();
+    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyPoolAdmin {
+        openToPublic = isOpenToPublic_;
+        emit OpenToPublic(isOpenToPublic_);
     }
 
     /* Funding Functions */

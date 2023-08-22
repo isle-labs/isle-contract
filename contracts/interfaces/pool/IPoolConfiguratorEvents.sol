@@ -15,7 +15,7 @@ interface IPoolConfiguratorEvents {
     event LoanManagerAdded(address indexed loanManager_);
     event ValidBorrowerSet(address indexed borrower_, bool isValid_);
     event ValidLenderSet(address indexed lender_, bool isValid_);
-    event OpenToPublic();
+    event OpenToPublic(bool isOpenToPublic_);
     event PendingPoolAdminAccepted(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);
     event PendingPoolAdminSet(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);
     event PoolConfigurationComplete();
