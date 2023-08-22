@@ -40,7 +40,14 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         ADDRESSES_PROVIDER = provider;
     }
 
-    function initialize(IPoolAddressesProvider provider_) external initializer {
+    function getRevision() internal pure virtual override returns (uint256 revision_) {
+        revision_ = LOAN_MANAGER_REVISION;
+    }
+
+    /// @notice Initializes the Loan Manager.
+    /// @dev Function is invoked by the proxy contract when the Loan Manager COntract is added to the PoolAddressesProvider of the market
+    /// @param provider_ The address of the PoolAddressesProvider
+    function initialize(IPoolAddressesProvider provider_) external virtual initializer {
         if (ADDRESSES_PROVIDER != provider_) {
             revert Errors.InvalidAddressProvider({
                 expectedProvider: address(ADDRESSES_PROVIDER),
@@ -49,49 +56,55 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
     }
 
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = LOAN_MANAGER_REVISION;
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Can only be called when the function is not paused
     modifier whenNotPaused() {
         _revertIfPaused();
         _;
     }
 
+    /// @dev Can only be called by the Pool Admin or the Governor
     modifier onlyPoolAdminOrGovernor() {
         _revertIfNotPoolAdminOrGovernor();
         _;
     }
 
+    /// @dev Can only be called by the Pool Admin
     modifier onlyPoolAdmin() {
         _revertIfNotPoolAdmin();
         _;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            CONSTANT FUNCTIONS
+                            EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function accruedInterest() public view returns (uint256 accruedInterest_) {
+    /// @inheritdoc ILoanManager
+    function accruedInterest() public view override returns (uint256 accruedInterest_) {
         uint256 issuanceRate_ = issuanceRate;
         accruedInterest_ = issuanceRate_ == 0 ? 0 : _getIssuance(issuanceRate, block.timestamp - domainStart);
     }
 
-    function assetsUnderManagement() public view virtual override returns (uint256 assetsUnderManagement_) {
+    /// @inheritdoc ILoanManager
+    function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
         assetsUnderManagement_ = principalOut + accountedInterest + accruedInterest();
     }
 
+    /// @inheritdoc ILoanManager
     function getLoanPaymentDetailedBreakdown(uint16 loanId_)
         public
         view
+        override
         returns (uint256 principal_, uint256[2] memory interest_)
     {
         LoanInfo memory loan_ = _loans[loanId_];
-        (principal_, interest_) = _getPaymentBreakdown(
+
+        principal_ = loan_.principal;
+        interest_ = _getInterestBreakdown(
             block.timestamp,
             loan_.startDate,
             loan_.dueDate,
@@ -101,11 +114,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         );
     }
 
-    function getLoanPaymentBreakdown(uint16 loanId_) public view returns (uint256 principal_, uint256 interest_) {
+    /// @inheritdoc ILoanManager
+    function getLoanPaymentBreakdown(uint16 loanId_) public view override returns (uint256 principal_, uint256 interest_) {
         LoanInfo memory loan_ = _loans[loanId_];
         uint256[2] memory interestArray_;
 
-        (principal_, interestArray_) = _getPaymentBreakdown(
+        interestArray_ = _getInterestBreakdown(
             block.timestamp,
             loan_.startDate,
             loan_.dueDate,
@@ -114,33 +128,22 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             loan_.lateInterestPremiumRate
         );
 
+        principal_ = loan_.principal;
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                        MANUAL ACCOUNTING UPDATE FUNCTIONS
+                        EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ILoanManager
     function updateAccounting() external whenNotPaused onlyPoolAdminOrGovernor {
         _advanceGlobalPaymentAccounting();
         _updateIssuanceParams(issuanceRate, accountedInterest);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        BUYER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-    /**
-     *  @dev   Approves the receivable with the following terms.
-     *  @param receivablesTokenId_      Token ID of the receivable that would be used as collateral
-     *  @param gracePeriod_             Grace period for the loan
-     *  @param principalRequested_      Amount of principal approved by the buyer
-     *  @param rates_                   Rates parameters:
-     *                                      [0]: interestRate,
-     *                                      [1]: lateInterestPremiumRate,
-     *  @param fee_                     PoolAdmin Fees
-     *  @return loanId_                 Id of the loan that is created
-     */
-    function approveReceivables(uint256 receivablesTokenId_, uint256 gracePeriod_, uint256 principalRequested_, uint256[2] memory rates_, uint256 fee_) external whenNotPaused returns (uint16 loanId_) {
+    /// @inheritdoc ILoanManager
+    function approveLoan(uint256 receivablesTokenId_, uint256 gracePeriod_, uint256 principalRequested_, uint256[2] memory rates_, uint256 fee_) external override whenNotPaused returns (uint16 loanId_) {
         address collateralAsset_ = collateralAsset;
 
         ReceivableStorage.ReceivableInfo memory receivableInfo_ =
@@ -189,18 +192,31 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         });
     }
 
-    /**
-     *  @dev   Repays the loan. (note that the loan can be repaid early but not partially)
-     *  @param loanId_                  Id of the loan to repay
-     *  @param amount_                  Repayment amount
-     *  @return principal_              Principal amount repaid
-     *  @return interest_               Interest amount repaid
-     */
-    function repayLoan(
-        uint16 loanId_,
-        uint256 amount_
-    )
+    /// @inheritdoc ILoanManager
+    function fundLoan(uint16 loanId_) external override nonReentrant whenNotPaused onlyPoolAdmin {
+        LoanInfo memory loan_ = _loans[loanId_];
+
+        _advanceGlobalPaymentAccounting();
+
+        uint256 principal_ = loan_.principal;
+
+        IPoolConfigurator(_poolConfigurator()).requestFunds(principal_);
+
+        // Update loan state
+        LoanInfo storage loanStorage_ = _loans[loanId_];
+        loanStorage_.status = LoanStatus.ACTIVE;
+        loanStorage_.startDate = block.timestamp;
+
+        emit PrincipalOutUpdated(principalOut += SafeCast.toUint128(principal_));
+
+        // Add new issuance rate from queued payment
+        _updateIssuanceParams(issuanceRate + _queuePayment(loanId_, block.timestamp, loan_.dueDate), accountedInterest);
+    }
+
+    /// @inheritdoc ILoanManager
+    function repayLoan(uint16 loanId_, uint256 amount_)
         external
+        override
         whenNotPaused
         returns (uint256 principal_, uint256 interest_)
     {
@@ -242,15 +258,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         emit FundsClaimed(loanId_, principalAndInterest_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        BUYER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-    /**
-     *  @dev   Withdraw the funds from a loan.
-     *  @param loanId_                  Id of the loan to withdraw funds from
-     *  @param destination_             The destination address for the funds
-     *  @return fundsWithdrawn_         The amount of funds withdrawn
-     */
+    /// @inheritdoc ILoanManager
     function withdrawFunds(uint16 loanId_, address destination_) external whenNotPaused returns (uint256 fundsWithdrawn_) {
         LoanInfo memory loan_ = _loans[loanId_];
 
@@ -271,35 +279,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         IERC20(fundsAsset).safeTransfer(destination_, fundsWithdrawn_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            LOAN FUNDING FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function fundLoan(uint16 loanId_) external nonReentrant whenNotPaused onlyPoolAdmin {
-        LoanInfo memory loan_ = _loans[loanId_];
-
-        _advanceGlobalPaymentAccounting();
-
-        uint256 principal_ = loan_.principal;
-
-        IPoolConfigurator(_poolConfigurator()).requestFunds(principal_);
-
-        // Update loan state
-        LoanInfo storage loanStorage_ = _loans[loanId_];
-        loanStorage_.status = LoanStatus.ACTIVE;
-        loanStorage_.startDate = block.timestamp;
-
-        emit PrincipalOutUpdated(principalOut += SafeCast.toUint128(principal_));
-
-        // Add new issuance rate from queued payment
-        _updateIssuanceParams(issuanceRate + _queuePayment(loanId_, block.timestamp, loan_.dueDate), accountedInterest);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                        LOAN IMPAIRMENT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function impairLoan(uint16 loanId_) external whenNotPaused onlyPoolAdminOrGovernor {
+    /// @inheritdoc ILoanManager
+    function impairLoan(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
         LoanInfo memory loan_ = _loans[loanId_];
 
         if (loan_.status == LoanStatus.IMPAIRED) {
@@ -346,10 +327,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         loanStorage_.dueDate = newDueDate_;
         loanStorage_.originalDueDate = originalDueDate_;
 
-        emit LoanImpaired(newDueDate_);
+        emit LoanImpaired(loanId_, newDueDate_);
     }
 
-    function removeLoanImpairment(uint16 loanId_) external nonReentrant whenNotPaused {
+    /// @inheritdoc ILoanManager
+    function removeLoanImpairment(uint16 loanId_) external override nonReentrant whenNotPaused {
         LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
         LoanInfo memory loan_ = _loans[loanId_];
 
@@ -401,13 +383,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         _loans[loanId_].dueDate = originalPaymentDueDate_;
         delete _loans[loanId_].originalDueDate;
 
-        emit ImpairmentRemoved(originalPaymentDueDate_);
+        emit ImpairmentRemoved(loanId_, originalPaymentDueDate_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        LOAN DEFAULT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
+    /// @inheritdoc ILoanManager
     function triggerDefault(uint16 loanId_)
         external
         override
@@ -446,7 +425,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         issuance_ = (issuanceRate_ * interval_) / PRECISION;
     }
 
-    function _getPaymentBreakdown(
+    function _getInterestBreakdown(
         uint256 currentTime_,
         uint256 startDate_,
         uint256 dueDate_,
@@ -456,9 +435,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     )
         internal
         pure
-        returns (uint256 principalAmount_, uint256[2] memory interest_)
+        returns (uint256[2] memory interest_)
     {
-        principalAmount_ = principal_;
         interest_[0] = _getInterest(principal_, interestRate_, dueDate_ - startDate_);
         interest_[1] = _getLateInterest(currentTime_, principal_, interestRate_, dueDate_, lateInterestPremiumRate_);
     }
@@ -576,10 +554,6 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         loan_.principal = uint256(0);
         loan_.originalDueDate = uint256(0);
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                    INTERNAL STANDARD PROCEDURE UPDATE FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 
     function _advanceGlobalPaymentAccounting() internal {
         uint256 domainEnd_ = domainEnd;

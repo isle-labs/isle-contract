@@ -2,9 +2,9 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-import { ILoanManager } from "./interfaces/ILoanManager.sol";
+import { ILoanManagerStorage } from "./interfaces/ILoanManagerStorage.sol";
 
-abstract contract LoanManagerStorage is ILoanManager {
+abstract contract LoanManagerStorage is ILoanManagerStorage {
     /*//////////////////////////////////////////////////////////////////////////
                                     STRUCTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -73,7 +73,7 @@ abstract contract LoanManagerStorage is ILoanManager {
     uint48 public domainEnd;
     uint112 public accountedInterest;
     uint128 public principalOut;
-    uint128 public unrealizedLosses;
+    uint128 public override unrealizedLosses;
     uint256 public issuanceRate;
 
     // Addresses below to preserve full storage slots
