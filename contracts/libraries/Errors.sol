@@ -9,13 +9,14 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the admin.
     error InvalidCaller(address caller, address expectedCaller);
 
+    /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
+    error NotPoolAdminOrGovernor(address caller_);
+
     error InvalidAddressProvider(address provider, address expectedProvider);
 
     error ERC20TransferFailed(address asset, address from, address to, uint256 amount);
 
     error FunctionPaused(bytes4 sig);
-
-    error NotPoolAdminOrGovernor(address caller);
 
     error NotPoolAdmin(address caller);
 
@@ -91,55 +92,36 @@ library Errors {
                                 LOAN MANAGER
     //////////////////////////////////////////////////////////////////////////*/
 
-    error LoanManager_LoanInactive(uint16 loanId);
-
-    error LoanManager_NotLoan(uint16 loanId);
-
-    error LoanManager_PoolFundsTransferFailed();
-
-    error LoanManager_PoolAdminFundsTransferFailed();
-
-    error LoanManager_VaultFundsTransferFailed();
-
-    error LoanManager_BorrowerFundsTransferFailed();
-
-    error LoanManager_LoanImpaired(uint16 loanId);
-
-    error LoanManager_NotAuthorizedToRemoveLoanImpairment(uint16 loanId);
-
-    error LoanManager_PastDueDate(uint16 loanId_);
-
-    error LoanManager_LoanNotImpaired(uint16 loanId_);
-
-    error LoanManager_NotCorrectBorrower(uint16 loanId_, address expectedBorrower_);
-
-    error LoanManager_DrawableFundsDecreased(uint16 loanId_);
-
-    error LoanManager_InsufficientPayment(uint16 loanId_);
-
-    error LoanManager_BorrowerCreditExpired(address borrower_, uint256 expirationTimestamp_);
-
-    error LoanManager_InsufficientFunds(uint16 loanId_);
-
-    error LoanManager_BuyerNotWhitelisted();
-
-    error LoanManager_SellerNotWhitelisted();
-
+    /// @notice Thrown when `msg.sender` is not the buyer.
     error LoanManager_CallerNotBuyer(address expectedBuyer_);
 
+    /// @notice Thrown when `msg.sender` is not the seller.
     error LoanManager_CallerNotSeller(address expectedSeller_);
 
-    error LoanManager_PrincipalRequestedTooLarge();
+    /// @notice Thrown when buyer approves an invalid receivable (either buyer or seller is not whitelisted or repayment
+    /// timestamp is in the past).
+    error LoanManager_InvalidReceivable(uint256 receivablesTokenId_);
 
-    error LoanManager_InvalidLoanStatus(uint16 loanId_);
+    /// @notice Thrown when the buyer requests for a principal larger than the face amount of the receivable
+    error LoanManager_PrincipalRequestedTooHigh(uint256 principalRequested_, uint256 maxPrincipal_);
 
-    error LoanManager_NotBuyer();
+    /// @notice Thrown when the buyer fails to repay enough to close the loan
+    error LoanManager_InsufficientRepayment(uint16 loanId_, uint256 repayment_, uint256 expectedRepayment_);
 
-    error LoanManager_NotSeller();
+    /// @notice Thrown when the seller overdraws
+    error LoanManager_Overdraw(uint16 loanId_, uint256 amount_, uint256 withdrawableAmount_);
 
-    error LoanManager_LoanAlreadyFunded(uint16 loanId_);
+    /// @notice Thrown when the loan id is invalid
+    error LoanManager_NotLoan(uint16 loanId_);
 
-    error LoanManager_LoanWithdrawnOrNotActive(uint16 loanId_);
+    /// @notice Thrown when the loan is already impaired
+    error LoanManager_LoanImpaired(uint16 loanId_);
+
+    /// @notice Thrown when the loan is not impaired
+    error LoanManager_LoanNotImpaired(uint16 loanId_);
+
+    /// @notice Thrown when the loan is past due date
+    error LoanManager_PastDueDate(uint16 loanId_, uint256 dueDate_, uint256 currentTimestamp_);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable

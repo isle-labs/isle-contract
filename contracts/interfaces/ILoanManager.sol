@@ -10,7 +10,22 @@ interface ILoanManager is ILoanManagerStorage {
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Emitted when a loan is created.
+    /// @notice Emitted when a loan is approved
+    /// @param loanId_ The id of the loan
+    event LoanApproved(uint16 indexed loanId_);
+
+    /// @notice Emitted when a loan is repaid
+    /// @param loanId_ The id of the loan
+    /// @param principal_ The total principal repaid
+    /// @param interest_ The total interest repaid
+    event LoanRepaid(uint16 indexed loanId_, uint256 principal_, uint256 interest_);
+
+    /// @notice Emitted when the funds of a loan are withdrawn
+    /// @param loanId_ The id of the loan
+    /// @param amount_ The amount of principal withdrawn
+    event FundsWithdrawn(uint16 indexed loanId_, uint256 amount_);
+
+    /// @notice Emitted when the accounting state is updated.
     /// @param issuanceRate_ The updated issuance rate.
     /// @param accountedInterest_ The updated accounted interest.
     event AccountingStateUpdated(uint256 issuanceRate_, uint112 accountedInterest_);
@@ -52,17 +67,6 @@ interface ILoanManager is ILoanManagerStorage {
     /// @param paymentId_ The payment id of the payment
     event PaymentRemoved(uint16 indexed loanId_, uint256 indexed paymentId_);
 
-    /// @notice Emitted when a payment is repaid by the buyer
-    /// @param loanId_ The id of the loan that the payment is associated with
-    /// @param principal_ The amount of principal repaid
-    /// @param interest_ The amount of interest repaid
-    event PaymentMade(uint16 indexed loanId_, uint256 principal_, uint256 interest_);
-
-    /// @notice Emitted when the funds of a loan are withdrawn
-    /// @param loanId_ The id of the loan
-    /// @param principalAndInterest_ The total amount of principal and interest withdrawn
-    event FundsClaimed(uint16 indexed loanId_, uint256 principalAndInterest_);
-
     /// @notice Emitted when fees are paid to the admin and protocol
     /// @param loanId_ The id of the loan
     /// @param adminFee_  The amount of admin fee paid
@@ -77,8 +81,8 @@ interface ILoanManager is ILoanManagerStorage {
 
     /// @notice Emitted when the loan is impaired
     /// @param loanId_ The id of the loan
-    /// @param newPaymentDueDate_ The new payment due date of the impaired loan
-    event LoanImpaired(uint16 indexed loanId_, uint256 newPaymentDueDate_);
+    /// @param newDueDate_ The new due date of the impaired loan
+    event LoanImpaired(uint16 indexed loanId_, uint256 newDueDate_);
 
     /// @notice Emitted when the impairment on the loan is removed
     /// @param loanId_ The id of the loan
@@ -145,10 +149,10 @@ interface ILoanManager is ILoanManagerStorage {
     function fundLoan(uint16 loanId_) external;
 
     /// @notice Withdraw the funds from a loan.
-    /// @param loanId_                  Id of the loan to withdraw funds from
-    /// @param destination_             The destination address for the funds
-    /// @return fundsWithdrawn_         The amount of funds withdrawn
-    function withdrawFunds(uint16 loanId_, address destination_) external returns (uint256 fundsWithdrawn_);
+    /// @param loanId_ Id of the loan to withdraw funds from
+    /// @param destination_ The destination address for the funds
+    /// @param amount_ The amount to withdraw
+    function withdrawFunds(uint16 loanId_, address destination_, uint256 amount_) external;
 
     /// @notice Repays the loan. (note that the loan can be repaid early but not partially)
     /// @param loanId_ Id of the loan to repay
