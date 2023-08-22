@@ -18,20 +18,14 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
 
     struct LoanInfo {
         LoanStatus status;
-
         bool withdrawn;
-
         address buyer;
         address seller;
-
         uint256 collateralTokenId;
-
         uint256 principal;
-
         uint256 interestRate;
         uint256 lateInterestPremiumRate;
         uint256 fee;
-
         uint256 startDate;
         uint256 dueDate;
         uint256 originalDueDate;

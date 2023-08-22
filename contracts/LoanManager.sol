@@ -45,7 +45,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @notice Initializes the Loan Manager.
-    /// @dev Function is invoked by the proxy contract when the Loan Manager COntract is added to the PoolAddressesProvider of the market
+    /// @dev Function is invoked by the proxy contract when the Loan Manager COntract is added to the
+    /// PoolAddressesProvider of the market
     /// @param provider_ The address of the PoolAddressesProvider
     function initialize(IPoolAddressesProvider provider_) external virtual initializer {
         if (ADDRESSES_PROVIDER != provider_) {
@@ -55,7 +56,6 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             });
         }
     }
-
 
     /*//////////////////////////////////////////////////////////////////////////
                                 MODIFIERS
@@ -115,7 +115,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @inheritdoc ILoanManager
-    function getLoanPaymentBreakdown(uint16 loanId_) public view override returns (uint256 principal_, uint256 interest_) {
+    function getLoanPaymentBreakdown(uint16 loanId_)
+        public
+        view
+        override
+        returns (uint256 principal_, uint256 interest_)
+    {
         LoanInfo memory loan_ = _loans[loanId_];
         uint256[2] memory interestArray_;
 
@@ -143,7 +148,18 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @inheritdoc ILoanManager
-    function approveLoan(uint256 receivablesTokenId_, uint256 gracePeriod_, uint256 principalRequested_, uint256[2] memory rates_, uint256 fee_) external override whenNotPaused returns (uint16 loanId_) {
+    function approveLoan(
+        uint256 receivablesTokenId_,
+        uint256 gracePeriod_,
+        uint256 principalRequested_,
+        uint256[2] memory rates_,
+        uint256 fee_
+    )
+        external
+        override
+        whenNotPaused
+        returns (uint16 loanId_)
+    {
         address collateralAsset_ = collateralAsset;
 
         ReceivableStorage.ReceivableInfo memory receivableInfo_ =
@@ -173,18 +189,13 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         _loans[loanId_] = LoanInfo({
             status: LoanStatus.PENDING,
             withdrawn: false,
-
             buyer: receivableInfo_.buyer,
             seller: receivableInfo_.seller,
-
             collateralTokenId: receivablesTokenId_,
-
             principal: principalRequested_,
-
             interestRate: rates_[0],
             lateInterestPremiumRate: rates_[1],
             fee: fee_,
-
             startDate: uint256(0),
             dueDate: receivableInfo_.repaymentTimestamp,
             originalDueDate: uint256(0),
@@ -214,7 +225,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @inheritdoc ILoanManager
-    function repayLoan(uint16 loanId_, uint256 amount_)
+    function repayLoan(
+        uint16 loanId_,
+        uint256 amount_
+    )
         external
         override
         whenNotPaused
@@ -259,7 +273,14 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @inheritdoc ILoanManager
-    function withdrawFunds(uint16 loanId_, address destination_) external whenNotPaused returns (uint256 fundsWithdrawn_) {
+    function withdrawFunds(
+        uint16 loanId_,
+        address destination_
+    )
+        external
+        whenNotPaused
+        returns (uint256 fundsWithdrawn_)
+    {
         LoanInfo memory loan_ = _loans[loanId_];
 
         // Only the seller can drawdown funds

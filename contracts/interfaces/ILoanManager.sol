@@ -6,7 +6,6 @@ import { ILoanManagerStorage } from "./ILoanManagerStorage.sol";
 /// @title ILoanManager
 /// @notice Creates and manages loans.
 interface ILoanManager is ILoanManagerStorage {
-
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -131,7 +130,15 @@ interface ILoanManager is ILoanManagerStorage {
     ///                                     [1]: lateInterestPremiumRate,
     /// @param fee_                     PoolAdmin Fees
     /// @return loanId_                 Id of the loan that is created
-    function approveLoan(uint256 receivablesTokenId_, uint256 gracePeriod_, uint256 principalRequested_, uint256[2] memory rates_, uint256 fee_) external returns (uint16 loanId_);
+    function approveLoan(
+        uint256 receivablesTokenId_,
+        uint256 gracePeriod_,
+        uint256 principalRequested_,
+        uint256[2] memory rates_,
+        uint256 fee_
+    )
+        external
+        returns (uint16 loanId_);
 
     /// @notice Funds the loan
     /// @param loanId_ The id of the loan
@@ -148,8 +155,7 @@ interface ILoanManager is ILoanManagerStorage {
     /// @param amount_ Repayment amount
     /// @return principal_ Principal amount repaid
     /// @return interest_ Interest amount repaid
-    function repayLoan(uint16 loanId_, uint256 amount_)
-        external returns (uint256 principal_, uint256 interest_);
+    function repayLoan(uint16 loanId_, uint256 amount_) external returns (uint256 principal_, uint256 interest_);
 
     /// @notice Impairs the loan
     /// @param loanId_ The id of the loan
@@ -164,5 +170,4 @@ interface ILoanManager is ILoanManagerStorage {
     /// @return remainingLosses_ The amount of remaining losses
     /// @return protocolFees_ The amount of protocol fees
     function triggerDefault(uint16 loanId_) external returns (uint256 remainingLosses_, uint256 protocolFees_);
-
 }
