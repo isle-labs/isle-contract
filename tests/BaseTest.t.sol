@@ -1,54 +1,98 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "@forge-std/Test.sol";
+import { StdCheats } from "@forge-std/StdCheats.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "@forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { ERC20 } from "../contracts/ERC20.sol";
+import { IERC20 } from "../contracts/interfaces/IERC20.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
-contract BaseTest is PRBTest {
-    LopoGlobals globalsV1;
-
-    UUPSProxy LopoProxy;
-    LopoGlobals wrappedLopoProxyV1;
-
-    address DEFAULT_GOVERNOR;
-    address DEFAULT_BUYER;
-    address DEFAULT_SELLER;
-
-    address GOVERNOR;
-
-    uint256[] PRIVATE_KEYS;
-    address[] ACCOUNTS;
-
-    function setUp() public virtual {
-        PRIVATE_KEYS = vm.envUint("ANVIL_PRIVATE_KEYS", ",");
-        ACCOUNTS = vm.envAddress("ANVIL_ACCOUNTS", ",");
-
-        DEFAULT_GOVERNOR = ACCOUNTS[0];
-        DEFAULT_BUYER = ACCOUNTS[1];
-        DEFAULT_SELLER = ACCOUNTS[2];
-
-        globalsV1 = new LopoGlobals();
-
-        // deploy LopoProxy and point it to the implementation
-        LopoProxy = new UUPSProxy(address(globalsV1), "");
-
-        // wrap in ABI to support easier calls
-        wrappedLopoProxyV1 = LopoGlobals(address(LopoProxy));
-
-        // initialize the LopoProxy, assign the governor
-        wrappedLopoProxyV1.initialize(DEFAULT_GOVERNOR);
-
-        GOVERNOR = wrappedLopoProxyV1.governor();
+abstract contract BaseTest is PRBTest, StdCheats {
+    struct Users {
+        address payable governor;
+        address payable pool_admin;
+        address payable seller;
+        address payable buyer;
+        address payable sender;
+        address payable receiver;
     }
 
-    function test_setUpState() public {
-        assertEq(wrappedLopoProxyV1.governor(), DEFAULT_GOVERNOR);
+    /*//////////////////////////////////////////////////////////////////////////
+                                    VARIABLES
+    //////////////////////////////////////////////////////////////////////////*/
+
+    Users internal users;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                TEST CONTRACTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    ERC20 internal usdc;
+    LopoGlobals internal globalsV1;
+    UUPSProxy internal LopoProxy;
+    LopoGlobals internal wrappedLopoProxyV1;
+
+    function setUp() public virtual {
+        usdc = new ERC20("USDC", "USDC", 6);
+
+        // create users for testing
+        users = Users({
+            governor: createUser("Governor"),
+            pool_admin: createUser("PoolAdmin"),
+            seller: createUser("Seller"),
+            buyer: createUser("Buyer"),
+            sender: createUser("Sender"),
+            receiver: createUser("Receiver")
+        });
+
+        // Deploy the base test contracts
+        globalsV1 = new LopoGlobals();
+        // deploy LopoProxy and point it to the implementation
+        LopoProxy = new UUPSProxy(address(globalsV1), "");
+        // wrap in ABI to support easier calls
+        wrappedLopoProxyV1 = LopoGlobals(address(LopoProxy));
+        // initialize the LopoProxy, assign the governor
+        wrappedLopoProxyV1.initialize(users.governor);
+
+        // label the base test contracts
+        vm.label(address(usdc), "USDC");
+        vm.label(address(globalsV1), "globalsV1");
+        vm.label(address(LopoProxy), "LopoProxy");
+        vm.label(address(wrappedLopoProxyV1), "wrappedLopoProxyV1");
+
+        // onboard users
+        onboardUser();
+    }
+
+    function test_setUpStateBase() public {
+        assertEq(wrappedLopoProxyV1.governor(), users.governor);
         assertEq(address(wrappedLopoProxyV1), address(LopoProxy));
+        assertEq(address(users.governor).balance, 100 ether);
+        assertEq(usdc.balanceOf(address(users.seller)), 1_000_000e6);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Generates a user, labels its address, and funds it with test assets.
+    function createUser(string memory name) internal returns (address payable) {
+        address payable user = payable(makeAddr(name));
+        vm.deal({ account: user, newBalance: 100 ether });
+        deal({ token: address(usdc), to: user, give: 1_000_000e6 });
+        return user;
+    }
+
+    function onboardUser() internal {
+        vm.startPrank(users.governor);
+        wrappedLopoProxyV1.setValidBuyer(users.buyer, true);
+        wrappedLopoProxyV1.setValidPoolAdmin(users.pool_admin, true);
+        vm.stopPrank();
+        // TODO: onboard seller (borrower) in poolConfigurator
     }
 
     function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {

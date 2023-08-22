@@ -8,11 +8,8 @@ import { MockReceivableV2 } from "./mocks/MockReceivableV2.sol";
 
 contract ReceivableTest is BaseTest {
     Receivable receivableV1;
-    MockReceivableV2 receivableV2;
-
     UUPSProxy ReceivableProxy;
     Receivable wrappedReceivableProxyV1;
-    MockReceivableV2 wrappedReceivableProxyV2;
 
     event AssetCreated(
         address indexed buyer,
@@ -36,10 +33,6 @@ contract ReceivableTest is BaseTest {
 
         // initialize the ReceivableProxy, assign the globals
         wrappedReceivableProxyV1.initialize(address(wrappedLopoProxyV1));
-
-        // onboard buyer
-        vm.prank(GOVERNOR);
-        wrappedLopoProxyV1.setValidBuyer(DEFAULT_BUYER, true);
     }
 
     function test_getImplementation() public {
@@ -48,26 +41,26 @@ contract ReceivableTest is BaseTest {
 
     function test_createReceivable() public {
         vm.expectEmit(true, true, true, true);
-        emit AssetCreated(DEFAULT_BUYER, DEFAULT_SELLER, 0, 1000e18, block.timestamp + 1 days);
+        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 1 days);
 
         // caller of createReceivable() should be buyer
-        vm.prank(DEFAULT_BUYER);
-        wrappedReceivableProxyV1.createReceivable(DEFAULT_SELLER, ud(1000e18), block.timestamp + 1 days, 804);
+        vm.prank(users.buyer);
+        wrappedReceivableProxyV1.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
 
-        uint256 tokenId = wrappedReceivableProxyV1.tokenOfOwnerByIndex(address(DEFAULT_SELLER), 0);
+        uint256 tokenId = wrappedReceivableProxyV1.tokenOfOwnerByIndex(address(users.seller), 0);
 
         // RecevableInfo
         ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxyV1.getReceivableInfoById(tokenId);
 
         // assertions
         assertEq(tokenId, 0);
-        assertEq(wrappedReceivableProxyV1.ownerOf(tokenId), DEFAULT_SELLER);
-        assertEq(wrappedReceivableProxyV1.balanceOf(DEFAULT_SELLER), 1);
+        assertEq(wrappedReceivableProxyV1.ownerOf(tokenId), users.seller);
+        assertEq(wrappedReceivableProxyV1.balanceOf(users.seller), 1);
         assertEq(wrappedReceivableProxyV1.totalSupply(), 1);
         assertEq(wrappedReceivableProxyV1.tokenByIndex(0), tokenId);
 
-        assertEq(RECVInfo.buyer, DEFAULT_BUYER);
-        assertEq(RECVInfo.seller, DEFAULT_SELLER);
+        assertEq(RECVInfo.buyer, users.buyer);
+        assertEq(RECVInfo.seller, users.seller);
         assertEq(RECVInfo.faceAmount.intoUint256(), 1000e18);
         assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
         assertEq(RECVInfo.isValid, true);
@@ -76,38 +69,38 @@ contract ReceivableTest is BaseTest {
 
     function test_canUpgrade_readDataFromV1() public {
         vm.expectEmit(true, true, true, true);
-        emit AssetCreated(DEFAULT_BUYER, DEFAULT_SELLER, 0, 1000e18, block.timestamp + 1 days);
+        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 1 days);
 
         // caller of createReceivable() should be buyer
-        vm.prank(DEFAULT_BUYER);
-        wrappedReceivableProxyV1.createReceivable(DEFAULT_SELLER, ud(1000e18), block.timestamp + 1 days, 804);
+        vm.prank(users.buyer);
+        wrappedReceivableProxyV1.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
 
-        receivableV2 = new MockReceivableV2();
+        MockReceivableV2 receivableV2 = new MockReceivableV2();
 
         vm.prank(wrappedReceivableProxyV1.governor());
         wrappedReceivableProxyV1.upgradeTo(address(receivableV2));
 
         // re-wrap the proxy to the new implementation
-        wrappedReceivableProxyV2 = MockReceivableV2(address(ReceivableProxy));
+        MockReceivableV2 wrappedReceivableProxyV2 = MockReceivableV2(address(ReceivableProxy));
 
         // @notice Receivable is already initialized, so we cannot call initialize() again
         string memory text = wrappedReceivableProxyV2.upgradeV2Test();
         assertEq(text, "ReceivableV2");
 
-        uint256 tokenId = wrappedReceivableProxyV2.tokenOfOwnerByIndex(address(DEFAULT_SELLER), 0);
+        uint256 tokenId = wrappedReceivableProxyV2.tokenOfOwnerByIndex(address(users.seller), 0);
 
         // RecevableInfo
         ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableProxyV2.getReceivableInfoById(tokenId);
 
         // assertions
         assertEq(tokenId, 0);
-        assertEq(wrappedReceivableProxyV2.ownerOf(tokenId), DEFAULT_SELLER);
-        assertEq(wrappedReceivableProxyV2.balanceOf(DEFAULT_SELLER), 1);
+        assertEq(wrappedReceivableProxyV2.ownerOf(tokenId), users.seller);
+        assertEq(wrappedReceivableProxyV2.balanceOf(users.seller), 1);
         assertEq(wrappedReceivableProxyV2.totalSupply(), 1);
         assertEq(wrappedReceivableProxyV2.tokenByIndex(0), tokenId);
 
-        assertEq(RECVInfo.buyer, DEFAULT_BUYER);
-        assertEq(RECVInfo.seller, DEFAULT_SELLER);
+        assertEq(RECVInfo.buyer, users.buyer);
+        assertEq(RECVInfo.seller, users.seller);
         assertEq(RECVInfo.faceAmount.intoUint256(), 1000e18);
         assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
         assertEq(RECVInfo.isValid, true);
@@ -130,6 +123,6 @@ contract ReceivableTest is BaseTest {
     }
 
     function test_governor() public {
-        assertEq(wrappedReceivableProxyV1.governor(), GOVERNOR);
+        assertEq(wrappedReceivableProxyV1.governor(), users.governor);
     }
 }
