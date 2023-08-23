@@ -28,7 +28,6 @@ contract PoolTest is IntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_deposit() public {
-        _setPoolLiquidityCap(1_000_000e6);
         assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
 
         uint256 oldCallerAsset = usdc.balanceOf(users.caller);
@@ -45,7 +44,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_depositWithPermit() public {
-        _setPoolLiquidityCap(1_000_000e6);
         assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
 
         usdc.mint(_owner, 1_000_000e6);
@@ -70,7 +68,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_mint() public {
-        _setPoolLiquidityCap(1_000_000e6);
         assertEq(pool.maxMint(users.receiver), 1_000_000e6);
 
         uint256 oldCallerAsset = usdc.balanceOf(users.caller);
@@ -87,7 +84,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_mintWithPermit() public {
-        _setPoolLiquidityCap(1_000_000e6);
         assertEq(pool.maxMint(users.receiver), 1_000_000e6);
 
         usdc.mint(_owner, 1_000_000e6);
@@ -112,7 +108,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_withdraw() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1000e6);
 
         // we didn't implement withdraw function
@@ -124,7 +119,6 @@ contract PoolTest is IntegrationTest {
 
     // TODO: complete this test after implementing WithdrawalManager
     function test_redeem() public {
-        // _setPoolLiquidityCap(1_000_000e6);
         // uint256 shares = _callerDepositToReceiver(users.caller, users.receiver, 1000);
 
         // uint256 oldCallerAsset = usdc.balanceOf(users.caller);
@@ -157,16 +151,14 @@ contract PoolTest is IntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_balanceOfAssets() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1000e6);
         uint256 receiverAssetBalances = pool.balanceOfAssets(users.receiver);
         assertAlmostEq(receiverAssetBalances, 1000e6, _delta_);
     }
 
     function test_maxDeposit() public {
-        assertEq(pool.maxDeposit(users.receiver), 0);
+        assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
 
-        _setPoolLiquidityCap(1_000_000e6);
         _airdropToPool(333e6); // for change exchange rate
 
         assertEq(pool.maxDeposit(users.receiver), 1_000_000e6 - 333e6);
@@ -175,9 +167,8 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_maxMint() public {
-        assertEq(pool.maxMint(users.receiver), 0);
+        assertEq(pool.maxMint(users.receiver), 1_000_000e6);
 
-        _setPoolLiquidityCap(1_000_000e6);
         _airdropToPool(333e6);
 
         uint256 shares = pool.previewDeposit(1_000_000e6 - 333e6);
@@ -193,7 +184,6 @@ contract PoolTest is IntegrationTest {
     function test_maxWithdraw() public {
         assertEq(pool.maxWithdraw(users.receiver), 0);
 
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1000e6);
 
         // always returns 0 as withdraw is not implemented
@@ -207,7 +197,6 @@ contract PoolTest is IntegrationTest {
     function test_previewRedeem() public { }
 
     function test_convertToShares() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.convertToShares(1000e6);
@@ -216,7 +205,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_convertToExitShares_zeroUnrealizedLosses() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.convertToExitShares(1000e6);
@@ -229,7 +217,6 @@ contract PoolTest is IntegrationTest {
     function test_convertToExitShares_withUnrealizedLosses() public { }
 
     function test_convertToAssets() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 usdcs = pool.convertToAssets(1000e6);
@@ -238,7 +225,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_convertToExitAssets_zeroUnrealizedLosses() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 usdcs = pool.convertToExitAssets(1000e6);
@@ -257,7 +243,6 @@ contract PoolTest is IntegrationTest {
     function test_unrealizedLosses_withUnrealizedLosses() public { }
 
     function test_previewDeposit() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 shares = pool.previewDeposit(1000e6);
@@ -266,7 +251,6 @@ contract PoolTest is IntegrationTest {
     }
 
     function test_previewMint() public {
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         _airdropToPool(50_000e6);
         uint256 usdcs = pool.previewMint(1000e6);
@@ -285,7 +269,6 @@ contract PoolTest is IntegrationTest {
     function test_totalAssets() public {
         assertEq(pool.totalAssets(), 0);
 
-        _setPoolLiquidityCap(1_000_000e6);
         _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         assertEq(pool.totalAssets(), 1_000_000e6);
 

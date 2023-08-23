@@ -61,6 +61,8 @@ contract IntegrationTest is BaseTest {
         _approveProtocol();
 
         _onboardUsersToConfigurator();
+
+        _setPoolLiquidityCap(1_000_000e6);
     }
 
     function test_setUpStateIntegration() public {
@@ -160,6 +162,7 @@ contract IntegrationTest is BaseTest {
     function _onboardUsersToConfigurator() internal {
         vm.startPrank(users.pool_admin);
         wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
+        wrappedPoolConfiguratorProxy.setValidBorrower(users.seller, true);
         vm.stopPrank();
     }
 
