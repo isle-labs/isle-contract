@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "./PoolBase.t.sol";
+import "./PoolBaseUint.t.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 // Notice: we use MockPoolConfigurator instead of real PoolConfigurator in this test
 // In MockPoolConfigurator, we override the functions associated with WithdrawManager
-contract PoolUnitTest is PoolBase {
+contract PoolUnitTest is PoolBaseUint {
     uint256 internal _delta_ = 1e6;
 
     function setUp() public override {

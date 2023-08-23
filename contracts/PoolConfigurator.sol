@@ -223,8 +223,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Pool Admin Functions */
-    function setValidBorrower(address borrower_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit ValidBorrowerSet(borrower_, isBorrower[borrower_] = isValid_);
+    function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidBorrowerSet(buyer_, isBuyer[buyer_] = isValid_);
+    }
+
+    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidBorrowerSet(seller_, isSeller[seller_] = isValid_);
     }
 
     function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
@@ -363,15 +367,15 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         assets_;
         owner_;
         sender_; // Silence compiler warnings
-        require(false, "Pool Configurator: request withdraw not enabled");
+        revert Errors.PoolConfigurator_WithdrawalNotImplemented();
     }
 
     /* Pool Delegate Cover Functions */
     function depositCover(uint256 amount_) external override whenNotPaused {
-        require(
-            IERC20(asset).transferFrom(msg.sender, address(this), amount_),
-            "Pool Configurator: Deposit cover transfer failed"
-        );
+        if (!IERC20(asset).transferFrom(msg.sender, address(this), amount_)) {
+            revert Errors.PoolConfigurator_ERC20TransferFromFailed(asset, msg.sender, address(this), amount_);
+        }
+
         poolCover += amount_;
 
         emit CoverDeposited(amount_);
@@ -380,12 +384,17 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
-        IERC20(asset).transferFrom(address(this), recipient_, amount_);
+        if (!IERC20(asset).transferFrom(address(this), recipient_, amount_)) {
+            revert Errors.PoolConfigurator_ERC20TransferFromFailed(asset, address(this), recipient_, amount_);
+        }
 
-        require(
-            poolCover >= ILopoGlobals(_globals()).minCoverAmount(address(this)),
-            "Pool Configurator: withdraw cover insufficient cover"
-        );
+        poolCover -= amount_;
+
+        // use custom error
+        if (!_hasSufficientCover(_globals())) {
+            revert Errors.PoolConfigurator_InsufficientCover();
+        }
+
         emit CoverWithdrawn(amount_);
     }
 

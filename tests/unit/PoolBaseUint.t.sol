@@ -9,7 +9,7 @@ import { MockERC20 } from "../mocks/MockERC20.sol";
 import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
 import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
 
-contract PoolBase is TestUtils {
+contract PoolBaseUint is TestUtils {
     address POOL_ADMIN = address(new Address());
 
     MockERC20 asset;
