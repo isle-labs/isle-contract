@@ -364,9 +364,9 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     /* Pool Delegate Cover Functions */
     function depositCover(uint256 amount_) external override whenNotPaused {
-        require(
-            IERC20(asset).transferFrom(msg.sender, pool, amount_), "Pool Configurator: Deposit cover transfer failed"
-        );
+        if (!IERC20(asset).transferFrom(msg.sender, pool, amount_)) {
+            revert Errors.PoolConfigurator_DepositCoverFailed(asset, msg.sender, amount_);
+        }
         poolCover += amount_;
 
         emit CoverDeposited(amount_);
@@ -375,16 +375,16 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
-        require(
-            IERC20(asset).transferFrom(pool, recipient_, amount_), "Pool Configurator: Withdraw cover transfer failed"
-        );
+        if (!IERC20(asset).transferFrom(pool, recipient_, amount_)) {
+            revert Errors.PoolConfigurator_WithdrawCoverFailed(asset, recipient_, amount_);
+        }
 
         poolCover -= amount_;
 
-        require(
-            poolCover >= ILopoGlobals(_globals()).minCoverAmount(address(this)),
-            "Pool Configurator: withdraw cover insufficient cover"
-        );
+        if (!_hasSufficientCover(_globals())) {
+            revert Errors.PoolConfigurator_InsufficientCover();
+        }
+
         emit CoverWithdrawn(amount_);
     }
 

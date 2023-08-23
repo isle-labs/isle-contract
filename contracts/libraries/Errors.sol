@@ -59,6 +59,10 @@ library Errors {
 
     error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
 
+    error PoolConfigurator_DepositCoverFailed(address asset, address caller, uint256 amount);
+
+    error PoolConfigurator_WithdrawCoverFailed(address asset, address caller, uint256 amount);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
