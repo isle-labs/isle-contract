@@ -190,15 +190,18 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         pool_ = pool;
     }
 
-    function getPoolAdmin() external view override returns (address poolAdmin_) {
-        poolAdmin_ = poolAdmin;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /* Ownership Transfer functions */
+
+    function setPendingPoolAdmin(address pendingPoolAdmin_) external override whenNotPaused onlyPoolAdmin {
+        pendingPoolAdmin = pendingPoolAdmin_;
+
+        emit PendingPoolAdminSet(poolAdmin, pendingPoolAdmin_);
+    }
+
     function acceptPoolAdmin() external override whenNotPaused {
         if (msg.sender != pendingPoolAdmin) {
             revert Errors.PoolConfigurator_CallerNotPendingPoolAdmin({
@@ -213,21 +216,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
         poolAdmin = pendingPoolAdmin;
         pendingPoolAdmin = address(0);
-    }
-
-    function setPendingPoolAdmin(address pendingPoolAdmin_) external override whenNotPaused onlyPoolAdmin {
-        pendingPoolAdmin = pendingPoolAdmin_;
-
-        emit PendingPoolAdminSet(poolAdmin, pendingPoolAdmin_);
-    }
-
-    /* Globals Admin Functions */
-    function setActive(bool active_) external override whenNotPaused {
-        address globals_ = _globals();
-        if (msg.sender != globals_) {
-            revert Errors.InvalidCaller(msg.sender, globals_);
-        }
-        emit SetAsActive(active = active_);
     }
 
     /* Pool Admin Functions */
@@ -371,7 +359,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         assets_;
         owner_;
         sender_; // Silence compiler warnings
-        require(false, "Pool Configurator: request withdraw not enabled");
+        revert Errors.PoolConfigurator_WithdrawalNotImplemented();
     }
 
     /* Pool Delegate Cover Functions */

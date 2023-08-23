@@ -31,7 +31,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function totalAssets() external view returns (uint256 totalAssets_);
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
     function getPool() external view returns (address pool_);
-    function getPoolAdmin() external view returns (address poolAdmin_);
 
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
@@ -42,7 +41,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setPendingPoolAdmin(address pendingPoolAdmin_) external;
 
     /* Administrative Functions */
-    function setActive(bool active_) external;
     function completeConfiguration() external;
     function setValidBorrower(address borrower_, bool isValid_) external;
     function setValidLender(address lender_, bool isValid_) external;
