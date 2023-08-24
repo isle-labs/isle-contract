@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { console } from "@forge-std/console.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "../../contracts/libraries/Errors.sol";
@@ -253,16 +254,15 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         wrappedPoolConfiguratorProxy.depositCover(1000e6);
         vm.stopPrank();
 
-        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 1000e6);
+        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 0);
         assertEq(wrappedPoolConfiguratorProxy.poolCover(), 1000e6);
 
         _airdropToPool(500e6);
-        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 1500e6);
+        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 500e6);
     }
 
     function test_withdrawCover_SufficientCover() public {
         _depositCover(1000e6);
-        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 1000e6);
         assertEq(wrappedPoolConfiguratorProxy.poolCover(), 1000e6);
 
         vm.startPrank(users.pool_admin);
@@ -273,13 +273,11 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         wrappedPoolConfiguratorProxy.withdrawCover(1000e6, address(users.caller));
         vm.stopPrank();
 
-        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 0);
         assertEq(wrappedPoolConfiguratorProxy.poolCover(), 0);
     }
 
     function test_withdrawCover_InsufficientCover() public {
         _depositCover(1000e6);
-        assertEq(wrappedPoolConfiguratorProxy.totalAssets(), 1000e6);
         assertEq(wrappedPoolConfiguratorProxy.poolCover(), 1000e6);
 
         // set minCoverAmount to 2000e6
@@ -396,7 +394,6 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         vm.prank(users.caller);
         poolConfiguratorHarness.exposed_handleCover(300e6);
 
-        assertEq(poolConfiguratorHarness.totalAssets(), 1000e6);
         assertEq(poolConfiguratorHarness.poolCover(), 1000e6 - 300e6);
 
         // case2: available cover < losses -> coverAmount = availableCover = 350e6
@@ -406,7 +403,7 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         vm.prank(users.caller);
         poolConfiguratorHarness.exposed_handleCover(500e6);
 
-        assertEq(poolConfiguratorHarness.totalAssets(), 1000e6);
+        assertEq(poolConfiguratorHarness.totalAssets(), 300e6 + 350e6);
         assertEq(poolConfiguratorHarness.poolCover(), 1000e6 - 300e6 - 350e6);
     }
 

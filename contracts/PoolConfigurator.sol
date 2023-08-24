@@ -349,7 +349,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     /* Pool Delegate Cover Functions */
     function depositCover(uint256 amount_) external override whenNotPaused {
-        if (!IERC20(asset).transferFrom(msg.sender, pool, amount_)) {
+        if (!IERC20(asset).transferFrom(msg.sender, address(this), amount_)) {
             revert Errors.PoolConfigurator_DepositCoverFailed(asset, msg.sender, amount_);
         }
         poolCover += amount_;
@@ -360,7 +360,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
-        if (!IERC20(asset).transferFrom(pool, recipient_, amount_)) {
+        if (!IERC20(asset).transfer(recipient_, amount_)) {
             revert Errors.PoolConfigurator_WithdrawCoverFailed(asset, recipient_, amount_);
         }
 
@@ -437,6 +437,8 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         uint256 coverAmount_ = _min(availableCover_, losses_);
 
         poolCover -= coverAmount_;
+        // transfer cover to pool
+        IERC20(asset).transfer(pool, coverAmount_);
 
         emit CoverLiquidated(coverAmount_);
     }
