@@ -8,6 +8,9 @@ import {
 
 import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
+import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
+import { ILoanManager } from "./interfaces/ILoanManager.sol";
+import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 
 contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     string private _marketId;
@@ -34,14 +37,6 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         _marketId = newMarketId_;
     }
 
-    /// @inheritdoc IPoolAddressesProvider
-    function setAddressAsProxy(bytes32 id, address newImplementationAddress) external override onlyAdmin {
-        address proxyAddress = _addresses[id];
-        address oldImplementationAddress = _getProxyImplementation(id);
-        _updateImpl(id, newImplementationAddress);
-        emit AddressSetAsProxy(id, proxyAddress, oldImplementationAddress, newImplementationAddress);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                     Proxied
     //////////////////////////////////////////////////////////////////////////*/
@@ -55,8 +50,8 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     function setPoolConfiguratorImpl(
         address newPoolConfiguratorImpl,
         address asset,
-        string memory name,
-        string memory symbol
+        string calldata name,
+        string calldata symbol
     )
         external
         override
@@ -65,7 +60,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
 
         bytes memory params =
-            abi.encodeWithSignature("initialize(address,address,string,string)", address(this), asset, name, symbol);
+            abi.encodeWithSelector(IPoolConfigurator.initialize.selector, address(this), asset, name, symbol);
 
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
@@ -85,10 +80,38 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         return getAddress(WITHDRAWAL_MANAGER);
     }
 
-    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl) external override onlyAdmin {
+    function setWithdrawalManagerImpl(
+        address newWithdrawalManagerImpl,
+        uint256 cycleDuration,
+        uint256 windowDuration
+    )
+        external
+        override
+        onlyAdmin
+    {
         address oldWithdrawalManagerImpl = _getProxyImplementation(WITHDRAWAL_MANAGER);
-        _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl);
+
+        bytes memory params =
+            abi.encodeWithSelector(IWithdrawalManager.initialize.selector, address(this), cycleDuration, windowDuration);
+
+        _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl, params);
         emit WithdrawalManagerUpdated(oldWithdrawalManagerImpl, newWithdrawalManagerImpl);
+    }
+
+    /// @inheritdoc IPoolAddressesProvider
+    function setAddressAsProxy(
+        bytes32 id,
+        address newImplementationAddress,
+        bytes calldata params
+    )
+        external
+        override
+        onlyAdmin
+    {
+        address proxyAddress = _addresses[id];
+        address oldImplementationAddress = _getProxyImplementation(id);
+        _updateImpl(id, newImplementationAddress, params);
+        emit AddressSetAsProxy(id, proxyAddress, oldImplementationAddress, newImplementationAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,7 +163,6 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         _updateImpl(id, newAddress, abi.encodeWithSignature("initialize(address)", address(this)));
     }
 
-    // Function overloading to support upgrades with custom params
     function _updateImpl(bytes32 id, address newAddress, bytes memory params) internal {
         address proxyAddress = _addresses[id];
         TransparentUpgradeableProxy proxy;

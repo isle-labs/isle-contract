@@ -72,6 +72,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         string memory symbol_
     )
         external
+        override
         initializer
     {
         /* Checks */

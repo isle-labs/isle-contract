@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity 0.8.19;
 
+import { IPoolAddressesProvider } from "./IPoolAddressesProvider.sol";
 import { IPoolConfiguratorActions } from "./pool/IPoolConfiguratorActions.sol";
 import { IPoolConfiguratorStorage } from "./pool/IPoolConfiguratorStorage.sol";
 import { IPoolConfiguratorEvents } from "./pool/IPoolConfiguratorEvents.sol";
@@ -60,6 +61,15 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function initialize(
+        IPoolAddressesProvider provider_,
+        address asset_,
+        address poolAdmin_,
+        string memory name_,
+        string memory symbol_
+    )
+        external;
 
     /* Ownership Transfer Functions */
     function acceptPoolAdmin() external;
