@@ -30,7 +30,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function hasSufficientCover() external view returns (bool hasSufficientCover_);
     function totalAssets() external view returns (uint256 totalAssets_);
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
-    function getPool() external view returns (address pool_);
 
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS

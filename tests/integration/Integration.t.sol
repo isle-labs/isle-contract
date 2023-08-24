@@ -60,7 +60,7 @@ contract IntegrationTest is BaseTest {
         vm.prank(users.governor);
         wrappedLopoGlobalsProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
 
-        pool = IPool(wrappedPoolConfiguratorProxy.getPool());
+        pool = IPool(wrappedPoolConfiguratorProxy.pool());
 
         _approveProtocol();
 

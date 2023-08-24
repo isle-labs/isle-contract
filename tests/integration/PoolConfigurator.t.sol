@@ -130,10 +130,6 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
     // TODO: complete this test after implementing loanManager
     function test_unrealizedLosses() public { }
 
-    function test_getPool() public {
-        assertEq(wrappedPoolConfiguratorProxy.getPool(), address(pool));
-    }
-
     function test_setPendingPoolAdmin() public {
         vm.expectEmit(true, true, true, true);
         emit PendingPoolAdminSet(address(users.pool_admin), address(users.caller));
@@ -484,7 +480,7 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
             "BSOS Green Share",
             "BGS"
         );
-        poolHarness = IPool(poolConfiguratorHarness.getPool());
+        poolHarness = IPool(poolConfiguratorHarness.pool());
         vm.stopPrank();
     }
 }
