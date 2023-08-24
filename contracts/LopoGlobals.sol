@@ -304,6 +304,17 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         withdrawalDurationInDays[poolConfigurator_] = withdrawalDurationInDays_;
     }
 
+    function setMaxCoverLiquidationPercent(
+        address poolConfigurator_,
+        uint256 maxCoverLiquidationPercent_
+    )
+        external
+        onlyGovernor
+    {
+        emit MaxCoverLiquidationPercentSet(poolConfigurator_, maxCoverLiquidationPercent_);
+        maxCoverLiquidationPercent[poolConfigurator_] = maxCoverLiquidationPercent_;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

@@ -150,4 +150,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
 
     function setMinCoverAmount(address poolConfigurator_, uint256 minCover_) external;
+
+    function setMaxCoverLiquidationPercent(address poolConfigurator_, uint256 maxCoverLiquidationPercent_) external;
 }
