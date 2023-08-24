@@ -7,26 +7,21 @@ import { IPoolConfiguratorEvents } from "../../contracts/interfaces/pool/IPoolCo
 contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
     uint256 internal _delta_ = 1e6;
 
+    PoolConfiguratorHarness internal poolConfiguratorHarness;
+    IPool internal poolHarness;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
         super.setUp();
+        _setUpPoolConfiguratorHarness();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 TEST FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function test_completeConfiguration() public {
-        vm.expectEmit(true, true, true, true);
-        emit ConfigurationCompleted();
-
-        wrappedPoolConfiguratorProxy.completeConfiguration();
-
-        assertTrue(wrappedPoolConfiguratorProxy.configured());
-    }
 
     function test_hasSufficientCover_True() public {
         assertTrue(wrappedPoolConfiguratorProxy.hasSufficientCover());
@@ -34,7 +29,7 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
 
     function test_hasSufficientCover_False() public {
         vm.prank(users.governor);
-        wrappedLopoProxy.setMinCoverAmount(address(wrappedPoolConfiguratorProxy), 10_000e6);
+        wrappedLopoGlobalsProxy.setMinCoverAmount(address(wrappedPoolConfiguratorProxy), 10_000e6);
 
         assertFalse(wrappedPoolConfiguratorProxy.hasSufficientCover());
     }
@@ -143,26 +138,26 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
 
     function test_acceptPoolAdmin() public {
         vm.startPrank(users.pool_admin);
-        wrappedPoolConfiguratorProxy.setPendingPoolAdmin(address(users.caller));
-        assertEq(wrappedPoolConfiguratorProxy.pendingPoolAdmin(), address(users.caller));
+        wrappedPoolConfiguratorProxy.setPendingPoolAdmin(address(users.receiver));
+        assertEq(wrappedPoolConfiguratorProxy.pendingPoolAdmin(), address(users.receiver));
 
         // transfer admin to an invalid pool admin
-        changePrank(users.caller);
+        changePrank(users.receiver);
         vm.expectRevert();
         wrappedPoolConfiguratorProxy.acceptPoolAdmin();
         vm.stopPrank();
 
         // transfer admin to a valid pool admin
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidPoolAdmin(address(users.caller), true);
+        wrappedLopoGlobalsProxy.setValidPoolAdmin(address(users.receiver), true);
 
         vm.expectEmit(true, true, true, true);
-        emit PendingPoolAdminAccepted(address(users.pool_admin), address(users.caller));
+        emit PendingPoolAdminAccepted(address(users.pool_admin), address(users.receiver));
 
-        vm.prank(users.caller);
+        vm.prank(users.receiver);
         wrappedPoolConfiguratorProxy.acceptPoolAdmin();
 
-        assertEq(wrappedPoolConfiguratorProxy.poolAdmin(), address(users.caller));
+        assertEq(wrappedPoolConfiguratorProxy.poolAdmin(), address(users.receiver));
     }
 
     function test_setValidBorrower() public {
@@ -285,13 +280,161 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
 
         // set minCoverAmount to 2000e6
         vm.prank(users.governor);
-        wrappedLopoProxy.setMinCoverAmount(address(wrappedPoolConfiguratorProxy), 2000e6);
+        wrappedLopoGlobalsProxy.setMinCoverAmount(address(wrappedPoolConfiguratorProxy), 2000e6);
 
         vm.startPrank(users.pool_admin);
         vm.expectRevert(Errors.PoolConfigurator_InsufficientCover.selector);
 
         wrappedPoolConfiguratorProxy.withdrawCover(1000e6, address(users.caller));
         vm.stopPrank();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_exposed_withdrawalManager() public {
+        assertEq(poolConfiguratorHarness.exposed_withdrawalManager(), address(wrappedWithdrawalManagerProxy));
+    }
+
+    function test_exposed_globals() public {
+        assertEq(poolConfiguratorHarness.exposed_globals(), address(wrappedLopoGlobalsProxy));
+    }
+
+    function test_exposed_loanManager() public {
+        assertEq(poolConfiguratorHarness.exposed_loanManager(), address(wrappedLoanManagerProxy));
+    }
+
+    function test_exposed_governor() public {
+        assertEq(poolConfiguratorHarness.exposed_governor(), address(users.governor));
+    }
+
+    // since _revertIfPaused use msg.sig to get the function selector
+    // we can't test it directly. Instead, we'll call the function which will
+    // trigger the modifier whenNotPaused to test it.
+    function test_revertIfPaused() public {
+        // case1: protocol paused
+        vm.prank(users.governor);
+        wrappedLopoGlobalsProxy.setProtocolPause(true);
+
+        vm.expectRevert(Errors.PoolConfigurator_Paused.selector);
+
+        vm.prank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setOpenToPublic(true);
+
+        // case2: protocol not paused, but contract paused
+        vm.startPrank(users.governor);
+        wrappedLopoGlobalsProxy.setProtocolPause(false);
+        wrappedLopoGlobalsProxy.setContractPause(address(wrappedPoolConfiguratorProxy), true);
+        vm.stopPrank();
+
+        vm.expectRevert(Errors.PoolConfigurator_Paused.selector);
+
+        vm.prank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setOpenToPublic(true);
+
+        // case3: protocol or contract paused, but function unpaused
+        vm.startPrank(users.governor);
+        wrappedLopoGlobalsProxy.setProtocolPause(true);
+        wrappedLopoGlobalsProxy.setContractPause(address(wrappedPoolConfiguratorProxy), true);
+        wrappedLopoGlobalsProxy.setFunctionUnpause(
+            address(wrappedPoolConfiguratorProxy), wrappedPoolConfiguratorProxy.setOpenToPublic.selector, true
+        );
+
+        vm.expectEmit();
+        emit OpenToPublic(true);
+
+        changePrank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setOpenToPublic(true);
+    }
+
+    function test_revertIfNotPoolAdmin() public {
+        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidCaller.selector, users.caller, users.pool_admin));
+
+        vm.prank(users.caller);
+        wrappedPoolConfiguratorProxy.setPendingPoolAdmin(address(users.caller));
+    }
+
+    function test_revertIfNotPoolAdminOrGovernor() public {
+        // not pool admin & not governor -> revert
+
+        vm.expectRevert(Errors.PoolConfigurator_NotPoolAdminOrGovernor.selector);
+        vm.prank(users.caller);
+        wrappedPoolConfiguratorProxy.triggerDefault(0);
+    }
+
+    function test_revertIfNotPool() public {
+        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidCaller.selector, users.caller, address(pool)));
+
+        vm.prank(users.caller);
+        wrappedPoolConfiguratorProxy.processRedeem(1000e6, address(users.receiver), address(users.caller));
+    }
+
+    function test_exposed_hasSufficientCover() public {
+        vm.prank(users.governor);
+        wrappedLopoGlobalsProxy.setMinCoverAmount(address(poolConfiguratorHarness), 10_000e6);
+
+        assertFalse(poolConfiguratorHarness.exposed_hasSufficientCover(address(wrappedLopoGlobalsProxy)));
+    }
+
+    function test_exposed_handleCover() public {
+        // case1: available cover > losses -> coverAmount = losses = 300e6
+        vm.prank(users.governor);
+        wrappedLopoGlobalsProxy.setMaxCoverLiquidationPercent(address(poolConfiguratorHarness), 0.5e6);
+
+        // in poolConfiguratorHarness, the pool admin is users.caller
+        _depositCoverHarness(1000e6);
+        assertEq(poolConfiguratorHarness.poolCover(), 1000e6);
+
+        vm.expectEmit();
+        emit CoverLiquidated(300e6);
+
+        vm.prank(users.caller);
+        poolConfiguratorHarness.exposed_handleCover(300e6);
+
+        assertEq(poolConfiguratorHarness.totalAssets(), 1000e6);
+        assertEq(poolConfiguratorHarness.poolCover(), 1000e6 - 300e6);
+
+        // case2: available cover < losses -> coverAmount = availableCover = 350e6
+        vm.expectEmit();
+        emit CoverLiquidated(350e6);
+
+        vm.prank(users.caller);
+        poolConfiguratorHarness.exposed_handleCover(500e6);
+
+        assertEq(poolConfiguratorHarness.totalAssets(), 1000e6);
+        assertEq(poolConfiguratorHarness.poolCover(), 1000e6 - 300e6 - 350e6);
+    }
+
+    function test_exposed_min() public {
+        assertEq(poolConfiguratorHarness.exposed_min(1000e6, 2000e6), 1000e6);
+        assertEq(poolConfiguratorHarness.exposed_min(2000e6, 1000e6), 1000e6);
+    }
+
+    function test_exposed_getMaxAssets() public {
+        // onboard users.receiver to the poolConfiguratorHarness as a lender
+        vm.prank(users.caller);
+        poolConfiguratorHarness.setValidLender(address(users.receiver), true);
+        assertTrue(poolConfiguratorHarness.isLender(address(users.receiver)));
+
+        vm.prank(users.caller);
+        poolConfiguratorHarness.setLiquidityCap(1000e6);
+
+        // case1: liquidityCap > totalAssets -> maxAssets = liquidityCap - totalAssets
+        uint256 totalAssets = poolConfiguratorHarness.totalAssets();
+        assertEq(poolConfiguratorHarness.exposed_getMaxAssets(address(users.receiver), totalAssets), 1000e6);
+
+        // deposit 600e6 asset to the pool, and setLiquidityCap to 300e6
+        _airdropToPoolHarness(600e6);
+        assertEq(totalAssets = poolConfiguratorHarness.totalAssets(), 600e6);
+        assertEq(poolConfiguratorHarness.exposed_getMaxAssets(address(users.receiver), totalAssets), 1000e6 - 600e6);
+
+        vm.prank(users.caller);
+        poolConfiguratorHarness.setLiquidityCap(300e6);
+
+        // case2: liquidityCap < totalAssets -> maxAssets = 0
+
+        assertEq(poolConfiguratorHarness.exposed_getMaxAssets(address(users.receiver), totalAssets), 0);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -308,5 +451,74 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         usdc.approve(address(wrappedPoolConfiguratorProxy), amount);
         wrappedPoolConfiguratorProxy.depositCover(amount);
         vm.stopPrank();
+    }
+
+    function _depositCoverHarness(uint256 amount) internal {
+        vm.startPrank(users.caller);
+        usdc.approve(address(poolConfiguratorHarness), amount);
+        poolConfiguratorHarness.depositCover(amount);
+        vm.stopPrank();
+    }
+
+    function _airdropToPoolHarness(uint256 amount) internal {
+        usdc.mint(address(poolHarness), amount);
+    }
+
+    function _setUpPoolConfiguratorHarness() internal {
+        vm.startPrank(users.governor);
+        wrappedLopoGlobalsProxy.setValidPoolAdmin(address(users.caller), true);
+
+        poolConfiguratorHarness = new PoolConfiguratorHarness(poolAddressesProvider);
+        poolConfiguratorHarness.initialize(
+            IPoolAddressesProvider(address(poolAddressesProvider)),
+            address(usdc),
+            users.caller,
+            "BSOS Green Share",
+            "BGS"
+        );
+        poolHarness = IPool(poolConfiguratorHarness.getPool());
+        vm.stopPrank();
+    }
+}
+
+/*//////////////////////////////////////////////////////////////////////////
+                                HARNESS CONTRACT
+//////////////////////////////////////////////////////////////////////////*/
+
+contract PoolConfiguratorHarness is PoolConfigurator {
+    IPool public poolHarness;
+
+    constructor(IPoolAddressesProvider provider_) PoolConfigurator(IPoolAddressesProvider(provider_)) { }
+
+    function exposed_withdrawalManager() external view returns (address withdrawalManager_) {
+        return super._withdrawalManager();
+    }
+
+    function exposed_globals() external view returns (address globals_) {
+        return super._globals();
+    }
+
+    function exposed_loanManager() external view returns (address loanManager_) {
+        return super._loanManager();
+    }
+
+    function exposed_governor() external view returns (address governor_) {
+        return super._governor();
+    }
+
+    function exposed_hasSufficientCover(address globals_) external view returns (bool hasSufficientCover_) {
+        return super._hasSufficientCover(globals_);
+    }
+
+    function exposed_handleCover(uint256 losses_) external {
+        super._handleCover(losses_);
+    }
+
+    function exposed_min(uint256 a, uint256 b) external pure returns (uint256 min_) {
+        return super._min(a, b);
+    }
+
+    function exposed_getMaxAssets(address receiver_, uint256 totalAssets_) external view returns (uint256 maxAssets_) {
+        return super._getMaxAssets(receiver_, totalAssets_);
     }
 }
