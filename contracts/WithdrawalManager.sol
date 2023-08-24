@@ -253,7 +253,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
 
         (redeemableShares_, resultingAssets_, partialLiquidity_) = getRedeemableAmounts(lockedShares_, owner_);
 
-        // Transfer redeemable shares to be burned in the pool, re-lock remaining shares
+        // Transfer redeemable shares back to the owner in order to be burned in the pool, re-lock remaining shares
         IERC20(_pool()).transfer(owner_, redeemableShares_);
 
         totalCycleShares[exitCycleId_] -= lockedShares_;
