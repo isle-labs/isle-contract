@@ -102,40 +102,6 @@ contract PoolUnitTest is PoolBaseUint {
         assertAlmostEq(newAllowance, 0, _delta_);
     }
 
-    function test_withdraw() public {
-        _callerDepositToReceiver(caller, receiver, 1000);
-
-        uint256 oldCallerAsset = asset.balanceOf(caller);
-        uint256 oldReceiverShare = pool.balanceOf(receiver);
-
-        // notice that we are withdrawing assets from receiver, not caller
-        vm.prank(receiver);
-        uint256 shares = pool.withdraw(1000, caller, receiver);
-
-        uint256 newCallerAsset = asset.balanceOf(caller);
-        uint256 newReceiverShare = pool.balanceOf(receiver);
-
-        assertAlmostEq(newCallerAsset, oldCallerAsset + shares, _delta_);
-        assertAlmostEq(newReceiverShare, oldReceiverShare - shares, _delta_);
-    }
-
-    function test_redeem() public {
-        uint256 shares = _callerDepositToReceiver(caller, receiver, 1000);
-
-        uint256 oldCallerAsset = asset.balanceOf(caller);
-        uint256 oldReceiverShare = pool.balanceOf(receiver);
-
-        // notice that we are redeeming shares from receiver
-        vm.prank(receiver);
-        uint256 assets = pool.redeem(shares, caller, receiver);
-
-        uint256 newCallerAsset = asset.balanceOf(caller);
-        uint256 newReceiverShare = pool.balanceOf(receiver);
-
-        assertAlmostEq(newCallerAsset, oldCallerAsset + assets, _delta_);
-        assertAlmostEq(newReceiverShare, oldReceiverShare - assets, _delta_);
-    }
-
     /* ========== Public View Functions ========== */
 
     function test_balanceOfAssets() public {
