@@ -150,13 +150,7 @@ interface IPoolAddressesProvider {
      * setting the new `PoolConfigurator` implementation when the function is called for the first time.
      * @param newPoolConfiguratorImpl The new PoolConfigurator implementation
      */
-    function setPoolConfiguratorImpl(
-        address newPoolConfiguratorImpl,
-        address asset,
-        string memory name,
-        string memory symbol
-    )
-        external;
+    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, bytes calldata params) external;
 
     /**
      * @notice Returns the address of the price oracle.
@@ -179,8 +173,7 @@ interface IPoolAddressesProvider {
     function getWithdrawalManager() external view returns (address);
     function setWithdrawalManagerImpl(
         address newWithdrawalManagerImpl,
-        uint256 cycleDuration,
-        uint256 windowDuration
+        bytes calldata params
     )
         external;
 }

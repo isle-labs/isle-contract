@@ -7,6 +7,7 @@ import { ERC20Permit, IERC20Permit } from "@openzeppelin/contracts/token/ERC20/e
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
+import { Errors } from "./libraries/Errors.sol";
 import { IPool } from "./interfaces/IPool.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 
@@ -27,21 +28,23 @@ contract Pool is IPool, ERC20Permit {
         ERC20Permit(name_)
         ERC20(name_, symbol_)
     {
-        require(asset_ != address(0), "P:C:ZERO_ASSET");
-        require((configurator = configurator_) != address(0), "P:C:ZERO_MANAGER");
-        require(IERC20(asset_).approve(configurator_, type(uint256).max), "P:C:FAILED_APPROVE");
+        if (asset_ == address(0)) revert Errors.Pool_ZeroAsset();
+        if ((configurator = configurator_) == address(0)) revert Errors.Pool_ZeroConfigurator();
+        if (!IERC20(asset_).approve(configurator_, type(uint256).max)) revert Errors.Pool_FailedApprove();
 
         _underlyingDecimals = 18;
         _asset = ERC20Permit(asset_);
     }
 
-    /* ========== LP Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                LP Functions
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev See {IERC4626-deposit}.
      */
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
-        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
+        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositMoreThanMax(assets, maxDeposit(receiver));
 
         uint256 shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -60,6 +63,7 @@ contract Pool is IPool, ERC20Permit {
         external
         returns (uint256)
     {
+        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositMoreThanMax(assets, maxDeposit(receiver));
         _asset.permit(_msgSender(), address(this), assets, deadline, v, r, s);
         return deposit(assets, receiver);
     }
@@ -71,7 +75,7 @@ contract Pool is IPool, ERC20Permit {
      * In this case, the shares will be minted without requiring any assets to be deposited.
      */
     function mint(uint256 shares, address receiver) public override returns (uint256) {
-        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+        if (shares > maxMint(receiver)) revert Errors.Pool_MintMoreThanMax(shares, maxMint(receiver));
 
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -91,10 +95,10 @@ contract Pool is IPool, ERC20Permit {
         external
         returns (uint256)
     {
-        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+        if (shares > maxMint(receiver)) revert Errors.Pool_MintMoreThanMax(shares, maxMint(receiver));
 
         uint256 assets = previewMint(shares);
-        require((assets = previewMint(shares)) <= maxAssets, "ERC4626: Insufficient permit");
+        if (assets > maxAssets) revert Errors.Pool_InsufficientPermit(assets, maxAssets);
 
         _asset.permit(_msgSender(), address(this), maxAssets, deadline, v, r, s);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -106,7 +110,7 @@ contract Pool is IPool, ERC20Permit {
      * @dev See {IERC4626-withdraw}.
      */
     function withdraw(uint256 assets_, address receiver_, address owner_) public override returns (uint256 shares_) {
-        require(assets_ <= maxWithdraw(owner_), "ERC4626: withdraw more than max");
+        if (assets_ > maxWithdraw(owner_)) revert Errors.Pool_WithdrawMoreThanMax(assets_, maxWithdraw(owner_));
 
         (shares_, assets_) = IPoolConfigurator(configurator).processWithdraw(assets_, owner_, _msgSender());
 
@@ -117,7 +121,7 @@ contract Pool is IPool, ERC20Permit {
      * @dev See {IERC4626-redeem}.
      */
     function redeem(uint256 shares_, address receiver_, address owner_) public override returns (uint256 assets_) {
-        require(shares_ <= maxRedeem(owner_), "ERC4626: redeem more than max");
+        if (shares_ > maxRedeem(owner_)) revert Errors.Pool_RedeemMoreThanMax(shares_, maxRedeem(owner_));
 
         uint256 redeemableShares_;
         (redeemableShares_, assets_) = IPoolConfigurator(configurator).processRedeem(shares_, owner_, _msgSender());
@@ -125,7 +129,10 @@ contract Pool is IPool, ERC20Permit {
         _withdraw(_msgSender(), receiver_, owner_, assets_, redeemableShares_);
     }
 
-    /* ========== Withdrawal Request Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Withdrawal Request Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_) {
         if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), shares_);
@@ -167,7 +174,10 @@ contract Pool is IPool, ERC20Permit {
         IPoolConfigurator(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
     }
 
-    /* ========== Internal Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Internal Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function _convertToShares(
         uint256 assets_,
         Math.Rounding rounding_
@@ -259,7 +269,10 @@ contract Pool is IPool, ERC20Permit {
         return 0;
     }
 
-    /* ========== Public View Functions ========== */
+    /*//////////////////////////////////////////////////////////////////////////
+                                Public View Functions
+    //////////////////////////////////////////////////////////////////////////*/
+
     function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
         balanceOfAssets_ = convertToAssets(balanceOf(account_));
     }

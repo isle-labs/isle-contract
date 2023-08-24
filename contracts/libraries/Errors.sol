@@ -24,10 +24,6 @@ library Errors {
 
     error FunctionPaused(bytes4 sig);
 
-    error NotBorrower(address caller);
-
-    error ProtocolPaused();
-
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -66,7 +62,9 @@ library Errors {
 
     error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
 
-    error PoolConfigurator_ERC20TransferFromFailed(address asset, address from, address to, uint256 amount);
+    error PoolConfigurator_DepositCoverFailed(address asset, address caller, uint256 amount);
+
+    error PoolConfigurator_WithdrawCoverFailed(address asset, address caller, uint256 amount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
@@ -168,4 +166,24 @@ library Errors {
 
     /// @notice Thrown when the current time is not in the owner's withdrawal window
     error WithdrawalManager_NotInWindow(uint256 currentTimestamp_, uint256 windowStart_, uint256 windowEnd_);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Pool
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error Pool_ZeroAsset();
+
+    error Pool_ZeroConfigurator();
+
+    error Pool_FailedApprove();
+
+    error Pool_DepositMoreThanMax(uint256 assets, uint256 maxDeposit);
+
+    error Pool_MintMoreThanMax(uint256 shares, uint256 maxMint);
+
+    error Pool_InsufficientPermit(uint256 assets, uint256 permits);
+
+    error Pool_WithdrawMoreThanMax(uint256 assets, uint256 maxWithdraw);
+
+    error Pool_RedeemMoreThanMax(uint256 shares, uint256 maxRedeem);
 }

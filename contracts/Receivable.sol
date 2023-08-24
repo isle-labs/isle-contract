@@ -9,11 +9,12 @@ import { ERC721BurnableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import { ReceivableStorage } from "./ReceivableStorage.sol";
-import { IReceivable } from "./interfaces/IReceivable.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
-import { Adminable } from "./abstracts/Adminable.sol";
+
 import { Errors } from "./libraries/Errors.sol";
+import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { IReceivable } from "./interfaces/IReceivable.sol";
+import { Adminable } from "./abstracts/Adminable.sol";
+import { ReceivableStorage } from "./ReceivableStorage.sol";
 
 contract Receivable is
     ReceivableStorage,
@@ -38,15 +39,13 @@ contract Receivable is
     /*//////////////////////////////////////////////////////////////////////////
                             Storage
     //////////////////////////////////////////////////////////////////////////*/
-    ILopoGlobals globals_;
 
-    /**
-     * Modifier **
-     */
+    ILopoGlobals globals_;
 
     /*//////////////////////////////////////////////////////////////////////////
                             Modifiers
     //////////////////////////////////////////////////////////////////////////*/
+
     modifier onlyBuyer() {
         if (!globals_.isBuyer(msg.sender)) {
             revert Errors.Receivable_CallerNotBuyer(msg.sender);
@@ -171,6 +170,7 @@ contract Receivable is
     /*//////////////////////////////////////////////////////////////////////////
                             View Functions
     //////////////////////////////////////////////////////////////////////////*/
+
     function lopoGlobals() public view override returns (address) {
         return address(globals_);
     }

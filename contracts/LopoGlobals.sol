@@ -2,13 +2,14 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Adminable } from "./abstracts/Adminable.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { Errors } from "./libraries/Errors.sol";
+
+import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { Adminable } from "./abstracts/Adminable.sol";
 
 contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
@@ -68,10 +69,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => uint256) public override protocolFeeRate;
 
     mapping(address => PoolAdmin) public override poolAdmins;
-
-    // Borrower
-    mapping(address => uint256) public override riskPremiumFor;
-    mapping(address => uint256) public override creditExpirationFor;
 
     /*//////////////////////////////////////////////////////////////////////////
                             Initialization
@@ -192,6 +189,22 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ProtocolPauseSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
+    function setContractPause(address contract_, bool contractPaused_) external override onlyGovernor {
+        emit ContractPauseSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
+    }
+
+    function setFunctionUnpause(
+        address contract_,
+        bytes4 sig_,
+        bool functionUnpaused_
+    )
+        external
+        override
+        onlyGovernor
+    {
+        emit FunctionUnpauseSet(msg.sender, contract_, sig_, isFunctionUnpaused[contract_][sig_] = functionUnpaused_);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             Allowlist Setters
     //////////////////////////////////////////////////////////////////////////*/
@@ -267,6 +280,11 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
                             POOL RESTRICTION SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function setMinCoverAmount(address poolConfigurator_, uint256 minCoverAmount_) external override onlyGovernor {
+        emit MinCoverAmountSet(poolConfigurator_, minCoverAmount_);
+        minCoverAmount[poolConfigurator_] = minCoverAmount_;
+    }
+
     function setMinDepositLimit(address poolConfigurator_, UD60x18 minDepositLimit_) external override onlyGovernor {
         emit MinDepositLimitSet(poolConfigurator_, minDepositLimit_.intoUint256());
         minDepositLimit[poolConfigurator_] = minDepositLimit_;
@@ -281,6 +299,17 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     {
         emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);
         withdrawalDurationInDays[poolConfigurator_] = withdrawalDurationInDays_;
+    }
+
+    function setMaxCoverLiquidationPercent(
+        address poolConfigurator_,
+        uint256 maxCoverLiquidationPercent_
+    )
+        external
+        onlyGovernor
+    {
+        emit MaxCoverLiquidationPercentSet(poolConfigurator_, maxCoverLiquidationPercent_);
+        maxCoverLiquidationPercent[poolConfigurator_] = maxCoverLiquidationPercent_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
