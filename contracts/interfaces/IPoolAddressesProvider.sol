@@ -171,9 +171,5 @@ interface IPoolAddressesProvider {
     function setLoanManagerImpl(address newLoanManagerImpl) external;
 
     function getWithdrawalManager() external view returns (address);
-    function setWithdrawalManagerImpl(
-        address newWithdrawalManagerImpl,
-        bytes calldata params
-    )
-        external;
+    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl, bytes calldata params) external;
 }

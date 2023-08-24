@@ -7,9 +7,12 @@ import { ITransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/tran
 import { Errors } from "../../contracts/libraries/Errors.sol";
 import { UUPSProxy } from "../../contracts/libraries/upgradability/UUPSProxy.sol";
 
+import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
+import { IWithdrawalManager } from "../../contracts/interfaces/IWithdrawalManager.sol";
+import { IPoolConfigurator } from "../../contracts/interfaces/IPoolConfigurator.sol";
+
 import { Receivable } from "../../contracts/Receivable.sol";
 import { PoolAddressesProvider } from "../../contracts/PoolAddressesProvider.sol";
-import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { LoanManager } from "../../contracts/LoanManager.sol";
 import { WithdrawalManager } from "../../contracts/WithdrawalManager.sol";
@@ -96,8 +99,8 @@ contract IntegrationTest is BaseTest {
         vm.startPrank(users.pool_admin);
         // set implementation to proxy in poolAddressesProvider
         // if proxyAddress is address(0), create a new proxy
-        bytes memory params = abi.encodeWithSignature(
-            "initialize(address,address,address,string,string)",
+        bytes memory params = abi.encodeWithSelector(
+            IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider),
             address(usdc),
             users.pool_admin,
@@ -115,9 +118,17 @@ contract IntegrationTest is BaseTest {
         withdrawalManagerV1 = new WithdrawalManager(IPoolAddressesProvider(address(poolAddressesProvider)));
 
         vm.startPrank(users.pool_admin);
+
+        bytes memory params = abi.encodeWithSelector(
+            IWithdrawalManager.initialize.selector,
+            address(poolAddressesProvider),
+            7 days, // Cycle duration
+            2 days // Window duration
+        );
+
         // set implementation to proxy in poolAddressesProvider
         // if proxyAddress is address(0), create a new proxy
-        poolAddressesProvider.setWithdrawalManagerImpl(address(withdrawalManagerV1));
+        poolAddressesProvider.setWithdrawalManagerImpl(address(withdrawalManagerV1), params);
         vm.stopPrank();
 
         withdrawalManagerProxy = ITransparentUpgradeableProxy(poolAddressesProvider.getWithdrawalManager());

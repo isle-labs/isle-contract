@@ -83,6 +83,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         });
 
         emit Initialized(address(provider_), cycleDuration_, windowDuration_);
+
         emit ConfigurationUpdated({
             configId_: 0,
             initialCycleId_: 1,
