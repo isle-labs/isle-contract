@@ -90,6 +90,10 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function protocolPaused() external view returns (bool protocolPaused_);
 
+    function setContractPause(address contract_, bool contractPaused_) external;
+
+    function setFunctionUnpause(address contract_, bytes4 sig_, bool functionUnpaused_) external;
+
     /**
      *  @dev Accepts the governorship if the caller is the `pendingGovernor`.
      */

@@ -7,6 +7,7 @@ interface ILopoGlobalsEvents {
     //////////////////////////////////////////////////////////////////////////*/
 
     event Initialized();
+
     event PoolConfiguratorOwnershipTransferred(
         address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_
     );
@@ -54,6 +55,12 @@ interface ILopoGlobalsEvents {
      *  @param protocolPaused_ The protocol paused state.
      */
     event ProtocolPauseSet(address indexed caller_, bool protocolPaused_);
+
+    event ContractPauseSet(address indexed caller_, address indexed contract_, bool contractPaused_);
+
+    event FunctionUnpauseSet(
+        address indexed caller_, address indexed contract_, bytes4 indexed sig_, bool functionUnpaused_
+    );
 
     /**
      *  @dev   A valid buyer was set.

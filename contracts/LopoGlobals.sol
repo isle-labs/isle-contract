@@ -192,6 +192,22 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ProtocolPauseSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
+    function setContractPause(address contract_, bool contractPaused_) external override onlyGovernor {
+        emit ContractPauseSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
+    }
+
+    function setFunctionUnpause(
+        address contract_,
+        bytes4 sig_,
+        bool functionUnpaused_
+    )
+        external
+        override
+        onlyGovernor
+    {
+        emit FunctionUnpauseSet(msg.sender, contract_, sig_, isFunctionUnpaused[contract_][sig_] = functionUnpaused_);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             Allowlist Setters
     //////////////////////////////////////////////////////////////////////////*/
