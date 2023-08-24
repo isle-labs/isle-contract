@@ -26,11 +26,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
                                 MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier onlyIfNotConfigured() {
-        _revertIfConfigured();
-        _;
-    }
-
     modifier whenNotPaused() {
         _revertIfPaused();
         _;
@@ -43,11 +38,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     modifier onlyPoolAdminOrGovernor() {
         _revertIfNotPoolAdminOrGovernor();
-        _;
-    }
-
-    modifier onlyPoolAdminOrNotConfigured() {
-        _revertIfNotPoolAdminAndConfigured();
         _;
     }
 
@@ -100,11 +90,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         pool = PoolDeployLogic.createPool(address(this), asset_, name_, symbol_);
 
         emit Initialized(poolAdmin_, asset_, pool);
-    }
-
-    function completeConfiguration() external override whenNotPaused onlyIfNotConfigured {
-        configured = true;
-        emit ConfigurationCompleted();
     }
 
     function getRevision() internal pure virtual override returns (uint256 revision_) {
@@ -191,6 +176,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     //////////////////////////////////////////////////////////////////////////*/
 
     /* Ownership Transfer functions */
+
+    function setPendingPoolAdmin(address pendingPoolAdmin_) external override whenNotPaused onlyPoolAdmin {
+        pendingPoolAdmin = pendingPoolAdmin_;
+
+        emit PendingPoolAdminSet(poolAdmin, pendingPoolAdmin_);
+    }
+
     function acceptPoolAdmin() external override whenNotPaused {
         if (msg.sender != pendingPoolAdmin) {
             revert Errors.PoolConfigurator_CallerNotPendingPoolAdmin({
@@ -207,28 +199,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         pendingPoolAdmin = address(0);
     }
 
-    function setPendingPoolAdmin(address pendingPoolAdmin_) external override whenNotPaused onlyPoolAdmin {
-        pendingPoolAdmin = pendingPoolAdmin_;
-
-        emit PendingPoolAdminSet(poolAdmin, pendingPoolAdmin_);
-    }
-
-    /* Globals Admin Functions */
-    function setActive(bool active_) external override whenNotPaused {
-        address globals_ = _globals();
-        if (msg.sender != globals_) {
-            revert Errors.InvalidCaller(msg.sender, globals_);
-        }
-        emit SetAsActive(active = active_);
-    }
-
     /* Pool Admin Functions */
     function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit ValidBorrowerSet(buyer_, isBuyer[buyer_] = isValid_);
+        emit ValidBuyerSet(buyer_, isBuyer[buyer_] = isValid_);
     }
 
     function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit ValidBorrowerSet(seller_, isSeller[seller_] = isValid_);
+        emit ValidSellerSet(seller_, isSeller[seller_] = isValid_);
     }
 
     function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
@@ -239,9 +216,9 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         emit LiquidityCapSet(liquidityCap = liquidityCap_);
     }
 
-    function setOpenToPublic() external override whenNotPaused onlyPoolAdmin {
-        openToPublic = true;
-        emit OpenToPublic();
+    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyPoolAdmin {
+        openToPublic = isOpenToPublic_;
+        emit OpenToPublic(isOpenToPublic_);
     }
 
     /* Funding Functions */
@@ -274,7 +251,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Loan Default Functions */
-    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdmin {
+    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
         // Faulty implementation
         (uint256 remainingLosses_, uint256 protocolFees_) = ILoanManager(_loanManager()).triggerDefault(loanId_);
         protocolFees_;
@@ -372,10 +349,9 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     /* Pool Delegate Cover Functions */
     function depositCover(uint256 amount_) external override whenNotPaused {
-        if (!IERC20(asset).transferFrom(msg.sender, address(this), amount_)) {
-            revert Errors.PoolConfigurator_ERC20TransferFromFailed(asset, msg.sender, address(this), amount_);
+        if (!IERC20(asset).transferFrom(msg.sender, pool, amount_)) {
+            revert Errors.PoolConfigurator_DepositCoverFailed(asset, msg.sender, amount_);
         }
-
         poolCover += amount_;
 
         emit CoverDeposited(amount_);
@@ -384,13 +360,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
-        if (!IERC20(asset).transferFrom(address(this), recipient_, amount_)) {
-            revert Errors.PoolConfigurator_ERC20TransferFromFailed(asset, address(this), recipient_, amount_);
+        if (!IERC20(asset).transferFrom(pool, recipient_, amount_)) {
+            revert Errors.PoolConfigurator_WithdrawCoverFailed(asset, recipient_, amount_);
         }
 
         poolCover -= amount_;
 
-        // use custom error
         if (!_hasSufficientCover(_globals())) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
@@ -449,12 +424,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         }
     }
 
-    function _revertIfNotPoolAdminAndConfigured() internal view {
-        if (msg.sender != poolAdmin && configured) {
-            revert Errors.PoolConfigurator_ConfiguredAndNotPoolAdmin();
-        }
-    }
-
     function _hasSufficientCover(address globals_) internal view returns (bool hasSufficientCover_) {
         hasSufficientCover_ = poolCover >= ILopoGlobals(globals_).minCoverAmount(address(this));
     }
@@ -465,13 +434,11 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         uint256 availableCover_ =
             (poolCover * ILopoGlobals(globals_).maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
 
-        uint256 toPool_ = _min(availableCover_, losses_);
+        uint256 coverAmount_ = _min(availableCover_, losses_);
 
-        // Transfer funds to pool
-        poolCover -= toPool_;
-        IERC20(asset).transferFrom(address(this), pool, toPool_);
+        poolCover -= coverAmount_;
 
-        emit CoverLiquidated(toPool_);
+        emit CoverLiquidated(coverAmount_);
     }
 
     function _min(uint256 a_, uint256 b_) internal pure returns (uint256 min_) {

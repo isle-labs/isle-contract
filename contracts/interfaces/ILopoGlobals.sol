@@ -24,10 +24,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
 
     function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
 
-    function riskPremiumFor(address borrower_) external view returns (uint256 riskPremium_);
-
-    function creditExpirationFor(address borrower_) external view returns (uint256 creditExpiration_);
-
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
 
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
@@ -90,6 +86,10 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function protocolPaused() external view returns (bool protocolPaused_);
 
+    function setContractPause(address contract_, bool contractPaused_) external;
+
+    function setFunctionUnpause(address contract_, bytes4 sig_, bool functionUnpaused_) external;
+
     /**
      *  @dev Accepts the governorship if the caller is the `pendingGovernor`.
      */
@@ -144,4 +144,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
     function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
+
+    function setMinCoverAmount(address poolConfigurator_, uint256 minCover_) external;
+
+    function setMaxCoverLiquidationPercent(address poolConfigurator_, uint256 maxCoverLiquidationPercent_) external;
 }

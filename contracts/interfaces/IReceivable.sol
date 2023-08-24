@@ -1,23 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { ReceivableStorage } from "../ReceivableStorage.sol";
+import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
 
-interface IReceivable {
-    // events
-    event AssetCreated(
-        address indexed buyer_,
-        address indexed seller_,
-        uint256 indexed tokenId_,
-        uint256 faceAmount_,
-        uint256 repaymentTimestamp_
-    );
-
-    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
-
+interface IReceivable is IReceivableEvent {
     function createReceivable(
         address seller_,
         UD60x18 faceAmount_,

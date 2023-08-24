@@ -236,7 +236,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         //   - Update `accountedInterest` to account all accrued interest since last update
         _advanceGlobalPaymentAccounting();
 
-        // 2. Transfer the funds from the borrower to the loan manager
+        // 2. Transfer the funds from the buyer to the loan manager
         IERC20(fundsAsset).safeTransferFrom(msg.sender, address(this), amount_);
 
         // 3. Check and update loan accounting
@@ -559,7 +559,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         emit PrincipalOutUpdated(principalOut);
     }
 
-    // Clears all state variables to end a loan, but keep borrower and lender withdrawal functionality intact
+    // Clears all state variables to end a loan, but keep seller withdrawal functionality intact
     function _clearLoanAccounting(uint16 loanId_) internal {
         LoanInfo storage loan_ = _loans[loanId_];
 

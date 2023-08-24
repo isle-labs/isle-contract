@@ -7,6 +7,7 @@ interface ILopoGlobalsEvents {
     //////////////////////////////////////////////////////////////////////////*/
 
     event Initialized();
+
     event PoolConfiguratorOwnershipTransferred(
         address indexed fromPoolAdmin_, address indexed toPoolAdmin_, address indexed PoolConfigurator_
     );
@@ -33,13 +34,6 @@ interface ILopoGlobalsEvents {
     event MaxCoverLiquidationPercentSet(address indexed poolManager_, uint256 maxCoverLiquidationPercent_);
 
     /**
-     *  @dev   The minimum cover amount for the given pool manager has been set.
-     *  @param poolManager_    The address of the pool manager.
-     *  @param minCoverAmount_ The new value for the minimum cover amount.
-     */
-    event MinCoverAmountSet(address indexed poolManager_, uint256 minCoverAmount_);
-
-    /**
      *  @dev   The pending governor has been set.
      *  @param pendingGovernor_ The new pending governor.
      */
@@ -61,6 +55,12 @@ interface ILopoGlobalsEvents {
      *  @param protocolPaused_ The protocol paused state.
      */
     event ProtocolPauseSet(address indexed caller_, bool protocolPaused_);
+
+    event ContractPauseSet(address indexed caller_, address indexed contract_, bool contractPaused_);
+
+    event FunctionUnpauseSet(
+        address indexed caller_, address indexed contract_, bytes4 indexed sig_, bool functionUnpaused_
+    );
 
     /**
      *  @dev   A valid buyer was set.
@@ -103,4 +103,6 @@ interface ILopoGlobalsEvents {
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
 
     event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
+
+    event MinCoverAmountSet(address indexed poolConfigurator_, uint256 indexed minCoverAmount_);
 }
