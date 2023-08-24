@@ -41,7 +41,6 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setPendingPoolAdmin(address pendingPoolAdmin_) external;
 
     /* Administrative Functions */
-    function completeConfiguration() external;
     function setValidBorrower(address borrower_, bool isValid_) external;
     function setValidLender(address lender_, bool isValid_) external;
     function setLiquidityCap(uint256 liquidityCap_) external;

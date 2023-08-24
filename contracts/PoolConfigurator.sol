@@ -26,11 +26,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
                                 MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier onlyIfNotConfigured() {
-        _revertIfConfigured();
-        _;
-    }
-
     modifier whenNotPaused() {
         _revertIfPaused();
         _;
@@ -43,11 +38,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     modifier onlyPoolAdminOrGovernor() {
         _revertIfNotPoolAdminOrGovernor();
-        _;
-    }
-
-    modifier onlyPoolAdminOrNotConfigured() {
-        _revertIfNotPoolAdminAndConfigured();
         _;
     }
 
@@ -100,11 +90,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         pool = PoolDeployLogic.createPool(address(this), asset_, name_, symbol_);
 
         emit Initialized(poolAdmin_, asset_, pool);
-    }
-
-    function completeConfiguration() external override whenNotPaused onlyIfNotConfigured {
-        configured = true;
-        emit ConfigurationCompleted();
     }
 
     function getRevision() internal pure virtual override returns (uint256 revision_) {
@@ -266,7 +251,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Loan Default Functions */
-    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdmin {
+    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
         // Faulty implementation
         (uint256 remainingLosses_, uint256 protocolFees_) = ILoanManager(_loanManager()).triggerDefault(loanId_);
         protocolFees_;
@@ -436,12 +421,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function _revertIfNotPool() internal view {
         if (msg.sender != pool) {
             revert Errors.InvalidCaller({ caller: msg.sender, expectedCaller: pool });
-        }
-    }
-
-    function _revertIfNotPoolAdminAndConfigured() internal view {
-        if (msg.sender != poolAdmin && configured) {
-            revert Errors.PoolConfigurator_ConfiguredAndNotPoolAdmin();
         }
     }
 
