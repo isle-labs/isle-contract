@@ -223,8 +223,12 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Pool Admin Functions */
-    function setValidBorrower(address borrower_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit ValidBorrowerSet(borrower_, isBorrower[borrower_] = isValid_);
+    function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidBorrowerSet(buyer_, isBuyer[buyer_] = isValid_);
+    }
+
+    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+        emit ValidBorrowerSet(seller_, isSeller[seller_] = isValid_);
     }
 
     function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {

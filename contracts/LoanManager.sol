@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { SignedMath } from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
@@ -29,6 +29,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
 
+    using SafeCast for uint256;
+    using SafeCast for uint128;
+    using SafeCast for int256;
+    using SafeERC20 for IERC20;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -37,7 +42,15 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         ADDRESSES_PROVIDER = provider;
     }
 
-    function initialize(IPoolAddressesProvider provider_) external initializer {
+    function getRevision() internal pure virtual override returns (uint256 revision_) {
+        revision_ = LOAN_MANAGER_REVISION;
+    }
+
+    /// @notice Initializes the Loan Manager.
+    /// @dev Function is invoked by the proxy contract when the Loan Manager COntract is added to the
+    /// PoolAddressesProvider of the market
+    /// @param provider_ The address of the PoolAddressesProvider
+    function initialize(IPoolAddressesProvider provider_) external virtual initializer {
         if (ADDRESSES_PROVIDER != provider_) {
             revert Errors.InvalidAddressProvider({
                 expectedProvider: address(ADDRESSES_PROVIDER),
@@ -46,64 +59,54 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
     }
 
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = LOAN_MANAGER_REVISION;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Can only be called when the function is not paused
     modifier whenNotPaused() {
         _revertIfPaused();
         _;
     }
 
+    /// @dev Can only be called by the Pool Admin or the Governor
     modifier onlyPoolAdminOrGovernor() {
         _revertIfNotPoolAdminOrGovernor();
         _;
     }
 
+    /// @dev Can only be called by the Pool Admin
     modifier onlyPoolAdmin() {
         _revertIfNotPoolAdmin();
         _;
     }
 
-    modifier limitDrawableUse(uint16 loanId_) {
-        if (msg.sender == loans[loanId_].borrower) {
-            _;
-            return;
-        }
-
-        uint256 drawableFundsBeforePayment = loans[loanId_].drawableFunds;
-
-        _;
-
-        if (loans[loanId_].drawableFunds < drawableFundsBeforePayment) {
-            revert Errors.LoanManager_DrawableFundsDecreased({ loanId_: loanId_ });
-        }
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
-                            CONSTANT FUNCTIONS
+                            EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function accruedInterest() public view returns (uint256 accruedInterest_) {
+    /// @inheritdoc ILoanManager
+    function accruedInterest() public view override returns (uint256 accruedInterest_) {
         uint256 issuanceRate_ = issuanceRate;
         accruedInterest_ = issuanceRate_ == 0 ? 0 : _getIssuance(issuanceRate, block.timestamp - domainStart);
     }
 
-    function assetsUnderManagement() public view virtual override returns (uint256 assetsUnderManagement_) {
+    /// @inheritdoc ILoanManager
+    function assetsUnderManagement() public view override returns (uint256 assetsUnderManagement_) {
         assetsUnderManagement_ = principalOut + accountedInterest + accruedInterest();
     }
 
+    /// @inheritdoc ILoanManager
     function getLoanPaymentDetailedBreakdown(uint16 loanId_)
         public
         view
+        override
         returns (uint256 principal_, uint256[2] memory interest_)
     {
-        LoanInfo memory loan_ = loans[loanId_];
-        (principal_, interest_) = _getPaymentBreakdown(
+        LoanInfo memory loan_ = _loans[loanId_];
+
+        principal_ = loan_.principal;
+        interest_ = _getInterestBreakdown(
             block.timestamp,
             loan_.startDate,
             loan_.dueDate,
@@ -113,11 +116,17 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         );
     }
 
-    function getLoanPaymentBreakdown(uint16 loanId_) public view returns (uint256 principal_, uint256 interest_) {
-        LoanInfo memory loan_ = loans[loanId_];
+    /// @inheritdoc ILoanManager
+    function getLoanPaymentBreakdown(uint16 loanId_)
+        public
+        view
+        override
+        returns (uint256 principal_, uint256 interest_)
+    {
+        LoanInfo memory loan_ = _loans[loanId_];
         uint256[2] memory interestArray_;
 
-        (principal_, interestArray_) = _getPaymentBreakdown(
+        interestArray_ = _getInterestBreakdown(
             block.timestamp,
             loan_.startDate,
             loan_.dueDate,
@@ -126,61 +135,178 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             loan_.lateInterestPremiumRate
         );
 
+        principal_ = loan_.principal;
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                        MANUAL ACCOUNTING UPDATE FUNCTIONS
+                        EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @inheritdoc ILoanManager
     function updateAccounting() external whenNotPaused onlyPoolAdminOrGovernor {
         _advanceGlobalPaymentAccounting();
         _updateIssuanceParams(issuanceRate, accountedInterest);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            LOAN FUNDING FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /// @inheritdoc ILoanManager
+    function approveLoan(
+        uint256 receivablesTokenId_,
+        uint256 gracePeriod_,
+        uint256 principalRequested_,
+        uint256[2] memory rates_,
+        uint256 fee_
+    )
+        external
+        override
+        whenNotPaused
+        returns (uint16 loanId_)
+    {
+        address collateralAsset_ = collateralAsset;
 
-    function fundLoan(uint16 loanId_) external nonReentrant whenNotPaused onlyPoolAdmin {
-        LoanInfo memory loan_ = loans[loanId_];
+        ReceivableStorage.ReceivableInfo memory receivableInfo_ =
+            IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
 
-        if (!IPoolConfigurator(_poolConfigurator()).isBorrower(loan_.borrower)) {
-            revert Errors.NotBorrower({ caller: msg.sender });
+        _revertIfInvalidReceivable(
+            receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
+        );
+
+        if (principalRequested_ > receivableInfo_.faceAmount.intoUint256()) {
+            revert Errors.LoanManager_PrincipalRequestedTooHigh({
+                principalRequested_: principalRequested_,
+                maxPrincipal_: receivableInfo_.faceAmount.intoUint256()
+            });
         }
+
+        // Increment loan
+        loanId_ = ++loanCounter;
+
+        // Create loan
+        _loans[loanId_] = LoanInfo({
+            buyer: receivableInfo_.buyer,
+            seller: receivableInfo_.seller,
+            collateralTokenId: receivablesTokenId_,
+            principal: principalRequested_,
+            drawableFunds: uint256(0),
+            interestRate: rates_[0],
+            lateInterestPremiumRate: rates_[1],
+            fee: fee_,
+            startDate: uint256(0),
+            dueDate: receivableInfo_.repaymentTimestamp,
+            originalDueDate: uint256(0),
+            gracePeriod: gracePeriod_,
+            isImpaired: false
+        });
+
+        emit LoanApproved({ loanId_: loanId_ });
+    }
+
+    /// @inheritdoc ILoanManager
+    function fundLoan(uint16 loanId_) external override nonReentrant whenNotPaused onlyPoolAdmin {
+        LoanInfo memory loan_ = _loans[loanId_];
 
         _advanceGlobalPaymentAccounting();
 
         uint256 principal_ = loan_.principal;
-
         IPoolConfigurator(_poolConfigurator()).requestFunds(principal_);
 
         // Update loan state
-        LoanInfo storage loanStorage_ = loans[loanId_];
-        loanStorage_.drawableFunds = principal_;
+        LoanInfo storage loanStorage_ = _loans[loanId_];
         loanStorage_.startDate = block.timestamp;
+        loanStorage_.drawableFunds = principal_;
 
-        emit PrincipalOutUpdated(principalOut += SafeCast.toUint128(principal_));
+        emit PrincipalOutUpdated(principalOut += principal_.toUint128());
 
         // Add new issuance rate from queued payment
         _updateIssuanceParams(issuanceRate + _queuePayment(loanId_, block.timestamp, loan_.dueDate), accountedInterest);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        LOAN IMPAIRMENT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /// @inheritdoc ILoanManager
+    function repayLoan(
+        uint16 loanId_,
+        uint256 amount_
+    )
+        external
+        override
+        whenNotPaused
+        returns (uint256 principal_, uint256 interest_)
+    {
+        // 1. Advance global accounting
+        //   - Update `domainStart` to the current `block.timestamp`
+        //   - Update `accountedInterest` to account all accrued interest since last update
+        _advanceGlobalPaymentAccounting();
 
-    function impairLoan(uint16 loanId_) external whenNotPaused onlyPoolAdminOrGovernor {
-        LoanInfo memory loan_ = loans[loanId_];
+        // 2. Transfer the funds from the borrower to the loan manager
+        IERC20(fundsAsset).safeTransferFrom(msg.sender, address(this), amount_);
+
+        // 3. Check and update loan accounting
+        (principal_, interest_) = getLoanPaymentBreakdown(loanId_);
+
+        uint256 principalAndInterest_ = principal_ + interest_;
+
+        if (amount_ < principalAndInterest_) {
+            revert Errors.LoanManager_InsufficientRepayment({
+                loanId_: loanId_,
+                repayment_: amount_,
+                expectedRepayment_: principalAndInterest_
+            });
+        }
+
+        emit LoanRepaid({ loanId_: loanId_, principal_: principal_, interest_: interest_ });
+
+        // 4. Transfer the funds to the pool, poolAdmin, and protocolVault
+        _distributeClaimedFunds(loanId_, principal_, interest_);
+
+        // 5. Decrement `principalOut`
+        if (principal_ != 0) {
+            emit PrincipalOutUpdated(principalOut -= SafeCast.toUint128(principal_));
+        }
+
+        // 6. Update the accounting based on the payment that was just made
+        uint256 paymentIssuanceRate_ = _handlePaymentAccounting(loanId_);
+
+        // 7. Delete paymentId from mapping
+        delete paymentIdOf[loanId_];
+
+        _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
+    }
+
+    /// @inheritdoc ILoanManager
+    function withdrawFunds(uint16 loanId_, address destination_, uint256 amount_) external override whenNotPaused {
+        LoanInfo memory loan_ = _loans[loanId_];
+
+        // Only the seller can drawdown funds
+        if (msg.sender != loan_.seller) {
+            revert Errors.LoanManager_CallerNotSeller({ expectedSeller_: loan_.seller });
+        }
+
+        if (amount_ > loan_.drawableFunds) {
+            revert Errors.LoanManager_Overdraw({
+                loanId_: loanId_,
+                amount_: amount_,
+                withdrawableAmount_: loan_.drawableFunds
+            });
+        }
+
+        loan_.drawableFunds -= amount_;
+
+        IERC20(fundsAsset).safeTransfer(destination_, amount_);
+
+        emit FundsWithdrawn({ loanId_: loanId_, amount_: amount_ });
+    }
+
+    /// @inheritdoc ILoanManager
+    function impairLoan(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
+        LoanInfo memory loan_ = _loans[loanId_];
 
         if (loan_.isImpaired) {
-            revert Errors.LoanManager_LoanImpaired({ loanId: loanId_ });
+            revert Errors.LoanManager_LoanImpaired({ loanId_: loanId_ });
         }
 
         uint256 paymentId_ = paymentIdOf[loanId_];
 
         if (paymentId_ == 0) {
-            revert Errors.LoanManager_NotLoan({ loanId: loanId_ });
+            revert Errors.LoanManager_NotLoan({ loanId_: loanId_ });
         }
 
         PaymentInfo memory paymentInfo_ = payments[paymentId_];
@@ -189,8 +315,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         _removePaymentFromList(paymentId_);
 
-        // Use issuance rate from payment info in storage, because it would have been set to zero and accounted for
-        // already if late
+        // Use issuance rate from payment info in storage, because it would
+        // already if late have been set to zero and accounted for
         _updateIssuanceParams(issuanceRate - payments[paymentId_].issuanceRate, accountedInterest);
 
         (uint256 netInterest_, uint256 netLateInterest_, uint256 protocolFees_) =
@@ -198,38 +324,43 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         liquidationInfoFor[loanId_] = LiquidationInfo({
             triggeredByGovernor: msg.sender == _governor(),
-            principal: SafeCast.toUint128(loan_.principal),
-            interest: SafeCast.toUint120(netInterest_),
+            principal: loan_.principal.toUint128(),
+            interest: netInterest_.toUint120(),
             lateInterest: netLateInterest_,
-            protocolFees: SafeCast.toUint96(protocolFees_)
+            protocolFees: protocolFees_.toUint96()
         });
 
-        emit UnrealizedLossesUpdated(unrealizedLosses += SafeCast.toUint128(loan_.principal + netInterest_));
+        emit UnrealizedLossesUpdated(unrealizedLosses += (loan_.principal + netInterest_).toUint128());
 
-        // Update date on loan data structur
-
+        // Update date on loan data structure
         uint256 originalDueDate_ = loan_.dueDate;
 
         // if payment is late, do not change the payment due date
         uint256 newDueDate_ = block.timestamp > originalDueDate_ ? originalDueDate_ : block.timestamp;
 
-        LoanInfo storage loanStorage_ = loans[loanId_];
+        LoanInfo storage loanStorage_ = _loans[loanId_];
 
         loanStorage_.dueDate = newDueDate_;
         loanStorage_.originalDueDate = originalDueDate_;
 
-        emit LoanImpaired(newDueDate_);
+        emit LoanImpaired({ loanId_: loanId_, newDueDate_: newDueDate_ });
     }
 
-    function removeLoanImpairment(uint16 loanId_) external nonReentrant whenNotPaused {
+    /// @inheritdoc ILoanManager
+    function removeLoanImpairment(uint16 loanId_) external override nonReentrant whenNotPaused {
         LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
+        LoanInfo memory loan_ = _loans[loanId_];
 
         if (msg.sender != _governor() && (liquidationInfo_.triggeredByGovernor || msg.sender != _poolAdmin())) {
-            revert Errors.LoanManager_NotAuthorizedToRemoveLoanImpairment(loanId_);
+            revert Errors.NotPoolAdminOrGovernor({ caller_: msg.sender });
         }
 
-        if (block.timestamp > loans[loanId_].dueDate) {
-            revert Errors.LoanManager_PastDueDate(loanId_);
+        if (loan_.dueDate < block.timestamp) {
+            revert Errors.LoanManager_PastDueDate({
+                loanId_: loanId_,
+                dueDate_: loan_.dueDate,
+                currentTimestamp_: block.timestamp
+            });
         }
 
         _advanceGlobalPaymentAccounting();
@@ -259,27 +390,27 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         );
 
         // Update date on loan data structure
-        LoanInfo memory loan_ = loans[loanId_];
-        uint256 originalPaymentDueDate_ = loan_.originalDueDate;
+        uint256 originalDueDate_ = loan_.originalDueDate;
 
-        if (originalPaymentDueDate_ == 0) {
-            revert Errors.LoanManager_NotImpaired(loanId_);
+        if (!loan_.isImpaired) {
+            revert Errors.LoanManager_LoanNotImpaired({ loanId_: loanId_ });
         }
 
-        if (block.timestamp > originalPaymentDueDate_) {
-            revert Errors.LoanManager_PastDueDate(loanId_);
+        if (block.timestamp > originalDueDate_) {
+            revert Errors.LoanManager_PastDueDate({
+                loanId_: loanId_,
+                dueDate_: originalDueDate_,
+                currentTimestamp_: block.timestamp
+            });
         }
 
-        loan_.dueDate = originalPaymentDueDate_;
-        delete loan_.originalDueDate;
+        _loans[loanId_].dueDate = originalDueDate_;
+        delete _loans[loanId_].originalDueDate;
 
-        emit ImpairmentRemoved(originalPaymentDueDate_);
+        emit ImpairmentRemoved(loanId_, originalDueDate_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        LOAN DEFAULT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
+    /// @inheritdoc ILoanManager
     function triggerDefault(uint16 loanId_)
         external
         override
@@ -290,12 +421,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 paymentId_ = paymentIdOf[loanId_];
 
         if (paymentId_ == 0) {
-            revert Errors.LoanManager_NotLoan({ loanId: loanId_ });
+            revert Errors.LoanManager_NotLoan({ loanId_: loanId_ });
         }
 
         // NOTE: must get payment info prior to advancing payment accounting, becasue that will set issuance rate to 0.
         PaymentInfo memory paymentInfo_ = payments[paymentId_];
-        LoanInfo memory loan_ = loans[loanId_];
+        LoanInfo memory loan_ = _loans[loanId_];
 
         // This will cause this payment to be removed from the list, so no need to remove it explicitly
         _advanceGlobalPaymentAccounting();
@@ -307,129 +438,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             ? _getInterestAndFeesFromLiquidationInfo(loanId_)
             : _getDefaultInterestAndFees(loanId_, paymentInfo_);
 
-        (remainingLosses_, protocolFees_) = _handleReposession(loanId_, protocolFees_, netInterest_, netLateInterest_);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                        BORROWER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function createLoan(uint256 collateralTokenId_) external whenNotPaused returns (uint16 loanId_) {
-        address collateralAsset_ = collateralAsset;
-
-        ILopoGlobals globals_ = ILopoGlobals(_globals());
-        ReceivableStorage.ReceivableInfo memory receivableInfo_ =
-            IReceivable(collateralAsset_).getReceivableInfoById(collateralTokenId_);
-
-        // Only buyer or seller can create a loan
-        if (receivableInfo_.buyer != msg.sender && receivableInfo_.seller != msg.sender) {
-            revert Errors.LoanManager_NotBuyerOrSeller();
-        }
-
-        // Get buyer info
-        bool isBorrower_ = IPoolConfigurator(_poolConfigurator()).isBorrower(receivableInfo_.buyer);
-
-        // Only a borrower can create a loan
-        if (!isBorrower_) {
-            revert Errors.NotBorrower(receivableInfo_.buyer);
-        }
-
-        uint256 riskPremium_ = globals_.riskPremiumFor(receivableInfo_.buyer);
-        uint256 expirationTimestamp_ = globals_.creditExpirationFor(receivableInfo_.buyer);
-
-        // Check if borrower credit status has expired
-        if (block.timestamp > expirationTimestamp_) {
-            revert Errors.LoanManager_BorrowerCreditExpired({
-                borrower_: receivableInfo_.buyer,
-                expirationTimestamp_: expirationTimestamp_
-            });
-        }
-
-        // Post Collateral
-        IERC721(collateralAsset_).safeTransferFrom(msg.sender, address(this), collateralTokenId_);
-
-        loanId_ = ++loanCounter;
-
-        // Create loan data structure
-        loans[loanId_] = LoanInfo({
-            borrower: receivableInfo_.buyer,
-            collateralTokenId: collateralTokenId_,
-            principal: receivableInfo_.faceAmount.intoUint256(),
-            drawableFunds: uint256(0),
-            interestRate: globals_.riskFreeRate() + riskPremium_,
-            lateInterestPremiumRate: globals_.riskFreeRate() + riskPremium_ + globals_.lateInterestExcessRate(),
-            startDate: uint256(0),
-            dueDate: receivableInfo_.repaymentTimestamp,
-            originalDueDate: uint256(0),
-            issuanceRate: uint256(0),
-            gracePeriod: globals_.gracePeriod(),
-            isImpaired: false
-        });
-    }
-
-    function closeLoan(
-        uint16 loanId_,
-        uint256 amount_
-    )
-        external
-        whenNotPaused
-        returns (uint256 principal_, uint256 interest_)
-    {
-        LoanInfo memory loan_ = loans[loanId_];
-
-        // 1. Advance global accounting
-        //   - Update `domainStart` to the current `block.timestamp`
-        //   - Update `accountedInterest` to account all accrued interest since last update
-        _advanceGlobalPaymentAccounting();
-
-        // 2. Transfer the funds from the borrower to the loan manager
-        if (amount_ != uint256(0) && !IERC20(fundsAsset).transferFrom(msg.sender, address(this), amount_)) {
-            revert Errors.LoanManager_FundsTransferFailed();
-        }
-
-        // 3. Check and update loan accounting
-        (principal_, interest_) = getLoanPaymentBreakdown(loanId_);
-
-        uint256 principalAndInterest_ = principal_ + interest_;
-
-        if (loan_.drawableFunds + amount_ < principalAndInterest_) {
-            revert Errors.LoanManager_InsufficientPayment(loanId_);
-        }
-
-        loan_.drawableFunds = loan_.drawableFunds + amount_ - principalAndInterest_;
-
-        emit PaymentMade(loanId_, principal_, interest_);
-
-        // 4. Transfer the funds to the pool, poolAdmin, and protocolVault
-        _distributeClaimedFunds(loanId_, principal_, interest_);
-
-        // 5. Decrement `principalOut`
-        if (principal_ != 0) {
-            emit PrincipalOutUpdated(principalOut -= SafeCast.toUint128(principal_));
-        }
-
-        // 6. Update the accounting based on the payment that was just made
-        uint256 paymentIssuanceRate_ = _handlePaymentAccounting(loanId_);
-
-        // 7. Delete paymentId from mapping
-        delete paymentIdOf[loanId_];
-        _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
-
-        emit FundsClaimed(loanId_, principalAndInterest_);
-    }
-
-    function drawdownFunds(uint16 loanId_, uint256 amount_, address destination_) external whenNotPaused {
-        uint256 drawableFunds_ = loans[loanId_].drawableFunds;
-
-        if (amount_ > drawableFunds_) {
-            revert Errors.LoanManager_InsufficientFunds(loanId_);
-        }
-
-        loans[loanId_].drawableFunds -= amount_;
-
-        if (!IERC20(fundsAsset).transfer(destination_, amount_)) {
-            revert Errors.LoanManager_FundsTransferFailed();
-        }
+        // Losses of the pool
+        remainingLosses_ = _handleDefault(loanId_, netInterest_, netLateInterest_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -440,7 +450,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         issuance_ = (issuanceRate_ * interval_) / PRECISION;
     }
 
-    function _getPaymentBreakdown(
+    function _getInterestBreakdown(
         uint256 currentTime_,
         uint256 startDate_,
         uint256 dueDate_,
@@ -450,9 +460,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     )
         internal
         pure
-        returns (uint256 principalAmount_, uint256[2] memory interest_)
+        returns (uint256[2] memory interest_)
     {
-        principalAmount_ = principal_;
         interest_[0] = _getInterest(principal_, interestRate_, dueDate_ - startDate_);
         interest_[1] = _getLateInterest(currentTime_, principal_, interestRate_, dueDate_, lateInterestPremiumRate_);
     }
@@ -529,64 +538,38 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
                             INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _accountForLoanImpairment(uint16 loanId_) internal returns (uint40 impairedDate_) {
-        LoanInfo memory loan_ = loans[loanId_];
-        impairedDate_ = impairmentFor[loanId_].impairedDate;
-
-        if (impairedDate_ != 0) {
-            return impairedDate_;
-        }
-
-        impairmentFor[loanId_].impairedDate = impairedDate_;
-
-        _updateInterestAccounting(0, -SafeCast.toInt256(loan_.issuanceRate));
-    }
-
     function _updateInterestAccounting(int256 accountedInterestAdjustment_, int256 issuanceRateAdjustment_) internal {
-        accountedInterest = SafeCast.toUint112(
-            SafeCast.toUint256(
-                SignedMath.max(
-                    (SafeCast.toInt256(accountedInterest + accruedInterest()) + accountedInterestAdjustment_), 0
-                )
-            )
-        );
+        accountedInterest = SignedMath.max(
+            ((accountedInterest + accruedInterest()).toInt256() + accountedInterestAdjustment_), 0
+        ).toUint256().toUint112();
 
-        domainStart = SafeCast.toUint40(block.timestamp);
-        issuanceRate = SafeCast.toUint256(SignedMath.max(SafeCast.toInt256(issuanceRate) + issuanceRateAdjustment_, 0));
+        domainStart = block.timestamp.toUint40();
+        issuanceRate = (SignedMath.max(issuanceRate.toInt256() + issuanceRateAdjustment_, 0)).toUint256();
 
         emit AccountingStateUpdated(issuanceRate, accountedInterest);
     }
 
     function _updateUnrealizedLosses(int256 lossesAdjustment_) internal {
-        unrealizedLosses = SafeCast.toUint128(
-            SafeCast.toUint256(SignedMath.max(SafeCast.toInt256(unrealizedLosses) + lossesAdjustment_, 0))
-        );
+        unrealizedLosses = SignedMath.max(unrealizedLosses.toInt256() + lossesAdjustment_, 0).toUint256().toUint128();
         emit UnrealizedLossesUpdated(unrealizedLosses);
     }
 
     function _updatePrincipalOut(int256 principalOutAdjustment_) internal {
-        principalOut = SafeCast.toUint128(
-            SafeCast.toUint256(SignedMath.max(SafeCast.toInt256(principalOut) + principalOutAdjustment_, 0))
-        );
+        principalOut = SignedMath.max(principalOut.toInt256() + principalOutAdjustment_, 0).toUint256().toUint128();
         emit PrincipalOutUpdated(principalOut);
     }
 
     // Clears all state variables to end a loan, but keep borrower and lender withdrawal functionality intact
     function _clearLoanAccounting(uint16 loanId_) internal {
-        LoanInfo storage loan_ = loans[loanId_];
+        LoanInfo storage loan_ = _loans[loanId_];
 
         loan_.gracePeriod = uint256(0);
         loan_.interestRate = uint256(0);
         loan_.lateInterestPremiumRate = uint256(0);
 
         loan_.dueDate = uint256(0);
-        loan_.principal = uint256(0);
         loan_.originalDueDate = uint256(0);
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                    INTERNAL STANDARD PROCEDURE UPDATE FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 
     function _advanceGlobalPaymentAccounting() internal {
         uint256 domainEnd_ = domainEnd;
@@ -637,7 +620,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         // Set end domain to current time if there are no payments left, else set it to the earliest payment's due date
         emit IssuanceParamsUpdated(
-            domainEnd = earliestPayment_ == 0 ? SafeCast.toUint48(block.timestamp) : payments[earliestPayment_].dueDate,
+            domainEnd = earliestPayment_ == 0 ? block.timestamp.toUint48() : payments[earliestPayment_].dueDate,
             issuanceRate = issuanceRate_,
             accountedInterest = accountedInterest_
         );
@@ -648,7 +631,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     //////////////////////////////////////////////////////////////////////////*/
 
     function _compareAndSubtractAccountedInterest(uint256 amount_) internal {
-        // Rounding errors accrue in `accountedInterest` when loans are late and the issuance rate is used to calculate
+        // Rounding errors accrue in `accountedInterest` when _loans are late and the issuance rate is used to calculate
         // the interest more often to increment than to decrement.
         // When this is the case, the underflow is prevented on the last decrement by using the minimum of the two
         // values below.
@@ -807,7 +790,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 adminFeeRate_ = IPoolConfigurator(_poolConfigurator()).adminFeeRate();
         uint256 feeRate_ = protocolFeeRate_ + adminFeeRate_;
 
-        LoanInfo memory loan_ = loans[loanId_];
+        LoanInfo memory loan_ = _loans[loanId_];
 
         uint256 interest_ = _getInterest(loan_.principal, loan_.interestRate, dueDate_ - startDate_);
         newRate_ = (_getNetInterest(interest_, feeRate_) * PRECISION) / (dueDate_ - startDate_);
@@ -907,87 +890,38 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         address fundsAsset_ = fundsAsset;
 
-        if (!_transfer(fundsAsset_, _pool(), principal_ + netInterest_)) {
-            revert Errors.LoanManager_PoolFundsTransferFailed();
-        }
-        if (!_transfer(fundsAsset_, _poolAdmin(), adminFee_)) {
-            revert Errors.LoanManager_PoolAdminFundsTransferFailed();
-        }
-        if (!_transfer(fundsAsset_, _vault(), protocolFee_)) {
-            revert Errors.LoanManager_VaultFundsTransferFailed();
-        }
-    }
-
-    function _distributeLiquidationFunds(
-        uint16 loanId_,
-        uint256 recoveredFunds_,
-        uint256 protocolFees_,
-        uint256 remainingLosses_
-    )
-        internal
-        returns (uint256 updatedRemainingLosses_, uint256 updatedProtocolFees_)
-    {
-        uint256 toVault_ = _min(recoveredFunds_, protocolFees_);
-
-        recoveredFunds_ -= toVault_;
-
-        updatedProtocolFees_ = (protocolFees_ -= toVault_);
-
-        uint256 toPool_ = _min(recoveredFunds_, remainingLosses_);
-
-        recoveredFunds_ -= toPool_;
-
-        updatedRemainingLosses_ = (remainingLosses_ -= toPool_);
-
-        address fundsAsset_ = fundsAsset;
-
-        if (!_transfer(fundsAsset_, loans[loanId_].borrower, recoveredFunds_)) {
-            revert Errors.LoanManager_BorrowerFundsTransferFailed();
-        }
-        if (!_transfer(fundsAsset_, _pool(), toPool_)) {
-            revert Errors.LoanManager_PoolFundsTransferFailed();
-        }
-        if (!_transfer(fundsAsset_, _vault(), toVault_)) {
-            revert Errors.LoanManager_VaultFundsTransferFailed();
-        }
+        IERC20(fundsAsset_).safeTransfer(_pool(), principal_ + netInterest_);
+        IERC20(fundsAsset_).safeTransfer(_poolAdmin(), adminFee_);
+        IERC20(fundsAsset_).safeTransfer(_vault(), protocolFee_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                    INTERNAL LOAN REPOSESSION FUNCTIONS
+                    INTERNAL LOAN DEFAULT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _handleReposession(
+    function _handleDefault(
         uint16 loanId_,
-        uint256 protocolFees_,
         uint256 netInterest_,
         uint256 netLateInterest_
     )
         internal
-        returns (uint256 remainingLosses_, uint256 updatedProtocolFees_)
+        returns (uint256 remainingLosses_)
     {
-        LoanInfo memory loan_ = loans[loanId_];
+        LoanInfo memory loan_ = _loans[loanId_];
 
         uint256 principal_ = loan_.principal;
 
         // Reduce principal out, since it has been accounted for in the liquidation
-        emit PrincipalOutUpdated(principalOut -= SafeCast.toUint128(principal_));
+        emit PrincipalOutUpdated(principalOut -= principal_.toUint128());
 
         // Calculate the late interest if a late payment was made
         remainingLosses_ = principal_ + netInterest_ + netLateInterest_;
 
         if (loan_.isImpaired) {
             // Remove unrealized losses that `impairLoan` previously accounted for
-            emit UnrealizedLossesUpdated(unrealizedLosses -= SafeCast.toUint128(principal_ + netInterest_));
+            emit UnrealizedLossesUpdated(unrealizedLosses -= (principal_ + netInterest_).toUint128());
             delete liquidationInfoFor[loanId_];
         }
-
-        // Recover funds that have not been drawn
-        uint256 recoveredFunds_ = loan_.drawableFunds;
-        loans[loanId_].drawableFunds = uint256(0);
-
-        (remainingLosses_, updatedProtocolFees_) = recoveredFunds_ == 0
-            ? (remainingLosses_, protocolFees_)
-            : _distributeLiquidationFunds(loanId_, recoveredFunds_, protocolFees_, remainingLosses_);
 
         _compareAndSubtractAccountedInterest(netInterest_);
 
@@ -1008,7 +942,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     function _revertIfNotPoolAdminOrGovernor() internal view {
         if (msg.sender != _poolAdmin() && msg.sender != _governor()) {
-            revert Errors.NotPoolAdminOrGovernor({ caller: msg.sender });
+            revert Errors.NotPoolAdminOrGovernor({ caller_: msg.sender });
         }
     }
 
@@ -1018,8 +952,22 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
     }
 
-    function _transfer(address asset_, address to_, uint256 amount_) internal returns (bool success_) {
-        success_ = (to_ != address(0)) && ((amount_ == 0) || IERC20(asset_).transfer(to_, amount_));
+    function _revertIfInvalidReceivable(
+        uint256 receivablesTokenId_,
+        address buyer_,
+        address seller_,
+        uint256 repaymentTimestamp_
+    )
+        internal
+        view
+    {
+        IPoolConfigurator poolConfigurator_ = IPoolConfigurator(_poolConfigurator());
+        if (
+            !poolConfigurator_.isBuyer(buyer_) || !poolConfigurator_.isSeller(seller_)
+                || repaymentTimestamp_ < block.timestamp
+        ) {
+            revert Errors.LoanManager_InvalidReceivable({ receivablesTokenId_: receivablesTokenId_ });
+        }
     }
 
     function _min(uint256 a_, uint256 b_) internal pure returns (uint256 minimum_) {
