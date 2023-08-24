@@ -65,8 +65,13 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         assertAlmostEq(exitShares, result.intoUint256(), _delta_);
     }
 
-    // TODO: complete this test after implementing loanManager
-    function test_getEscrowParams() public { }
+    function test_getEscrowParams() public {
+        (uint256 escrowShares_, address destination_) =
+            wrappedPoolConfiguratorProxy.getEscrowParams(users.receiver, 1000e6);
+
+        assertEq(escrowShares_, 1000e6);
+        assertEq(destination_, address(wrappedPoolConfiguratorProxy));
+    }
 
     function test_maxDepoist() public {
         assertEq(wrappedPoolConfiguratorProxy.maxDeposit(users.receiver), 1_000_000e6);
