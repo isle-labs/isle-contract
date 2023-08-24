@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import "./Integration.t.sol";
-import { Pool } from "../../contracts/Pool.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
+
+import { Pool } from "../../contracts/Pool.sol";
+
+import { IntegrationTest } from "./Integration.t.sol";
 
 // Notice that this contract is for testing internal functions of Pool contract
 contract PoolHarness is Pool {

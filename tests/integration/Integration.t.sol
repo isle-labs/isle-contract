@@ -3,7 +3,10 @@ pragma solidity ^0.8.19;
 
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { ITransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+
 import { Errors } from "../../contracts/libraries/Errors.sol";
+import { UUPSProxy } from "../../contracts/libraries/upgradability/UUPSProxy.sol";
+
 import { Receivable } from "../../contracts/Receivable.sol";
 import { PoolAddressesProvider } from "../../contracts/PoolAddressesProvider.sol";
 import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
@@ -11,7 +14,8 @@ import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { LoanManager } from "../../contracts/LoanManager.sol";
 import { WithdrawalManager } from "../../contracts/WithdrawalManager.sol";
 import { IPool } from "../../contracts/interfaces/IPool.sol";
-import "../BaseTest.t.sol";
+
+import { BaseTest } from "../BaseTest.t.sol";
 
 contract IntegrationTest is BaseTest {
     /*//////////////////////////////////////////////////////////////////////////

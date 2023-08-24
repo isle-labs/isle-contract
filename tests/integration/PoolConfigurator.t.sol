@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "./Integration.t.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
+import { Errors } from "../../contracts/libraries/Errors.sol";
+
+import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfiguratorEvents } from "../../contracts/interfaces/pool/IPoolConfiguratorEvents.sol";
+import { IPool } from "../../contracts/interfaces/IPool.sol";
+
+import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
+import { IntegrationTest } from "./Integration.t.sol";
 
 contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
     uint256 internal _delta_ = 1e6;

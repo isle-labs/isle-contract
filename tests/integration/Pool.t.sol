@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import "./Integration.t.sol";
+import { Errors } from "../../contracts/libraries/Errors.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
+import { IntegrationTest } from "./Integration.t.sol";
 import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
 
 contract PoolTest is IntegrationTest {
