@@ -29,36 +29,36 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
          */
 
         vm.prank(users.governor);
-        wrappedLopoProxy.upgradeTo(address(globalsV2));
+        wrappedLopoGlobalsProxy.upgradeTo(address(globalsV2));
 
         // re-wrap the proxy to the new implementation
-        MockLopoGlobalsV2 wrappedLopoProxyV2 = MockLopoGlobalsV2(address(LopoProxy));
+        MockLopoGlobalsV2 wrappedLopoGlobalsProxyV2 = MockLopoGlobalsV2(address(LopoGlobalsProxy));
 
-        assertEq(wrappedLopoProxyV2.governor(), users.governor);
+        assertEq(wrappedLopoGlobalsProxyV2.governor(), users.governor);
 
         // @notice: in our mock, we inherit from LopoGlobals
         // which means the REVISON still = 0x1
-        // so we cannot do wrappedLopoProxyV2.initialize(governorV2)
+        // so we cannot do wrappedLopoGlobalsProxyV2.initialize(governorV2)
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(governorV2);
         vm.prank(users.governor);
-        wrappedLopoProxy.setPendingLopoGovernor(governorV2);
+        wrappedLopoGlobalsProxy.setPendingLopoGovernor(governorV2);
 
-        assertEq(wrappedLopoProxy.pendingLopoGovernor(), governorV2);
+        assertEq(wrappedLopoGlobalsProxy.pendingLopoGovernor(), governorV2);
 
         vm.expectEmit(true, true, true, true);
         emit GovernorshipAccepted(users.governor, governorV2);
         vm.prank(governorV2);
-        wrappedLopoProxy.acceptLopoGovernor();
-        assertEq(wrappedLopoProxy.governor(), governorV2);
+        wrappedLopoGlobalsProxy.acceptLopoGovernor();
+        assertEq(wrappedLopoGlobalsProxy.governor(), governorV2);
 
-        assertTrue(wrappedLopoProxyV2.isBuyer(users.buyer));
+        assertTrue(wrappedLopoGlobalsProxyV2.isBuyer(users.buyer));
 
         vm.prank(governorV2);
-        assertFalse(wrappedLopoProxyV2.isBuyer(users.seller));
+        assertFalse(wrappedLopoGlobalsProxyV2.isBuyer(users.seller));
 
         // new function in mockV2
-        string memory text = wrappedLopoProxyV2.upgradeV2Test();
+        string memory text = wrappedLopoGlobalsProxyV2.upgradeV2Test();
         assertEq(text, "Hello World V2");
     }
 
@@ -66,29 +66,29 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(governorV2);
         vm.prank(users.governor);
-        wrappedLopoProxy.setPendingLopoGovernor(governorV2);
+        wrappedLopoGlobalsProxy.setPendingLopoGovernor(governorV2);
 
-        assertEq(wrappedLopoProxy.pendingLopoGovernor(), governorV2);
+        assertEq(wrappedLopoGlobalsProxy.pendingLopoGovernor(), governorV2);
 
         vm.expectEmit(true, true, true, true);
         emit GovernorshipAccepted(users.governor, governorV2);
         vm.prank(governorV2);
-        wrappedLopoProxy.acceptLopoGovernor();
-        assertEq(wrappedLopoProxy.governor(), governorV2);
+        wrappedLopoGlobalsProxy.acceptLopoGovernor();
+        assertEq(wrappedLopoGlobalsProxy.governor(), governorV2);
     }
 
     function test_Revert_IfZeroAddress_setLopoVault() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
         vm.prank(users.governor);
-        wrappedLopoProxy.setLopoVault(address(0));
+        wrappedLopoGlobalsProxy.setLopoVault(address(0));
     }
 
     function test_setProtocolPause() public {
         vm.expectEmit(true, true, true, true);
         emit ProtocolPauseSet(users.governor, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setProtocolPause(true);
-        assertTrue(wrappedLopoProxy.protocolPaused());
+        wrappedLopoGlobalsProxy.setProtocolPause(true);
+        assertTrue(wrappedLopoGlobalsProxy.protocolPaused());
     }
 
     function test_setValidPoolAdmin_setPoolConfigurator_transferOwnedPoolConfigurator() public {
@@ -100,34 +100,34 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAdminSet(mockPoolAdmin, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidPoolAdmin(mockPoolAdmin, true);
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(mockPoolAdmin), address(0));
-        assertEq(wrappedLopoProxy.isPoolAdmin(mockPoolAdmin), true);
+        wrappedLopoGlobalsProxy.setValidPoolAdmin(mockPoolAdmin, true);
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(mockPoolAdmin), address(0));
+        assertEq(wrappedLopoGlobalsProxy.isPoolAdmin(mockPoolAdmin), true);
 
         // set the pool configurator to the pool admin
         vm.expectEmit(true, true, true, true);
         emit PoolConfiguratorSet(mockPoolAdmin, mockPoolConfigurator);
         vm.prank(users.governor);
-        wrappedLopoProxy.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
+        wrappedLopoGlobalsProxy.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
 
         // before onboard the next pool admin
-        assertTrue(!wrappedLopoProxy.isPoolAdmin(mockNextPoolAdmin));
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
+        assertTrue(!wrappedLopoGlobalsProxy.isPoolAdmin(mockNextPoolAdmin));
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
         // onboard the next pool admin
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidPoolAdmin(mockNextPoolAdmin, true);
-        assertTrue(wrappedLopoProxy.isPoolAdmin(mockNextPoolAdmin));
+        wrappedLopoGlobalsProxy.setValidPoolAdmin(mockNextPoolAdmin, true);
+        assertTrue(wrappedLopoGlobalsProxy.isPoolAdmin(mockNextPoolAdmin));
 
         // transfer the pool configurator from the pool admin to the next pool admin
         vm.expectEmit(true, true, true, true);
         emit PoolConfiguratorOwnershipTransferred(mockPoolAdmin, mockNextPoolAdmin, mockPoolConfigurator);
         vm.prank(mockPoolConfigurator);
-        wrappedLopoProxy.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(mockPoolAdmin), address(0));
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
-        assertTrue(wrappedLopoProxy.isPoolAdmin(mockPoolAdmin));
-        assertTrue(wrappedLopoProxy.isPoolAdmin(mockNextPoolAdmin));
+        wrappedLopoGlobalsProxy.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(mockPoolAdmin), address(0));
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
+        assertTrue(wrappedLopoGlobalsProxy.isPoolAdmin(mockPoolAdmin));
+        assertTrue(wrappedLopoGlobalsProxy.isPoolAdmin(mockNextPoolAdmin));
     }
 
     function test_setValidReceivable() public {
@@ -135,8 +135,8 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ValidReceivableSet(mockReceivable, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidReceivable(mockReceivable, true);
-        assertTrue(wrappedLopoProxy.isReceivable(mockReceivable));
+        wrappedLopoGlobalsProxy.setValidReceivable(mockReceivable, true);
+        assertTrue(wrappedLopoGlobalsProxy.isReceivable(mockReceivable));
     }
 
     function test_setValidBuyer() public {
@@ -144,8 +144,8 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ValidBuyerSet(mockBuyer, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidBuyer(mockBuyer, true);
-        assertTrue(wrappedLopoProxy.isBuyer(mockBuyer));
+        wrappedLopoGlobalsProxy.setValidBuyer(mockBuyer, true);
+        assertTrue(wrappedLopoGlobalsProxy.isBuyer(mockBuyer));
     }
 
     function test_setValidCollateralAsset() public {
@@ -153,9 +153,9 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ValidCollateralAssetSet(mockCollateralAsset, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidCollateralAsset(mockCollateralAsset, true);
-        assertTrue(wrappedLopoProxy.isCollateralAsset(mockCollateralAsset));
-        assertFalse(wrappedLopoProxy.isCollateralAsset(users.seller));
+        wrappedLopoGlobalsProxy.setValidCollateralAsset(mockCollateralAsset, true);
+        assertTrue(wrappedLopoGlobalsProxy.isCollateralAsset(mockCollateralAsset));
+        assertFalse(wrappedLopoGlobalsProxy.isCollateralAsset(users.seller));
     }
 
     function test_setValidPoolAsset() public {
@@ -163,9 +163,9 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAssetSet(mockPoolAsset, true);
         vm.prank(users.governor);
-        wrappedLopoProxy.setValidPoolAsset(mockPoolAsset, true);
-        assertTrue(wrappedLopoProxy.isPoolAsset(mockPoolAsset));
-        assertFalse(wrappedLopoProxy.isPoolAsset(users.seller));
+        wrappedLopoGlobalsProxy.setValidPoolAsset(mockPoolAsset, true);
+        assertTrue(wrappedLopoGlobalsProxy.isPoolAsset(mockPoolAsset));
+        assertFalse(wrappedLopoGlobalsProxy.isPoolAsset(users.seller));
     }
 
     function test_setRiskFreeRate() public {
@@ -174,16 +174,16 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
 
         emit RiskFreeRateSet(newRiskFreeRate_);
         vm.prank(users.governor);
-        wrappedLopoProxy.setRiskFreeRate(newRiskFreeRate_);
-        assertEq(wrappedLopoProxy.riskFreeRate(), newRiskFreeRate_);
+        wrappedLopoGlobalsProxy.setRiskFreeRate(newRiskFreeRate_);
+        assertEq(wrappedLopoGlobalsProxy.riskFreeRate(), newRiskFreeRate_);
     }
 
     function test_setMinPoolLiquidityRatio() public {
         vm.expectEmit(true, true, true, true);
         emit MinPoolLiquidityRatioSet(0.05e18);
         vm.prank(users.governor);
-        wrappedLopoProxy.setMinPoolLiquidityRatio(ud(0.05e18));
-        assertEq(wrappedLopoProxy.minPoolLiquidityRatio().intoUint256(), 0.05e18);
+        wrappedLopoGlobalsProxy.setMinPoolLiquidityRatio(ud(0.05e18));
+        assertEq(wrappedLopoGlobalsProxy.minPoolLiquidityRatio().intoUint256(), 0.05e18);
     }
 
     function test_setProtocolFeeRate() public {
@@ -191,8 +191,8 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit ProtocolFeeRateSet(POOL_ADDRESS, PROTOCOL_FEE);
         vm.prank(users.governor);
-        wrappedLopoProxy.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
-        assertEq(wrappedLopoProxy.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
+        wrappedLopoGlobalsProxy.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
+        assertEq(wrappedLopoGlobalsProxy.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
     }
 
     function test_setMinDepositLimit() public {
@@ -200,8 +200,8 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit MinDepositLimitSet(mockPoolConfigurator, 100e18);
         vm.prank(users.governor);
-        wrappedLopoProxy.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
-        assertEq(wrappedLopoProxy.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
+        wrappedLopoGlobalsProxy.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
+        assertEq(wrappedLopoGlobalsProxy.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
     }
 
     function test_setWithdrawalDurationInDays() public {
@@ -209,7 +209,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
         emit WithdrawalDurationInDaysSet(mockPoolConfigurator, 30);
         vm.prank(users.governor);
-        wrappedLopoProxy.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
-        assertEq(wrappedLopoProxy.withdrawalDurationInDays(mockPoolConfigurator), 30);
+        wrappedLopoGlobalsProxy.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
+        assertEq(wrappedLopoGlobalsProxy.withdrawalDurationInDays(mockPoolConfigurator), 30);
     }
 }

@@ -87,12 +87,12 @@ contract ReceivableTest is IntegrationTest, IReceivableEvent {
     }
 
     function test_setLopoGlobals() public {
-        assertEq(wrappedReceivableProxy.lopoGlobals(), address(wrappedLopoProxy));
+        assertEq(wrappedReceivableProxy.lopoGlobals(), address(wrappedLopoGlobalsProxy));
 
         // since Receivable also have governor(), we use ReceivableV1 to pretend new LopoGlobals
         address mockLopoGlobals = address(wrappedReceivableProxy);
         vm.expectEmit(true, true, true, true);
-        emit LopoGlobalsSet(address(wrappedLopoProxy), mockLopoGlobals);
+        emit LopoGlobalsSet(address(wrappedLopoGlobalsProxy), mockLopoGlobals);
         vm.prank(wrappedReceivableProxy.governor());
         wrappedReceivableProxy.setLopoGlobals(mockLopoGlobals);
         assertEq(wrappedReceivableProxy.lopoGlobals(), mockLopoGlobals);

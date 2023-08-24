@@ -54,7 +54,7 @@ contract IntegrationTest is BaseTest {
 
         // record that the pool admin owns specific pool configuarator
         vm.prank(users.governor);
-        wrappedLopoProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
+        wrappedLopoGlobalsProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
 
         pool = IPool(wrappedPoolConfiguratorProxy.getPool());
 
@@ -67,7 +67,7 @@ contract IntegrationTest is BaseTest {
 
     function test_setUpStateIntegration() public {
         // check that the pool admin owns the pool configurator
-        assertEq(wrappedLopoProxy.ownedPoolConfigurator(users.pool_admin), address(wrappedPoolConfiguratorProxy));
+        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(users.pool_admin), address(wrappedPoolConfiguratorProxy));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -78,12 +78,12 @@ contract IntegrationTest is BaseTest {
         receivableV1 = new Receivable();
         ReceivableProxy = new UUPSProxy(address(receivableV1), "");
         wrappedReceivableProxy = Receivable(address(ReceivableProxy));
-        wrappedReceivableProxy.initialize(address(wrappedLopoProxy));
+        wrappedReceivableProxy.initialize(address(wrappedLopoGlobalsProxy));
     }
 
     function _setUpPoolAddressesProvider() internal {
         poolAddressesProvider =
-            new PoolAddressesProvider("BSOS Green Finance", users.pool_admin, address(wrappedLopoProxy));
+            new PoolAddressesProvider("BSOS Green Finance", users.pool_admin, address(wrappedLopoGlobalsProxy));
     }
 
     function _setUpPoolConfigurator() internal {
