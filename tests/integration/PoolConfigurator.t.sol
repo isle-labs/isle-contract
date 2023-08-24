@@ -160,16 +160,16 @@ contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
         assertEq(wrappedPoolConfiguratorProxy.poolAdmin(), address(users.receiver));
     }
 
-    function test_setValidBorrower() public {
-        assertTrue(wrappedPoolConfiguratorProxy.isBorrower(address(users.seller)));
+    function test_setValidBuyer() public {
+        assertTrue(wrappedPoolConfiguratorProxy.isBuyer(address(users.buyer)));
 
         vm.expectEmit(true, true, true, true);
-        emit ValidBorrowerSet(address(users.seller), false);
+        emit ValidBuyerSet(address(users.buyer), false);
 
         vm.prank(users.pool_admin);
-        wrappedPoolConfiguratorProxy.setValidBorrower(address(users.seller), false);
+        wrappedPoolConfiguratorProxy.setValidBuyer(address(users.buyer), false);
 
-        assertFalse(wrappedPoolConfiguratorProxy.isBorrower(address(users.seller)));
+        assertFalse(wrappedPoolConfiguratorProxy.isBuyer(address(users.buyer)));
     }
 
     function test_setValidLender() public {

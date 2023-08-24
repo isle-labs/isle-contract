@@ -13,7 +13,8 @@ interface IPoolConfiguratorEvents {
     event IsLoanManagerSet(address indexed loanManager_, bool isLoanManager_);
     event LiquidityCapSet(uint256 liquidityCap_);
     event LoanManagerAdded(address indexed loanManager_);
-    event ValidBorrowerSet(address indexed borrower_, bool isValid_);
+    event ValidSellerSet(address indexed seller_, bool isValid_);
+    event ValidBuyerSet(address indexed buyer_, bool isValid_);
     event ValidLenderSet(address indexed lender_, bool isValid_);
     event OpenToPublic(bool isOpenToPublic_);
     event PendingPoolAdminAccepted(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);

@@ -24,10 +24,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
 
     function minCoverAmount(address poolConfigurator_) external view returns (uint256 minCover_);
 
-    function riskPremiumFor(address borrower_) external view returns (uint256 riskPremium_);
-
-    function creditExpirationFor(address borrower_) external view returns (uint256 creditExpiration_);
-
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
 
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);

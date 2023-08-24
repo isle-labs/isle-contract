@@ -104,7 +104,6 @@ abstract contract BaseTest is PRBTest, StdCheats {
         wrappedLopoGlobalsProxy.setValidBuyer(users.buyer, true);
         wrappedLopoGlobalsProxy.setValidPoolAdmin(users.pool_admin, true);
         vm.stopPrank();
-        // TODO: onboard seller (borrower) in poolConfigurator
     }
 
     function _printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {

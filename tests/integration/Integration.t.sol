@@ -162,7 +162,7 @@ contract IntegrationTest is BaseTest {
     function _onboardUsersToConfigurator() internal {
         vm.startPrank(users.pool_admin);
         wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
-        wrappedPoolConfiguratorProxy.setValidBorrower(users.seller, true);
+        wrappedPoolConfiguratorProxy.setValidBuyer(users.buyer, true);
         vm.stopPrank();
     }
 

@@ -2,13 +2,14 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Adminable } from "./abstracts/Adminable.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
-import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import { Errors } from "./libraries/Errors.sol";
+
+import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { Adminable } from "./abstracts/Adminable.sol";
 
 contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
@@ -68,10 +69,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => uint256) public override protocolFeeRate;
 
     mapping(address => PoolAdmin) public override poolAdmins;
-
-    // Borrower
-    mapping(address => uint256) public override riskPremiumFor;
-    mapping(address => uint256) public override creditExpirationFor;
 
     /*//////////////////////////////////////////////////////////////////////////
                             Initialization
