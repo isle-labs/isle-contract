@@ -53,6 +53,7 @@ interface ILoanManager is ILoanManagerStorage, ILoanManagerEvents {
     /// @param fee_                     PoolAdmin Fees
     /// @return loanId_                 Id of the loan that is created
     function approveLoan(
+        address collateralAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,

@@ -82,7 +82,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
+                                EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ILoanManager
@@ -140,7 +140,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL CONSTANT FUNCTIONS
+                            EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ILoanManager
@@ -151,6 +151,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     /// @inheritdoc ILoanManager
     function approveLoan(
+        address collateralAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,
@@ -162,7 +163,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         whenNotPaused
         returns (uint16 loanId_)
     {
-        address collateralAsset_ = collateralAsset;
+        // Check if the collateral asset is in the allowed list in LopoGlobals
+        if (!ILopoGlobals(_globals()).isCollateralAsset(collateralAsset_)) {
+            revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
+        }
 
         ReceivableStorage.ReceivableInfo memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);

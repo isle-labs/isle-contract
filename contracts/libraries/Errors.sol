@@ -125,6 +125,8 @@ library Errors {
     /// @notice Thrown when the loan is past due date
     error LoanManager_PastDueDate(uint16 loanId_, uint256 dueDate_, uint256 currentTimestamp_);
 
+    error LoanManager_CollateralAssetNotAllowed(address collateralAsset_);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
     //////////////////////////////////////////////////////////////////////////*/
