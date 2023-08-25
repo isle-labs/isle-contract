@@ -98,7 +98,6 @@ contract Receivable is
     )
         external
         override
-        onlyBuyer
         returns (uint256 tokenId_)
     {
         tokenId_ = _tokenIdCounter;

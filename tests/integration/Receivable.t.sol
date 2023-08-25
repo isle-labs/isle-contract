@@ -49,7 +49,6 @@ contract ReceivableTest is IntegrationTest, IReceivableEvent {
         vm.expectEmit(true, true, true, true);
         emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 1 days);
 
-        // caller of createReceivable() should be buyer
         vm.prank(users.buyer);
         wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
 
