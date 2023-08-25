@@ -83,13 +83,6 @@ interface ILopoGlobalsEvents {
      */
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
-    /**
-     *  @dev   A valid receivable was set.
-     *  @param receivable_ The address of the receivable.
-     *  @param isValid_    The validity of the receivable.
-     */
-    event ValidReceivableSet(address indexed receivable_, bool isValid_);
-
     event RiskFreeRateSet(uint256 indexed riskFreeRate_);
 
     event MinPoolLiquidityRatioSet(uint256 indexed minPoolLiquidityRatio_);

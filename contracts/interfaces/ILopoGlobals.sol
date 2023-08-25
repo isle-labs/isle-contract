@@ -48,8 +48,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function governor() external view returns (address governor_);
 
-    function isReceivable(address receivable_) external view returns (bool isReceivable_);
-
     function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
 
     function isBuyer(address buyer_) external view returns (bool isBuyer_);
@@ -130,8 +128,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
     function setValidBuyer(address buyer_, bool isValid_) external;
-
-    function setValidReceivable(address receivable_, bool isValid_) external;
 
     function setRiskFreeRate(uint256 riskFreeRate_) external;
 

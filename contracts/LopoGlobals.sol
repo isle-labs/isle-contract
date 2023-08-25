@@ -54,7 +54,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     uint256 public override gracePeriod;
     uint256 public override lateInterestExcessRate;
 
-    mapping(address => bool) public override isReceivable;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
 
@@ -226,14 +225,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         }
         poolAdmins[poolAdmin_].ownedPoolConfigurator = poolConfigurator_;
         emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
-    }
-
-    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
-        if (receivable_ == address(0)) {
-            revert Errors.Globals_InvalidReceivable(receivable_);
-        }
-        isReceivable[receivable_] = isValid_;
-        emit ValidReceivableSet(receivable_, isValid_);
     }
 
     function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {

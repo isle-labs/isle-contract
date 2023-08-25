@@ -132,15 +132,6 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
         assertTrue(wrappedLopoGlobalsProxy.isPoolAdmin(mockNextPoolAdmin));
     }
 
-    function test_setValidReceivable() public {
-        address mockReceivable = address(new Address());
-        vm.expectEmit(true, true, true, true);
-        emit ValidReceivableSet(mockReceivable, true);
-        vm.prank(users.governor);
-        wrappedLopoGlobalsProxy.setValidReceivable(mockReceivable, true);
-        assertTrue(wrappedLopoGlobalsProxy.isReceivable(mockReceivable));
-    }
-
     function test_setValidBuyer() public {
         address mockBuyer = address(new Address());
         vm.expectEmit(true, true, true, true);
