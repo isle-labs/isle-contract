@@ -109,25 +109,24 @@ contract Pool is IPool, ERC20Permit {
     /**
      * @dev See {IERC4626-withdraw}.
      */
-    function withdraw(uint256 assets, address receiver, address owner) public override returns (uint256) {
-        if (assets > maxWithdraw(owner)) revert Errors.Pool_WithdrawMoreThanMax(assets, maxWithdraw(owner));
+    function withdraw(uint256 assets_, address receiver_, address owner_) public override returns (uint256 shares_) {
+        if (assets_ > maxWithdraw(owner_)) revert Errors.Pool_WithdrawMoreThanMax(assets_, maxWithdraw(owner_));
 
-        uint256 shares = previewWithdraw(assets);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        (shares_, assets_) = IPoolConfigurator(configurator).processWithdraw(assets_, owner_, _msgSender());
 
-        return shares;
+        _withdraw(_msgSender(), receiver_, owner_, assets_, shares_);
     }
 
     /**
      * @dev See {IERC4626-redeem}.
      */
-    function redeem(uint256 shares, address receiver, address owner) public override returns (uint256) {
-        if (shares > maxRedeem(owner)) revert Errors.Pool_RedeemMoreThanMax(shares, maxRedeem(owner));
+    function redeem(uint256 shares_, address receiver_, address owner_) public override returns (uint256 assets_) {
+        if (shares_ > maxRedeem(owner_)) revert Errors.Pool_RedeemMoreThanMax(shares_, maxRedeem(owner_));
 
-        uint256 assets = previewRedeem(shares);
-        _withdraw(_msgSender(), receiver, owner, assets, shares);
+        uint256 redeemableShares_;
+        (redeemableShares_, assets_) = IPoolConfigurator(configurator).processRedeem(shares_, owner_, _msgSender());
 
-        return assets;
+        _withdraw(_msgSender(), receiver_, owner_, assets_, redeemableShares_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

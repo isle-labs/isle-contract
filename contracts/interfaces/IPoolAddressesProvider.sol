@@ -1,9 +1,8 @@
-// SPDX-License-Identifier: AGPL-3.0
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
 /**
  * @title IPoolAddressesProvider
- * @author Aave
  * @notice Defines the basic interface for a Pool Addresses Provider.
  */
 interface IPoolAddressesProvider {
@@ -128,8 +127,9 @@ interface IPoolAddressesProvider {
      * setter function, in order to avoid unexpected consequences
      * @param id The id
      * @param newImplementationAddress The address of the new implementation
+     * @param params The intialization parameters for the proxied contract
      */
-    function setAddressAsProxy(bytes32 id, address newImplementationAddress) external;
+    function setAddressAsProxy(bytes32 id, address newImplementationAddress, bytes calldata params) external;
 
     /**
      * @notice Sets an address for an id replacing the address saved in the addresses map.
@@ -150,7 +150,7 @@ interface IPoolAddressesProvider {
      * setting the new `PoolConfigurator` implementation when the function is called for the first time.
      * @param newPoolConfiguratorImpl The new PoolConfigurator implementation
      */
-    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, bytes memory params) external;
+    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, bytes calldata params) external;
 
     /**
      * @notice Returns the address of the price oracle.
@@ -171,5 +171,5 @@ interface IPoolAddressesProvider {
     function setLoanManagerImpl(address newLoanManagerImpl) external;
 
     function getWithdrawalManager() external view returns (address);
-    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl) external;
+    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl, bytes calldata params) external;
 }

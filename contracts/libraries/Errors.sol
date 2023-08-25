@@ -6,11 +6,17 @@ library Errors {
                                     GENERICS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when `msg.sender` is not the admin.
+    /// @notice Thrown when `msg.sender` is not the expected one.
     error InvalidCaller(address caller, address expectedCaller);
 
     /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
     error NotPoolAdminOrGovernor(address caller_);
+
+    /// @notice Thrown when `msg.sender` is not the pool admin
+    error NotPoolAdmin(address caller_);
+
+    /// @notice Thrown when `msg.sender` is not the pool configurator
+    error NotPoolConfigurator(address caller_);
 
     error InvalidAddressProvider(address provider, address expectedProvider);
 
@@ -18,7 +24,7 @@ library Errors {
 
     error FunctionPaused(bytes4 sig);
 
-    error NotPoolAdmin(address caller);
+    error ProtocolPaused();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
@@ -136,7 +142,35 @@ library Errors {
     error Receivable_InvalidGlobals(address globals);
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Pool
+                                Withdrawal Manager
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Thrown when the window duration set is 0
+    error WithdrawalManager_ZeroWindow();
+
+    /// @notice Thrown when the window duration set is larger than the cycle duration
+    error WithdrawalManager_WindowGreaterThanCycle();
+
+    /// @notice Thrown when the withdrawal is still pending
+    error WithdrawalManager_WithdrawalPending(address owner_);
+
+    /// @notice Thrown when the action results in no change
+    error WithdrawalManager_NoOp(address owner_);
+
+    /// @notice Thrown when the owner removes more shares than they have
+    error WithdrawalManager_Overremove(address owner_, uint256 shares_, uint256 lockedShares_);
+
+    /// @notice Thrown when the owner has no withdrawal request (that is locked shares is zero)
+    error WithdrawalManager_NoRequest(address owner_);
+
+    /// @notice Thrown when the shares a owner requests to withdraw differs from their withdrawal request
+    error WithdrawalManager_InvalidShares(address owner_, uint256 requestedShares_, uint256 lockedShares_);
+
+    /// @notice Thrown when the current time is not in the owner's withdrawal window
+    error WithdrawalManager_NotInWindow(uint256 currentTimestamp_, uint256 windowStart_, uint256 windowEnd_);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    Pool
     //////////////////////////////////////////////////////////////////////////*/
 
     error Pool_ZeroAsset();
