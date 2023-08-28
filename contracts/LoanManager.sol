@@ -161,6 +161,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         external
         override
         whenNotPaused
+        onlyPoolAdmin
         returns (uint16 loanId_)
     {
         // Check if the collateral asset is in the allowed list in LopoGlobals
@@ -211,6 +212,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         _advanceGlobalPaymentAccounting();
 
+        // transfer funds from pool to loan manager
         uint256 principal_ = loan_.principal;
         IPoolConfigurator(_poolConfigurator()).requestFunds(principal_);
 
@@ -831,6 +833,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint24 current_ = uint24(0);
         uint24 next_ = paymentWithEarliestDueDate;
 
+        // Find the first payment in the list that has a due date later than the payment being added
+        // If the payment being added is the earliest, then `next_` will be 0
         while (next_ != 0 && paymentDueDate_ >= sortedPayments[next_].paymentDueDate) {
             current_ = next_;
             next_ = sortedPayments[current_].next;
