@@ -295,6 +295,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         uint256 withdrawalDurationInDays_
     )
         external
+        override
         onlyGovernor
     {
         emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);

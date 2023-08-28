@@ -5,11 +5,12 @@ import { StdCheats } from "@forge-std/StdCheats.sol";
 import { console } from "@forge-std/console.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
 import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
+
+import { MockERC20 } from "./mocks/MockERC20.sol";
 
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
@@ -34,7 +35,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    ERC20 internal usdc;
+    MockERC20 internal usdc;
     ILopoGlobals internal globalsV1;
     ILopoGlobals internal lopoGlobalsProxy;
 
@@ -43,7 +44,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new ERC20("Circle USD", "USDC");
+        usdc = new MockERC20("Circle USD", "USDC", 6);
 
         // create users for testing
         users = Users({
@@ -62,12 +63,6 @@ abstract contract BaseTest is PRBTest, StdCheats {
 
         // onboard users
         _onboardUsersAndAssetsToGlobals();
-    }
-
-    function test_setUpStateBase() public {
-        assertEq(lopoGlobalsProxy.governor(), users.governor);
-        assertEq(address(users.governor).balance, 100 ether);
-        assertEq(usdc.balanceOf(address(users.seller)), 1_000_000e6);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
