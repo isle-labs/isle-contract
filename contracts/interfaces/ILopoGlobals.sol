@@ -9,6 +9,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
                             CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function initialize(address governor_) external;
+
     function poolAdmins(address poolAdmin_) external view returns (address ownedPoolConfigurator_, bool isPoolAdmin_);
 
     function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
