@@ -4,15 +4,15 @@ pragma solidity ^0.8.19;
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-import { Errors } from "../../contracts/libraries/Errors.sol";
+import { Errors } from "../../../contracts/libraries/Errors.sol";
 
-import { MockLopoGlobalsV2 } from "../mocks/MockLopoGlobalsV2.sol";
+import { MockLopoGlobalsV2 } from "../../mocks/MockLopoGlobalsV2.sol";
 
-import { ILopoGlobalsEvents } from "../../contracts/interfaces/ILopoGlobalsEvents.sol";
+import { ILopoGlobalsEvents } from "../../../contracts/interfaces/ILopoGlobalsEvents.sol";
 
-import { Address } from "../accounts/Address.sol";
+import { Address } from "../../accounts/Address.sol";
 
-import { BaseTest } from "../BaseTest.t.sol";
+import { BaseTest } from "../../BaseTest.t.sol";
 
 contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%

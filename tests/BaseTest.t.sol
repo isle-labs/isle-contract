@@ -11,7 +11,7 @@ import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
 import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
 
-import { MockERC20 } from "./mocks/MockERC20.sol";
+import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
 
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
@@ -36,7 +36,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    MockERC20 internal usdc;
+    MintableERC20WithPermit internal usdc;
     ILopoGlobals internal globalsV1;
     ILopoGlobals internal lopoGlobalsProxy;
 
@@ -45,7 +45,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new MockERC20("Circle USD", "USDC", 6);
+        usdc = new MintableERC20WithPermit("Circle USD", "USDC", 6);
 
         // create users for testing
         users = Users({
