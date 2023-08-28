@@ -262,9 +262,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         minPoolLiquidityRatio = minPoolLiquidityRatio_;
     }
 
-    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external override onlyGovernor {
-        emit ProtocolFeeRateSet(pool_, protocolFeeRate_);
-        protocolFeeRate[pool_] = protocolFeeRate_;
+    function setProtocolFeeRate(address poolConfigurator_, uint256 protocolFeeRate_) external override onlyGovernor {
+        emit ProtocolFeeRateSet(poolConfigurator_, protocolFeeRate_);
+        protocolFeeRate[poolConfigurator_] = protocolFeeRate_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -111,7 +111,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function setProtocolPause(bool protocolPaused_) external;
 
-    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external;
+    function setProtocolFeeRate(address poolConfigurator_, uint256 protocolFeeRate_) external;
 
     /**
      *  @dev   Sets the validity of a collateral asset.
