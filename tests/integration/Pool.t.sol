@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { Errors } from "../../contracts/libraries/Errors.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { IntegrationTest } from "./Integration.t.sol";
+import { Errors } from "../../contracts/libraries/Errors.sol";
+
 import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
+
+import { IntegrationTest } from "./Integration.t.sol";
 
 contract PoolTest is IntegrationTest {
     uint256 internal _delta_ = 1e6;
@@ -23,6 +25,7 @@ contract PoolTest is IntegrationTest {
     function setUp() public override {
         super.setUp();
 
+        // Derive owner address from specified private key
         _owner = vm.addr(_skOwner);
     }
 
@@ -31,13 +34,13 @@ contract PoolTest is IntegrationTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_deposit() public {
-        assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
+        assertEq(pool.maxDeposit(users.receiver), 1_000_000e6); // Pool liquidity cap was set to this number
 
         uint256 oldCallerAsset = usdc.balanceOf(users.caller);
         uint256 oldReceiverShare = pool.balanceOf(users.receiver);
 
         vm.prank(users.caller);
-        pool.deposit(1000e6, users.receiver);
+        pool.deposit({ assets: 1000e6, receiver: users.receiver });
 
         uint256 newCallerAsset = usdc.balanceOf(users.caller);
         uint256 newReceiverShare = pool.balanceOf(users.receiver);
@@ -49,7 +52,7 @@ contract PoolTest is IntegrationTest {
     function test_depositWithPermit() public {
         assertEq(pool.maxDeposit(users.receiver), 1_000_000e6);
 
-        usdc.mint(_owner, 1_000_000e6);
+        deal({ token: address(usdc), to: _owner, give: 1_000_000e6 });
 
         uint256 oldCallerAsset = usdc.balanceOf(_owner);
         uint256 oldReceiverShare = pool.balanceOf(users.receiver);
@@ -77,7 +80,7 @@ contract PoolTest is IntegrationTest {
         uint256 oldReceiverShare = pool.balanceOf(users.receiver);
 
         vm.prank(users.caller);
-        pool.mint(1000e6, users.receiver);
+        pool.mint({ shares: 1000e6, receiver: users.receiver });
 
         uint256 newCallerAsset = usdc.balanceOf(users.caller);
         uint256 newReceiverShare = pool.balanceOf(users.receiver);
@@ -89,7 +92,7 @@ contract PoolTest is IntegrationTest {
     function test_mintWithPermit() public {
         assertEq(pool.maxMint(users.receiver), 1_000_000e6);
 
-        usdc.mint(_owner, 1_000_000e6);
+        deal({ token: address(usdc), to: _owner, give: 1_000_000e6 });
 
         uint256 oldCallerAsset = usdc.balanceOf(_owner);
         uint256 oldReceiverShare = pool.balanceOf(users.receiver);
@@ -117,7 +120,7 @@ contract PoolTest is IntegrationTest {
         vm.expectRevert(abi.encodeWithSelector(Errors.Pool_WithdrawMoreThanMax.selector, 1000e6, 0));
         // notice that we are withdrawing usdcs from users.receiver, not users.caller
         vm.startPrank(users.receiver);
-        pool.withdraw(1000e6, users.caller, users.receiver);
+        pool.withdraw({ assets: 1000e6, receiver: users.caller, owner: users.receiver });
     }
 
     // TODO: complete this test after implementing WithdrawalManager

@@ -1,22 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import { ITransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import { StdCheats } from "@forge-std/StdCheats.sol";
 
 import { Errors } from "../../contracts/libraries/Errors.sol";
 import { UUPSProxy } from "../../contracts/libraries/upgradability/UUPSProxy.sol";
 
 import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
+import { ILoanManager } from "../../contracts/interfaces/ILoanManager.sol";
 import { IWithdrawalManager } from "../../contracts/interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "../../contracts/interfaces/IPoolConfigurator.sol";
+import { IReceivable } from "../../contracts/interfaces/IReceivable.sol";
+import { IPool } from "../../contracts/interfaces/IPool.sol";
 
 import { Receivable } from "../../contracts/Receivable.sol";
 import { PoolAddressesProvider } from "../../contracts/PoolAddressesProvider.sol";
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { LoanManager } from "../../contracts/LoanManager.sol";
 import { WithdrawalManager } from "../../contracts/WithdrawalManager.sol";
-import { IPool } from "../../contracts/interfaces/IPool.sol";
 
 import { BaseTest } from "../BaseTest.t.sol";
 
@@ -25,23 +26,18 @@ contract IntegrationTest is BaseTest {
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    Receivable internal receivableV1;
-    UUPSProxy internal ReceivableProxy;
-    Receivable internal wrappedReceivableProxy;
+    IReceivable internal receivableV1;
+    IReceivable internal receivableProxy;
 
-    PoolAddressesProvider internal poolAddressesProvider; // Proxy Admin of below contracts
+    IPoolAddressesProvider internal poolAddressesProvider; // Proxy Admin of the following contracts
 
-    PoolConfigurator internal poolConfiguratorV1;
-    LoanManager internal loanManagerV1;
-    WithdrawalManager internal withdrawalManagerV1;
+    IPoolConfigurator internal poolConfiguratorV1;
+    ILoanManager internal loanManagerV1;
+    IWithdrawalManager internal withdrawalManagerV1;
 
-    ITransparentUpgradeableProxy internal poolConfiguratorProxy;
-    ITransparentUpgradeableProxy internal loanManagerProxy;
-    ITransparentUpgradeableProxy internal withdrawalManagerProxy;
-
-    PoolConfigurator internal wrappedPoolConfiguratorProxy;
-    LoanManager internal wrappedLoanManagerProxy;
-    WithdrawalManager internal wrappedWithdrawalManagerProxy;
+    IPoolConfigurator internal poolConfiguratorProxy;
+    ILoanManager internal loanManagerProxy;
+    IWithdrawalManager internal withdrawalManagerProxy;
 
     IPool internal pool;
 
@@ -61,20 +57,21 @@ contract IntegrationTest is BaseTest {
 
         // record that the pool admin owns specific pool configuarator
         vm.prank(users.governor);
-        wrappedLopoGlobalsProxy.setPoolConfigurator(users.pool_admin, address(wrappedPoolConfiguratorProxy));
+        lopoGlobalsProxy.setPoolConfigurator(users.pool_admin, address(poolConfiguratorProxy));
 
-        pool = IPool(wrappedPoolConfiguratorProxy.pool());
+        pool = IPool(poolConfiguratorProxy.pool());
 
         _approveProtocol();
 
         _onboardUsersToConfigurator();
 
+        // Set liquidity cap to allow deposits
         _setPoolLiquidityCap(1_000_000e6);
     }
 
     function test_setUpStateIntegration() public {
         // check that the pool admin owns the pool configurator
-        assertEq(wrappedLopoGlobalsProxy.ownedPoolConfigurator(users.pool_admin), address(wrappedPoolConfiguratorProxy));
+        assertEq(lopoGlobalsProxy.ownedPoolConfigurator(users.pool_admin), address(poolConfiguratorProxy));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -83,18 +80,17 @@ contract IntegrationTest is BaseTest {
 
     function _setUpReceivable() internal {
         receivableV1 = new Receivable();
-        ReceivableProxy = new UUPSProxy(address(receivableV1), "");
-        wrappedReceivableProxy = Receivable(address(ReceivableProxy));
-        wrappedReceivableProxy.initialize(address(wrappedLopoGlobalsProxy));
+        receivableProxy = IReceivable(address(new UUPSProxy(address(receivableV1), "")));
+        receivableProxy.initialize(address(lopoGlobalsProxy));
     }
 
     function _setUpPoolAddressesProvider() internal {
         poolAddressesProvider =
-            new PoolAddressesProvider("BSOS Green Finance", users.pool_admin, address(wrappedLopoGlobalsProxy));
+            new PoolAddressesProvider("BSOS Green Finance", users.pool_admin, address(lopoGlobalsProxy));
     }
 
     function _setUpPoolConfigurator() internal {
-        poolConfiguratorV1 = new PoolConfigurator(IPoolAddressesProvider(address(poolAddressesProvider)));
+        poolConfiguratorV1 = new PoolConfigurator(poolAddressesProvider);
 
         vm.startPrank(users.pool_admin);
         // set implementation to proxy in poolAddressesProvider
@@ -110,12 +106,11 @@ contract IntegrationTest is BaseTest {
         poolAddressesProvider.setPoolConfiguratorImpl(address(poolConfiguratorV1), params);
         vm.stopPrank();
 
-        poolConfiguratorProxy = ITransparentUpgradeableProxy(poolAddressesProvider.getPoolConfigurator());
-        wrappedPoolConfiguratorProxy = PoolConfigurator(address(poolConfiguratorProxy));
+        poolConfiguratorProxy = IPoolConfigurator(poolAddressesProvider.getPoolConfigurator());
     }
 
     function _setUpWithdrawalManager() internal {
-        withdrawalManagerV1 = new WithdrawalManager(IPoolAddressesProvider(address(poolAddressesProvider)));
+        withdrawalManagerV1 = new WithdrawalManager(poolAddressesProvider);
 
         vm.startPrank(users.pool_admin);
 
@@ -131,12 +126,11 @@ contract IntegrationTest is BaseTest {
         poolAddressesProvider.setWithdrawalManagerImpl(address(withdrawalManagerV1), params);
         vm.stopPrank();
 
-        withdrawalManagerProxy = ITransparentUpgradeableProxy(poolAddressesProvider.getWithdrawalManager());
-        wrappedWithdrawalManagerProxy = WithdrawalManager(address(withdrawalManagerProxy));
+        withdrawalManagerProxy = IWithdrawalManager(poolAddressesProvider.getWithdrawalManager());
     }
 
     function _setUpLoanManager() internal {
-        loanManagerV1 = new LoanManager(IPoolAddressesProvider(address(poolAddressesProvider)));
+        loanManagerV1 = new LoanManager(poolAddressesProvider);
 
         vm.startPrank(users.pool_admin);
         // set implementation to proxy in poolAddressesProvider
@@ -144,8 +138,7 @@ contract IntegrationTest is BaseTest {
         poolAddressesProvider.setLoanManagerImpl(address(loanManagerV1));
         vm.stopPrank();
 
-        loanManagerProxy = ITransparentUpgradeableProxy(poolAddressesProvider.getLoanManager());
-        wrappedLoanManagerProxy = LoanManager(address(loanManagerProxy));
+        loanManagerProxy = ILoanManager(poolAddressesProvider.getLoanManager());
     }
 
     function _setUpPoolSide() internal {
@@ -158,10 +151,10 @@ contract IntegrationTest is BaseTest {
 
     function _labelIntegrationContracts() internal {
         vm.label(address(poolAddressesProvider), "PoolAddressesProvider");
-        vm.label(address(wrappedReceivableProxy), "WrappedReceivableProxy");
-        vm.label(address(wrappedPoolConfiguratorProxy), "WrappedPoolConfiguratorProxy");
-        vm.label(address(wrappedLoanManagerProxy), "WrappedLoanManagerProxy");
-        vm.label(address(wrappedWithdrawalManagerProxy), "WrappedWithdrawalManagerProxy");
+        vm.label(address(receivableProxy), "ReceivableProxy");
+        vm.label(address(poolConfiguratorProxy), "PoolConfiguratorProxy");
+        vm.label(address(loanManagerProxy), "LoanManagerProxy");
+        vm.label(address(withdrawalManagerProxy), "WithdrawalManagerProxy");
     }
 
     function _approveProtocol() internal {
@@ -176,8 +169,8 @@ contract IntegrationTest is BaseTest {
 
     function _onboardUsersToConfigurator() internal {
         vm.startPrank(users.pool_admin);
-        wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
-        wrappedPoolConfiguratorProxy.setValidBuyer(users.buyer, true);
+        poolConfiguratorProxy.setValidLender(users.receiver, true);
+        poolConfiguratorProxy.setValidBuyer(users.buyer, true);
         vm.stopPrank();
     }
 
@@ -207,13 +200,13 @@ contract IntegrationTest is BaseTest {
         vm.stopPrank();
     }
 
-    function _airdropToPool(uint256 amount) internal {
-        usdc.mint(address(pool), amount);
-    }
-
     function _setPoolLiquidityCap(uint256 liquidityCap_) internal {
         vm.startPrank(users.pool_admin);
-        wrappedPoolConfiguratorProxy.setLiquidityCap(liquidityCap_);
+        poolConfiguratorProxy.setLiquidityCap(liquidityCap_);
         vm.stopPrank();
+    }
+
+    function _airdropToPool(uint256 amount_) internal {
+        usdc.mint(address(pool), amount_);
     }
 }

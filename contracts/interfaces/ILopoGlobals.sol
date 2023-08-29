@@ -2,12 +2,15 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
 import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 
 interface ILopoGlobals is ILopoGlobalsEvents {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function initialize(address governor_) external;
 
     function poolAdmins(address poolAdmin_) external view returns (address ownedPoolConfigurator_, bool isPoolAdmin_);
 
@@ -148,4 +151,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setMinCoverAmount(address poolConfigurator_, uint256 minCover_) external;
 
     function setMaxCoverLiquidationPercent(address poolConfigurator_, uint256 maxCoverLiquidationPercent_) external;
+
+    function setWithdrawalDurationInDays(address poolConfigurator_, uint256 withdrawalDurationInDays_) external;
 }

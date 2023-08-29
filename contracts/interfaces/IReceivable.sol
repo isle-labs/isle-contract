@@ -2,10 +2,18 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
 import { ReceivableStorage } from "../ReceivableStorage.sol";
 import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
 
 interface IReceivable is IReceivableEvent {
+    /*//////////////////////////////////////////////////////////////////////////
+                            UUPS FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function initialize(address lopoGlobals_) external;
+    function getImplementation() external view returns (address);
+
     function createReceivable(
         address seller_,
         UD60x18 faceAmount_,

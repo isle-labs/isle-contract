@@ -2,14 +2,18 @@
 pragma solidity ^0.8.19;
 
 import { StdCheats } from "@forge-std/StdCheats.sol";
-import { PRBTest } from "@prb-test/PRBTest.sol";
 import { console } from "@forge-std/console.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { PRBTest } from "@prb-test/PRBTest.sol";
+import { UD60x18 } from "@prb/math/UD60x18.sol";
+
+import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
+
+import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
 
 import { MockERC20 } from "./mocks/MockERC20.sol";
-import { LopoGlobals } from "../contracts/LopoGlobals.sol";
+
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
-import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
+import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 
 abstract contract BaseTest is PRBTest, StdCheats {
     struct Users {
@@ -32,16 +36,15 @@ abstract contract BaseTest is PRBTest, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     MockERC20 internal usdc;
-    LopoGlobals internal globalsV1;
-    UUPSProxy internal LopoGlobalsProxy;
-    LopoGlobals internal wrappedLopoGlobalsProxy;
+    ILopoGlobals internal globalsV1;
+    ILopoGlobals internal lopoGlobalsProxy;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new MockERC20("USDC", "USDC", 6);
+        usdc = new MockERC20("Circle USD", "USDC", 6);
 
         // create users for testing
         users = Users({
@@ -62,13 +65,6 @@ abstract contract BaseTest is PRBTest, StdCheats {
         _onboardUsersAndAssetsToGlobals();
     }
 
-    function test_setUpStateBase() public {
-        assertEq(wrappedLopoGlobalsProxy.governor(), users.governor);
-        assertEq(address(wrappedLopoGlobalsProxy), address(LopoGlobalsProxy));
-        assertEq(address(users.governor).balance, 100 ether);
-        assertEq(usdc.balanceOf(address(users.seller)), 1_000_000e6);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -77,18 +73,15 @@ abstract contract BaseTest is PRBTest, StdCheats {
         // Deploy the base test contracts
         globalsV1 = new LopoGlobals();
         // deploy LopoGlobalsProxy and point it to the implementation
-        LopoGlobalsProxy = new UUPSProxy(address(globalsV1), "");
-        // wrap in ABI to support easier calls
-        wrappedLopoGlobalsProxy = LopoGlobals(address(LopoGlobalsProxy));
+        lopoGlobalsProxy = ILopoGlobals(address(new UUPSProxy(address(globalsV1), "")));
         // initialize the LopoGlobalsProxy, assign the governor
-        wrappedLopoGlobalsProxy.initialize(users.governor);
+        lopoGlobalsProxy.initialize(users.governor);
     }
 
     function _labelBaseContracts() internal {
         vm.label(address(usdc), "USDC");
         vm.label(address(globalsV1), "globalsV1");
-        vm.label(address(LopoGlobalsProxy), "LopoGlobalsProxy");
-        vm.label(address(wrappedLopoGlobalsProxy), "wrappedLopoGlobalsProxy");
+        vm.label(address(lopoGlobalsProxy), "lopoGlobalsProxy");
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.
@@ -101,9 +94,9 @@ abstract contract BaseTest is PRBTest, StdCheats {
 
     function _onboardUsersAndAssetsToGlobals() internal {
         vm.startPrank(users.governor);
-        wrappedLopoGlobalsProxy.setValidPoolAsset(address(usdc), true);
-        wrappedLopoGlobalsProxy.setValidBuyer(users.buyer, true);
-        wrappedLopoGlobalsProxy.setValidPoolAdmin(users.pool_admin, true);
+        lopoGlobalsProxy.setValidPoolAsset(address(usdc), true);
+        lopoGlobalsProxy.setValidBuyer(users.buyer, true);
+        lopoGlobalsProxy.setValidPoolAdmin(users.pool_admin, true);
         vm.stopPrank();
     }
 

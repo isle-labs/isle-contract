@@ -32,7 +32,7 @@ contract Receivable is
 
     function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
 
-    function getImplementation() external view returns (address) {
+    function getImplementation() external view override returns (address) {
         return _getImplementation();
     }
 
@@ -68,7 +68,7 @@ contract Receivable is
     /**
      * @dev Initializer that sets the default admin and buyer roles
      */
-    function initialize(address lopoGlobals_) public initializer {
+    function initialize(address lopoGlobals_) external override initializer {
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
