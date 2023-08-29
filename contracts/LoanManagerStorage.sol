@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { ILoanManagerStorage } from "./interfaces/ILoanManagerStorage.sol";
 
 abstract contract LoanManagerStorage is ILoanManagerStorage {
