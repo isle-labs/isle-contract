@@ -19,11 +19,11 @@ contract ReceivableTest is IntegrationTest, IReceivableEvent {
 
     function test_createReceivable() public {
         vm.expectEmit(true, true, true, true);
-        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 1 days);
+        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 30 days);
 
         // caller of createReceivable() should be buyer
         vm.prank(users.buyer);
-        wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
+        wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 30 days, 804);
 
         uint256 tokenId = wrappedReceivableProxy.tokenOfOwnerByIndex(address(users.seller), 0);
 
@@ -40,17 +40,16 @@ contract ReceivableTest is IntegrationTest, IReceivableEvent {
         assertEq(RECVInfo.buyer, users.buyer);
         assertEq(RECVInfo.seller, users.seller);
         assertEq(RECVInfo.faceAmount.intoUint256(), 1000e18);
-        assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
+        assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 30 days);
         assertEq(RECVInfo.isValid, true);
         assertEq(RECVInfo.currencyCode, 804);
     }
 
     function test_canUpgrade_readDataFromV1() public {
         vm.expectEmit(true, true, true, true);
-        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 1 days);
+        emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 30 days);
 
-        vm.prank(users.buyer);
-        wrappedReceivableProxy.createReceivable(users.seller, ud(1000e18), block.timestamp + 1 days, 804);
+        _createReceivable(1000e18);
 
         MockReceivableV2 receivableV2 = new MockReceivableV2();
 
@@ -79,7 +78,7 @@ contract ReceivableTest is IntegrationTest, IReceivableEvent {
         assertEq(RECVInfo.buyer, users.buyer);
         assertEq(RECVInfo.seller, users.seller);
         assertEq(RECVInfo.faceAmount.intoUint256(), 1000e18);
-        assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 1 days);
+        assertEq(RECVInfo.repaymentTimestamp, block.timestamp + 30 days);
         assertEq(RECVInfo.isValid, true);
         assertEq(RECVInfo.currencyCode, 804);
 

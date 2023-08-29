@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { ITransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "../../contracts/libraries/Errors.sol";
 import { UUPSProxy } from "../../contracts/libraries/upgradability/UUPSProxy.sol";
@@ -62,7 +63,7 @@ contract IntegrationTest is BaseTest {
 
         pool = IPool(wrappedPoolConfiguratorProxy.pool());
 
-        _approveProtocol();
+        _approveToProtocol();
 
         _onboardUsersToConfigurator();
 
@@ -83,6 +84,11 @@ contract IntegrationTest is BaseTest {
         ReceivableProxy = new UUPSProxy(address(receivableV1), "");
         wrappedReceivableProxy = Receivable(address(ReceivableProxy));
         wrappedReceivableProxy.initialize(address(wrappedLopoGlobalsProxy));
+
+        // onboard collateral asset on globals
+        vm.startPrank(users.governor);
+        wrappedLopoGlobalsProxy.setValidCollateralAsset(address(wrappedReceivableProxy), true);
+        vm.stopPrank();
     }
 
     function _setUpPoolAddressesProvider() internal {
@@ -153,7 +159,7 @@ contract IntegrationTest is BaseTest {
         vm.label(address(wrappedWithdrawalManagerProxy), "WrappedWithdrawalManagerProxy");
     }
 
-    function _approveProtocol() internal {
+    function _approveToProtocol() internal {
         vm.startPrank(users.caller);
         usdc.approve(address(pool), type(uint256).max);
 
@@ -167,6 +173,7 @@ contract IntegrationTest is BaseTest {
         vm.startPrank(users.pool_admin);
         wrappedPoolConfiguratorProxy.setValidLender(users.receiver, true);
         wrappedPoolConfiguratorProxy.setValidBuyer(users.buyer, true);
+        wrappedPoolConfiguratorProxy.setValidSeller(users.seller, true);
         vm.stopPrank();
     }
 
@@ -204,5 +211,28 @@ contract IntegrationTest is BaseTest {
         vm.startPrank(users.pool_admin);
         wrappedPoolConfiguratorProxy.setLiquidityCap(liquidityCap_);
         vm.stopPrank();
+    }
+
+    function _createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
+        vm.prank(users.buyer);
+        receivablesTokenId_ =
+            wrappedReceivableProxy.createReceivable(users.seller, ud(faceAmount_), block.timestamp + 30 days, 804);
+    }
+
+    function _approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
+        address collateralAsset_ = address(wrappedReceivableProxy);
+        uint256 gracePeriod_ = 7;
+        uint256[2] memory rates_ = [uint256(0.12e6), uint256(0.2e6)];
+        uint256 fee_ = 0;
+
+        vm.prank(users.pool_admin);
+        loanId_ = wrappedLoanManagerProxy.approveLoan(
+            collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_, fee_
+        );
+    }
+
+    function _fundLoan(uint16 loanId_) internal {
+        vm.prank(users.pool_admin);
+        wrappedLoanManagerProxy.fundLoan(loanId_);
     }
 }
