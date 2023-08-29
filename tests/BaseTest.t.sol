@@ -5,12 +5,13 @@ import { StdCheats } from "@forge-std/StdCheats.sol";
 import { console } from "@forge-std/console.sol";
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { UD60x18 } from "@prb/math/UD60x18.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 
 import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
 
-import { MockERC20 } from "./mocks/MockERC20.sol";
+import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
 
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
@@ -35,7 +36,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    MockERC20 internal usdc;
+    MintableERC20WithPermit internal usdc;
     ILopoGlobals internal globalsV1;
     ILopoGlobals internal lopoGlobalsProxy;
 
@@ -44,7 +45,7 @@ abstract contract BaseTest is PRBTest, StdCheats {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new MockERC20("Circle USD", "USDC", 6);
+        usdc = new MintableERC20WithPermit("Circle USD", "USDC", 6);
 
         // create users for testing
         users = Users({
@@ -110,5 +111,29 @@ abstract contract BaseTest is PRBTest, StdCheats {
         console.log("-> isValid: %s", RECVInfo.isValid);
         console.log("-> currencyCode: %s", RECVInfo.currencyCode);
         console.log(""); // for layout
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CALL EXPECTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Expects a call to {IERC20.transfer}.
+    function expectCallToTransfer(address to, uint256 amount) internal {
+        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+    }
+
+    /// @dev Expects a call to {IERC20.transfer}.
+    function expectCallToTransfer(IERC20 asset, address to, uint256 amount) internal {
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transfer, (to, amount)) });
+    }
+
+    /// @dev Expects a call to {IERC20.transferFrom}.
+    function expectCallToTransferFrom(address from, address to, uint256 amount) internal {
+        vm.expectCall({ callee: address(usdc), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
+    }
+
+    /// @dev Expects a call to {IERC20.transferFrom}.
+    function expectCallToTransferFrom(IERC20 asset, address from, address to, uint256 amount) internal {
+        vm.expectCall({ callee: address(asset), data: abi.encodeCall(IERC20.transferFrom, (from, to, amount)) });
     }
 }

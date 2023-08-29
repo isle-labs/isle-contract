@@ -5,7 +5,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "../../contracts/libraries/Errors.sol";
 
-import { IERC20 } from "../../contracts/interfaces/IERC20.sol";
+import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 
 import { IntegrationTest } from "./Integration.t.sol";
 
@@ -319,8 +319,12 @@ contract PoolTest is IntegrationTest {
         return keccak256(
             abi.encodePacked(
                 "\x19\x01",
-                IERC20(token_).DOMAIN_SEPARATOR(),
-                keccak256(abi.encode(IERC20(token_).PERMIT_TYPEHASH(), owner_, spender_, amount_, nonce_, deadline_))
+                MintableERC20WithPermit(token_).DOMAIN_SEPARATOR(),
+                keccak256(
+                    abi.encode(
+                        MintableERC20WithPermit(token_).PERMIT_TYPEHASH(), owner_, spender_, amount_, nonce_, deadline_
+                    )
+                )
             )
         );
     }

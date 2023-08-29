@@ -1,59 +1,51 @@
 // SPDX-License-Identifier: AGPL-3.0-only
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.19;
 
-import { IERC20 } from "./interfaces/IERC20.sol";
-
-/*
-    ███████╗██████╗  ██████╗    ██████╗  ██████╗
-    ██╔════╝██╔══██╗██╔════╝    ╚════██╗██╔═████╗
-    █████╗  ██████╔╝██║          █████╔╝██║██╔██║
-    ██╔══╝  ██╔══██╗██║         ██╔═══╝ ████╔╝██║
-    ███████╗██║  ██║╚██████╗    ███████╗╚██████╔╝
-    ╚══════╝╚═╝  ╚═╝ ╚═════╝    ╚══════╝ ╚═════╝
-*/
-
-/**
- *  @title Modern ERC-20 implementation.
- *  @dev   Acknowledgements to Solmate, OpenZeppelin, and DSS for inspiring this code.
- */
-contract ERC20 is IERC20 {
-    /**
-     *
-     */
-    /**
-     * ERC-20                                                                                                                         **
-     */
-    /**
-     *
-     */
-
-    string public override name;
-    string public override symbol;
-
-    uint8 public immutable override decimals;
-
-    uint256 public override totalSupply;
-
-    mapping(address => uint256) public override balanceOf;
-
-    mapping(address => mapping(address => uint256)) public override allowance;
+contract MintableERC20WithPermit {
+    /*//////////////////////////////////////////////////////////////////////////
+                                EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     *
+     *  @dev   Emitted when one account has set the allowance of another account over their tokens.
+     *  @param owner_   Account that tokens are approved from.
+     *  @param spender_ Account that tokens are approved for.
+     *  @param amount_  Amount of tokens that have been approved.
      */
+    event Approval(address indexed owner_, address indexed spender_, uint256 amount_);
+
     /**
-     * ERC-2612                                                                                                                       **
+     *  @dev   Emitted when tokens have moved from one account to another.
+     *  @param owner_     Account that tokens have moved from.
+     *  @param recipient_ Account that tokens have moved to.
+     *  @param amount_    Amount of tokens that have been transferred.
      */
-    /**
-     *
-     */
+    event Transfer(address indexed owner_, address indexed recipient_, uint256 amount_);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                ERC-20 STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    string public name;
+    string public symbol;
+
+    uint8 public immutable decimals;
+
+    uint256 public totalSupply;
+
+    mapping(address => uint256) public balanceOf;
+
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                ERC-2612 STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
 
     // PERMIT_TYPEHASH = keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256
     // deadline)");
-    bytes32 public constant override PERMIT_TYPEHASH =
-        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
-    mapping(address => uint256) public override nonces;
+    mapping(address => uint256) public nonces;
 
     /**
      *  @param name_     The name of the token.
@@ -66,43 +58,21 @@ contract ERC20 is IERC20 {
         decimals = decimals_;
     }
 
-    /**
-     *
-     */
-    /**
-     * External Functions                                                                                                             **
-     */
-    /**
-     *
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                        EXTERNAL NONCONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
-    function approve(address spender_, uint256 amount_) public virtual override returns (bool success_) {
+    function approve(address spender_, uint256 amount_) public virtual returns (bool success_) {
         _approve(msg.sender, spender_, amount_);
         return true;
     }
 
-    function decreaseAllowance(
-        address spender_,
-        uint256 subtractedAmount_
-    )
-        public
-        virtual
-        override
-        returns (bool success_)
-    {
+    function decreaseAllowance(address spender_, uint256 subtractedAmount_) public virtual returns (bool success_) {
         _decreaseAllowance(msg.sender, spender_, subtractedAmount_);
         return true;
     }
 
-    function increaseAllowance(
-        address spender_,
-        uint256 addedAmount_
-    )
-        public
-        virtual
-        override
-        returns (bool success_)
-    {
+    function increaseAllowance(address spender_, uint256 addedAmount_) public virtual returns (bool success_) {
         _approve(msg.sender, spender_, allowance[msg.sender][spender_] + addedAmount_);
         return true;
     }
@@ -118,7 +88,6 @@ contract ERC20 is IERC20 {
     )
         public
         virtual
-        override
     {
         require(deadline_ >= block.timestamp, "ERC20:P:EXPIRED");
 
@@ -148,37 +117,26 @@ contract ERC20 is IERC20 {
         _approve(owner_, spender_, amount_);
     }
 
-    function transfer(address recipient_, uint256 amount_) public virtual override returns (bool success_) {
+    function transfer(address recipient_, uint256 amount_) public virtual returns (bool success_) {
         _transfer(msg.sender, recipient_, amount_);
         return true;
     }
 
-    function transferFrom(
-        address owner_,
-        address recipient_,
-        uint256 amount_
-    )
-        public
-        virtual
-        override
-        returns (bool success_)
-    {
+    function transferFrom(address owner_, address recipient_, uint256 amount_) public virtual returns (bool success_) {
         _decreaseAllowance(owner_, msg.sender, amount_);
         _transfer(owner_, recipient_, amount_);
         return true;
     }
 
-    /**
-     *
-     */
-    /**
-     * View Functions                                                                                                                 **
-     */
-    /**
-     *
-     */
+    function mint(address recipient_, uint256 amount_) external {
+        _mint(recipient_, amount_);
+    }
 
-    function DOMAIN_SEPARATOR() public view override returns (bytes32 domainSeparator_) {
+    /*//////////////////////////////////////////////////////////////////////////
+                            EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function DOMAIN_SEPARATOR() public view returns (bytes32 domainSeparator_) {
         return keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
@@ -190,15 +148,9 @@ contract ERC20 is IERC20 {
         );
     }
 
-    /**
-     *
-     */
-    /**
-     * Internal Functions                                                                                                             **
-     */
-    /**
-     *
-     */
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _approve(address owner_, address spender_, uint256 amount_) internal {
         emit Approval(owner_, spender_, allowance[owner_][spender_] = amount_);
