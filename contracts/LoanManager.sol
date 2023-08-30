@@ -229,9 +229,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     /// @inheritdoc ILoanManager
-    function repayLoan(
-        uint16 loanId_
-    )
+    function repayLoan(uint16 loanId_)
         external
         override
         whenNotPaused
@@ -777,7 +775,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         issuanceRate_ = paymentInfo_.issuanceRate;
 
         // If the amount of interest claimed is greater than the amount accounted for, set to zero.
-        // Discrepancy between accounted andd actual is always captured by balance change in the pool from claimed
+        // Discrepancy between accounted and actual is always captured by balance change in the pool from claimed
         // interest.
         // Reduce the AUM by the amount of interest that was represented for this payment
         _compareAndSubtractAccountedInterest(((block.timestamp - paymentInfo_.startDate) * issuanceRate_) / PRECISION);

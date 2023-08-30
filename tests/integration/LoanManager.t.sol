@@ -10,6 +10,7 @@ import { Errors } from "../../contracts/libraries/Errors.sol";
 import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
 import { ILoanManagerEvents } from "../../contracts/interfaces/ILoanManagerEvents.sol";
 import { IPool } from "../../contracts/interfaces/IPool.sol";
+import { ILopoGlobals } from "../../contracts/interfaces/ILopoGlobals.sol";
 
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { IntegrationTest } from "./Integration.t.sol";
@@ -233,6 +234,64 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
         _fundLoan(loanId_);
     }
 
+    function test_repayLoan() public {
+        // set the admin and protocol fee rate to 10% and 0.5%
+        _setAdminAndProtocolFeeRate(0.1e6, 0.005e6);
+
+        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        (, uint256 periodicInterestRate) = _createLoan(100_000e6);
+
+        vm.warp(block.timestamp + 15 days);
+
+        // before balance
+        uint256 poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
+        uint256 poolAdminBalanceBefore = IERC20(address(usdc)).balanceOf(users.pool_admin);
+        uint256 protocolVaultBalanceBefore =
+            IERC20(address(usdc)).balanceOf(ILopoGlobals(wrappedLopoGlobalsProxy).lopoVault());
+
+        // emit by repayLoan()
+        vm.expectEmit(true, true, true, true);
+        uint256 interest = 100_000e6 * periodicInterestRate / 1e18;
+        emit LoanRepaid(1, 100_000e6, interest);
+
+        // emit by _distributeClaimedFunds()
+        vm.expectEmit(true, true, true, true);
+        uint256 adminFee = interest * 0.1e6 / 1e6;
+        uint256 protocolFee = interest * 0.005e6 / 1e6;
+        uint256 netInterest = interest - adminFee - protocolFee;
+        emit FeesPaid(1, adminFee, protocolFee);
+
+        vm.expectEmit(true, true, true, true);
+        emit FundsDistributed(1, 100_000e6, netInterest);
+
+        // emit by repayLoan()
+        vm.expectEmit(true, true, true, true);
+        emit PrincipalOutUpdated(0);
+
+        // emit by _handlePaymentAccounting()
+        vm.expectEmit(true, true, true, true);
+        emit PaymentRemoved(1, 1);
+
+        // emit by _updateIssuanceParams()
+        vm.expectEmit(true, true, true, true);
+        // since there is no other loan, the domainEnd is set to block.timestamp
+        emit IssuanceParamsUpdated(uint48(block.timestamp), 0, 0);
+
+        vm.startPrank(users.buyer);
+        // buyer already approve the allowance to the loanManager
+        wrappedLoanManagerProxy.repayLoan(1);
+
+        // after balance
+        uint256 poolBalanceAfter = IERC20(address(usdc)).balanceOf(address(pool));
+        uint256 poolAdminBalanceAfter = IERC20(address(usdc)).balanceOf(users.pool_admin);
+        uint256 protocolVaultBalanceAfter =
+            IERC20(address(usdc)).balanceOf(ILopoGlobals(wrappedLopoGlobalsProxy).lopoVault());
+
+        assertEq(poolBalanceAfter, poolBalanceBefore + 100_000e6 + netInterest);
+        assertEq(poolAdminBalanceAfter, poolAdminBalanceBefore + adminFee);
+        assertEq(protocolVaultBalanceAfter, protocolVaultBalanceBefore + protocolFee);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -250,5 +309,13 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
         uint256 interest = principalRequested_ * periodicInterestRate_ / 1e18; // e6 * e18 / e18 = e6
         uint256 netInterest = interest * (1e6 - 0e6) / 1e6; // e6 * e6 / e6 = e6
         newRate_ = netInterest * 1e27 / 30 days; // e6 * e27 / seconds = e33 / seconds
+    }
+
+    function _setAdminAndProtocolFeeRate(uint256 adminFeeRate_, uint256 protocolFeeRate_) internal {
+        vm.startPrank(users.governor);
+        wrappedLopoGlobalsProxy.setProtocolFeeRate(address(wrappedPoolConfiguratorProxy), protocolFeeRate_);
+        changePrank(users.pool_admin);
+        wrappedPoolConfiguratorProxy.setAdminFeeRate(adminFeeRate_);
+        vm.stopPrank();
     }
 }

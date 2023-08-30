@@ -166,6 +166,9 @@ contract IntegrationTest is BaseTest {
         changePrank(users.receiver);
         usdc.approve(address(pool), type(uint256).max);
 
+        changePrank(users.buyer);
+        usdc.approve(address(wrappedLoanManagerProxy), type(uint256).max);
+
         vm.stopPrank();
     }
 
