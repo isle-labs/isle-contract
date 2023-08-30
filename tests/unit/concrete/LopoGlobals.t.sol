@@ -22,7 +22,7 @@ contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
 
     function setUp() public override {
         super.setUp();
-        governorV2 = _createUser("GovernorV2");
+        governorV2 = createUser("GovernorV2");
     }
 
     function test_canUpgrade() public {

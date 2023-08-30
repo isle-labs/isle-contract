@@ -92,7 +92,7 @@ contract PoolHarnessTest is IntegrationTest {
         super.setUp();
         poolHarness = new PoolHarness(address(poolConfiguratorProxy), address(usdc), "lpToken", "LPT");
 
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
         poolConfiguratorProxy.setLiquidityCap(1_000_000e6);
         poolConfiguratorProxy.setValidLender(address(this), true);
         vm.stopPrank();

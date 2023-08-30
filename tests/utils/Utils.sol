@@ -4,9 +4,7 @@ pragma solidity >=0.8.19;
 import { PRBTest } from "@prb-test/PRBTest.sol";
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 
-
 abstract contract Utils is PRBTest {
-
     // Returns a valid `permit` signature signed by this contract's `owner` address
     function getValidPermitSignature(
         address token_,
@@ -32,7 +30,11 @@ abstract contract Utils is PRBTest {
         uint256 amount_,
         uint256 nonce_,
         uint256 deadline_
-    ) public view returns (bytes32 digest_) {
+    )
+        public
+        view
+        returns (bytes32 digest_)
+    {
         digest_ = keccak256(
             abi.encodePacked(
                 "\x19\x01",
