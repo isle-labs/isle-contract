@@ -75,10 +75,9 @@ interface ILoanManager is ILoanManagerStorage, ILoanManagerEvents {
 
     /// @notice Repays the loan. (note that the loan can be repaid early but not partially)
     /// @param loanId_ Id of the loan to repay
-    /// @param amount_ Repayment amount
     /// @return principal_ Principal amount repaid
     /// @return interest_ Interest amount repaid
-    function repayLoan(uint16 loanId_, uint256 amount_) external returns (uint256 principal_, uint256 interest_);
+    function repayLoan(uint16 loanId_) external returns (uint256 principal_, uint256 interest_);
 
     /// @notice Impairs the loan
     /// @param loanId_ The id of the loan

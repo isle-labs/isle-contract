@@ -57,6 +57,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
                 provider: address(provider_)
             });
         }
+        fundsAsset = IPoolConfigurator(ADDRESSES_PROVIDER.getPoolConfigurator()).getPoolAsset();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -229,8 +230,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     /// @inheritdoc ILoanManager
     function repayLoan(
-        uint16 loanId_,
-        uint256 amount_
+        uint16 loanId_
     )
         external
         override
@@ -242,21 +242,13 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         //   - Update `accountedInterest` to account all accrued interest since last update
         _advanceGlobalPaymentAccounting();
 
-        // 2. Transfer the funds from the buyer to the loan manager
-        IERC20(fundsAsset).safeTransferFrom(msg.sender, address(this), amount_);
-
-        // 3. Check and update loan accounting
+        // 2. get the principal and interest amounts
         (principal_, interest_) = getLoanPaymentBreakdown(loanId_);
 
         uint256 principalAndInterest_ = principal_ + interest_;
 
-        if (amount_ < principalAndInterest_) {
-            revert Errors.LoanManager_InsufficientRepayment({
-                loanId_: loanId_,
-                repayment_: amount_,
-                expectedRepayment_: principalAndInterest_
-            });
-        }
+        // 3. Transfer the funds from the buyer to the loan manager
+        IERC20(fundsAsset).safeTransferFrom(msg.sender, address(this), principalAndInterest_);
 
         emit LoanRepaid({ loanId_: loanId_, principal_: principal_, interest_: interest_ });
 
@@ -801,8 +793,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 interest_ = _getInterest(loan_.principal, loan_.interestRate, dueDate_ - startDate_);
         newRate_ = (_getNetInterest(interest_, feeRate_) * PRECISION) / (dueDate_ - startDate_);
 
-        uint256 paymentId_ = paymentIdOf[loanId_] = _addPaymentToList(SafeCast.toUint48(dueDate_)); // Add the payment
-            // to the sorted list
+        // Add the payment to the sorted list
+        uint256 paymentId_ = paymentIdOf[loanId_] = _addPaymentToList(SafeCast.toUint48(dueDate_));
 
         payments[paymentId_] = PaymentInfo({
             protocolFeeRate: SafeCast.toUint24(protocolFeeRate_),
@@ -833,8 +825,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint24 current_ = uint24(0);
         uint24 next_ = paymentWithEarliestDueDate;
 
-        // Find the first payment in the list that has a due date later than the payment being added
-        // If the payment being added is the earliest, then `next_` will be 0
+        // Find the first payment next_, in the list that has a due date later than the payment being added
+        // Insert the payment before next_, and after current_
         while (next_ != 0 && paymentDueDate_ >= sortedPayments[next_].paymentDueDate) {
             current_ = next_;
             next_ = sortedPayments[current_].next;

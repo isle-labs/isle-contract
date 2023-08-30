@@ -107,9 +107,6 @@ library Errors {
     /// @notice Thrown when the buyer requests for a principal larger than the face amount of the receivable
     error LoanManager_PrincipalRequestedTooHigh(uint256 principalRequested_, uint256 maxPrincipal_);
 
-    /// @notice Thrown when the buyer fails to repay enough to close the loan
-    error LoanManager_InsufficientRepayment(uint16 loanId_, uint256 repayment_, uint256 expectedRepayment_);
-
     /// @notice Thrown when the seller overdraws
     error LoanManager_Overdraw(uint16 loanId_, uint256 amount_, uint256 withdrawableAmount_);
 
