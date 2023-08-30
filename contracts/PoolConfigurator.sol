@@ -99,7 +99,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-    
+
     function totalAssets() external view override returns (uint256 totalAssets_) {
         totalAssets_ = _totalAssets();
     }
@@ -111,7 +111,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
         shares_ = IPool(pool).convertToExitShares(assets_);
     }
-    
+
     function getPoolAsset() external view override returns (address asset_) {
         asset_ = asset;
     }
@@ -218,6 +218,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
 
     function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyPoolAdmin {
         emit LiquidityCapSet(liquidityCap = liquidityCap_);
+    }
+
+    function setAdminFeeRate(uint256 adminFeeRate_) external override whenNotPaused onlyPoolAdmin {
+        emit AdminFeeRateSet(adminFeeRate = adminFeeRate_);
     }
 
     function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyPoolAdmin {

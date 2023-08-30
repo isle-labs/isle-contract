@@ -12,6 +12,7 @@ interface IPoolConfiguratorEvents {
     event CoverWithdrawn(uint256 amount_);
     event IsLoanManagerSet(address indexed loanManager_, bool isLoanManager_);
     event LiquidityCapSet(uint256 liquidityCap_);
+    event AdminFeeRateSet(uint256 adminFeeRate_);
     event LoanManagerAdded(address indexed loanManager_);
     event ValidSellerSet(address indexed seller_, bool isValid_);
     event ValidBuyerSet(address indexed buyer_, bool isValid_);
