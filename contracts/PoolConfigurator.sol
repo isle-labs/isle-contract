@@ -99,17 +99,21 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+    
+    function totalAssets() external view override returns (uint256 totalAssets_) {
+        totalAssets_ = _totalAssets();
+    }
 
-    function hasSufficientCover() public view override returns (bool hasSufficientCover_) {
+    function hasSufficientCover() external view override returns (bool hasSufficientCover_) {
         hasSufficientCover_ = _hasSufficientCover(_globals());
     }
 
-    function totalAssets() public view override returns (uint256 totalAssets_) {
-        totalAssets_ = IERC20(asset).balanceOf(pool) + ILoanManager(_loanManager()).assetsUnderManagement();
-    }
-
-    function convertToExitShares(uint256 assets_) public view override returns (uint256 shares_) {
+    function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
         shares_ = IPool(pool).convertToExitShares(assets_);
+    }
+    
+    function getPoolAsset() external view override returns (address asset_) {
+        asset_ = asset;
     }
 
     function getEscrowParams(
@@ -126,11 +130,11 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
-        maxAssets_ = _getMaxAssets(receiver_, totalAssets());
+        maxAssets_ = _getMaxAssets(receiver_, _totalAssets());
     }
 
     function maxMint(address receiver_) external view virtual override returns (uint256 maxShares_) {
-        uint256 totalAssets_ = totalAssets();
+        uint256 totalAssets_ = _totalAssets();
         uint256 maxAssets_ = _getMaxAssets(receiver_, totalAssets_);
 
         maxShares_ = IPool(pool).previewDeposit(maxAssets_);
@@ -168,7 +172,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
         // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
         // `totalAssets` does not.
-        unrealizedLosses_ = _min(ILoanManager(_loanManager()).unrealizedLosses(), totalAssets());
+        unrealizedLosses_ = _min(ILoanManager(_loanManager()).unrealizedLosses(), _totalAssets());
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -376,6 +380,10 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _totalAssets() internal view returns (uint256 totalAssets_) {
+        totalAssets_ = IERC20(asset).balanceOf(pool) + ILoanManager(_loanManager()).assetsUnderManagement();
+    }
 
     /* Address lookup functions */
     function _withdrawalManager() internal view returns (address withdrawalManager_) {
