@@ -364,7 +364,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         PaymentInfo memory paymentInfo_ = payments[paymentId_];
 
-        _revertLoanImpairment(liquidationInfo_);
+        _reverseLoanImpairment(liquidationInfo_);
 
         delete liquidationInfoFor[loanId_];
         delete payments[paymentId_];
@@ -750,7 +750,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         // If the payment has been made against a loan that was impaired, reverse the impairment accounting
         if (liquidationInfo_.principal != 0) {
-            _revertLoanImpairment(liquidationInfo_);
+            _reverseLoanImpairment(liquidationInfo_);
             delete liquidationInfoFor[loanId_];
             return 0;
         }
@@ -801,7 +801,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         emit PaymentAdded(loanId_, paymentId_, protocolFeeRate_, adminFeeRate_, startDate_, dueDate_, newRate_);
     }
 
-    function _revertLoanImpairment(LiquidationInfo memory liquidationInfo_) internal {
+    function _reverseLoanImpairment(LiquidationInfo memory liquidationInfo_) internal {
         _compareAndSubtractAccountedInterest(liquidationInfo_.interest);
         unrealizedLosses -= SafeCast.toUint128(liquidationInfo_.principal + liquidationInfo_.interest);
 
