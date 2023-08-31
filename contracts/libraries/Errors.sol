@@ -124,6 +124,8 @@ library Errors {
 
     error LoanManager_CollateralAssetNotAllowed(address collateralAsset_);
 
+    error LoanManager_NotPastDueDatePlusGracePeriod(uint16 loanId_);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
     //////////////////////////////////////////////////////////////////////////*/

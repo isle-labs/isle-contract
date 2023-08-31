@@ -409,6 +409,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         onlyPoolAdmin
         returns (uint256 remainingLosses_, uint256 protocolFees_)
     {
+        // check if current time is past the due date plus grace period
+        if (block.timestamp <= _loans[loanId_].dueDate + _loans[loanId_].gracePeriod) {
+            revert Errors.LoanManager_NotPastDueDatePlusGracePeriod({ loanId_: loanId_ });
+        }
+
         uint256 paymentId_ = paymentIdOf[loanId_];
 
         if (paymentId_ == 0) {
@@ -660,7 +665,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
                 paymentIssuanceRate_: paymentInfo_.issuanceRate
             });
 
-        // Gross interrest, which means it is not just to the current timestamp but to the due date
+        // Gross interest, which means it is not just to the current timestamp but to the due date
         (, uint256[2] memory grossInterest_) = getLoanPaymentDetailedBreakdown(loanId_);
 
         uint256 grossLateInterest_ = grossInterest_[1];
@@ -897,7 +902,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 netInterest_,
         uint256 netLateInterest_
     )
-        internal
+        public
         returns (uint256 remainingLosses_)
     {
         LoanInfo memory loan_ = _loans[loanId_];
