@@ -382,7 +382,7 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
         (uint256 newRate, uint256 periodicInterestRate) = _createLoan(100_000e6);
 
         uint256 dueDate = block.timestamp + 30 days;
-        
+
         // case1: due date < block.timestamp < due date + grace period
         vm.warp(block.timestamp + 31 days);
 
@@ -405,7 +405,8 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
 
         // 100 days late
         uint256 fullDaysLate = ((block.timestamp - dueDate + (1 days - 1)) / 1 days) * 1 days;
-        uint256 latePeriodicInterestRate = uint256(0.32e6) * (1e18 / 1e6) * fullDaysLate / 365 days; // e6 * e18 / e6 = e18
+        uint256 latePeriodicInterestRate = uint256(0.32e6) * (1e18 / 1e6) * fullDaysLate / 365 days; // e6 * e18 / e6 =
+            // e18
 
         (uint256 principal, uint256[2] memory interests) = wrappedLoanManagerProxy.getLoanPaymentDetailedBreakdown(1);
 
@@ -418,8 +419,6 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
         assertEq(interests[1], netLateInterest);
         assertEq(remainingLosses, principal + netInterest + netLateInterest);
         assertEq(protocolFee, 0);
-
-
     }
 
     /*//////////////////////////////////////////////////////////////////////////
