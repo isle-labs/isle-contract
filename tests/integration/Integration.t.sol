@@ -57,7 +57,7 @@ contract IntegrationTest is BaseTest {
 
         // record that the pool admin owns specific pool configuarator
         vm.prank(users.governor);
-        lopoGlobalsProxy.setPoolConfigurator(users.pool_admin, address(poolConfiguratorProxy));
+        lopoGlobalsProxy.setPoolConfigurator(users.poolAdmin, address(poolConfiguratorProxy));
 
         pool = IPool(poolConfiguratorProxy.pool());
 
@@ -66,12 +66,7 @@ contract IntegrationTest is BaseTest {
         _onboardUsersToConfigurator();
 
         // Set liquidity cap to allow deposits
-        _setPoolLiquidityCap(1_000_000e6);
-    }
-
-    function test_setUpStateIntegration() public {
-        // check that the pool admin owns the pool configurator
-        assertEq(lopoGlobalsProxy.ownedPoolConfigurator(users.pool_admin), address(poolConfiguratorProxy));
+        _setPoolLiquidityCap(defaults.LIQUIDITY_CAP());
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -86,20 +81,20 @@ contract IntegrationTest is BaseTest {
 
     function _setUpPoolAddressesProvider() internal {
         poolAddressesProvider =
-            new PoolAddressesProvider("BSOS Green Finance", users.pool_admin, address(lopoGlobalsProxy));
+            new PoolAddressesProvider("BSOS Green Finance", users.poolAdmin, address(lopoGlobalsProxy));
     }
 
     function _setUpPoolConfigurator() internal {
         poolConfiguratorV1 = new PoolConfigurator(poolAddressesProvider);
 
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
         // set implementation to proxy in poolAddressesProvider
         // if proxyAddress is address(0), create a new proxy
         bytes memory params = abi.encodeWithSelector(
             IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider),
             address(usdc),
-            users.pool_admin,
+            users.poolAdmin,
             "BSOS Green Share",
             "BGS"
         );
@@ -112,7 +107,7 @@ contract IntegrationTest is BaseTest {
     function _setUpWithdrawalManager() internal {
         withdrawalManagerV1 = new WithdrawalManager(poolAddressesProvider);
 
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
 
         bytes memory params = abi.encodeWithSelector(
             IWithdrawalManager.initialize.selector,
@@ -132,7 +127,7 @@ contract IntegrationTest is BaseTest {
     function _setUpLoanManager() internal {
         loanManagerV1 = new LoanManager(poolAddressesProvider);
 
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
         // set implementation to proxy in poolAddressesProvider
         // if proxyAddress is address(0), create a new proxy
         poolAddressesProvider.setLoanManagerImpl(address(loanManagerV1));
@@ -168,7 +163,7 @@ contract IntegrationTest is BaseTest {
     }
 
     function _onboardUsersToConfigurator() internal {
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
         poolConfiguratorProxy.setValidLender(users.receiver, true);
         poolConfiguratorProxy.setValidBuyer(users.buyer, true);
         vm.stopPrank();
@@ -201,12 +196,8 @@ contract IntegrationTest is BaseTest {
     }
 
     function _setPoolLiquidityCap(uint256 liquidityCap_) internal {
-        vm.startPrank(users.pool_admin);
+        vm.startPrank(users.poolAdmin);
         poolConfiguratorProxy.setLiquidityCap(liquidityCap_);
         vm.stopPrank();
-    }
-
-    function _airdropToPool(uint256 amount_) internal {
-        usdc.mint(address(pool), amount_);
     }
 }

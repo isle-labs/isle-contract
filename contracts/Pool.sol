@@ -44,7 +44,11 @@ contract Pool is IPool, ERC20Permit {
      * @dev See {IERC4626-deposit}.
      */
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
-        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositMoreThanMax(assets, maxDeposit(receiver));
+        // Checks: receiver is not the zero address.
+        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: deposit amount is less than or equal to the max deposit.
+        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositGreaterThanMax(assets, maxDeposit(receiver));
 
         uint256 shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -63,8 +67,14 @@ contract Pool is IPool, ERC20Permit {
         external
         returns (uint256)
     {
-        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositMoreThanMax(assets, maxDeposit(receiver));
+        // Checks: receiver is not the zero address.
+        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: deposit amount is less than or equal to the max deposit.
+        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositGreaterThanMax(assets, maxDeposit(receiver));
+
         _asset.permit(_msgSender(), address(this), assets, deadline, v, r, s);
+
         return deposit(assets, receiver);
     }
 
@@ -75,7 +85,11 @@ contract Pool is IPool, ERC20Permit {
      * In this case, the shares will be minted without requiring any assets to be deposited.
      */
     function mint(uint256 shares, address receiver) public override returns (uint256) {
-        if (shares > maxMint(receiver)) revert Errors.Pool_MintMoreThanMax(shares, maxMint(receiver));
+        // Checks: receiver is not the zero address.
+        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: mint amount is less than or equal to the max mint.
+        if (shares > maxMint(receiver)) revert Errors.Pool_MintGreaterThanMax(shares, maxMint(receiver));
 
         uint256 assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
@@ -95,7 +109,11 @@ contract Pool is IPool, ERC20Permit {
         external
         returns (uint256)
     {
-        if (shares > maxMint(receiver)) revert Errors.Pool_MintMoreThanMax(shares, maxMint(receiver));
+        // Checks: receiver is not the zero address.
+        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: mint amount is less than or equal to the max mint.
+        if (shares > maxMint(receiver)) revert Errors.Pool_MintGreaterThanMax(shares, maxMint(receiver));
 
         uint256 assets = previewMint(shares);
         if (assets > maxAssets) revert Errors.Pool_InsufficientPermit(assets, maxAssets);

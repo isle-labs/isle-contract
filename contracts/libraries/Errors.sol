@@ -179,9 +179,11 @@ library Errors {
 
     error Pool_FailedApprove();
 
-    error Pool_DepositMoreThanMax(uint256 assets, uint256 maxDeposit);
+    error Pool_RecipientZeroAddress();
 
-    error Pool_MintMoreThanMax(uint256 shares, uint256 maxMint);
+    error Pool_DepositGreaterThanMax(uint256 assets, uint256 maxDeposit);
+
+    error Pool_MintGreaterThanMax(uint256 shares, uint256 maxMint);
 
     error Pool_InsufficientPermit(uint256 assets, uint256 permits);
 

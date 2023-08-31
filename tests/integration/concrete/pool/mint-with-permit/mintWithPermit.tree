@@ -1,0 +1,22 @@
+depositWithPermit.t.sol
+├── when the deposit amount is larger than receiver's max deposit
+│  └── it should revert
+└── when the deposit amount is not larger than receiver's max deposit
+   ├── when the recipient is a zero address
+   │  └── it should revert
+   └── when the recipient is not a zero address
+      ├── when the permit is not sufficient
+      │  └── it should revert
+      └── when the permit is sufficient
+         ├── when the nonce is bad
+         │  └── it should revert
+         └── when the nonce is not bad
+            ├── when the staker is not correct
+            │  └── it should revert
+            └── when the staker is correct
+               ├── when the permit is past deadline
+               │  └── it should revert
+               └── when the permit is not past deadline
+                  ├── it should perform the ERC-20 transfers
+                  ├── it should emit a {Deposit} event
+                  └── it should mint the correct amount of shares to the receiver

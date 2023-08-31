@@ -1,0 +1,10 @@
+mint.t.sol
+├── when the mint amount is larger than receiver's max mint
+│  └── it should revert
+└── when the mint amount is not larger than receiver's max mint
+   ├── when the recipient is a zero address
+   │  └── it should revert
+   └── when the recipient is not a zero address
+      ├── it should perform the ERC-20 transfers
+      ├── it should emit a {Deposit} event
+      └── it should mint the correct amount of shares to the receiver

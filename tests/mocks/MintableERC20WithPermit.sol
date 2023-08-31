@@ -163,8 +163,6 @@ contract MintableERC20WithPermit {
         unchecked {
             totalSupply -= amount_;
         }
-
-        emit Transfer(owner_, address(0), amount_);
     }
 
     function _decreaseAllowance(address owner_, address spender_, uint256 subtractedAmount_) internal {
@@ -182,8 +180,6 @@ contract MintableERC20WithPermit {
         unchecked {
             balanceOf[recipient_] += amount_;
         }
-
-        emit Transfer(address(0), recipient_, amount_);
     }
 
     function _transfer(address owner_, address recipient_, uint256 amount_) internal {
@@ -193,7 +189,5 @@ contract MintableERC20WithPermit {
         unchecked {
             balanceOf[recipient_] += amount_;
         }
-
-        emit Transfer(owner_, recipient_, amount_);
     }
 }
