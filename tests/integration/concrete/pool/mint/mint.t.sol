@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
@@ -9,13 +10,15 @@ import { Mint_Integration_Shared_Test } from "../../../shared/pool/mint.t.sol";
 import { Pool_Integration_Concrete_Test } from "../Pool.t.sol";
 
 contract Mint_Integration_Concrete_Test is Pool_Integration_Concrete_Test, Mint_Integration_Shared_Test {
+    using Math for uint256;
+
     function setUp() public virtual override(Pool_Integration_Concrete_Test, Mint_Integration_Shared_Test) {
         Pool_Integration_Concrete_Test.setUp();
         Mint_Integration_Shared_Test.setUp();
     }
 
     function test_RevertWhen_MintGreaterThanMax() external {
-        uint256 maxShares_ = defaults.LIQUIDITY_CAP();
+        uint256 maxShares_ = pool.maxMint(users.receiver);
         uint256 shares_ = maxShares_ + 1;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.Pool_MintGreaterThanMax.selector, shares_, maxShares_));

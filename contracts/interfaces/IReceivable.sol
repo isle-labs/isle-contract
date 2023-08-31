@@ -12,9 +12,11 @@ interface IReceivable is IReceivableEvent {
     //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address lopoGlobals_) external;
+
     function getImplementation() external view returns (address);
 
     function createReceivable(
+        address buyer_,
         address seller_,
         UD60x18 faceAmount_,
         uint256 repaymentTimestam_,
@@ -24,11 +26,4 @@ interface IReceivable is IReceivableEvent {
         returns (uint256 tokenId_);
 
     function getReceivableInfoById(uint256 tokenId_) external view returns (ReceivableStorage.ReceivableInfo memory);
-
-    function setLopoGlobals(address lopoGlobals_) external;
-
-    // View Functions
-    function lopoGlobals() external view returns (address lopoGlobals_);
-
-    function governor() external view returns (address governor_);
 }

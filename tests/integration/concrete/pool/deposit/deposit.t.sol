@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
@@ -15,7 +16,7 @@ contract Deposit_Integration_Concrete_Test is Pool_Integration_Concrete_Test, De
     }
 
     function test_RevertWhen_DepositGreaterThanMax() external {
-        uint256 maxAssets_ = defaults.LIQUIDITY_CAP();
+        uint256 maxAssets_ = pool.maxDeposit(users.receiver);
         uint256 assets_ = maxAssets_ + 1;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.Pool_DepositGreaterThanMax.selector, assets_, maxAssets_));
@@ -34,8 +35,9 @@ contract Deposit_Integration_Concrete_Test is Pool_Integration_Concrete_Test, De
         // Expects the funds to be transferred from the funder to {Pool}
         expectCallToTransferFrom({ from: users.caller, to: address(pool), amount: assets_ });
 
-        // Expects the pool to emit a {Deposit} event
         uint256 shares_ = pool.previewDeposit(assets_);
+
+        // Expects the pool to emit a {Deposit} event
         vm.expectEmit({ emitter: address(pool) });
         emit Deposit({ sender: users.caller, owner: users.receiver, assets: assets_, shares: shares_ });
 

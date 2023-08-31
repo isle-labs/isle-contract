@@ -22,7 +22,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
 
-    function getImplementation() external view returns (address) {
+    function getImplementation() external view override returns (address) {
         return _getImplementation();
     }
 
