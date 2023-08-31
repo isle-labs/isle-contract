@@ -224,7 +224,7 @@ contract IntegrationTest is BaseTest {
 
     function _approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
         address collateralAsset_ = address(wrappedReceivableProxy);
-        uint256 gracePeriod_ = 7;
+        uint256 gracePeriod_ = 7 days;
         uint256[2] memory rates_ = [uint256(0.12e6), uint256(0.2e6)];
         uint256 fee_ = 0;
 
