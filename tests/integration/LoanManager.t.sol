@@ -292,6 +292,136 @@ contract LoanManagerTest is IntegrationTest, ILoanManagerEvents {
         assertEq(protocolVaultBalanceAfter, protocolVaultBalanceBefore + protocolFee);
     }
 
+    function test_withdrawFunds() public {
+        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+
+        // before balance
+        uint256 poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
+        uint256 sellerBalanceBefore = IERC20(address(usdc)).balanceOf(users.seller);
+
+        // notice that once the pool admin funds loan, the pool balance will be deducted
+        (, uint256 periodicInterestRate) = _createLoan(100_000e6);
+
+        vm.expectEmit(true, true, true, true);
+        emit FundsWithdrawn(1, 100_000e6);
+
+        // seller withdraws the funds
+        vm.prank(users.seller);
+        wrappedLoanManagerProxy.withdrawFunds(1, users.seller, 100_000e6);
+
+        // after balance
+        uint256 poolBalanceAfter = IERC20(address(usdc)).balanceOf(address(pool));
+        uint256 sellerBalanceAfter = IERC20(address(usdc)).balanceOf(users.seller);
+
+        assertEq(poolBalanceAfter, poolBalanceBefore - 100_000e6);
+        assertEq(sellerBalanceAfter, sellerBalanceBefore + 100_000e6);
+    }
+
+    function test_impairLoan() public {
+        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        (uint256 newRate,) = _createLoan(100_000e6);
+
+        vm.warp(block.timestamp + 15 days);
+
+        vm.expectEmit(true, true, true, true);
+        // after the impairment, the domainEnd is set to block.timestamp, and the issuanceRate is set to 0
+        uint112 accountedInterest = uint112(newRate * 15 days / 1e27);
+        emit IssuanceParamsUpdated(uint48(block.timestamp), 0, accountedInterest);
+
+        vm.expectEmit(true, true, true, true);
+        emit UnrealizedLossesUpdated(100_000e6 + accountedInterest);
+
+        vm.expectEmit(true, true, true, true);
+        emit LoanImpaired(1, block.timestamp);
+
+        // the pool admin trigger the impairment
+        vm.prank(users.pool_admin);
+        wrappedLoanManagerProxy.impairLoan(1);
+
+        // check unrealized losses
+        uint256 unrealizedLosses = wrappedLoanManagerProxy.unrealizedLosses();
+        assertEq(unrealizedLosses, 100_000e6 + accountedInterest);
+    }
+
+    function test_removeLoanImpairment() public {
+        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        (uint256 newRate,) = _createLoan(100_000e6);
+
+        vm.warp(block.timestamp + 15 days);
+
+        // the pool admin trigger the impairment
+        vm.prank(users.pool_admin);
+        wrappedLoanManagerProxy.impairLoan(1);
+
+        vm.warp(block.timestamp + 5 days);
+
+        vm.expectEmit(true, true, true, true);
+        emit UnrealizedLossesUpdated(0);
+
+        vm.expectEmit(true, true, true, true);
+        // also add the accrued interest in the 5 days of impairment
+        // notice that the interestRate in the impaired period is the same as normal period
+        uint112 accountedInterest = uint112(newRate * (15 + 5) * 1 days / 1e27);
+        emit IssuanceParamsUpdated(uint48(block.timestamp + 10 days), newRate, accountedInterest);
+
+        vm.expectEmit(true, true, true, true);
+        // 30 days - (15 + 5) days = 10 days
+        emit ImpairmentRemoved(1, block.timestamp + 10 days);
+
+        // reverse the impairment
+        vm.prank(users.pool_admin);
+        wrappedLoanManagerProxy.removeLoanImpairment(1);
+
+        // check unrealized losses
+        uint256 unrealizedLosses = wrappedLoanManagerProxy.unrealizedLosses();
+        assertEq(unrealizedLosses, 0);
+    }
+
+    function test_triggerDefault() public {
+        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        (uint256 newRate, uint256 periodicInterestRate) = _createLoan(100_000e6);
+
+        uint256 dueDate = block.timestamp + 30 days;
+        
+        // case1: due date < block.timestamp < due date + grace period
+        vm.warp(block.timestamp + 31 days);
+
+        vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotPastDueDatePlusGracePeriod.selector, 1));
+
+        vm.prank(users.pool_admin);
+        wrappedLoanManagerProxy.triggerDefault(1);
+
+        // case2: block.timestamp > due date + grace period
+        vm.warp(block.timestamp + 6 days + 100 days);
+
+        vm.expectEmit(true, true, true, true);
+        emit PrincipalOutUpdated(0);
+
+        vm.expectEmit(true, true, true, true);
+        emit IssuanceParamsUpdated(uint48(block.timestamp), 0, 0);
+
+        vm.prank(users.pool_admin);
+        (uint256 remainingLosses, uint256 protocolFee) = wrappedLoanManagerProxy.triggerDefault(1);
+
+        // 100 days late
+        uint256 fullDaysLate = ((block.timestamp - dueDate + (1 days - 1)) / 1 days) * 1 days;
+        uint256 latePeriodicInterestRate = uint256(0.32e6) * (1e18 / 1e6) * fullDaysLate / 365 days; // e6 * e18 / e6 = e18
+
+        (uint256 principal, uint256[2] memory interests) = wrappedLoanManagerProxy.getLoanPaymentDetailedBreakdown(1);
+
+        uint256 netInterest = newRate * 30 days / 1e27;
+        uint256 netLateInterest = 100_000e6 * latePeriodicInterestRate / 1e18;
+
+        // notice that the netInterest is not the same as the interests[0] in the loan payment breakdown
+        // one is calculated by the issuanceRate, the other is calculated by the periodicInterestRate
+        assertEq(principal, 100_000e6);
+        assertEq(interests[1], netLateInterest);
+        assertEq(remainingLosses, principal + netInterest + netLateInterest);
+        assertEq(protocolFee, 0);
+
+
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
