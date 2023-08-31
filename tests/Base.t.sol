@@ -19,7 +19,7 @@ import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 import { LopoGlobals } from "../contracts/LopoGlobals.sol";
 
-abstract contract BaseTest is StdCheats, Events, Utils {
+abstract contract Base_Test is StdCheats, Events, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/

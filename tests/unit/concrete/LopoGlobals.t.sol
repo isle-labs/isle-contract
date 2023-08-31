@@ -12,9 +12,9 @@ import { ILopoGlobalsEvents } from "../../../contracts/interfaces/ILopoGlobalsEv
 
 import { Address } from "../../accounts/Address.sol";
 
-import { BaseTest } from "../../BaseTest.t.sol";
+import { Base_Test } from "../../Base.t.sol";
 
-contract LopoGlobalsTest is BaseTest, ILopoGlobalsEvents {
+contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
     uint256 internal constant PROTOCOL_FEE = 5 * HUNDRED_PERCENT / 1000; // 0.5%

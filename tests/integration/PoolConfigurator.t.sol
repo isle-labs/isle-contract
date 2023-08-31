@@ -11,9 +11,9 @@ import { IPoolConfiguratorEvents } from "../../contracts/interfaces/pool/IPoolCo
 import { IPool } from "../../contracts/interfaces/IPool.sol";
 
 import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
-import { IntegrationTest } from "./Integration.t.sol";
+import { Integration_Test } from "./Integration.t.sol";
 
-contract PoolConfiguratorTest is IntegrationTest, IPoolConfiguratorEvents {
+contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
     uint256 internal _delta_ = 1e6;
 
     PoolConfiguratorHarness internal poolConfiguratorHarness;

@@ -19,9 +19,9 @@ import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { LoanManager } from "../../contracts/LoanManager.sol";
 import { WithdrawalManager } from "../../contracts/WithdrawalManager.sol";
 
-import { BaseTest } from "../BaseTest.t.sol";
+import { Base_Test } from "../Base.t.sol";
 
-contract IntegrationTest is BaseTest {
+contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                 TEST CONTRACTS
     //////////////////////////////////////////////////////////////////////////*/

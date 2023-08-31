@@ -14,9 +14,9 @@ import { IReceivableEvent } from "../../contracts/interfaces/IReceivableEvent.so
 import { Receivable } from "../../contracts/Receivable.sol";
 import { ReceivableStorage } from "../../contracts/ReceivableStorage.sol";
 
-import { IntegrationTest } from "./Integration.t.sol";
+import { Integration_Test } from "./Integration.t.sol";
 
-contract ReceivableTest is IntegrationTest, IReceivableEvent {
+contract ReceivableTest is Integration_Test, IReceivableEvent {
     IERC721EnumerableUpgradeable receivableProxyERC721;
 
     function setUp() public virtual override {

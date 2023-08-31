@@ -6,7 +6,7 @@ import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Pool } from "../../contracts/Pool.sol";
 
-import { IntegrationTest } from "./Integration.t.sol";
+import { Integration_Test } from "./Integration.t.sol";
 
 // Notice that this contract is for testing internal functions of Pool contract
 contract PoolHarness is Pool {
@@ -84,7 +84,7 @@ contract PoolHarness is Pool {
     }
 }
 
-contract PoolHarnessTest is IntegrationTest {
+contract PoolHarnessTest is Integration_Test {
     PoolHarness internal poolHarness;
     uint256 internal _delta_ = 1e6; // in USDC's case
 
