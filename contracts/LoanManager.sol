@@ -332,32 +332,27 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 originalDueDate_ = loan_.dueDate;
 
         // if payment is late, do not change the payment due date
-        uint256 newDueDate_ = block.timestamp > originalDueDate_ ? originalDueDate_ : block.timestamp;
+        uint256 newDueDate_ = _min(block.timestamp, originalDueDate_);
 
         LoanInfo storage loanStorage_ = _loans[loanId_];
 
         loanStorage_.dueDate = newDueDate_;
         loanStorage_.originalDueDate = originalDueDate_;
+        loanStorage_.isImpaired = true;
 
         emit LoanImpaired({ loanId_: loanId_, newDueDate_: newDueDate_ });
     }
 
     /// @inheritdoc ILoanManager
-    function removeLoanImpairment(uint16 loanId_) external override nonReentrant whenNotPaused {
+    function removeLoanImpairment(uint16 loanId_)
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        onlyPoolAdminOrGovernor
+    {
         LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
         LoanInfo memory loan_ = _loans[loanId_];
-
-        if (msg.sender != _governor() && (liquidationInfo_.triggeredByGovernor || msg.sender != _poolAdmin())) {
-            revert Errors.NotPoolAdminOrGovernor({ caller_: msg.sender });
-        }
-
-        if (loan_.dueDate < block.timestamp) {
-            revert Errors.LoanManager_PastDueDate({
-                loanId_: loanId_,
-                dueDate_: loan_.dueDate,
-                currentTimestamp_: block.timestamp
-            });
-        }
 
         _advanceGlobalPaymentAccounting();
 
