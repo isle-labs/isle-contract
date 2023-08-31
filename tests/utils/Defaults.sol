@@ -16,7 +16,7 @@ contract Defaults is Constants {
     uint256 public constant LIQUIDITY_CAP = 1_000_000e6;
     uint256 public constant DEPOSIT_AMOUNT = 100_000;
     uint256 public constant MINT_AMOUNT = 10_000;
-    uint256 public DEADLINE;
+    uint256 public immutable DEADLINE;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
