@@ -9,7 +9,7 @@ abstract contract Pool_Integration_Concrete_Test is Integration_Test {
 
         changePrank(users.poolAdmin);
         setupPoolConfigurator();
-        setupPool();
+        setupPool(); // initialized pool state for testing
 
         // Make the msg sender the default caller
         changePrank(users.caller);
@@ -25,8 +25,8 @@ abstract contract Pool_Integration_Concrete_Test is Integration_Test {
     function setupPool() internal {
         changePrank(users.caller);
 
+        // Caller is the singler depositor initially
         pool.deposit({ assets: defaults.POOL_SHARES(), receiver: users.caller });
-
         airdropTo(address(pool), defaults.POOL_ASSETS() - usdc.balanceOf(address(pool)));
     }
 }
