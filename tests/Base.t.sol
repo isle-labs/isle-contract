@@ -9,17 +9,35 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 import { Events } from "./utils/Events.sol";
 import { Defaults } from "./utils/Defaults.sol";
+import { Constants } from "./utils/Constants.sol";
 import { Utils } from "./utils/Utils.sol";
 import { Users } from "./utils/Types.sol";
 
-import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
-
+// Mocks
 import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
 
-import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
-import { LopoGlobals } from "../contracts/LopoGlobals.sol";
+// interfaces
+import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
+import { IReceivable } from "../contracts/interfaces/IReceivable.sol";
+import { IPoolAddressesProvider } from "../contracts/interfaces/IPoolAddressesProvider.sol";
+import { IPoolConfigurator } from "../contracts/interfaces/IPoolConfigurator.sol";
+import { ILoanManager } from "../contracts/interfaces/ILoanManager.sol";
+import { IWithdrawalManager } from "../contracts/interfaces/IWithdrawalManager.sol";
+import { IPool } from "../contracts/interfaces/IPool.sol";
 
-abstract contract Base_Test is StdCheats, Events, Utils {
+// storage
+import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
+
+// main contracts
+import { LopoGlobals } from "../contracts/LopoGlobals.sol";
+import { Receivable } from "../contracts/Receivable.sol";
+import { PoolAddressesProvider } from "../contracts/PoolAddressesProvider.sol";
+import { PoolConfigurator } from "../contracts/PoolConfigurator.sol";
+import { LoanManager } from "../contracts/LoanManager.sol";
+import { WithdrawalManager } from "../contracts/WithdrawalManager.sol";
+import { Pool } from "../contracts/Pool.sol";
+
+abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -32,15 +50,29 @@ abstract contract Base_Test is StdCheats, Events, Utils {
 
     MintableERC20WithPermit internal usdc;
     Defaults internal defaults;
-    ILopoGlobals internal globalsV1;
-    ILopoGlobals internal lopoGlobalsProxy;
+
+    // Lopo Globals UUPS contract
+    ILopoGlobals internal lopoGlobals;
+
+    // Receivable UUPS contract
+    IReceivable internal receivable;
+
+    // Transparent proxy contracts
+    IPoolAddressesProvider internal poolAddressesProvider; // Pool admin of the following contracts
+    IPoolConfigurator internal poolConfigurator;
+    IPool internal pool;
+    ILoanManager internal loanManager;
+    IWithdrawalManager internal withdrawalManager;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        usdc = new MintableERC20WithPermit("Circle USD", "USDC", 6);
+        usdc = new MintableERC20WithPermit("Circle USD", "USDC", ASSET_DECIMALS);
+
+        // label contracts
+        vm.label(address(usdc), "USDC");
 
         // create users for testing
         users = Users({
@@ -51,7 +83,9 @@ abstract contract Base_Test is StdCheats, Events, Utils {
             caller: createUser("Caller"),
             staker: createAccount("Staker"),
             notStaker: createAccount("NotStaker"),
-            receiver: createUser("Receiver")
+            receiver: createUser("Receiver"),
+            notWhitelistedReceiver: createUser("notWhitelistedReceiver"),
+            nullUser: createUser("nullUser")
         });
 
         // Deploy the defaults contract
@@ -59,32 +93,97 @@ abstract contract Base_Test is StdCheats, Events, Utils {
         defaults.setAsset(usdc);
         defaults.setUsers(users);
 
-        setUpGlobals();
-
-        // label the base test contracts
-        labelBaseContracts();
-
-        // onboard users
-        onboardUsersAndAssetsToGlobals();
+        vm.warp({ timestamp: MAY_1_2023 });
+        vm.startPrank(users.poolAdmin); // NOTE: Start prank so that change prank can work in the test suite
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUpGlobals() internal {
-        // Deploy the base test contracts
-        globalsV1 = new LopoGlobals();
-        // deploy LopoGlobalsProxy and point it to the implementation
-        lopoGlobalsProxy = ILopoGlobals(address(new UUPSProxy(address(globalsV1), "")));
-        // initialize the LopoGlobalsProxy, assign the governor
-        lopoGlobalsProxy.initialize(users.governor);
+    /// @dev Deploy all related lopo contracts
+    function deployContracts() internal {
+        deployGlobals();
+        deployReceivable();
+        deployPool();
     }
 
-    function labelBaseContracts() internal {
-        vm.label(address(usdc), "USDC");
-        vm.label(address(globalsV1), "globalsV1");
-        vm.label(address(lopoGlobalsProxy), "lopoGlobalsProxy");
+    /// @dev Deploy lopo Globals as an UUPS proxy
+    function deployGlobals() internal {
+        changePrank(users.governor);
+
+        lopoGlobals = ILopoGlobals(address(new UUPSProxy(address(new LopoGlobals()), "")));
+        lopoGlobals.initialize(users.governor);
+        vm.label(address(lopoGlobals), "LopoGlobals");
+
+        // Quick setup for globals
+        lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
+        lopoGlobals.setValidBuyer(users.buyer, true);
+        lopoGlobals.setValidPoolAsset(address(usdc), true);
+    }
+
+    /// @dev Deploy receivable as an UUPS proxy
+    function deployReceivable() internal {
+        changePrank(users.governor);
+
+        receivable = IReceivable(address(new UUPSProxy(address(new Receivable()), "")));
+        receivable.initialize(users.governor);
+        vm.label(address(receivable), "Receivable");
+    }
+
+    /// @dev Deploy pool
+    function deployPool() internal {
+        changePrank(users.poolAdmin);
+
+        poolAddressesProvider = new PoolAddressesProvider(users.poolAdmin, "BSOS Green Finance", address(lopoGlobals));
+
+        deployPoolConfigurator();
+        deployWithdrawalManager();
+        deployLoanManager();
+
+        poolConfigurator = IPoolConfigurator(poolAddressesProvider.getPoolConfigurator());
+        loanManager = ILoanManager(poolAddressesProvider.getLoanManager());
+        withdrawalManager = IWithdrawalManager(poolAddressesProvider.getWithdrawalManager());
+        pool = IPool(poolConfigurator.pool());
+
+        vm.label(address(poolAddressesProvider), "PoolAddressesProvider");
+        vm.label(address(poolConfigurator), "PoolConfigurator");
+        vm.label(address(pool), "Pool");
+        vm.label(address(loanManager), "LoanManager");
+        vm.label(address(withdrawalManager), "WithdrawalManager");
+    }
+
+    /// @dev Deploy pool configurator
+    function deployPoolConfigurator() internal {
+        address poolConfigurator_ = address(new PoolConfigurator(poolAddressesProvider));
+        bytes memory params_ = abi.encodeWithSelector(
+            IPoolConfigurator.initialize.selector,
+            address(poolAddressesProvider),
+            address(usdc),
+            users.poolAdmin,
+            "BSOS Green Share",
+            "BGS"
+        );
+        poolAddressesProvider.setPoolConfiguratorImpl(poolConfigurator_, params_);
+    }
+
+    /// @dev Deploy withdrawal manager
+    function deployWithdrawalManager() internal {
+        address withdrawalManager_ = address(new WithdrawalManager(poolAddressesProvider));
+
+        bytes memory params = abi.encodeWithSelector(
+            IWithdrawalManager.initialize.selector,
+            address(poolAddressesProvider),
+            defaults.CYCLE_DURATION(),
+            defaults.WINDOW_DURATION()
+        );
+        poolAddressesProvider.setWithdrawalManagerImpl(withdrawalManager_, params);
+    }
+
+    /// @dev Deploy loan manager
+    function deployLoanManager() internal {
+        address loanManager_ = address(new LoanManager(poolAddressesProvider));
+        poolAddressesProvider.setLoanManagerImpl(loanManager_);
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.
@@ -101,11 +200,14 @@ abstract contract Base_Test is StdCheats, Events, Utils {
     }
 
     function onboardUsersAndAssetsToGlobals() internal {
-        vm.startPrank(users.governor);
-        lopoGlobalsProxy.setValidPoolAsset(address(usdc), true);
-        lopoGlobalsProxy.setValidBuyer(users.buyer, true);
-        lopoGlobalsProxy.setValidPoolAdmin(users.poolAdmin, true);
-        vm.stopPrank();
+        lopoGlobals.setValidPoolAsset(address(usdc), true);
+        lopoGlobals.setValidBuyer(users.buyer, true);
+        lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
+    }
+
+    /// @dev Airdrops a specified amount of usdc to a recipient
+    function airdropTo(address recipient_, uint256 amount_) internal {
+        usdc.mint({ recipient_: recipient_, amount_: amount_ });
     }
 
     function printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
@@ -118,10 +220,6 @@ abstract contract Base_Test is StdCheats, Events, Utils {
         console.log("-> isValid: %s", RECVInfo.isValid);
         console.log("-> currencyCode: %s", RECVInfo.currencyCode);
         console.log(""); // for layout
-    }
-
-    function airdropTo(address recipient_, uint256 amount_) internal {
-        usdc.mint({ recipient_: recipient_, amount_: amount_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

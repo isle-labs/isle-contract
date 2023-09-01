@@ -25,7 +25,7 @@ contract DepositWithPermit_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_DepositGreaterThanMax() external {
-        uint256 maxAssets_ = defaults.LIQUIDITY_CAP();
+        uint256 maxAssets_ = pool.maxDeposit(users.receiver);
         uint256 assets_ = maxAssets_ + 1;
         uint256 deadline_ = defaults.DEADLINE();
 

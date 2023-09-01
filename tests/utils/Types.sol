@@ -20,4 +20,8 @@ struct Users {
     StdCheats.Account notStaker;
     // Default deposit/mint/redeem/withdraw receiver
     address payable receiver;
+    // Default deposit/mint/redeem/withdraw unwhitelisted receiver
+    address payable notWhitelistedReceiver;
+    // Default null user that is used
+    address payable nullUser;
 }

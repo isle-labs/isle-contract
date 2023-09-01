@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
@@ -14,6 +15,8 @@ contract MintWithPermit_Integration_Concrete_Test is
     Mint_Integration_Shared_Test,
     Permit_Integration_Shared_Test
 {
+    using Math for uint256;
+
     function setUp()
         public
         virtual
@@ -25,7 +28,7 @@ contract MintWithPermit_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_MintGreaterThanMax() external {
-        uint256 maxShares_ = defaults.LIQUIDITY_CAP();
+        uint256 maxShares_ = pool.maxMint(users.receiver);
 
         uint256 shares_ = maxShares_ + 1;
         uint256 assets_ = pool.previewMint(shares_);
