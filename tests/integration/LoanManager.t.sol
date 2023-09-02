@@ -15,14 +15,15 @@ import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
 import { Integration_Test } from "./Integration.t.sol";
 
 contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
-    uint256 internal _delta_ = 1e6;
-
     /*//////////////////////////////////////////////////////////////////////////
                                 SET-UP FUNCTION
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
-        super.setUp();
+        Integration_Test.setUp();
+
+        changePrank(users.poolAdmin);
+        _setupPoolConfigurator();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         uint256 accruedInterest_ = loanManager.accruedInterest();
         assertEq(accruedInterest_, 0);
 
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRate,) = _createLoan(100_000e6);
 
         vm.warp(block.timestamp + 100 days);
@@ -48,7 +49,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         uint256 assetsUnderManagement_ = loanManager.assetsUnderManagement();
         assertEq(assetsUnderManagement_, 0);
 
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRateFirst,) = _createLoan(100_000e6);
 
         // AUM = principalOut + accountedInterest + accruedInterest
@@ -76,7 +77,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         assertEq(interest_[0], 0);
         assertEq(interest_[1], 0);
 
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (, uint256 periodicInterestRate) = _createLoan(100_000e6);
         uint256 dueDate = block.timestamp + 30 days;
 
@@ -106,7 +107,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         assertEq(principal_, 0);
         assertEq(interest_, 0);
 
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (, uint256 periodicInterestRate) = _createLoan(100_000e6);
         uint256 dueDate = block.timestamp + 30 days;
 
@@ -130,7 +131,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_updateAccounting() public {
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRateFirst,) = _createLoan(100_000e6);
 
         // AUM = principalOut + accountedInterest + accruedInterest
@@ -144,14 +145,14 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         assertEq(assetsUnderManagement_, 100_000e6 + 0e6 + newRateFirst * 100 days / 1e27);
 
         // case2: pool admin manually trigger _advanceGlobalPaymentAccounting()
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanManager.updateAccounting();
         assetsUnderManagement_ = loanManager.assetsUnderManagement();
         assertEq(assetsUnderManagement_, 100_000e6 + newRateFirst * 30 days / 1e27 + 0e6);
     }
 
     function test_approveLoan() public {
-        uint256 receivablesTokenId_ = _createReceivable(1_000_000e6);
+        uint256 receivablesTokenId_ = createReceivable(1_000_000e6);
 
         address collateralAsset_ = address(receivable);
         uint256 gracePeriod_ = 7;
@@ -162,7 +163,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         vm.expectEmit(true, true, true, true);
         emit LoanApproved(1);
 
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         uint16 loanId_ = loanManager.approveLoan(
             collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_, fee_
         );
@@ -171,13 +172,13 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
     function test_fundLoan() public {
         // create receivable collateral
-        uint256 receivablesTokenId_ = _createReceivable(100_000e6);
+        uint256 receivablesTokenId_ = createReceivable(100_000e6);
 
         // caller deposits some funds into the pool
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         uint256 poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
 
-        uint16 loanId_ = _approveLoan(receivablesTokenId_, 100_000e6);
+        uint16 loanId_ = approveLoan(receivablesTokenId_, 100_000e6);
 
         // emit by fundLoan()
         vm.expectEmit(true, true, true, true);
@@ -200,7 +201,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
         // assume that the poolCover is higher than minCoverAmount
         // and the liquidity of the pool after funding is higher than lockedLiquidity for withdrawing
-        _fundLoan(loanId_);
+        fundLoan(loanId_);
 
         uint256 poolBalanceAfter = IERC20(address(usdc)).balanceOf(address(pool));
 
@@ -208,12 +209,12 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
         // second loan with same params
         vm.warp(block.timestamp + 15 days);
-        receivablesTokenId_ = _createReceivable(100_000e6);
+        receivablesTokenId_ = createReceivable(100_000e6);
 
-        // _callerDepositToReceiver() already reached the liquidity cap
+        // callerDepositToReceiver() already reached the liquidity cap
         poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
 
-        loanId_ = _approveLoan(receivablesTokenId_, 100_000e6);
+        loanId_ = approveLoan(receivablesTokenId_, 100_000e6);
 
         // emit by fundLoan()
         vm.expectEmit(true, true, true, true);
@@ -230,14 +231,14 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         uint256 issuanceRate = newRate * 2;
         emit IssuanceParamsUpdated(uint48(block.timestamp + 15 days), issuanceRate, accountedInterest);
 
-        _fundLoan(loanId_);
+        fundLoan(loanId_);
     }
 
     function test_repayLoan() public {
         // set the admin and protocol fee rate to 10% and 0.5%
         _setAdminAndProtocolFeeRate(0.1e6, 0.005e6);
 
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (, uint256 periodicInterestRate) = _createLoan(100_000e6);
 
         vm.warp(block.timestamp + 15 days);
@@ -275,7 +276,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         // since there is no other loan, the domainEnd is set to block.timestamp
         emit IssuanceParamsUpdated(uint48(block.timestamp), 0, 0);
 
-        vm.startPrank(users.buyer);
+        changePrank(users.buyer);
         // buyer already approve the allowance to the loanManager
         loanManager.repayLoan(1);
 
@@ -290,7 +291,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function test_withdrawFunds() public {
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
 
         // before balance
         uint256 poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
@@ -303,7 +304,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         emit FundsWithdrawn(1, 100_000e6);
 
         // seller withdraws the funds
-        vm.prank(users.seller);
+        changePrank(users.seller);
         loanManager.withdrawFunds(1, users.seller, 100_000e6);
 
         // after balance
@@ -315,7 +316,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function test_impairLoan() public {
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRate,) = _createLoan(100_000e6);
 
         vm.warp(block.timestamp + 15 days);
@@ -332,7 +333,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         emit LoanImpaired(1, block.timestamp);
 
         // the pool admin trigger the impairment
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         // check unrealized losses
@@ -341,13 +342,13 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function test_removeLoanImpairment() public {
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRate,) = _createLoan(100_000e6);
 
         vm.warp(block.timestamp + 15 days);
 
         // the pool admin trigger the impairment
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.warp(block.timestamp + 5 days);
@@ -366,7 +367,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         emit ImpairmentRemoved(1, block.timestamp + 10 days);
 
         // reverse the impairment
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanManager.removeLoanImpairment(1);
 
         // check unrealized losses
@@ -375,7 +376,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function test_triggerDefault() public {
-        _callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
+        callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (uint256 newRate,) = _createLoan(100_000e6);
 
         uint256 dueDate = block.timestamp + 30 days;
@@ -385,7 +386,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotPastDueDatePlusGracePeriod.selector, 1));
 
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanManager.triggerDefault(1);
 
         // case2: block.timestamp > due date + grace period
@@ -397,7 +398,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         vm.expectEmit(true, true, true, true);
         emit IssuanceParamsUpdated(uint48(block.timestamp), 0, 0);
 
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         (uint256 remainingLosses, uint256 protocolFee) = loanManager.triggerDefault(1);
 
         // 100 days late
@@ -422,14 +423,28 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
                                 HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _setupPoolConfigurator() internal {
+        poolConfigurator.setOpenToPublic(true);
+        poolConfigurator.setLiquidityCap(defaults.POOL_LIMIT());
+        poolConfigurator.setValidLender(users.receiver, true);
+        poolConfigurator.setValidLender(users.caller, true);
+
+        poolConfigurator.setValidBuyer(users.buyer, true);
+        poolConfigurator.setValidSeller(users.seller, true);
+    }
+
+    function _setLiquidityCap(uint256 liquidityCap_) internal {
+        poolConfigurator.setLiquidityCap(liquidityCap_);
+    }
+
     /// @notice the interest rate and duration is pre-defined to be 12% APR and 30 days
     function _createLoan(uint256 principalRequested_)
         internal
         returns (uint256 newRate_, uint256 periodicInterestRate_)
     {
-        uint256 receivablesTokenId = _createReceivable(principalRequested_);
-        uint16 loanId = _approveLoan(receivablesTokenId, principalRequested_);
-        _fundLoan(loanId);
+        uint256 receivablesTokenId = createReceivable(principalRequested_);
+        uint16 loanId = approveLoan(receivablesTokenId, principalRequested_);
+        fundLoan(loanId);
 
         periodicInterestRate_ = uint256(0.12e6) * (1e18 / 1e6) * 30 days / 365 days; // e6 * e18 / e6 = e18
         uint256 interest = principalRequested_ * periodicInterestRate_ / 1e18; // e6 * e18 / e18 = e6
@@ -438,10 +453,9 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function _setAdminAndProtocolFeeRate(uint256 adminFeeRate_, uint256 protocolFeeRate_) internal {
-        vm.startPrank(users.governor);
+        changePrank(users.governor);
         lopoGlobals.setProtocolFeeRate(address(poolConfigurator), protocolFeeRate_);
         changePrank(users.poolAdmin);
         poolConfigurator.setAdminFeeRate(adminFeeRate_);
-        vm.stopPrank();
     }
 }

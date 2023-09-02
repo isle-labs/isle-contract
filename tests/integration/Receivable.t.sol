@@ -17,7 +17,7 @@ contract ReceivableTest is Integration_Test {
         emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 30 days);
 
         // caller of createReceivable() should be buyer
-        vm.prank(users.buyer);
+        changePrank(users.buyer);
         receivable.createReceivable(users.buyer, users.seller, ud(1000e18), block.timestamp + 30 days, 804);
 
         uint256 tokenId = receivable.tokenOfOwnerByIndex(address(users.seller), 0);
@@ -44,31 +44,32 @@ contract ReceivableTest is Integration_Test {
         vm.expectEmit(true, true, true, true);
         emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 30 days);
 
-        _createReceivable(1000e18);
+        createReceivable(1000e18);
 
         MockReceivableV2 receivableV2 = new MockReceivableV2();
 
-        vm.prank(users.governor);
+        changePrank(users.governor);
         receivable.upgradeTo(address(receivableV2));
 
         // re-wrap the proxy to the new implementation
-        receivableV2 = MockReceivableV2(address(receivable));
+        MockReceivableV2 wrappedReceivableV2 = MockReceivableV2(address(receivable));
 
+        changePrank(users.caller);
         // @notice Receivable is already initialized, so we cannot call initialize() again
-        string memory text = receivableV2.upgradeV2Test();
+        string memory text = wrappedReceivableV2.upgradeV2Test();
         assertEq(text, "ReceivableV2");
 
-        uint256 tokenId = receivableV2.tokenOfOwnerByIndex(address(users.seller), 0);
+        uint256 tokenId = wrappedReceivableV2.tokenOfOwnerByIndex(address(users.seller), 0);
 
         // RecevableInfo
-        ReceivableStorage.ReceivableInfo memory RECVInfo = receivableV2.getReceivableInfoById(tokenId);
+        ReceivableStorage.ReceivableInfo memory RECVInfo = wrappedReceivableV2.getReceivableInfoById(tokenId);
 
         // assertions
         assertEq(tokenId, 0);
-        assertEq(receivableV2.ownerOf(tokenId), users.seller);
-        assertEq(receivableV2.balanceOf(users.seller), 1);
-        assertEq(receivableV2.totalSupply(), 1);
-        assertEq(receivableV2.tokenByIndex(0), tokenId);
+        assertEq(wrappedReceivableV2.ownerOf(tokenId), users.seller);
+        assertEq(wrappedReceivableV2.balanceOf(users.seller), 1);
+        assertEq(wrappedReceivableV2.totalSupply(), 1);
+        assertEq(wrappedReceivableV2.tokenByIndex(0), tokenId);
 
         assertEq(RECVInfo.buyer, users.buyer);
         assertEq(RECVInfo.seller, users.seller);
@@ -78,6 +79,6 @@ contract ReceivableTest is Integration_Test {
         assertEq(RECVInfo.currencyCode, 804);
 
         // test getImplementation() in V2
-        assertEq(receivableV2.getImplementation(), address(receivableV2));
+        assertEq(wrappedReceivableV2.getImplementation(), address(receivableV2));
     }
 }
