@@ -103,8 +103,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     /// @dev Deploy all related lopo contracts
     function deployContracts() internal {
-        deployGlobals();
         deployReceivable();
+        deployGlobals();
         deployPool();
     }
 
@@ -118,15 +118,15 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
         // Quick setup for globals
         lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
-        lopoGlobals.setValidBuyer(users.buyer, true);
         lopoGlobals.setValidPoolAsset(address(usdc), true);
+        lopoGlobals.setValidCollateralAsset(address(receivable), true);
     }
 
     /// @dev Deploy receivable as an UUPS proxy
     function deployReceivable() internal {
         changePrank(users.governor);
 
-        // notice here we use Receivable instead of its interface IReceivable, since we want to call function 
+        // notice here we use Receivable instead of its interface IReceivable, since we want to call function
         receivable = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
         receivable.initialize(users.governor);
         vm.label(address(receivable), "Receivable");
@@ -200,12 +200,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         deal({ token: address(usdc), to: account_.addr, give: 1_000_000e18 });
     }
 
-    function onboardUsersAndAssetsToGlobals() internal {
-        lopoGlobals.setValidPoolAsset(address(usdc), true);
-        lopoGlobals.setValidBuyer(users.buyer, true);
-        lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
-    }
-
     /// @dev Airdrops a specified amount of usdc to a recipient
     function airdropTo(address recipient_, uint256 amount_) internal {
         usdc.mint({ recipient_: recipient_, amount_: amount_ });
@@ -229,38 +223,41 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
         changePrank(users.receiver);
         usdc.approve(address(pool), type(uint256).max);
+
+        changePrank(users.buyer);
+        usdc.approve(address(loanManager), type(uint256).max);
     }
 
-    function _callerDepositToReceiver(address caller, address receiver, uint256 amount) internal {
+    function callerDepositToReceiver(address caller, address receiver, uint256 amount) internal {
         changePrank(caller);
         pool.deposit(amount, receiver);
     }
 
-    function _callerMintToReceiver(address caller, address receiver, uint256 amount) internal {
+    function callerMintToReceiver(address caller, address receiver, uint256 amount) internal {
         changePrank(caller);
         pool.mint(amount, receiver);
     }
 
-    function _createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
-        vm.prank(users.buyer);
+    function createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
+        changePrank(users.buyer);
         receivablesTokenId_ =
             receivable.createReceivable(users.buyer, users.seller, ud(faceAmount_), block.timestamp + 30 days, 804);
     }
 
-    function _approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
+    function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
         address collateralAsset_ = address(receivable);
         uint256 gracePeriod_ = 7 days;
         uint256[2] memory rates_ = [uint256(0.12e6), uint256(0.2e6)];
         uint256 fee_ = 0;
 
-        vm.prank(users.poolAdmin);
+        changePrank(users.poolAdmin);
         loanId_ = loanManager.approveLoan(
             collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_, fee_
         );
     }
 
-    function _fundLoan(uint16 loanId_) internal {
-        vm.prank(users.poolAdmin);
+    function fundLoan(uint16 loanId_) internal {
+        changePrank(users.poolAdmin);
         loanManager.fundLoan(loanId_);
     }
 
