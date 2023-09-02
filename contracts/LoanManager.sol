@@ -903,7 +903,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 netInterest_,
         uint256 netLateInterest_
     )
-        public
+        internal
         returns (uint256 remainingLosses_)
     {
         LoanInfo memory loan_ = _loans[loanId_];
