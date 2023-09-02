@@ -44,7 +44,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     bool public override protocolPaused;
 
-    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public isFunctionUnpaused;
 
@@ -226,11 +225,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         }
         poolAdmins[poolAdmin_].ownedPoolConfigurator = poolConfigurator_;
         emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
-    }
-
-    function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {
-        isBuyer[buyer_] = isValid_;
-        emit ValidBuyerSet(buyer_, isValid_);
     }
 
     function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {

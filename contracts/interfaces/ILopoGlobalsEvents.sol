@@ -63,13 +63,6 @@ interface ILopoGlobalsEvents {
     );
 
     /**
-     *  @dev   A valid buyer was set.
-     *  @param buyer_ The address of the buyer.
-     *  @param isValid_  The validity of the buyer.
-     */
-    event ValidBuyerSet(address indexed buyer_, bool isValid_);
-
-    /**
      *  @dev   A valid asset was set.
      *  @param collateralAsset_ The address of the collateral asset.
      *  @param isValid_         The validity of the collateral asset.
