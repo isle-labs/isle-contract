@@ -2,12 +2,17 @@
 pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+
 import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 
 interface ILopoGlobals is ILopoGlobalsEvents {
     /*//////////////////////////////////////////////////////////////////////////
                             CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function initialize(address governor_) external;
+
+    function getImplementation() external view returns (address);
 
     function poolAdmins(address poolAdmin_) external view returns (address ownedPoolConfigurator_, bool isPoolAdmin_);
 
@@ -58,6 +63,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      *  @return isCollateralAsset_ A boolean indicating the validity of the collateral asset.
      */
     function isCollateralAsset(address collateralAsset_) external view returns (bool isCollateralAsset_);
+
+    function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
     /**
      *  @dev    Gets the validity of a pool asset.
@@ -127,6 +134,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
+    function setValidReceivable(address receivable_, bool isValid_) external;
+
     function setValidBuyer(address buyer_, bool isValid_) external;
 
     function setRiskFreeRate(uint256 riskFreeRate_) external;
@@ -144,4 +153,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function setMinCoverAmount(address poolConfigurator_, uint256 minCover_) external;
 
     function setMaxCoverLiquidationPercent(address poolConfigurator_, uint256 maxCoverLiquidationPercent_) external;
+
+    function setWithdrawalDurationInDays(address poolConfigurator_, uint256 withdrawalDurationInDays_) external;
 }

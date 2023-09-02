@@ -11,8 +11,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { Errors } from "./libraries/Errors.sol";
+
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
+import { IAdminable } from "./interfaces/IAdminable.sol";
+
 import { Adminable } from "./abstracts/Adminable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 
@@ -30,34 +33,10 @@ contract Receivable is
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
+    function _authorizeUpgrade(address newImplementation) internal override onlyAdmin { }
 
-    function getImplementation() external view returns (address) {
+    function getImplementation() external view override returns (address) {
         return _getImplementation();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            Storage
-    //////////////////////////////////////////////////////////////////////////*/
-
-    ILopoGlobals globals_;
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            Modifiers
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier onlyBuyer() {
-        if (!globals_.isBuyer(msg.sender)) {
-            revert Errors.Receivable_CallerNotBuyer(msg.sender);
-        }
-        _;
-    }
-
-    modifier onlyGovernor() {
-        if (msg.sender != governor()) {
-            revert Errors.Receivable_CallerNotGovernor(governor(), msg.sender);
-        }
-        _;
     }
 
     /// @custom:oz-upgrades-unsafe-allow constructor
@@ -68,18 +47,18 @@ contract Receivable is
     /**
      * @dev Initializer that sets the default admin and buyer roles
      */
-    function initialize(address lopoGlobals_) public initializer {
+    function initialize(address initialAdmin_) external override initializer {
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
-        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
-            revert Errors.Receivable_InvalidGlobals(address(lopoGlobals_));
-        }
-        globals_ = ILopoGlobals(lopoGlobals_);
+
+        admin = initialAdmin_;
+        emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin_ });
     }
 
     /**
-     * @dev Buyer creates a new receivable
+     * @dev Mint a new receivable
+     * @param buyer_ The address of the buyer that's expected to pay for this receivable
      * @param seller_ The address of the seller that's expected to receive payment for this receivable
      * @param faceAmount_ The amount of the receivable
      * @param repaymentTimestamp_ The timestamp when the receivable is expected to be repaid
@@ -91,6 +70,7 @@ contract Receivable is
      * @notice The event faceAmount is converted to decimal with 6 decimals
      */
     function createReceivable(
+        address buyer_,
         address seller_,
         UD60x18 faceAmount_,
         uint256 repaymentTimestamp_,
@@ -104,7 +84,7 @@ contract Receivable is
         _tokenIdCounter += 1;
 
         idToReceivableInfo[tokenId_] = ReceivableInfo({
-            buyer: msg.sender,
+            buyer: buyer_,
             seller: seller_,
             faceAmount: faceAmount_,
             repaymentTimestamp: repaymentTimestamp_,
@@ -114,7 +94,7 @@ contract Receivable is
 
         _safeMint(seller_, tokenId_);
         uint256 faceAmountToUint256 = faceAmount_.intoUint256();
-        emit AssetCreated(msg.sender, seller_, tokenId_, faceAmountToUint256, repaymentTimestamp_);
+        emit AssetCreated(buyer_, seller_, tokenId_, faceAmountToUint256, repaymentTimestamp_);
 
         return tokenId_;
     }
@@ -152,29 +132,5 @@ contract Receivable is
         returns (bool)
     {
         return super.supportsInterface(interfaceId_);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            Global Setter
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function setLopoGlobals(address lopoGlobals_) external override onlyGovernor {
-        if (ILopoGlobals(lopoGlobals_).governor() == address(0)) {
-            revert Errors.Receivable_InvalidGlobals(lopoGlobals_);
-        }
-        emit LopoGlobalsSet(address(globals_), lopoGlobals_);
-        globals_ = ILopoGlobals(lopoGlobals_);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            View Functions
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function lopoGlobals() public view override returns (address) {
-        return address(globals_);
-    }
-
-    function governor() public view override returns (address) {
-        return globals_.governor();
     }
 }

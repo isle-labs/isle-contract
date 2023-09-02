@@ -62,6 +62,7 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         string memory symbol_
     )
         external
+        override
         initializer
     {
         /* Checks */
@@ -204,9 +205,6 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /* Pool Admin Functions */
-    function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
-        emit ValidBuyerSet(buyer_, isBuyer[buyer_] = isValid_);
-    }
 
     function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
         emit ValidSellerSet(seller_, isSeller[seller_] = isValid_);

@@ -42,12 +42,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         ADDRESSES_PROVIDER = provider;
     }
 
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = LOAN_MANAGER_REVISION;
-    }
-
     /// @notice Initializes the Loan Manager.
-    /// @dev Function is invoked by the proxy contract when the Loan Manager COntract is added to the
+    /// @dev Function is invoked by the proxy contract when the Loan Manager Contract is added to the
     /// PoolAddressesProvider of the market
     /// @param provider_ The address of the PoolAddressesProvider
     function initialize(IPoolAddressesProvider provider_) external virtual initializer {
@@ -85,6 +81,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc VersionedInitializable
+    function getRevision() internal pure virtual override returns (uint256 revision_) {
+        revision_ = LOAN_MANAGER_REVISION;
+    }
 
     /// @inheritdoc ILoanManager
     function accruedInterest() public view override returns (uint256 accruedInterest_) {
@@ -946,7 +947,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     function _revertIfNotPoolAdmin() internal view {
         if (msg.sender != _poolAdmin()) {
-            revert Errors.NotPoolAdmin({ caller: msg.sender });
+            revert Errors.NotPoolAdmin(msg.sender);
         }
     }
 

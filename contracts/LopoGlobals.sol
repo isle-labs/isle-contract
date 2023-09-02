@@ -22,7 +22,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
 
-    function getImplementation() external view returns (address) {
+    function getImplementation() external view override returns (address) {
         return _getImplementation();
     }
 
@@ -56,6 +56,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
+    mapping(address => bool) public override isReceivable;
 
     // configs by poolAddressesProvider
     mapping(address => bool) public override isEnabled;
@@ -73,7 +74,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
                             Initialization
     //////////////////////////////////////////////////////////////////////////*/
 
-    function initialize(address governor_) external initializer {
+    function initialize(address governor_) external override initializer {
         admin = governor_;
         emit Initialized();
     }
@@ -242,6 +243,11 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
+    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
+        isReceivable[receivable_] = isValid_;
+        emit ValidReceivableSet(receivable_, isValid_);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
@@ -286,6 +292,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         uint256 withdrawalDurationInDays_
     )
         external
+        override
         onlyGovernor
     {
         emit WithdrawalDurationInDaysSet(poolConfigurator_, withdrawalDurationInDays_);

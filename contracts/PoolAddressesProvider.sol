@@ -8,6 +8,9 @@ import {
 
 import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
+import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
+import { ILoanManager } from "./interfaces/ILoanManager.sol";
+import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 
 contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     string private _marketId;
@@ -21,10 +24,10 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
     bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
 
-    constructor(string memory marketId_, address owner_, address lopoGlobals_) {
+    constructor(address admin_, string memory marketId_, address lopoGlobals_) {
+        admin = admin_;
         _marketId = marketId_;
         _addresses[LOPO_GLOBALS] = lopoGlobals_;
-        admin = owner_;
     }
 
     function getMarketId() external view returns (string memory) {
@@ -33,14 +36,6 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
 
     function setMarketId(string memory newMarketId_) external onlyAdmin {
         _marketId = newMarketId_;
-    }
-
-    /// @inheritdoc IPoolAddressesProvider
-    function setAddressAsProxy(bytes32 id, address newImplementationAddress) external override onlyAdmin {
-        address proxyAddress = _addresses[id];
-        address oldImplementationAddress = _getProxyImplementation(id);
-        _updateImpl(id, newImplementationAddress);
-        emit AddressSetAsProxy(id, proxyAddress, oldImplementationAddress, newImplementationAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,7 +50,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     /// @inheritdoc IPoolAddressesProvider
     function setPoolConfiguratorImpl(
         address newPoolConfiguratorImpl,
-        bytes memory params
+        bytes calldata params
     )
         external
         override
@@ -80,10 +75,33 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         return getAddress(WITHDRAWAL_MANAGER);
     }
 
-    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl) external override onlyAdmin {
+    function setWithdrawalManagerImpl(
+        address newWithdrawalManagerImpl,
+        bytes calldata params
+    )
+        external
+        override
+        onlyAdmin
+    {
         address oldWithdrawalManagerImpl = _getProxyImplementation(WITHDRAWAL_MANAGER);
-        _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl);
+        _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl, params);
         emit WithdrawalManagerUpdated(oldWithdrawalManagerImpl, newWithdrawalManagerImpl);
+    }
+
+    /// @inheritdoc IPoolAddressesProvider
+    function setAddressAsProxy(
+        bytes32 id,
+        address newImplementationAddress,
+        bytes calldata params
+    )
+        external
+        override
+        onlyAdmin
+    {
+        address proxyAddress = _addresses[id];
+        address oldImplementationAddress = _getProxyImplementation(id);
+        _updateImpl(id, newImplementationAddress, params);
+        emit AddressSetAsProxy(id, proxyAddress, oldImplementationAddress, newImplementationAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -135,7 +153,6 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         _updateImpl(id, newAddress, abi.encodeWithSignature("initialize(address)", address(this)));
     }
 
-    // Function overloading to support upgrades with custom params
     function _updateImpl(bytes32 id, address newAddress, bytes memory params) internal {
         address proxyAddress = _addresses[id];
         TransparentUpgradeableProxy proxy;

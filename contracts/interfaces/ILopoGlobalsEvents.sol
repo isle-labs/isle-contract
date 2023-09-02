@@ -83,6 +83,8 @@ interface ILopoGlobalsEvents {
      */
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
+    event ValidReceivableSet(address indexed receivable_, bool isValid_);
+
     event RiskFreeRateSet(uint256 indexed riskFreeRate_);
 
     event MinPoolLiquidityRatioSet(uint256 indexed minPoolLiquidityRatio_);

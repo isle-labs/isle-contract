@@ -2,37 +2,42 @@
 pragma solidity ^0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
+import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-import { Errors } from "../../contracts/libraries/Errors.sol";
+import { Errors } from "../../../contracts/libraries/Errors.sol";
 
-import { ILopoGlobalsEvents } from "../../contracts/interfaces/ILopoGlobalsEvents.sol";
-import { MockLopoGlobalsV2 } from "../mocks/MockLopoGlobalsV2.sol";
-import { Address } from "../accounts/Address.sol";
+import { ILopoGlobalsEvents } from "../../../contracts/interfaces/ILopoGlobalsEvents.sol";
 
-import { Base_Test } from "../Base.t.sol";
+import { MockLopoGlobalsV2 } from "../../mocks/MockLopoGlobalsV2.sol";
 
-contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
+import { Address } from "../../accounts/Address.sol";
+
+import { Base_Test } from "../../Base.t.sol";
+
+contract LopoGlobals_Unit_Concrete_Test is Base_Test, ILopoGlobalsEvents {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
     uint256 internal constant PROTOCOL_FEE = 5 * HUNDRED_PERCENT / 1000; // 0.5%
     address internal governorV2;
 
-    function setUp() public override {
-        super.setUp();
+    function setUp() public virtual override(Base_Test) {
+        Base_Test.setUp();
+
+        changePrank(users.governor);
+        deployGlobals();
+
         governorV2 = createUser("GovernorV2");
     }
 
     function test_canUpgrade() public {
-        MockLopoGlobalsV2 globalsV2 = new MockLopoGlobalsV2();
-
         /**
          * only the governor can call upgradeTo()
          * upgradeTo() has a onlyProxy mpdifier, and calls _authorizeUpgrade()
-         * _authorizeUpgrade() has a onlyGovernor modifier, which implements in LopoGlobals
+         * _authorizeUpgrade() has a onlyGovernor modifier, which is implemented in LopoGlobals
          */
 
-        vm.prank(users.governor);
-        lopoGlobals.upgradeTo(address(globalsV2));
+        MockLopoGlobalsV2 globalsImplV2 = new MockLopoGlobalsV2();
+        UUPSUpgradeable(address(lopoGlobals)).upgradeTo(address(globalsImplV2));
 
         // re-wrap the proxy to the new implementation
         MockLopoGlobalsV2 lopoGlobalsV2 = MockLopoGlobalsV2(address(lopoGlobals));
@@ -44,20 +49,18 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         // so we cannot do lopoGlobalsV2.initialize(governorV2)
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(governorV2);
-        vm.prank(users.governor);
         lopoGlobals.setPendingLopoGovernor(governorV2);
 
         assertEq(lopoGlobals.pendingLopoGovernor(), governorV2);
 
         vm.expectEmit(true, true, true, true);
         emit GovernorshipAccepted(users.governor, governorV2);
-        vm.prank(governorV2);
+
+        changePrank(governorV2);
         lopoGlobals.acceptLopoGovernor();
+
         assertEq(lopoGlobals.governor(), governorV2);
-
         assertTrue(lopoGlobalsV2.isBuyer(users.buyer));
-
-        vm.prank(governorV2);
         assertFalse(lopoGlobalsV2.isBuyer(users.seller));
 
         // new function in mockV2
@@ -68,28 +71,26 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
     function test_setPendingLopoGovernor_acceptLopoGovernor() public {
         vm.expectEmit(true, true, true, true);
         emit PendingGovernorSet(governorV2);
-        vm.prank(users.governor);
         lopoGlobals.setPendingLopoGovernor(governorV2);
 
         assertEq(lopoGlobals.pendingLopoGovernor(), governorV2);
 
         vm.expectEmit(true, true, true, true);
         emit GovernorshipAccepted(users.governor, governorV2);
-        vm.prank(governorV2);
+
+        changePrank(governorV2);
         lopoGlobals.acceptLopoGovernor();
         assertEq(lopoGlobals.governor(), governorV2);
     }
 
     function test_Revert_IfZeroAddress_setLopoVault() public {
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
-        vm.prank(users.governor);
         lopoGlobals.setLopoVault(address(0));
     }
 
     function test_setProtocolPause() public {
         vm.expectEmit(true, true, true, true);
         emit ProtocolPauseSet(users.governor, true);
-        vm.prank(users.governor);
         lopoGlobals.setProtocolPause(true);
         assertTrue(lopoGlobals.protocolPaused());
     }
@@ -102,7 +103,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         // onboard the pool admin
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAdminSet(mockPoolAdmin, true);
-        vm.prank(users.governor);
         lopoGlobals.setValidPoolAdmin(mockPoolAdmin, true);
         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
         assertEq(lopoGlobals.isPoolAdmin(mockPoolAdmin), true);
@@ -110,7 +110,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         // set the pool configurator to the pool admin
         vm.expectEmit(true, true, true, true);
         emit PoolConfiguratorSet(mockPoolAdmin, mockPoolConfigurator);
-        vm.prank(users.governor);
         lopoGlobals.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
 
@@ -118,14 +117,13 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         assertTrue(!lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
         assertEq(lopoGlobals.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
         // onboard the next pool admin
-        vm.prank(users.governor);
         lopoGlobals.setValidPoolAdmin(mockNextPoolAdmin, true);
         assertTrue(lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
 
         // transfer the pool configurator from the pool admin to the next pool admin
         vm.expectEmit(true, true, true, true);
         emit PoolConfiguratorOwnershipTransferred(mockPoolAdmin, mockNextPoolAdmin, mockPoolConfigurator);
-        vm.prank(mockPoolConfigurator);
+        changePrank(mockPoolConfigurator);
         lopoGlobals.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
         assertEq(lopoGlobals.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
@@ -133,11 +131,18 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         assertTrue(lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
     }
 
+    function test_setValidReceivable() public {
+        address mockReceivable = address(new Address());
+        vm.expectEmit(true, true, true, true);
+        emit ValidReceivableSet(mockReceivable, true);
+        lopoGlobals.setValidReceivable(mockReceivable, true);
+        assertTrue(lopoGlobals.isReceivable(mockReceivable));
+    }
+
     function test_setValidBuyer() public {
         address mockBuyer = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit ValidBuyerSet(mockBuyer, true);
-        vm.prank(users.governor);
         lopoGlobals.setValidBuyer(mockBuyer, true);
         assertTrue(lopoGlobals.isBuyer(mockBuyer));
     }
@@ -146,7 +151,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         address mockCollateralAsset = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit ValidCollateralAssetSet(mockCollateralAsset, true);
-        vm.prank(users.governor);
         lopoGlobals.setValidCollateralAsset(mockCollateralAsset, true);
         assertTrue(lopoGlobals.isCollateralAsset(mockCollateralAsset));
         assertFalse(lopoGlobals.isCollateralAsset(users.seller));
@@ -156,7 +160,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         address mockPoolAsset = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAssetSet(mockPoolAsset, true);
-        vm.prank(users.governor);
         lopoGlobals.setValidPoolAsset(mockPoolAsset, true);
         assertTrue(lopoGlobals.isPoolAsset(mockPoolAsset));
         assertFalse(lopoGlobals.isPoolAsset(users.seller));
@@ -167,7 +170,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         vm.expectEmit(true, true, true, true);
 
         emit RiskFreeRateSet(newRiskFreeRate_);
-        vm.prank(users.governor);
         lopoGlobals.setRiskFreeRate(newRiskFreeRate_);
         assertEq(lopoGlobals.riskFreeRate(), newRiskFreeRate_);
     }
@@ -175,7 +177,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
     function test_setMinPoolLiquidityRatio() public {
         vm.expectEmit(true, true, true, true);
         emit MinPoolLiquidityRatioSet(0.05e18);
-        vm.prank(users.governor);
         lopoGlobals.setMinPoolLiquidityRatio(ud(0.05e18));
         assertEq(lopoGlobals.minPoolLiquidityRatio().intoUint256(), 0.05e18);
     }
@@ -184,7 +185,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         address POOL_ADDRESS = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit ProtocolFeeRateSet(POOL_ADDRESS, PROTOCOL_FEE);
-        vm.prank(users.governor);
         lopoGlobals.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
         assertEq(lopoGlobals.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
     }
@@ -193,7 +193,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         address mockPoolConfigurator = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit MinDepositLimitSet(mockPoolConfigurator, 100e18);
-        vm.prank(users.governor);
         lopoGlobals.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
         assertEq(lopoGlobals.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
     }
@@ -202,7 +201,6 @@ contract LopoGlobalsTest is Base_Test, ILopoGlobalsEvents {
         address mockPoolConfigurator = address(new Address());
         vm.expectEmit(true, true, true, true);
         emit WithdrawalDurationInDaysSet(mockPoolConfigurator, 30);
-        vm.prank(users.governor);
         lopoGlobals.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
         assertEq(lopoGlobals.withdrawalDurationInDays(mockPoolConfigurator), 30);
     }
