@@ -18,6 +18,11 @@ interface IPoolConfiguratorEvents {
     /// @param isValid_ Whether the seller is valid
     event ValidSellerSet(address indexed seller_, bool isValid_);
 
+    /// @notice Emitted when a valid lender is set
+    /// @param lender_ The address of the lender
+    /// @param isValid_ Whether the lender is valid
+    event ValidLenderSet(address indexed lender_, bool isValid_);
+
     /// @notice Emitted when a liquidity cap is set
     /// @param liquidityCap_ The new liquidity cap
     event LiquidityCapSet(uint256 liquidityCap_);
@@ -44,17 +49,17 @@ interface IPoolConfiguratorEvents {
     /// @param amount_ The amount of cover withdrawn
     event CoverWithdrawn(uint256 amount_);
 
-    event CoverLiquidated(uint256 toPool_);
-    event IsLoanManagerSet(address indexed loanManager_, bool isLoanManager_);
-    event LoanManagerAdded(address indexed loanManager_);
-    event ValidLenderSet(address indexed lender_, bool isValid_);
-    event PendingPoolAdminAccepted(address indexed previousPoolAdmin_, address indexed newPoolAdmin_);
-    event PoolConfigurationComplete();
+    /// @notice Emitted when an owner requests a redemption
+    /// @param owner_ The address of the owner
+    /// @param shares_ The amount of shares that is used to request for redemption
     event RedeemRequested(address indexed owner_, uint256 shares_);
-    event SetAsActive(bool active_);
+
+    /// @notice Emitted when an owner removes shares from their withdrawal request
+    /// @param owner_ The address of the owner
+    /// @param shares_ The amount of shares that is removed
     event SharesRemoved(address indexed owner_, uint256 shares_);
-    event WithdrawalManagerSet(address indexed withdrawalManager_);
-    event WithdrawalProcessed(address indexed owner_, uint256 redeemableShares_, uint256 resultingAssets_);
-    event CollateralLiquidationTriggered(address indexed loan_);
-    event CollateralLiquidationFinished(address indexed loan_, uint256 losses_);
+
+    /// @notice Emitted when the pool cover is liquidated
+    /// @param toPool_ The amount of funds that is sent to the pool
+    event CoverLiquidated(uint256 toPool_);
 }

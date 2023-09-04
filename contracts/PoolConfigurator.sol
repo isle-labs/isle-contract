@@ -110,7 +110,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     /// @inheritdoc IPoolConfigurator
     function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyAdmin {
-        emit ValidSellerSet(lender_, isLender[lender_] = isValid_);
+        emit ValidLenderSet(lender_, isLender[lender_] = isValid_);
     }
 
     /// @inheritdoc IPoolConfigurator
