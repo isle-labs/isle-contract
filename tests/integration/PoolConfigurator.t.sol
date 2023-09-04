@@ -128,6 +128,10 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
     }
 
     function test_acceptPoolAdmin() public {
+        // assign the pool configurator to specific pool admin
+        changePrank(users.governor);
+        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
+
         changePrank(users.poolAdmin);
         poolConfigurator.setPendingPoolAdmin(address(users.receiver));
         assertEq(poolConfigurator.pendingPoolAdmin(), address(users.receiver));
