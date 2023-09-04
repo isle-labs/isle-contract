@@ -160,8 +160,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         bytes memory params_ = abi.encodeWithSelector(
             IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider),
-            address(usdc),
             users.poolAdmin,
+            address(usdc),
             "BSOS Green Share",
             "BGS"
         );
