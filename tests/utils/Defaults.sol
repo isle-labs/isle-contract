@@ -37,6 +37,10 @@ contract Defaults is Constants {
     uint256 public constant CYCLE_DURATION = 7 days;
     uint256 public constant WINDOW_DURATION = 1 days;
 
+    // For function paused tests
+    address public constant PAUSED_CONTRACT = address(0x1);
+    bytes4 public constant PAUSED_FUNCTION_SIG = bytes4(keccak256("paused()"));
+
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
