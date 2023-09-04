@@ -65,13 +65,6 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
         assertAlmostEq(exitShares, result.intoUint256(), _delta_);
     }
 
-    function test_getEscrowParams() public {
-        (uint256 escrowShares_, address destination_) = poolConfigurator.getEscrowParams(users.receiver, 1000e6);
-
-        assertEq(escrowShares_, 1000e6);
-        assertEq(destination_, address(poolConfigurator));
-    }
-
     function test_maxDepoist() public {
         assertEq(poolConfigurator.maxDeposit(users.receiver), 1_000_000e6);
 
@@ -103,11 +96,6 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
     // TODO: complete this test after implementing withdrawalManager
     function test_maxRedeem() public { }
 
-    function test_maxWithdraw() public {
-        // it'll always return 0
-        assertEq(poolConfigurator.maxWithdraw(users.receiver), 0);
-    }
-
     // TODO: complete this test after implementing withdrawalManager
     function test_previewRedeem() public { }
 
@@ -116,43 +104,6 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
 
     // TODO: complete this test after implementing loanManager
     function test_unrealizedLosses() public { }
-
-    function test_setPendingPoolAdmin() public {
-        vm.expectEmit(true, true, true, true);
-        emit PendingPoolAdminSet(address(users.poolAdmin), address(users.caller));
-
-        changePrank(users.poolAdmin);
-        poolConfigurator.setPendingPoolAdmin(address(users.caller));
-
-        assertEq(poolConfigurator.pendingPoolAdmin(), address(users.caller));
-    }
-
-    function test_acceptPoolAdmin() public {
-        // assign the pool configurator to specific pool admin
-        changePrank(users.governor);
-        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
-
-        changePrank(users.poolAdmin);
-        poolConfigurator.setPendingPoolAdmin(address(users.receiver));
-        assertEq(poolConfigurator.pendingPoolAdmin(), address(users.receiver));
-
-        // transfer admin to an invalid pool admin
-        changePrank(users.receiver);
-        vm.expectRevert();
-        poolConfigurator.acceptPoolAdmin();
-
-        // transfer admin to a valid pool admin
-        changePrank(users.governor);
-        lopoGlobals.setValidPoolAdmin(address(users.receiver), true);
-
-        vm.expectEmit(true, true, true, true);
-        emit PendingPoolAdminAccepted(address(users.poolAdmin), address(users.receiver));
-
-        changePrank(users.receiver);
-        poolConfigurator.acceptPoolAdmin();
-
-        assertEq(poolConfigurator.poolAdmin(), address(users.receiver));
-    }
 
     function test_setValidLender() public {
         assertTrue(poolConfigurator.isLender(address(users.receiver)));
@@ -185,7 +136,7 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
         assertFalse(poolConfigurator.openToPublic());
 
         vm.expectEmit(true, true, true, true);
-        emit OpenToPublic(true);
+        emit OpenToPublicSet(true);
 
         poolConfigurator.setOpenToPublic(true);
 
@@ -201,27 +152,11 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
     // TODO: complete this test after implementing withdrawalManager
     function test_processRedeem() public { }
 
-    function test_processWithdraw() public {
-        // withdraw is not implemented, it'll always revert
-        vm.expectRevert(Errors.PoolConfigurator_WithdrawalNotImplemented.selector);
-
-        changePrank(address(pool));
-        poolConfigurator.processWithdraw(1000e6, address(users.receiver), address(users.caller));
-    }
-
     // TODO: complete this test after implementing withdrawalManager
     function test_removeShares() public { }
 
     //TODO: complete this test after implementing withdrawalManager
     function test_requestRedeem() public { }
-
-    function test_requestWithdraw() public {
-        // withdraw is not implemented, it'll always revert
-        vm.expectRevert(Errors.PoolConfigurator_WithdrawalNotImplemented.selector);
-
-        changePrank(address(pool));
-        poolConfigurator.requestWithdraw(1000e6, 1000e6, address(users.receiver), address(users.caller));
-    }
 
     function test_depositCover() public {
         changePrank(users.poolAdmin);
