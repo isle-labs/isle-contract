@@ -2,14 +2,9 @@
 pragma solidity 0.8.19;
 
 interface IPoolConfiguratorStorage {
-    function poolAdmin() external view returns (address poolAdmin_);
-    function pendingPoolAdmin() external view returns (address pendingPoolAdmin_);
-
     function asset() external view returns (address asset_);
     function pool() external view returns (address pool_);
 
-    function active() external view returns (bool active_);
-    function configured() external view returns (bool configured_);
     function openToPublic() external view returns (bool openToPublic_);
 
     function poolCover() external view returns (uint256 poolCover_);

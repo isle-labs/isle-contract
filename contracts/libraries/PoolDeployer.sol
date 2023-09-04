@@ -3,7 +3,10 @@ pragma solidity ^0.8.19;
 
 import { Pool } from "../Pool.sol";
 
-library PoolDeployLogic {
+/// @title PoolDeployer
+/// @notice Library containing the logic to deploy a pool contract.
+library PoolDeployer {
+    /// @notice Deploys a new pool contract.
     function createPool(
         address configurator_,
         address asset_,
