@@ -77,7 +77,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
             });
         }
 
-        ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
+        ILopoGlobals globals_ = _globals();
         if (poolAdmin_ == address(0) || !globals_.isPoolAdmin(poolAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(poolAdmin_);
         }
