@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 contract ReceivableStorage {
+    address public lopoGlobals;
     uint256 internal _tokenIdCounter;
 
     struct ReceivableInfo {
@@ -20,18 +21,6 @@ contract ReceivableStorage {
         // The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for USD
         uint16 currencyCode;
     }
-
-    /**
-     * Below should be implemented in loanManager **
-     */
-    // // The amount of the receivable that's been advanced to the seller
-    // UD60x18 advanceAmount;
-    // // The timestamp when the receivable was created
-    // uint256 initialTimestamp;
-    // // The receivable is withdrawn or not
-    // bool isWithdrawn;
-    // The receivable is repaid or not
-    // bool isRepaid;
 
     // The mapping of the token id to the receivable info
     mapping(uint256 => ReceivableInfo) public idToReceivableInfo;

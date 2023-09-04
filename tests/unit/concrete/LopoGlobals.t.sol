@@ -6,9 +6,9 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 
 import { Errors } from "../../../contracts/libraries/Errors.sol";
 
-import { MockLopoGlobalsV2 } from "../../mocks/MockLopoGlobalsV2.sol";
+import { ILopoGlobalsEvents } from "../../../contracts/interfaces/ILopoGlobalsEvents.sol";
 
-import { ILopoGlobalsEvents } from "contracts/interfaces/ILopoGlobalsEvents.sol";
+import { MockLopoGlobalsV2 } from "../../mocks/MockLopoGlobalsV2.sol";
 
 import { Address } from "../../accounts/Address.sol";
 
@@ -60,8 +60,6 @@ contract LopoGlobals_Unit_Concrete_Test is Base_Test, ILopoGlobalsEvents {
         lopoGlobals.acceptLopoGovernor();
 
         assertEq(lopoGlobals.governor(), governorV2);
-        assertTrue(lopoGlobalsV2.isBuyer(users.buyer));
-        assertFalse(lopoGlobalsV2.isBuyer(users.seller));
 
         // new function in mockV2
         string memory text = lopoGlobalsV2.upgradeV2Test();
@@ -137,14 +135,6 @@ contract LopoGlobals_Unit_Concrete_Test is Base_Test, ILopoGlobalsEvents {
         emit ValidReceivableSet(mockReceivable, true);
         lopoGlobals.setValidReceivable(mockReceivable, true);
         assertTrue(lopoGlobals.isReceivable(mockReceivable));
-    }
-
-    function test_setValidBuyer() public {
-        address mockBuyer = address(new Address());
-        vm.expectEmit(true, true, true, true);
-        emit ValidBuyerSet(mockBuyer, true);
-        lopoGlobals.setValidBuyer(mockBuyer, true);
-        assertTrue(lopoGlobals.isBuyer(mockBuyer));
     }
 
     function test_setValidCollateralAsset() public {

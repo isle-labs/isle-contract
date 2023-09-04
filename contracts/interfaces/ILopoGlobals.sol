@@ -53,11 +53,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function governor() external view returns (address governor_);
 
-    function isReceivable(address receivable_) external view returns (bool isReceivable_);
-
     function isEnabled(address poolAddress_) external view returns (bool isEnabled_);
-
-    function isBuyer(address buyer_) external view returns (bool isBuyer_);
 
     /**
      *  @dev    Gets the validity of a collateral asset.
@@ -65,6 +61,8 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      *  @return isCollateralAsset_ A boolean indicating the validity of the collateral asset.
      */
     function isCollateralAsset(address collateralAsset_) external view returns (bool isCollateralAsset_);
+
+    function isReceivable(address receivable_) external view returns (bool isReceivable_);
 
     /**
      *  @dev    Gets the validity of a pool asset.
@@ -118,7 +116,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function setProtocolPause(bool protocolPaused_) external;
 
-    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external;
+    function setProtocolFeeRate(address poolConfigurator_, uint256 protocolFeeRate_) external;
 
     /**
      *  @dev   Sets the validity of a collateral asset.
@@ -133,8 +131,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      *  @param isValid_   A boolean indicating the validity of the pool asset.
      */
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
-
-    function setValidBuyer(address buyer_, bool isValid_) external;
 
     function setValidReceivable(address receivable_, bool isValid_) external;
 

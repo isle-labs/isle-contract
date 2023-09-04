@@ -38,6 +38,10 @@ contract Integration_Test is Base_Test {
 
         approveProtocol();
 
+        // assign the pool configurator to specific pool admin
+        changePrank(users.governor);
+        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
+
         // Make the pool admin the default caller in the test suite
         changePrank(users.poolAdmin);
     }
@@ -45,12 +49,4 @@ contract Integration_Test is Base_Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function approveProtocol() internal {
-        changePrank(users.caller);
-        usdc.approve(address(pool), type(uint256).max);
-
-        changePrank(users.receiver);
-        usdc.approve(address(pool), type(uint256).max);
-    }
 }

@@ -28,9 +28,10 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function previewWithdraw(address owner_, uint256 assets_) external view returns (uint256 shares_);
 
     /* Others */
-    function hasSufficientCover() external view returns (bool hasSufficientCover_);
     function totalAssets() external view returns (uint256 totalAssets_);
+    function hasSufficientCover() external view returns (bool hasSufficientCover_);
     function unrealizedLosses() external view returns (uint256 unrealizedLosses_);
+    function getPoolAsset() external view returns (address poolAsset_);
 
     /*//////////////////////////////////////////////////////////////////////////
                             NON-CONSTANT FUNCTIONS
@@ -55,6 +56,7 @@ interface IPoolConfigurator is IPoolConfiguratorActions, IPoolConfiguratorStorag
     function setValidLender(address lender_, bool isValid_) external;
 
     function setLiquidityCap(uint256 liquidityCap_) external;
+    function setAdminFeeRate(uint256 adminFeeRate_) external;
     function setOpenToPublic(bool isOpenToPublic_) external;
 
     /* Funding Functions */

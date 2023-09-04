@@ -1,5 +1,5 @@
-// // SPDX-License-Identifier: UNLICENSED
-// pragma solidity ^0.8.19;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.19;
 
 // import { console } from "@forge-std/console.sol";
 // import { UD60x18, ud } from "@prb/math/UD60x18.sol";
@@ -103,18 +103,6 @@
 //         poolConfigurator.acceptPoolAdmin();
 
 //         assertEq(poolConfigurator.poolAdmin(), address(users.receiver));
-//     }
-
-//     function test_setValidBuyer() public {
-//         assertTrue(poolConfigurator.isBuyer(address(users.buyer)));
-
-//         vm.expectEmit(true, true, true, true);
-//         emit ValidBuyerSet(address(users.buyer), false);
-
-//         vm.prank(users.poolAdmin);
-//         poolConfigurator.setValidBuyer(address(users.buyer), false);
-
-//         assertFalse(poolConfigurator.isBuyer(address(users.buyer)));
 //     }
 
 //     function test_setValidLender() public {

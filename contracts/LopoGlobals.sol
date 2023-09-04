@@ -44,7 +44,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     bool public override protocolPaused;
 
-    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public isFunctionUnpaused;
 
@@ -54,9 +53,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     uint256 public override gracePeriod;
     uint256 public override lateInterestExcessRate;
 
-    mapping(address => bool) public override isReceivable;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
+    mapping(address => bool) public override isReceivable;
 
     // configs by poolAddressesProvider
     mapping(address => bool) public override isEnabled;
@@ -228,19 +227,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
     }
 
-    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
-        if (receivable_ == address(0)) {
-            revert Errors.Globals_InvalidReceivable(receivable_);
-        }
-        isReceivable[receivable_] = isValid_;
-        emit ValidReceivableSet(receivable_, isValid_);
-    }
-
-    function setValidBuyer(address buyer_, bool isValid_) external override onlyGovernor {
-        isBuyer[buyer_] = isValid_;
-        emit ValidBuyerSet(buyer_, isValid_);
-    }
-
     function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
         isCollateralAsset[collateralAsset_] = isValid_;
         emit ValidCollateralAssetSet(collateralAsset_, isValid_);
@@ -249,6 +235,11 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyGovernor {
         isPoolAsset[poolAsset_] = isValid_;
         emit ValidPoolAssetSet(poolAsset_, isValid_);
+    }
+
+    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
+        isReceivable[receivable_] = isValid_;
+        emit ValidReceivableSet(receivable_, isValid_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -271,9 +262,9 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         minPoolLiquidityRatio = minPoolLiquidityRatio_;
     }
 
-    function setProtocolFeeRate(address pool_, uint256 protocolFeeRate_) external override onlyGovernor {
-        emit ProtocolFeeRateSet(pool_, protocolFeeRate_);
-        protocolFeeRate[pool_] = protocolFeeRate_;
+    function setProtocolFeeRate(address poolConfigurator_, uint256 protocolFeeRate_) external override onlyGovernor {
+        emit ProtocolFeeRateSet(poolConfigurator_, protocolFeeRate_);
+        protocolFeeRate[poolConfigurator_] = protocolFeeRate_;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

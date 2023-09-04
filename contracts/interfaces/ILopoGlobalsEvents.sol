@@ -63,13 +63,6 @@ interface ILopoGlobalsEvents {
     );
 
     /**
-     *  @dev   A valid buyer was set.
-     *  @param buyer_ The address of the buyer.
-     *  @param isValid_  The validity of the buyer.
-     */
-    event ValidBuyerSet(address indexed buyer_, bool isValid_);
-
-    /**
      *  @dev   A valid asset was set.
      *  @param collateralAsset_ The address of the collateral asset.
      *  @param isValid_         The validity of the collateral asset.
@@ -83,11 +76,6 @@ interface ILopoGlobalsEvents {
      */
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
-    /**
-     *  @dev   A valid receivable was set.
-     *  @param receivable_ The address of the receivable.
-     *  @param isValid_    The validity of the receivable.
-     */
     event ValidReceivableSet(address indexed receivable_, bool isValid_);
 
     event RiskFreeRateSet(uint256 indexed riskFreeRate_);
