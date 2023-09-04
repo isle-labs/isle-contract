@@ -127,12 +127,20 @@ contract Pool is IPool, ERC20Permit {
     /**
      * @dev See {IERC4626-withdraw}.
      */
-    function withdraw(uint256 assets_, address receiver_, address owner_) public override returns (uint256 shares_) {
-        if (assets_ > maxWithdraw(owner_)) revert Errors.Pool_WithdrawMoreThanMax(assets_, maxWithdraw(owner_));
-
-        (shares_, assets_) = IPoolConfigurator(configurator).processWithdraw(assets_, owner_, _msgSender());
-
-        _withdraw(_msgSender(), receiver_, owner_, assets_, shares_);
+    function withdraw(
+        uint256 assets_,
+        address receiver_,
+        address owner_
+    )
+        public
+        pure
+        override
+        returns (uint256 shares_)
+    {
+        assets_;
+        receiver_;
+        owner_;
+        shares_; // Not implemented
     }
 
     /**
@@ -151,7 +159,7 @@ contract Pool is IPool, ERC20Permit {
                                 Withdrawal Request Functions
     //////////////////////////////////////////////////////////////////////////*/
 
-    function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_) {
+    function removeShares(uint256 shares_, address owner_) external override returns (uint256 sharesReturned_) {
         if (_msgSender() != owner_) {
             _spendAllowance(owner_, _msgSender(), shares_);
         }
@@ -159,37 +167,18 @@ contract Pool is IPool, ERC20Permit {
         emit SharesRemoved(owner_, sharesReturned_ = IPoolConfigurator(configurator).removeShares(shares_, owner_));
     }
 
-    function requestRedeem(uint256 shares_, address owner_) external returns (uint256 escrowShares_) {
-        address destination_;
-
-        (escrowShares_, destination_) = IPoolConfigurator(configurator).getEscrowParams(owner_, shares_);
+    function requestRedeem(uint256 shares_, address owner_) external override returns (uint256 escrowShares_) {
+        address destination_ = configurator;
 
         if (_msgSender() != owner_) {
-            _spendAllowance(owner_, _msgSender(), escrowShares_);
+            _spendAllowance(owner_, _msgSender(), shares_);
         }
 
-        if (escrowShares_ != 0 && destination_ != address(0)) {
+        if (shares_ != 0 && destination_ != address(0)) {
             _transfer(owner_, destination_, escrowShares_);
         }
 
-        IPoolConfigurator(configurator).requestRedeem(escrowShares_, owner_, _msgSender());
-    }
-
-    function requestWithdraw(uint256 assets_, address owner_) external returns (uint256 escrowShares_) {
-        address destination_;
-
-        (escrowShares_, destination_) =
-            IPoolConfigurator(configurator).getEscrowParams(owner_, convertToExitShares(assets_));
-
-        if (_msgSender() != owner_) {
-            _spendAllowance(owner_, _msgSender(), escrowShares_);
-        }
-
-        if (escrowShares_ != 0 && destination_ != address(0)) {
-            _transfer(owner_, destination_, escrowShares_);
-        }
-
-        IPoolConfigurator(configurator).requestWithdraw(escrowShares_, assets_, owner_, _msgSender());
+        IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_, sender_: _msgSender() });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -303,8 +292,9 @@ contract Pool is IPool, ERC20Permit {
         maxShares_ = IPoolConfigurator(configurator).maxMint(receiver_);
     }
 
-    function maxWithdraw(address owner_) public view override returns (uint256 maxAssets_) {
-        maxAssets_ = IPoolConfigurator(configurator).maxWithdraw(owner_);
+    function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
+        owner_;
+        maxAssets_; // Not implemented
     }
 
     function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {

@@ -3,20 +3,23 @@ pragma solidity 0.8.19;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import { Errors } from "./libraries/Errors.sol";
+import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
+import { PoolDeployer } from "./libraries/PoolDeployer.sol";
+
+import { Adminable } from "./abstracts/Adminable.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IPool } from "./interfaces/IPool.sol";
-import { Pool } from "./Pool.sol";
+
 import { PoolConfiguratorStorage } from "./PoolConfiguratorStorage.sol";
-import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 
-import { Errors } from "./libraries/Errors.sol";
-import { PoolDeployLogic } from "./libraries/PoolDeployLogic.sol";
-
-contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, VersionedInitializable {
+/// @title Pool Configurator
+/// @notice See the documentation in {IPoolConfigurator}.
+contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // Four decimal precision.
     uint256 public constant POOL_CONFIGURATOR_REVISION = 0x1;
 
@@ -31,13 +34,8 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         _;
     }
 
-    modifier onlyPoolAdmin() {
-        _revertIfNotPoolAdmin();
-        _;
-    }
-
-    modifier onlyPoolAdminOrGovernor() {
-        _revertIfNotPoolAdminOrGovernor();
+    modifier onlyAdminOrGovernor() {
+        _revertIfNotAdminOrGovernor();
         _;
     }
 
@@ -54,10 +52,16 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         ADDRESSES_PROVIDER = provider_;
     }
 
+    /// @inheritdoc VersionedInitializable
+    function getRevision() internal pure virtual override returns (uint256 revision_) {
+        revision_ = POOL_CONFIGURATOR_REVISION;
+    }
+
+    /// @inheritdoc IPoolConfigurator
     function initialize(
         IPoolAddressesProvider provider_,
-        address asset_,
         address poolAdmin_,
+        address asset_,
         string memory name_,
         string memory symbol_
     )
@@ -73,201 +77,110 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
             });
         }
 
-        ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
-
+        ILopoGlobals globals_ = _globals();
         if (poolAdmin_ == address(0) || !globals_.isPoolAdmin(poolAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(poolAdmin_);
         }
         if (asset_ == address(0) || !globals_.isPoolAsset(asset_)) {
             revert Errors.PoolConfigurator_InvalidPoolAsset(asset_);
         }
-        if (globals_.ownedPoolConfigurator(poolAdmin_) != address(0)) {
-            revert Errors.PoolConfigurator_IsAlreadyPoolAdmin(poolAdmin_);
-        }
 
         /* Effects */
+        address pool_ = PoolDeployer.createPool(address(this), asset_, name_, symbol_);
+        admin = poolAdmin_; // Sets admin for Adminable
         asset = asset_;
-        poolAdmin = poolAdmin_;
-        pool = PoolDeployLogic.createPool(address(this), asset_, name_, symbol_);
+        pool = pool_;
 
-        emit Initialized(poolAdmin_, asset_, pool);
-    }
-
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = POOL_CONFIGURATOR_REVISION;
+        emit Initialized(poolAdmin_, asset_, pool_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
+                        EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function totalAssets() external view override returns (uint256 totalAssets_) {
-        totalAssets_ = _totalAssets();
-    }
-
-    function hasSufficientCover() external view override returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = _hasSufficientCover(_globals());
-    }
-
-    function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
-        shares_ = IPool(pool).convertToExitShares(assets_);
-    }
-
-    function getPoolAsset() external view override returns (address asset_) {
-        asset_ = asset;
-    }
-
-    function getEscrowParams(
-        address,
-        uint256 shares_
-    )
-        external
-        view
-        override
-        returns (uint256 escrowShares_, address destination_)
-    {
-        // NOTE: `owner_` param not named to avoid compiler warning.
-        (escrowShares_, destination_) = (shares_, address(this));
-    }
-
-    function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
-        maxAssets_ = _getMaxAssets(receiver_, _totalAssets());
-    }
-
-    function maxMint(address receiver_) external view virtual override returns (uint256 maxShares_) {
-        uint256 totalAssets_ = _totalAssets();
-        uint256 maxAssets_ = _getMaxAssets(receiver_, totalAssets_);
-
-        maxShares_ = IPool(pool).previewDeposit(maxAssets_);
-    }
-
-    function maxRedeem(address owner_) external view virtual override returns (uint256 maxShares_) {
-        address withdrawalManager_ = _withdrawalManager();
-
-        uint256 lockedShares_ = IWithdrawalManager(withdrawalManager_).lockedShares(owner_);
-        maxShares_ = IWithdrawalManager(withdrawalManager_).isInExitWindow(owner_) ? lockedShares_ : 0;
-    }
-
-    function maxWithdraw(address owner_) external view virtual override returns (uint256 maxAssets_) {
-        owner_; // Silence compiler warning
-        maxAssets_ = 0; // NOTE: always returns 0 as withdraw is not implemented
-    }
-
-    function previewRedeem(address owner_, uint256 shares_) external view virtual override returns (uint256 assets_) {
-        (, assets_) = IWithdrawalManager(_withdrawalManager()).previewRedeem(owner_, shares_);
-    }
-
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        virtual
-        override
-        returns (uint256 shares_)
-    {
-        (, shares_) = IWithdrawalManager(_withdrawalManager()).previewWithdraw(owner_, assets_);
-    }
-
-    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
-        // `totalAssets` does not.
-        unrealizedLosses_ = _min(ILoanManager(_loanManager()).unrealizedLosses(), _totalAssets());
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /* Ownership Transfer functions */
-
-    function setPendingPoolAdmin(address pendingPoolAdmin_) external override whenNotPaused onlyPoolAdmin {
-        pendingPoolAdmin = pendingPoolAdmin_;
-
-        emit PendingPoolAdminSet(poolAdmin, pendingPoolAdmin_);
-    }
-
-    function acceptPoolAdmin() external override whenNotPaused {
-        if (msg.sender != pendingPoolAdmin) {
-            revert Errors.PoolConfigurator_CallerNotPendingPoolAdmin({
-                pendingPoolAdmin: pendingPoolAdmin,
-                caller: msg.sender
-            });
-        }
-
-        ILopoGlobals(_globals()).transferOwnedPoolConfigurator(poolAdmin, msg.sender);
-
-        emit PendingPoolAdminAccepted(poolAdmin, pendingPoolAdmin);
-
-        poolAdmin = pendingPoolAdmin;
-        pendingPoolAdmin = address(0);
-    }
-
-    /* Pool Admin Functions */
-    function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setValidBuyer(address buyer_, bool isValid_) external override whenNotPaused onlyAdmin {
         emit ValidBuyerSet(buyer_, isBuyer[buyer_] = isValid_);
     }
 
-    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyAdmin {
         emit ValidSellerSet(seller_, isSeller[seller_] = isValid_);
     }
 
-    function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyAdmin {
         emit ValidLenderSet(lender_, isLender[lender_] = isValid_);
     }
 
-    function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyAdmin {
         emit LiquidityCapSet(liquidityCap = liquidityCap_);
     }
 
-    function setAdminFeeRate(uint256 adminFeeRate_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setAdminFeeRate(uint256 adminFeeRate_) external override whenNotPaused onlyAdmin {
         emit AdminFeeRateSet(adminFeeRate = adminFeeRate_);
     }
 
-    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdmin {
         openToPublic = isOpenToPublic_;
-        emit OpenToPublic(isOpenToPublic_);
+        emit OpenToPublicSet(isOpenToPublic_);
     }
 
-    /* Funding Functions */
+    /// @inheritdoc IPoolConfigurator
     function requestFunds(uint256 principal_) external override whenNotPaused {
         address asset_ = asset;
         address pool_ = pool;
-        address loanManager_ = ADDRESSES_PROVIDER.getLoanManager();
-        address withdrawalManager_ = ADDRESSES_PROVIDER.getWithdrawalManager();
+        address loanManager_ = address(_loanManager());
 
-        ILopoGlobals globals_ = ILopoGlobals(_globals());
-
+        // Checks
         if (msg.sender != loanManager_) {
-            revert Errors.PoolConfigurator_CallerNotLoanManager({ poolManager: loanManager_, caller: msg.sender });
+            revert Errors.PoolConfigurator_CallerNotLoanManager({ expectedCaller_: loanManager_, caller_: msg.sender });
         }
         if (IERC20(pool_).totalSupply() == 0) {
-            revert Errors.PoolConfigurator_PoolZeroSupply();
+            revert Errors.PoolConfigurator_PoolSupplyZero();
         }
-        if (!_hasSufficientCover(address(globals_))) {
+        if (!_hasSufficientCover(_globals())) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
         if (!IERC20(asset_).transferFrom(pool_, msg.sender, principal_)) {
             revert Errors.ERC20TransferFailed(asset_, pool_, msg.sender, principal_);
         }
 
-        uint256 lockedLiquidity_ = IWithdrawalManager(withdrawalManager_).lockedLiquidity();
+        uint256 lockedLiquidity_ = _withdrawalManager().lockedLiquidity();
 
         if (IERC20(asset_).balanceOf(pool_) < lockedLiquidity_) {
             revert Errors.PoolConfigurator_InsufficientLiquidity();
         }
     }
 
-    /* Loan Default Functions */
-    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
-        // Faulty implementation
-        (uint256 remainingLosses_, uint256 protocolFees_) = ILoanManager(_loanManager()).triggerDefault(loanId_);
-        protocolFees_;
-        _handleCover(remainingLosses_);
+    /// @inheritdoc IPoolConfigurator
+    function triggerDefault(uint16 loanId_) external override whenNotPaused onlyAdminOrGovernor {
+        (uint256 losses_,) = _loanManager().triggerDefault(loanId_);
+        _handleCover(losses_);
     }
 
-    /* Pool Exit Functions */
+    /// @inheritdoc IPoolConfigurator
+    function requestRedeem(uint256 shares_, address owner_, address sender_) external override whenNotPaused onlyPool {
+        address pool_ = pool;
+        IWithdrawalManager withdrawalManager_ = _withdrawalManager();
+
+        if (!IPool(pool_).approve(address(withdrawalManager_), shares_)) {
+            revert Errors.PoolConfigurator_PoolApproveWithdrawalManagerFailed({ amount_: shares_ });
+        }
+
+        if (sender_ != owner_ && shares_ == 0) {
+            revert Errors.PoolConfigurator_NoAllowance({ owner_: owner_, spender_: sender_ });
+        }
+
+        withdrawalManager_.addShares(shares_, owner_);
+
+        emit RedeemRequested(owner_, shares_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
     function processRedeem(
         uint256 shares_,
         address owner_,
@@ -280,32 +193,13 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         returns (uint256 redeemableShares_, uint256 resultingAssets_)
     {
         if (owner_ != sender_ && IPool(pool).allowance(owner_, sender_) == 0) {
-            revert Errors.PoolConfigurator_NoAllowance({ owner: owner_, spender: sender_ });
+            revert Errors.PoolConfigurator_NoAllowance({ owner_: owner_, spender_: sender_ });
         }
-        (redeemableShares_, resultingAssets_) = IWithdrawalManager(_withdrawalManager()).processExit(shares_, owner_);
+        (redeemableShares_, resultingAssets_) = _withdrawalManager().processExit(shares_, owner_);
         emit RedeemProcessed(owner_, redeemableShares_, resultingAssets_);
     }
 
-    function processWithdraw(
-        uint256 assets_,
-        address owner_,
-        address sender_
-    )
-        external
-        view
-        override
-        whenNotPaused
-        onlyPool
-        returns (uint256 redeemableShares_, uint256 resultingAssets_)
-    {
-        assets_;
-        owner_;
-        sender_;
-        redeemableShares_;
-        resultingAssets_; // Silence compiler warnings
-        revert Errors.PoolConfigurator_WithdrawalNotImplemented();
-    }
-
+    /// @inheritdoc IPoolConfigurator
     function removeShares(
         uint256 shares_,
         address owner_
@@ -316,61 +210,24 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         onlyPool
         returns (uint256 sharesReturned_)
     {
-        emit SharesRemoved(
-            owner_, sharesReturned_ = IWithdrawalManager(_withdrawalManager()).removeShares(shares_, owner_)
-        );
+        emit SharesRemoved(owner_, sharesReturned_ = _withdrawalManager().removeShares(shares_, owner_));
     }
 
-    function requestRedeem(uint256 shares_, address owner_, address sender_) external override whenNotPaused onlyPool {
-        address pool_ = pool;
-        address withdrawalManager_ = _withdrawalManager();
-
-        if (!IPool(pool_).approve(withdrawalManager_, shares_)) {
-            revert Errors.PoolConfigurator_PoolApproveWithdrawalManagerFailed(shares_);
-        }
-
-        if (sender_ != owner_ && shares_ == 0) {
-            revert Errors.PoolConfigurator_NoAllowance({ owner: owner_, spender: sender_ });
-        }
-
-        IWithdrawalManager(withdrawalManager_).addShares(shares_, owner_);
-
-        emit RedeemRequested(owner_, shares_);
-    }
-
-    function requestWithdraw(
-        uint256 shares_,
-        uint256 assets_,
-        address owner_,
-        address sender_
-    )
-        external
-        view
-        override
-        whenNotPaused
-    {
-        shares_;
-        assets_;
-        owner_;
-        sender_; // Silence compiler warnings
-        revert Errors.PoolConfigurator_WithdrawalNotImplemented();
-    }
-
-    /* Pool Delegate Cover Functions */
+    /// @inheritdoc IPoolConfigurator
     function depositCover(uint256 amount_) external override whenNotPaused {
         if (!IERC20(asset).transferFrom(msg.sender, address(this), amount_)) {
-            revert Errors.PoolConfigurator_DepositCoverFailed(asset, msg.sender, amount_);
+            revert Errors.PoolConfigurator_DepositCoverFailed({ caller_: msg.sender, amount_: amount_ });
         }
         poolCover += amount_;
-
         emit CoverDeposited(amount_);
     }
 
-    function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyPoolAdmin {
+    /// @inheritdoc IPoolConfigurator
+    function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
         if (!IERC20(asset).transfer(recipient_, amount_)) {
-            revert Errors.PoolConfigurator_WithdrawCoverFailed(asset, recipient_, amount_);
+            revert Errors.PoolConfigurator_WithdrawCoverFailed({ recipient_: recipient_, amount_: amount_ });
         }
 
         poolCover -= amount_;
@@ -383,51 +240,88 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                            EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IPoolConfigurator
+    function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
+        shares_ = IPool(pool).convertToExitShares(assets_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
+        maxAssets_ = _getMaxAssets(receiver_, _totalAssets());
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function maxMint(address receiver_) external view virtual override returns (uint256 maxShares_) {
+        uint256 totalAssets_ = _totalAssets();
+        uint256 maxAssets_ = _getMaxAssets(receiver_, totalAssets_);
+
+        maxShares_ = IPool(pool).previewDeposit(maxAssets_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function maxRedeem(address owner_) external view virtual override returns (uint256 maxShares_) {
+        IWithdrawalManager withdrawalManager_ = _withdrawalManager();
+
+        uint256 lockedShares_ = withdrawalManager_.lockedShares(owner_);
+        maxShares_ = withdrawalManager_.isInExitWindow(owner_) ? lockedShares_ : 0;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function previewRedeem(address owner_, uint256 shares_) external view virtual override returns (uint256 assets_) {
+        (, assets_) = _withdrawalManager().previewRedeem(owner_, shares_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function previewWithdraw(
+        address owner_,
+        uint256 assets_
+    )
+        external
+        view
+        virtual
+        override
+        returns (uint256 shares_)
+    {
+        (, shares_) = _withdrawalManager().previewWithdraw(owner_, assets_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function totalAssets() external view override returns (uint256 totalAssets_) {
+        totalAssets_ = _totalAssets();
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function hasSufficientCover() external view override returns (bool hasSufficientCover_) {
+        hasSufficientCover_ = _hasSufficientCover(_globals());
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
+        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
+        // `totalAssets` does not.
+        unrealizedLosses_ = _min(_loanManager().unrealizedLosses(), _totalAssets());
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function _totalAssets() internal view returns (uint256 totalAssets_) {
-        totalAssets_ = IERC20(asset).balanceOf(pool) + ILoanManager(_loanManager()).assetsUnderManagement();
-    }
-
-    /* Address lookup functions */
-    function _withdrawalManager() internal view returns (address withdrawalManager_) {
-        withdrawalManager_ = ADDRESSES_PROVIDER.getWithdrawalManager();
-    }
-
-    function _globals() internal view returns (address globals_) {
-        globals_ = ADDRESSES_PROVIDER.getLopoGlobals();
-    }
-
-    function _loanManager() internal view returns (address loanManager_) {
-        loanManager_ = ADDRESSES_PROVIDER.getLoanManager();
-    }
-
-    function _governor() internal view returns (address governor_) {
-        governor_ = ILopoGlobals(_globals()).governor();
-    }
-
-    function _revertIfConfigured() internal view {
-        if (configured) {
-            revert Errors.PoolConfigurator_Configured();
-        }
+        totalAssets_ = IERC20(asset).balanceOf(address(pool)) + _loanManager().assetsUnderManagement();
     }
 
     function _revertIfPaused() internal view {
-        if (ILopoGlobals(_globals()).isFunctionPaused(msg.sig)) {
+        if (_globals().isFunctionPaused(msg.sig)) {
             revert Errors.PoolConfigurator_Paused();
         }
     }
 
-    function _revertIfNotPoolAdmin() internal view {
-        if (msg.sender != poolAdmin) {
-            revert Errors.InvalidCaller({ caller: msg.sender, expectedCaller: poolAdmin });
-        }
-    }
-
-    function _revertIfNotPoolAdminOrGovernor() internal view {
-        if (msg.sender != poolAdmin && msg.sender != _governor()) {
-            revert Errors.PoolConfigurator_NotPoolAdminOrGovernor();
+    function _revertIfNotAdminOrGovernor() internal view {
+        if (msg.sender != admin && msg.sender != _globals().governor()) {
+            revert Errors.PoolConfigurator_CallerNotPoolAdminOrGovernor(msg.sender);
         }
     }
 
@@ -437,15 +331,14 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         }
     }
 
-    function _hasSufficientCover(address globals_) internal view returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = poolCover >= ILopoGlobals(globals_).minCoverAmount(address(this));
+    function _hasSufficientCover(ILopoGlobals globals_) internal view returns (bool hasSufficientCover_) {
+        hasSufficientCover_ = poolCover >= globals_.minCoverAmount(address(this));
     }
 
     function _handleCover(uint256 losses_) internal {
-        address globals_ = _globals();
+        ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
 
-        uint256 availableCover_ =
-            (poolCover * ILopoGlobals(globals_).maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
+        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
 
         uint256 coverAmount_ = _min(availableCover_, losses_);
 
@@ -464,5 +357,17 @@ contract PoolConfigurator is IPoolConfigurator, PoolConfiguratorStorage, Version
         bool depositAllowed_ = openToPublic || isLender[receiver_];
         uint256 liquidityCap_ = liquidityCap;
         maxAssets_ = liquidityCap_ > totalAssets_ && depositAllowed_ ? liquidityCap_ - totalAssets_ : 0;
+    }
+
+    function _globals() internal view returns (ILopoGlobals globals_) {
+        globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
+    }
+
+    function _loanManager() internal view returns (ILoanManager loanManager_) {
+        loanManager_ = ILoanManager(ADDRESSES_PROVIDER.getLoanManager());
+    }
+
+    function _withdrawalManager() internal view returns (IWithdrawalManager withdrawalManager_) {
+        withdrawalManager_ = IWithdrawalManager(ADDRESSES_PROVIDER.getWithdrawalManager());
     }
 }
