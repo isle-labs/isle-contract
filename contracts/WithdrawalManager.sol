@@ -438,7 +438,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
-        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).poolAdmin();
+        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).admin();
     }
 
     function _globals() internal view returns (address globals_) {

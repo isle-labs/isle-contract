@@ -53,7 +53,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
                 provider: address(provider_)
             });
         }
-        fundsAsset = IPoolConfigurator(ADDRESSES_PROVIDER.getPoolConfigurator()).getPoolAsset();
+        fundsAsset = IPoolConfigurator(ADDRESSES_PROVIDER.getPoolConfigurator()).asset();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -520,7 +520,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
-        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).poolAdmin();
+        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).admin();
     }
 
     function _pool() internal view returns (address pool_) {

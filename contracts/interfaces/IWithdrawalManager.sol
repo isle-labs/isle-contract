@@ -73,7 +73,7 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     function addShares(uint256 shares_, address owner_) external;
 
     /// @notice Remove shares from withdrawal
-    /// @param shares_  The amount of shares to withdraw
+    /// @param shares_  The amount of shares to remove from withdrawal
     /// @param owner_  The owner of the shares
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);
 

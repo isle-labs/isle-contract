@@ -30,43 +30,41 @@ library Errors {
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    error PoolConfigurator_NotConfigured();
+    /// @notice Thrown when the pool admin set is not on the whitelist
+    error PoolConfigurator_InvalidPoolAdmin(address poolAdmin_);
 
-    error PoolConfigurator_Configured();
+    /// @notice Thrown when the asset set is not on the whitelist
+    error PoolConfigurator_InvalidPoolAsset(address asset_);
 
-    error PoolConfigurator_Paused();
+    /// @notice Thrown when `msg.sender` is not the loan manager
+    error PoolConfigurator_CallerNotLoanManager(address expectedCaller_, address caller_);
 
-    error PoolConfigurator_NotPoolAdminOrGovernor();
+    /// @notice Thrown when caller is not pool admin or governor
+    error PoolConfigurator_CallerNotPoolAdminOrGovernor(address caller_);
 
-    error PoolConfigurator_ConfiguredAndNotPoolAdmin();
+    /// @notice Thrown when the total supply of the pool is zero
+    error PoolConfigurator_PoolSupplyZero();
 
-    error PoolConfigurator_InvalidPoolAdmin(address account);
-
-    error PoolConfigurator_InvalidPoolAsset(address asset);
-
-    error PoolConfigurator_IsAlreadyPoolAdmin(address account);
-
-    error PoolConfigurator_CallerNotPendingPoolAdmin(address pendingPoolAdmin, address caller);
-
-    error PoolConfigurator_CallerNotLoanManager(address poolManager, address caller);
-
-    error PoolConfigurator_PoolZeroSupply();
-
-    error PoolConfigurator_DestinationIsZero();
-
-    error PoolConfigurator_InsufficientLiquidity();
-
+    /// @notice Thrown when the pool cover is insufficient
     error PoolConfigurator_InsufficientCover();
 
-    error PoolConfigurator_WithdrawalNotImplemented();
+    /// @notice Thrown when the pool has insufficient liquidity to fund new loans
+    error PoolConfigurator_InsufficientLiquidity();
 
-    error PoolConfigurator_NoAllowance(address owner, address spender);
+    /// @notice Thrown when the spender has no allowance from the owner
+    error PoolConfigurator_NoAllowance(address owner_, address spender_);
 
-    error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount);
+    /// @notice Thrown when the pool fails to approve the withdrawal manager with the amount of shares
+    error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount_);
 
-    error PoolConfigurator_DepositCoverFailed(address asset, address caller, uint256 amount);
+    /// @notice Thrown when the pool admin fails to deposit cover
+    error PoolConfigurator_DepositCoverFailed(address caller_, uint256 amount_);
 
-    error PoolConfigurator_WithdrawCoverFailed(address asset, address caller, uint256 amount);
+    /// @notice Thrown when the pool admin fails to withdraw cover
+    error PoolConfigurator_WithdrawCoverFailed(address recipient_, uint256 amount_);
+
+    /// @notice Thrown when the pool configurator is paused
+    error PoolConfigurator_Paused();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOPO GLOBALS
