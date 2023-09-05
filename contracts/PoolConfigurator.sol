@@ -91,7 +91,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         asset = asset_;
         pool = pool_;
 
-        emit Initialized(poolAdmin_, asset_, pool);
+        emit Initialized(poolAdmin_, asset_, pool_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,14 @@
+isFunctionPaused.t.sol
+├── when function is unpaused
+│  └── it should return false
+└── when function is not unpaused
+   ├── when contract is paused
+   │  └── it should return true
+   └── when contract is not paused
+      ├── when protocol is paused
+      │  └── it should return true
+      └── when protocol is not paused
+         └── it should return false
+
+
+
