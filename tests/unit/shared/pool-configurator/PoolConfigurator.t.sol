@@ -9,12 +9,12 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        deployAndLabelContract();
+        deployContract();
 
         changePrank(users.poolAdmin);
     }
 
-    function deployAndLabelContract() internal {
+    function deployContract() internal {
         changePrank(users.governor);
         lopoGlobals = deployGlobals();
         poolAddressesProvider = deployPoolAddressesProvider(lopoGlobals);

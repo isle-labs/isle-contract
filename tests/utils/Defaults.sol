@@ -33,6 +33,11 @@ contract Defaults is Constants {
 
     uint256 public constant ADMIN_FEE = 1000; // 10%
 
+    // Receivable
+    uint256 public constant FACE_AMOUNT = 100e6;
+    uint256 public immutable REPAYMENT_TIMESTAMP;
+    uint16 public constant CURRENCY_CODE = 804;
+
     // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
     uint256 public constant ASSETS = 1_000_000;
     uint256 public constant EXPECTED_SHARES = 666_666; // ASSETS * (POOL_SHARES + 1) / (POOL_ASSETS + 1) Round down
@@ -70,6 +75,7 @@ contract Defaults is Constants {
         CYCLE_1 = MAY_1_2023 + WINDOW_DURATION;
         WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
         CYCLE_3 = CYCLE_1 + CYCLE_DURATION * 2;
+        REPAYMENT_TIMESTAMP = MAY_1_2023 + 30 days;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
