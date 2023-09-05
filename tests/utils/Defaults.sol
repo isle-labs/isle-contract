@@ -16,7 +16,8 @@ contract Defaults is Constants {
 
     uint256 public constant POOL_LIMIT = 1_000_000e6;
     uint256 public constant POOL_SHARES = 1000e6;
-    uint256 public constant POOL_ASSETS = 1500e6;
+    uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool() in
+        // Base.t.sol
 
     uint8 public constant UNDERLYING_DECIMALS = 18;
     uint8 public constant DECIMALS_OFFSET = 0;
@@ -24,6 +25,13 @@ contract Defaults is Constants {
     uint256 public immutable DEADLINE; // for erc20 permit
     uint256 public constant DEPOSIT_AMOUNT = 1000e6;
     uint256 public constant MINT_AMOUNT = 100_000e6;
+    uint256 public constant COVER_AMOUNT = 10_000e6;
+    uint256 public constant WITHDRAW_COVER_AMOUNT = 100e6;
+    uint256 public constant MIN_COVER_AMOUNT = 10e6;
+    uint256 public constant REDEEM_AMOUNT = 1000e6;
+    uint256 public constant PRINCIPAL = 100e6;
+
+    uint256 public constant ADMIN_FEE = 1000; // 10%
 
     // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
     uint256 public constant ASSETS = 1_000_000;
@@ -34,8 +42,12 @@ contract Defaults is Constants {
     uint256 public constant EXPECTED_EXIT_ASSETS = 100_000e6;
 
     // For withdrawal manager
+    uint256 public constant WINDOW_DURATION = 2 days;
     uint256 public constant CYCLE_DURATION = 7 days;
-    uint256 public constant WINDOW_DURATION = 1 days;
+    uint256 public immutable WINDOW_1;
+    uint256 public immutable CYCLE_1;
+    uint256 public immutable WINDOW_3;
+    uint256 public immutable CYCLE_3;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
@@ -50,6 +62,10 @@ contract Defaults is Constants {
 
     constructor() {
         DEADLINE = MAY_1_2023 + 10 days;
+        WINDOW_1 = MAY_1_2023;
+        CYCLE_1 = MAY_1_2023 + WINDOW_DURATION;
+        WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
+        CYCLE_3 = CYCLE_1 + CYCLE_DURATION * 2;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

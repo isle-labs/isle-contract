@@ -10,8 +10,8 @@ abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
     bool public override openToPublic;
 
     uint256 public override poolCover;
-    uint256 public override liquidityCap;
-    uint256 public override adminFeeRate;
+    uint256 public override poolLimit;
+    uint256 public override adminFee;
 
     mapping(address => bool) public override isBuyer;
     mapping(address => bool) public override isSeller;

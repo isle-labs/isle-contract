@@ -34,7 +34,7 @@ contract Integration_Test is Base_Test {
         Base_Test.setUp();
 
         // set up test contracts
-        deployContracts();
+        deployAndLabelCore();
 
         approveProtocol();
 
@@ -42,8 +42,8 @@ contract Integration_Test is Base_Test {
         changePrank(users.governor);
         lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
 
-        // Make the pool admin the default caller in the test suite
-        changePrank(users.poolAdmin);
+        // Make the caller the default caller in the test suite
+        changePrank(users.caller);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

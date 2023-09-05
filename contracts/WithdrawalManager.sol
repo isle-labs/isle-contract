@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { console2 } from "@forge-std/console2.sol";
+
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -334,23 +336,6 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         }
 
         (redeemableShares_, resultingAssets_,) = getRedeemableAmounts(lockedShares_, owner_);
-    }
-
-    /// @inheritdoc IWithdrawalManager
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        pure
-        override
-        returns (uint256 redeemableAssets_, uint256 resultingShares_)
-    {
-        owner_;
-        assets_;
-        redeemableAssets_;
-        resultingShares_; // Silence compiler warnings
-        return (redeemableAssets_, resultingShares_); // NOTE: Withdrawal not implemented use redeem instead
     }
 
     /*//////////////////////////////////////////////////////////////////////////

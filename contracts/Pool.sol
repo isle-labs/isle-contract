@@ -167,7 +167,7 @@ contract Pool is IPool, ERC20Permit {
         emit SharesRemoved(owner_, sharesReturned_ = IPoolConfigurator(configurator).removeShares(shares_, owner_));
     }
 
-    function requestRedeem(uint256 shares_, address owner_) external override returns (uint256 escrowShares_) {
+    function requestRedeem(uint256 shares_, address owner_) external override {
         address destination_ = configurator;
 
         if (_msgSender() != owner_) {
@@ -175,7 +175,7 @@ contract Pool is IPool, ERC20Permit {
         }
 
         if (shares_ != 0 && destination_ != address(0)) {
-            _transfer(owner_, destination_, escrowShares_);
+            _transfer(owner_, destination_, shares_);
         }
 
         IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_, sender_: _msgSender() });
@@ -301,8 +301,9 @@ contract Pool is IPool, ERC20Permit {
         maxShares_ = IPoolConfigurator(configurator).maxRedeem(owner_);
     }
 
-    function previewWithdraw(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = IPoolConfigurator(configurator).previewWithdraw(msg.sender, assets_);
+    function previewWithdraw(uint256 assets_) public pure override returns (uint256 shares_) {
+        shares_;
+        assets_; // not implemented
     }
 
     function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {

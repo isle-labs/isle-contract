@@ -40,7 +40,7 @@ interface IPool is IERC4626 {
 
     /* ========== Withdrawal Request Functions ========== */
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);
-    function requestRedeem(uint256 shares_, address owner_) external returns (uint256 escrowShares_);
+    function requestRedeem(uint256 shares_, address owner_) external;
 
     /* ========== View Functions ========== */
     function balanceOfAssets(address account_) external view returns (uint256 asseets_);

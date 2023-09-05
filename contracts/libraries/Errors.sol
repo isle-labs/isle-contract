@@ -9,6 +9,9 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the expected one.
     error InvalidCaller(address caller, address expectedCaller);
 
+    /// @notice Thrown when `msg.sender` is not the expected one.
+    error CallerNotAdmin(address admin_, address caller_);
+
     /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
     error NotPoolAdminOrGovernor(address caller_);
 

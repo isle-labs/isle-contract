@@ -24,12 +24,12 @@ interface IPoolConfiguratorEvents {
     event ValidLenderSet(address indexed lender_, bool isValid_);
 
     /// @notice Emitted when a liquidity cap is set
-    /// @param liquidityCap_ The new liquidity cap
-    event LiquidityCapSet(uint256 liquidityCap_);
+    /// @param poolLimit_ The new liquidity cap
+    event PoolLimitSet(uint256 poolLimit_);
 
     /// @notice Emitted when an admin fee rate is set
-    /// @param adminFeeRate_ The new admin fee rate
-    event AdminFeeRateSet(uint256 adminFeeRate_);
+    /// @param adminFee_ The new admin fee rate
+    event AdminFeeSet(uint256 adminFee_);
 
     /// @notice Emitted when the pool is set as open to the public
     /// @param isOpenToPublic_ Whether the pool is open to the public

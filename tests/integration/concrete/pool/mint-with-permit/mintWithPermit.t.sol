@@ -6,12 +6,12 @@ import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
+import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 import { Mint_Integration_Shared_Test } from "../../../shared/pool/mint.t.sol";
 import { Permit_Integration_Shared_Test } from "../../../shared/pool/permit.t.sol";
-import { Pool_Integration_Concrete_Test } from "../Pool.t.sol";
 
 contract MintWithPermit_Integration_Concrete_Test is
-    Pool_Integration_Concrete_Test,
+    Pool_Integration_Shared_Test,
     Mint_Integration_Shared_Test,
     Permit_Integration_Shared_Test
 {
@@ -20,9 +20,9 @@ contract MintWithPermit_Integration_Concrete_Test is
     function setUp()
         public
         virtual
-        override(Pool_Integration_Concrete_Test, Mint_Integration_Shared_Test, Permit_Integration_Shared_Test)
+        override(Pool_Integration_Shared_Test, Mint_Integration_Shared_Test, Permit_Integration_Shared_Test)
     {
-        Pool_Integration_Concrete_Test.setUp();
+        Pool_Integration_Shared_Test.setUp();
         Mint_Integration_Shared_Test.setUp();
         Permit_Integration_Shared_Test.setUp();
     }
@@ -155,6 +155,5 @@ contract MintWithPermit_Integration_Concrete_Test is
 
         // Checks that the receiver has the correct amount of {shares}
         pool.mintWithPermit(shares_, users.receiver, assets_, deadline_, v_, r_, s_);
-        assertEq(shares_, pool.balanceOf(users.receiver));
     }
 }

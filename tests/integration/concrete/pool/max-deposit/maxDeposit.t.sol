@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { Pool_Integration_Concrete_Test } from "./Pool.t.sol";
+import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 
-contract MaxDeposit_Integration_Concrete_Test is Pool_Integration_Concrete_Test {
+contract MaxDeposit_Integration_Concrete_Test is Pool_Integration_Shared_Test {
     uint256 private _expectedMaxDeposit;
 
-    function setUp() public virtual override(Pool_Integration_Concrete_Test) {
-        Pool_Integration_Concrete_Test.setUp();
+    function setUp() public virtual override(Pool_Integration_Shared_Test) {
+        Pool_Integration_Shared_Test.setUp();
 
         _expectedMaxDeposit = defaults.POOL_LIMIT() - defaults.POOL_ASSETS();
     }

@@ -47,12 +47,12 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     function setValidLender(address lender_, bool isValid_) external;
 
     /// @notice Sets the liquidity cap for the pool
-    /// @param liquidityCap_ The new liquidity cap
-    function setLiquidityCap(uint256 liquidityCap_) external;
+    /// @param poolLimit_ The new liquidity cap
+    function setPoolLimit(uint256 poolLimit_) external;
 
     /// @notice Sets the admin fee rate that would be applied to the pool
-    /// @param adminFeeRate_ The new admin fee rate
-    function setAdminFeeRate(uint256 adminFeeRate_) external;
+    /// @param adminFee_ The new admin fee
+    function setAdminFee(uint256 adminFee_) external;
 
     /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
     function setOpenToPublic(bool isOpenToPublic_) external;
@@ -129,12 +129,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param shares_ The amount of shares to redeem
     /// @return assets_ The amount of assets that would be received
     function previewRedeem(address owner_, uint256 shares_) external view returns (uint256 assets_);
-
-    /// @notice Previews the amount of shares that can be withdrawn for the amount of assets specified
-    /// @param owner_ The address of the owner
-    /// @param assets_ The amount of assets to withdraw
-    /// @return shares_ The amount of shares that would be redeemed
-    function previewWithdraw(address owner_, uint256 assets_) external view returns (uint256 shares_);
 
     /// @notice Returns the total amount of assets in the pool
     /// @return totalAssets_ The total amount of assets in the pool

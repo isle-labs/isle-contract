@@ -8,8 +8,8 @@ interface IPoolConfiguratorStorage {
     function openToPublic() external view returns (bool openToPublic_);
 
     function poolCover() external view returns (uint256 poolCover_);
-    function liquidityCap() external view returns (uint256 liquidityCap_);
-    function adminFeeRate() external view returns (uint256 adminFeeRate_);
+    function poolLimit() external view returns (uint256 poolLimit_);
+    function adminFee() external view returns (uint256 adminFee_);
 
     function isBuyer(address buyer_) external view returns (bool isBuyer_);
     function isSeller(address seller_) external view returns (bool isSeller_);

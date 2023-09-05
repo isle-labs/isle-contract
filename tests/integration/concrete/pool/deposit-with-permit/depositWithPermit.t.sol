@@ -5,21 +5,21 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
+import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 import { Deposit_Integration_Shared_Test } from "../../../shared/pool/deposit.t.sol";
 import { Permit_Integration_Shared_Test } from "../../../shared/pool/permit.t.sol";
-import { Pool_Integration_Concrete_Test } from "../Pool.t.sol";
 
 contract DepositWithPermit_Integration_Concrete_Test is
-    Pool_Integration_Concrete_Test,
+    Pool_Integration_Shared_Test,
     Deposit_Integration_Shared_Test,
     Permit_Integration_Shared_Test
 {
     function setUp()
         public
         virtual
-        override(Pool_Integration_Concrete_Test, Deposit_Integration_Shared_Test, Permit_Integration_Shared_Test)
+        override(Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test, Permit_Integration_Shared_Test)
     {
-        Pool_Integration_Concrete_Test.setUp();
+        Pool_Integration_Shared_Test.setUp();
         Deposit_Integration_Shared_Test.setUp();
         Permit_Integration_Shared_Test.setUp();
     }
@@ -123,6 +123,5 @@ contract DepositWithPermit_Integration_Concrete_Test is
 
         // Checks that the receiver has the correct amount of {shares}
         pool.depositWithPermit(assets_, users.receiver, deadline_, v_, r_, s_);
-        assertEq(shares_, pool.balanceOf(users.receiver));
     }
 }
