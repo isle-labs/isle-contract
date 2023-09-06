@@ -240,8 +240,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     function createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
         changePrank(users.buyer);
-        receivablesTokenId_ =
-            receivable.createReceivable(users.buyer, users.seller, ud(faceAmount_), block.timestamp + 30 days, 804);
+        receivablesTokenId_ = receivable.createReceivable(
+            users.buyer, users.seller, ud(faceAmount_), defaults.MAY_31_2023(), defaults.CURRENCY_CODE()
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
