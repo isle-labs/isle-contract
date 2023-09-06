@@ -23,7 +23,7 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
         Integration_Test.setUp();
 
         changePrank(users.poolAdmin);
-        _setupPoolConfigurator();
+        _setUpPoolConfigurator();
 
         changePrank(users.caller);
     }
@@ -206,7 +206,7 @@ contract PoolConfiguratorTest is Integration_Test, IPoolConfiguratorEvents {
                                 HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _setupPoolConfigurator() internal {
+    function _setUpPoolConfigurator() internal {
         poolConfigurator.setOpenToPublic(true);
         poolConfigurator.setLiquidityCap(defaults.POOL_LIMIT());
         poolConfigurator.setValidLender(users.receiver, true);

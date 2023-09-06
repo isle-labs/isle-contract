@@ -116,7 +116,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         lopoGlobals.initialize(users.governor);
         vm.label(address(lopoGlobals), "LopoGlobals");
 
-        // Quick setup for globals
+        // Quick set up for globals
         lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
         lopoGlobals.setValidPoolAsset(address(usdc), true);
         lopoGlobals.setValidCollateralAsset(address(receivable), true);
