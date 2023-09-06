@@ -44,6 +44,8 @@ contract Defaults is Constants {
     uint16 public constant CURRENCY_CODE = 804;
 
     // For loan manager
+    uint256 public constant POOL_LIQUIDITY = 1_000_000e6;
+
     uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
     uint256 public constant GRACE_PERIOD = 7 days;
     uint256 public constant INTEREST_RATE = 0.12e6;
