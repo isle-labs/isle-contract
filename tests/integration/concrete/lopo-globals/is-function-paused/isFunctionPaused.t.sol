@@ -12,22 +12,22 @@ contract IsFunctionPaused_Integration_Concrete_Test is
         LopoGlobals_Integration_Concrete_Test.setUp();
     }
 
-    function test_IsFunctionPaused_WhenFunctionUnpaused() external {
+    function test_IsFunctionPaused_FunctionUnpaused() external {
         lopoGlobals.setFunctionUnpause(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), false);
     }
 
-    function test_IsFunctionPaused_WhenContractPaused() external whenFunctionNotUnpaused {
+    function test_IsFunctionPaused_ContractPaused() external whenFunctionNotUnpaused {
         lopoGlobals.setContractPause(defaults.PAUSED_CONTRACT(), true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 
-    function test_IsFunctionPaused_WhenProtocolPaused() external whenFunctionNotUnpaused whenContractNotPaused {
+    function test_IsFunctionPaused_ProtocolPaused() external whenFunctionNotUnpaused whenContractNotPaused {
         lopoGlobals.setProtocolPause(true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 
-    function test_IsFunctionPaused_WhenProtocolUnpaused() external whenFunctionNotUnpaused whenContractNotPaused {
+    function test_IsFunctionPaused_ProtocolUnpaused() external whenFunctionNotUnpaused whenContractNotPaused {
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), false);
     }
 }
