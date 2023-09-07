@@ -189,7 +189,7 @@ library Errors {
 
     error Pool_InsufficientPermit(uint256 assets, uint256 permits);
 
-    error Pool_WithdrawMoreThanMax(uint256 assets, uint256 maxWithdraw);
-
     error Pool_RedeemMoreThanMax(uint256 shares, uint256 maxRedeem);
+
+    error Pool_WithdrawalNotImplemented();
 }
