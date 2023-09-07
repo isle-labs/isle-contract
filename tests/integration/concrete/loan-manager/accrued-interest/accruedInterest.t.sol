@@ -34,7 +34,7 @@ contract AccruedInterest_Integration_Concrete_Test is
     function test_AccruedInterest_ExistLoan_UpdateAccounting() external {
         createLoan();
         changePrank(users.poolAdmin);
-        
+
         // not matured
         vm.warp(MAY_1_2023 + 15 days);
         loanManager.updateAccounting();
