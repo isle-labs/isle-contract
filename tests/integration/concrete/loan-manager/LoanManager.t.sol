@@ -236,7 +236,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
     function test_repayLoan() public {
         // set the admin and protocol fee rate to 10% and 0.5%
-        _setAdminAndProtocolFeeRate(0.1e6, 0.005e6);
+        _setAdminAndprotocolFee(0.1e6, 0.005e6);
 
         callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (, uint256 periodicInterestRate) = _createLoan(100_000e6);
@@ -458,10 +458,10 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         newRate_ = netInterest * 1e27 / 30 days; // e6 * e27 / seconds = e33 / seconds
     }
 
-    function _setAdminAndProtocolFeeRate(uint256 adminFeeRate_, uint256 protocolFeeRate_) internal {
+    function _setAdminAndprotocolFee(uint256 adminFee_, uint256 protocolFee_) internal {
         changePrank(users.governor);
-        lopoGlobals.setProtocolFeeRate(address(poolConfigurator), protocolFeeRate_);
+        lopoGlobals.setprotocolFee(address(poolConfigurator), protocolFee_);
         changePrank(users.poolAdmin);
-        poolConfigurator.setAdminFee(adminFeeRate_);
+        poolConfigurator.setAdminFee(adminFee_);
     }
 }
