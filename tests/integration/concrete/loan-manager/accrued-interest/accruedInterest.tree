@@ -1,0 +1,11 @@
+accruedInterest.t.sol
+├── when there is no loan in the pool
+│  └── it should return zero
+└── when there exist a loan in the pool
+   ├── when protocol is not update accounting
+   │  └── it should return the accrued interest from domain start to current time stamp
+   └── when protocol is update accounting
+      └── it should return zero
+
+
+

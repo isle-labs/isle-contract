@@ -16,18 +16,35 @@ contract AccruedInterest_Integration_Concrete_Test is
         assertEq(loanManager.accruedInterest(), 0);
     }
 
-    function test_AccruedInterest_ExistNotMaturedLoan() external {
+    function test_AccruedInterest_ExistLoan_NotUpdateAccounting() external {
         createLoan();
+        // not matured
         vm.warp(MAY_1_2023 + 15 days);
         uint256 accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 15 days / 1e27;
 
         assertEq(loanManager.accruedInterest(), accruedInterest);
-    }
-    function test_AccruedInterest_ExistMaturedLoan() external {
-        createLoan();
-        vm.warp(MAY_1_2023 + 30 days + 70 days);
-        uint256 accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 100 days / 1e27;
+
+        // matured
+        vm.warp(defaults.MAY_31_2023() + 70 days);
+        accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 100 days / 1e27;
 
         assertEq(loanManager.accruedInterest(), accruedInterest);
+    }
+
+    function test_AccruedInterest_ExistLoan_UpdateAccounting() external {
+        createLoan();
+        changePrank(users.poolAdmin);
+        
+        // not matured
+        vm.warp(MAY_1_2023 + 15 days);
+        loanManager.updateAccounting();
+
+        assertEq(loanManager.accruedInterest(), 0);
+
+        // matured
+        vm.warp(defaults.MAY_31_2023() + 70 days);
+        loanManager.updateAccounting();
+
+        assertEq(loanManager.accruedInterest(), 0);
     }
 }
