@@ -141,6 +141,8 @@ contract Pool is IPool, ERC20Permit {
         receiver_;
         owner_;
         shares_; // Not implemented
+
+        revert Errors.Pool_WithdrawalNotImplemented();
     }
 
     /**
@@ -295,6 +297,7 @@ contract Pool is IPool, ERC20Permit {
     function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
         owner_;
         maxAssets_; // Not implemented
+        revert Errors.Pool_WithdrawalNotImplemented();
     }
 
     function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {
@@ -304,6 +307,7 @@ contract Pool is IPool, ERC20Permit {
     function previewWithdraw(uint256 assets_) public pure override returns (uint256 shares_) {
         shares_;
         assets_; // not implemented
+        revert Errors.Pool_WithdrawalNotImplemented();
     }
 
     function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {
