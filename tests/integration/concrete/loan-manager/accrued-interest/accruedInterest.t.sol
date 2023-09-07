@@ -2,13 +2,17 @@
 pragma solidity ^0.8.19;
 
 import { LoanManager_Integration_Concrete_Test } from "../loanManager.t.sol";
-import { Loan_Integration_Shared_Test } from "../../../shared/loan-manager/loan.t.sol";
+import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/loan.t.sol";
 
 contract AccruedInterest_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
-    Loan_Integration_Shared_Test
+    LoanManager_Integration_Shared_Test
 {
-    function setUp() public virtual override(LoanManager_Integration_Concrete_Test, Loan_Integration_Shared_Test) {
+    function setUp()
+        public
+        virtual
+        override(LoanManager_Integration_Concrete_Test, LoanManager_Integration_Shared_Test)
+    {
         LoanManager_Integration_Concrete_Test.setUp();
     }
 

@@ -52,13 +52,20 @@ contract Defaults is Constants {
     uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;
     uint256 public constant FEE = 0;
     // e6 * e18 / e6 = e18
-    uint256 public constant PERIODIC_INTEREST_RATE = uint256(0.12e6) * (1e18 / 1e6) * 30 days / 365 days;
+    uint256 public constant PERIODIC_INTEREST_RATE = uint256(INTEREST_RATE) * (1e18 / 1e6) * 30 days / 365 days;
     // e6 * e18 / e18 = e6
     uint256 public constant INTEREST = PRINCIPAL_REQUESTED * PERIODIC_INTEREST_RATE / 1e18;
     // e6 * e6 / e6 = e6
     uint256 public constant NET_INTEREST_ZERO_FEE_RATE = INTEREST * (1e6 - 0e6) / 1e6;
     // e6 * e27 / seconds = e33 / seconds
     uint256 public constant NEW_RATE_ZERO_FEE_RATE = NET_INTEREST_ZERO_FEE_RATE * 1e27 / 30 days;
+
+    // ((MAY_31_2023 + 5 days + 1 - MAY_31_2023 + (1 days - 1)) / 1 days) * 1 days
+    uint256 public constant FULL_DAYS_LATE = 6 days;
+
+    uint256 public constant LATE_PERIODIC_INTEREST_RATE =
+        uint256(INTEREST_RATE + LATE_INTEREST_PREMIUM_RATE) * (1e18 / 1e6) * FULL_DAYS_LATE / 365 days;
+    uint256 public constant LATE_INTEREST = PRINCIPAL_REQUESTED * LATE_PERIODIC_INTEREST_RATE / 1e18;
 
     // For function paused tests
     address public constant PAUSED_CONTRACT = address(0x1);
