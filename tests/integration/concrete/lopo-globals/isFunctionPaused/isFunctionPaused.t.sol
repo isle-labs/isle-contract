@@ -13,7 +13,7 @@ contract IsFunctionPaused_Integration_Concrete_Test is
     }
 
     function test_IsFunctionPaused_WhenFunctionUnpaused() external {
-        lopoGlobals.setFunctionUnpause(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), true);
+        lopoGlobals.setFunctionUnpaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), false);
     }
 
@@ -23,7 +23,7 @@ contract IsFunctionPaused_Integration_Concrete_Test is
     }
 
     function test_IsFunctionPaused_WhenProtocolPaused() external whenFunctionNotUnpaused whenContractNotPaused {
-        lopoGlobals.setProtocolPause(true);
+        lopoGlobals.setProtocolPaused(true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 

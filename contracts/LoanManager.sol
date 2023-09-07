@@ -783,7 +783,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     function _queuePayment(uint16 loanId_, uint256 startDate_, uint256 dueDate_) internal returns (uint256 newRate_) {
-        uint256 protocolFee_ = ILopoGlobals(_globals()).protocolFee(_poolConfigurator());
+        uint256 protocolFee_ = ILopoGlobals(_globals()).protocolFee();
         uint256 adminFee_ = IPoolConfigurator(_poolConfigurator()).adminFee();
         uint256 feeRate_ = protocolFee_ + adminFee_;
 
