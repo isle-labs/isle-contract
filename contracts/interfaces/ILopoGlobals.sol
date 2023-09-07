@@ -9,18 +9,21 @@ import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 /// @notice Interface for the LopoGlobals contract
 /// @notice This interface provides functions for managing the global settings of the Lopo protocol
 interface ILopoGlobals is ILopoGlobalsEvents {
-
     /*//////////////////////////////////////////////////////////////////////////
                                 Struct
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Struct representing a pool admin
     struct PoolAdmin {
-        address ownedPoolConfigurator; // The address of the pool configurator owned by the pool admin
-        bool isPoolAdmin; // Indicates whether the address is a valid pool admin
-        uint256 poolLimit; // The maximum limit for the pool under the pool admin
-        uint256 minCover; // The minimum cover required for the pool admin
-        uint256 maxCoverLiquidation; // The maximum cover liquidation as a percentage for the pool admin
+        bool isPoolAdmin; // Slot 1: bool - 1 byte
+        address ownedPoolConfigurator; //         address - 20 byte
+    }
+
+    /// @notice Struct representing a pool configurator
+    struct PoolConfigurator {
+        uint24 maxCoverLiquidation; // Slot 1: uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6
+        uint104 minCover; //         uint104 - 13 byte: max = 2e31 / precision: 10e18
+        uint104 poolLimit; //         uint128 - 16 byte: max = 3.4e38 / precision: 10e18
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,7 +44,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
 
     /// @notice   Sets the protocol pause.
     /// @param protocolPaused_ A boolean indicating the status of the protocol pause.
-    function setProtocolPause(bool protocolPaused_) external;
+    function setProtocolPaused(bool protocolPaused_) external;
 
     /// @notice Sets the pause status of a specific contract
     /// @param contract_ The address of the contract to set the pause status for
@@ -52,11 +55,11 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @param contract_ The address of the contract
     /// @param sig_ The function signature
     /// @param functionUnpaused_ A boolean indicating the unpause status of the function
-    function setFunctionUnpause(address contract_, bytes4 sig_, bool functionUnpaused_) external;
+    function setFunctionUnpaused(address contract_, bytes4 sig_, bool functionUnpaused_) external;
 
     /// @notice   Sets the protocol fee
-    /// @param protocolFee_ A uint256 indicating the protocol fee
-    function setProtocolFee(uint256 protocolFee_) external;
+    /// @param protocolFee_ A uint24 indicating the protocol fee
+    function setProtocolFee(uint24 protocolFee_) external;
 
     /// @notice   Sets the validity of a collateral asset.
     /// @param collateralAsset_ The address of the collateral asset to set the validity for.
@@ -78,28 +81,28 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @param poolConfigurator_ The address of the pool configurator.
     function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
 
+    /// @notice Sets the max cover liquidation that is applied for the pool admin
+    /// @param poolConfigurator_ The address of the pool admin
+    /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
+    function setMaxCoverLiquidation(address poolConfigurator_, uint24 maxCoverLiquidation_) external;
+
     /// @notice Sets the min cover required for the pool admin.
-    /// @param poolAdmin_ The address of the pool admin.
+    /// @param poolConfigurator_ The address of the pool admin.
     /// @param minCover_ The min cover required for the pool admin.
-    function setMinCover(address poolAdmin_, uint256 minCover_) external;
+    function setMinCover(address poolConfigurator_, uint104 minCover_) external;
 
-    /// @notice Sets the max cover liquidation that is applied for the pool admin.
-    /// @param poolAdmin_ The address of the pool admin.
-    /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin.
-    function setMaxCoverLiquidation(address poolAdmin_, uint256 maxCoverLiquidation_) external;
-
-    /// @notice Transfers the pool configurator to another
-    /// @param fromPoolAdmin_ The address of the pool admin to transfer from.
-    /// @param toPoolAdmin_ The address of the pool admin to transfer to.
-    function transferOwnedPoolConfigurator(address fromPoolAdmin_, address toPoolAdmin_) external;
+    /// @notice Sets the pool limit for the pool configurator
+    /// @param poolConfigurator_ The address of the pool configurator
+    /// @param poolLimit_ The size limit of the pool
+    function setPoolLimit(address poolConfigurator_, uint104 poolLimit_) external;
 
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL STORAGE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the protocol fee
-    /// @return protocolFee_ A uint256 indicating the protocol fee
-    function protocolFee() external view returns (uint256 protocolFee_);
+    /// @return protocolFee_ A uint24 indicating the protocol fee
+    function protocolFee() external view returns (uint24 protocolFee_);
 
     /// @notice    Gets lopo vault address.
     /// @return lopoVault_ The address of the lopo vault.
@@ -121,8 +124,20 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     function isFunctionUnpaused(address contract_, bytes4 sig_) external view returns (bool functionUnpaused_);
 
     /// @notice Returns the information about the pool admin
-    /// @return poolAdminInfo_ The struct containing information of the pool admin
-    function poolAdmins(address poolAdmin_) external view returns (PoolAdmin calldata poolAdminInfo_);
+    /// @param poolAdmin_ The address of the pool admin
+    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
+    /// @return ownedPoolConfigurator_ The address of the pool admin's pool configurator
+    function poolAdmins(address poolAdmin_) external view returns (bool isPoolAdmin_, address ownedPoolConfigurator_);
+
+    /// @notice Returns the information about the pool admin
+    /// @param poolAdmin_ The address of the pool admin
+    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
+    /// @return minCover_ The min cover required for the pool admin
+    /// @return poolLimit_ The size limit of the pool
+    function poolConfigurators(address poolAdmin_)
+        external
+        view
+        returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
 
     /// @notice    Gets the validity of a collateral asset.
     /// @param  collateralAsset_   The address of the collateralAsset to query.
@@ -152,7 +167,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @return isFunctionPaused_ A boolean indicating the pause status of the function
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
 
-    /// @notice Returns the pause status of a specific function in a contract
+    /// @notice Returns the pause status of a specific function in the caller contract
     /// @param sig_ The function signature
     /// @return isFunctionPaused_ A boolean indicating the pause status of the function
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
@@ -167,16 +182,18 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @return poolConfigurator_ The address of the pool configurator
     function ownedPoolConfigurator(address poolAdmin_) external view returns (address poolConfigurator_);
 
-    /// @notice Returns the max cover liquidation as a percentage for a pool admin
-    /// @param poolAdmin_ The address of the pool admin
-    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
-    function maxCoverLiquidation(address poolAdmin_)
-        external
-        view
-        returns (uint256 maxCoverLiquidation_);
+    /// @notice Returns the max cover liquidation as a percentage for the pool configurator
+    /// @param poolConfigurator_ The address of the pool configurator
+    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool configurator
+    function maxCoverLiquidation(address poolConfigurator_) external view returns (uint24 maxCoverLiquidation_);
 
-    /// @notice Returns the min cover required for a pool admin
-    /// @param poolAdmin_ The address of the pool admin
-    /// @return minCover_ The min cover required for the pool admin
-    function minCover(address poolAdmin_) external view returns (uint256 minCover_);
+    /// @notice Returns the min cover required for a pool configurator
+    /// @param poolConfigurator_ The address of the pool configurator
+    /// @return minCover_ The min cover required for the pool configurator
+    function minCover(address poolConfigurator_) external view returns (uint104 minCover_);
+
+    /// @notice Returns the pool limit of the pool under the pool configurator
+    /// @param poolConfigurator_ The address of the pool configurator
+    /// @return poolLimit_ The limit for the pool under the pool configurator
+    function poolLimit(address poolConfigurator_) external view returns (uint104 poolLimit_);
 }
