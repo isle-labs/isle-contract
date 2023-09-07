@@ -784,7 +784,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
     function _queuePayment(uint16 loanId_, uint256 startDate_, uint256 dueDate_) internal returns (uint256 newRate_) {
         uint256 protocolFeeRate_ = ILopoGlobals(_globals()).protocolFeeRate(_poolConfigurator());
-        uint256 adminFeeRate_ = IPoolConfigurator(_poolConfigurator()).adminFeeRate();
+        uint256 adminFeeRate_ = IPoolConfigurator(_poolConfigurator()).adminFee();
         uint256 feeRate_ = protocolFeeRate_ + adminFeeRate_;
 
         LoanInfo memory loan_ = _loans[loanId_];

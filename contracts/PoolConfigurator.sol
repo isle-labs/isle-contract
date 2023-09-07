@@ -114,13 +114,13 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyAdmin {
-        emit LiquidityCapSet(liquidityCap = liquidityCap_);
+    function setPoolLimit(uint256 poolLimit_) external override whenNotPaused onlyAdmin {
+        emit PoolLimitSet(poolLimit = poolLimit_);
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setAdminFeeRate(uint256 adminFeeRate_) external override whenNotPaused onlyAdmin {
-        emit AdminFeeRateSet(adminFeeRate = adminFeeRate_);
+    function setAdminFee(uint256 adminFee_) external override whenNotPaused onlyAdmin {
+        emit AdminFeeSet(adminFee = adminFee_);
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -275,20 +275,6 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        virtual
-        override
-        returns (uint256 shares_)
-    {
-        (, shares_) = _withdrawalManager().previewWithdraw(owner_, assets_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
     function totalAssets() external view override returns (uint256 totalAssets_) {
         totalAssets_ = _totalAssets();
     }
@@ -332,7 +318,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _hasSufficientCover(ILopoGlobals globals_) internal view returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = poolCover >= globals_.minCoverAmount(address(this));
+        uint256 minCover_ = globals_.minCoverAmount(address(this));
+        hasSufficientCover_ = minCover_ != 0 && poolCover >= minCover_;
     }
 
     function _handleCover(uint256 losses_) internal {
@@ -355,8 +342,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     function _getMaxAssets(address receiver_, uint256 totalAssets_) internal view returns (uint256 maxAssets_) {
         bool depositAllowed_ = openToPublic || isLender[receiver_];
-        uint256 liquidityCap_ = liquidityCap;
-        maxAssets_ = liquidityCap_ > totalAssets_ && depositAllowed_ ? liquidityCap_ - totalAssets_ : 0;
+        uint256 poolLimit_ = poolLimit;
+        maxAssets_ = poolLimit_ > totalAssets_ && depositAllowed_ ? poolLimit_ - totalAssets_ : 0;
     }
 
     function _globals() internal view returns (ILopoGlobals globals_) {

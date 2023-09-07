@@ -4,15 +4,15 @@ pragma solidity ^0.8.19;
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
-import { Errors } from "../../contracts/libraries/Errors.sol";
+import { Errors } from "contracts/libraries/Errors.sol";
 
-import { ILoanManagerEvents } from "../../contracts/interfaces/ILoanManagerEvents.sol";
-import { IPoolAddressesProvider } from "../../contracts/interfaces/IPoolAddressesProvider.sol";
-import { IPool } from "../../contracts/interfaces/IPool.sol";
-import { ILopoGlobals } from "../../contracts/interfaces/ILopoGlobals.sol";
+import { ILoanManagerEvents } from "contracts/interfaces/ILoanManagerEvents.sol";
+import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
+import { IPool } from "contracts/interfaces/IPool.sol";
+import { ILopoGlobals } from "contracts/interfaces/ILopoGlobals.sol";
 
-import { PoolConfigurator } from "../../contracts/PoolConfigurator.sol";
-import { Integration_Test } from "./Integration.t.sol";
+import { PoolConfigurator } from "contracts/PoolConfigurator.sol";
+import { Integration_Test } from "../../Integration.t.sol";
 
 contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     /*//////////////////////////////////////////////////////////////////////////
@@ -424,17 +424,23 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _setupPoolConfigurator() internal {
+        changePrank(users.governor);
+        lopoGlobals.setMinCoverAmount(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
+
+        changePrank(users.poolAdmin);
         poolConfigurator.setOpenToPublic(true);
-        poolConfigurator.setLiquidityCap(defaults.POOL_LIMIT());
+        poolConfigurator.setPoolLimit(defaults.POOL_LIMIT());
         poolConfigurator.setValidLender(users.receiver, true);
         poolConfigurator.setValidLender(users.caller, true);
+
+        poolConfigurator.depositCover(defaults.COVER_AMOUNT());
 
         poolConfigurator.setValidBuyer(users.buyer, true);
         poolConfigurator.setValidSeller(users.seller, true);
     }
 
     function _setLiquidityCap(uint256 liquidityCap_) internal {
-        poolConfigurator.setLiquidityCap(liquidityCap_);
+        poolConfigurator.setPoolLimit(liquidityCap_);
     }
 
     /// @notice the interest rate and duration is pre-defined to be 12% APR and 30 days
@@ -456,6 +462,6 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         changePrank(users.governor);
         lopoGlobals.setProtocolFeeRate(address(poolConfigurator), protocolFeeRate_);
         changePrank(users.poolAdmin);
-        poolConfigurator.setAdminFeeRate(adminFeeRate_);
+        poolConfigurator.setAdminFee(adminFeeRate_);
     }
 }

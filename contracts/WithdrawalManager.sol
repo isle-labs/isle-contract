@@ -336,23 +336,6 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         (redeemableShares_, resultingAssets_,) = getRedeemableAmounts(lockedShares_, owner_);
     }
 
-    /// @inheritdoc IWithdrawalManager
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        pure
-        override
-        returns (uint256 redeemableAssets_, uint256 resultingShares_)
-    {
-        owner_;
-        assets_;
-        redeemableAssets_;
-        resultingShares_; // Silence compiler warnings
-        return (redeemableAssets_, resultingShares_); // NOTE: Withdrawal not implemented use redeem instead
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

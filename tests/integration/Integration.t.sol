@@ -34,7 +34,7 @@ contract Integration_Test is Base_Test {
         Base_Test.setUp();
 
         // set up test contracts
-        deployContracts();
+        deployAndLabelCore();
 
         approveProtocol();
 

@@ -111,19 +111,6 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
         view
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
-    /// @notice Previews the amount of shares and assets that can be withdrawn
-    /// @param owner_ The owner of the shares
-    /// @param assets_ The amount of assets to withdraw
-    /// @return redeemableAssets_ The amount of redeemable assets
-    /// @return resultingShares_ The corresponding amount of shares with the redeemable assets
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        returns (uint256 redeemableAssets_, uint256 resultingShares_);
-
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

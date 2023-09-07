@@ -23,5 +23,5 @@ struct Users {
     // Default deposit/mint/redeem/withdraw unwhitelisted receiver
     address payable notWhitelistedReceiver;
     // Default null user that is used
-    address payable nullUser;
+    address payable eve;
 }

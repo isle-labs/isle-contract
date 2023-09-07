@@ -9,6 +9,9 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the expected one.
     error InvalidCaller(address caller, address expectedCaller);
 
+    /// @notice Thrown when `msg.sender` is not the expected one.
+    error CallerNotAdmin(address admin_, address caller_);
+
     /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
     error NotPoolAdminOrGovernor(address caller_);
 
@@ -186,7 +189,7 @@ library Errors {
 
     error Pool_InsufficientPermit(uint256 assets, uint256 permits);
 
-    error Pool_WithdrawMoreThanMax(uint256 assets, uint256 maxWithdraw);
-
     error Pool_RedeemMoreThanMax(uint256 shares, uint256 maxRedeem);
+
+    error Pool_WithdrawalNotImplemented();
 }
