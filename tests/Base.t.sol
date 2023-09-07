@@ -269,9 +269,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     function configurePoolConfigurator() internal {
+        changePrank(users.governor);
+        lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());
+
         changePrank(users.poolAdmin);
         poolConfigurator.setOpenToPublic(true);
-        poolConfigurator.setPoolLimit(defaults.POOL_LIMIT());
         poolConfigurator.setValidLender(users.receiver, true);
         poolConfigurator.setValidLender(users.caller, true);
     }

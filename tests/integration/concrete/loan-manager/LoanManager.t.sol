@@ -426,10 +426,10 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     function _setupPoolConfigurator() internal {
         changePrank(users.governor);
         lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
+        lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());
 
         changePrank(users.poolAdmin);
         poolConfigurator.setOpenToPublic(true);
-        poolConfigurator.setPoolLimit(defaults.POOL_LIMIT());
         poolConfigurator.setValidLender(users.receiver, true);
         poolConfigurator.setValidLender(users.caller, true);
 
@@ -437,10 +437,6 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
         poolConfigurator.setValidBuyer(users.buyer, true);
         poolConfigurator.setValidSeller(users.seller, true);
-    }
-
-    function _setLiquidityCap(uint256 liquidityCap_) internal {
-        poolConfigurator.setPoolLimit(liquidityCap_);
     }
 
     /// @notice the interest rate and duration is pre-defined to be 12% APR and 30 days
@@ -458,9 +454,10 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         newRate_ = netInterest * 1e27 / 30 days; // e6 * e27 / seconds = e33 / seconds
     }
 
-    function _setAdminAndprotocolFee(uint256 adminFee_, uint24 protocolFee_) internal {
+    function _setAdminAndprotocolFee(uint24 adminFee_, uint24 protocolFee_) internal {
         changePrank(users.governor);
         lopoGlobals.setProtocolFee(protocolFee_);
+
         changePrank(users.poolAdmin);
         poolConfigurator.setAdminFee(adminFee_);
     }

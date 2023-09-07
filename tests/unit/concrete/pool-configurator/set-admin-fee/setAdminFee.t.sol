@@ -6,7 +6,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { PoolConfigurator_Unit_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
 contract SetAdminFee_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
-    uint256 private _adminFee;
+    uint24 private _adminFee;
 
     function setUp() public virtual override(PoolConfigurator_Unit_Shared_Test) {
         PoolConfigurator_Unit_Shared_Test.setUp();
