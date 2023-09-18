@@ -15,17 +15,17 @@ assetsUnderManagement.t.sol
 │     └── when protocol is update accounting
 │        └── it should return the principal amount plus the valid accounted interest (no more interest after default)
 └── when there exist multiple loans in the pool
-    ├── when current time is the same time as the loans start
-    │  └── it should return the sum of the principal amount of the loans
-    ├── when current time is in the middle of the loan term
-    │   ├── when protocol is not update accounting
-    │   │  └── it should return the sum of the principal amount plus the accrued interest of the loans
-    │   └── when protocol is update accounting
-    │       └── it should return the sum of the principal amount plus the accounted interest of the loans
-    └── when the loans are defaulted
-        ├── when protocol is not update accounting
-        │  └── it should return the sum of the principal amount plus the accrued interest of the loans (can keep accruing interest after default)
-        └── when protocol is update accounting
-           └── it should return the sum of the principal amount plus the valid accounted interest of the loans (no more interest after default)
+   ├── when current time is the same time as the loans start
+   │  └── it should return the sum of the principal amount of the loans
+   ├── when current time is in the middle of the loan term
+   │   ├── when protocol is not update accounting
+   │   │  └── it should return the sum of the principal amount plus the accrued interest of the loans
+   │   └── when protocol is update accounting
+   │       └── it should return the sum of the principal amount plus the accounted interest of the loans
+   └── when the loans are defaulted
+      ├── when protocol is not update accounting
+      │  └── it should return the sum of the principal amount plus the accrued interest of the loans (can keep accruing interest after default)
+      └── when protocol is update accounting
+         └── it should return the sum of the principal amount plus the valid accounted interest of the loans (no more interest after default)
 
 

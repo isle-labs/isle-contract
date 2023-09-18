@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { LoanManager_Integration_Concrete_Test } from "../loanManager.t.sol";
-import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/loan.t.sol";
+import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
 
 contract AccruedInterest_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
