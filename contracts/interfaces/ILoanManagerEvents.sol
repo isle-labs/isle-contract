@@ -2,10 +2,6 @@
 pragma solidity ^0.8.19;
 
 interface ILoanManagerEvents {
-    /*//////////////////////////////////////////////////////////////////////////
-                                    EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @notice Emitted when a loan is approved
     /// @param loanId_ The id of the loan
     event LoanApproved(uint16 indexed loanId_);

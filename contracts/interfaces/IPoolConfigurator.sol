@@ -46,16 +46,21 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param isValid_ Whether the lender is valid
     function setValidLender(address lender_, bool isValid_) external;
 
-    /// @notice Sets the liquidity cap for the pool
-    /// @param poolLimit_ The new liquidity cap
-    function setPoolLimit(uint256 poolLimit_) external;
+    /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
+    /// @param isOpenToPublic_ Whether the pool is open to the public
+    function setOpenToPublic(bool isOpenToPublic_) external;
 
     /// @notice Sets the admin fee rate that would be applied to the pool
     /// @param adminFee_ The new admin fee
-    function setAdminFee(uint256 adminFee_) external;
+    function setAdminFee(uint24 adminFee_) external;
 
-    /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
-    function setOpenToPublic(bool isOpenToPublic_) external;
+    /// @notice Sets the grace period for the pool
+    /// @param gracePeriod_ The new grace period
+    function setGracePeriod(uint32 gracePeriod_) external;
+
+    /// @notice Sets the base rate for the pool
+    /// @param baseRate_ The new base rate
+    function setBaseRate(uint96 baseRate_) external;
 
     /// @notice Request funds from the pool and fund the loan manager
     /// @param principal_ The amount of principal to request
@@ -103,6 +108,22 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Returns whether the pool is open to public
+    /// @return openToPublic_ Whether the pool is open to public
+    function openToPublic() external view returns (bool openToPublic_);
+
+    /// @notice Returns the admin fee of the pool
+    /// @return adminFee_ The admin fee of the pool
+    function adminFee() external view returns (uint24 adminFee_);
+
+    /// @notice Returns the grace period of the pool
+    /// @return gracePeriod_ The grace period of the pool
+    function gracePeriod() external view returns (uint32 gracePeriod_);
+
+    /// @notice Returns the base rate of the pool
+    /// @return baseRate_ The base rate of the pool
+    function baseRate() external view returns (uint96 baseRate_);
 
     /// @notice Simply calls pool's `convertToExitShares` function
     /// @param amount_ The amount of assets to convert for exit

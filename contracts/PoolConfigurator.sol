@@ -8,6 +8,7 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { PoolDeployer } from "./libraries/PoolDeployer.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
+
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
@@ -114,19 +115,26 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setPoolLimit(uint256 poolLimit_) external override whenNotPaused onlyAdmin {
-        emit PoolLimitSet(poolLimit = poolLimit_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
-    function setAdminFee(uint256 adminFee_) external override whenNotPaused onlyAdmin {
-        emit AdminFeeSet(adminFee = adminFee_);
+    function setAdminFee(uint24 adminFee_) external override whenNotPaused onlyAdmin {
+        emit AdminFeeSet(config.adminFee = adminFee_);
     }
 
     /// @inheritdoc IPoolConfigurator
     function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdmin {
-        openToPublic = isOpenToPublic_;
+        config.openToPublic = isOpenToPublic_;
         emit OpenToPublicSet(isOpenToPublic_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setGracePeriod(uint32 gracePeriod_) external override whenNotPaused onlyAdmin {
+        config.gracePeriod = gracePeriod_;
+        emit GracePeriodSet(gracePeriod_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setBaseRate(uint96 baseRate_) external override whenNotPaused onlyAdmin {
+        config.baseRate = baseRate_;
+        emit BaseRateSet(baseRate_);
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -244,6 +252,26 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolConfigurator
+    function openToPublic() external view override returns (bool openToPublic_) {
+        openToPublic_ = config.openToPublic;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function adminFee() external view override returns (uint24 adminFee_) {
+        adminFee_ = config.adminFee;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function gracePeriod() external view override returns (uint32 gracePeriod_) {
+        gracePeriod_ = config.gracePeriod;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function baseRate() external view override returns (uint96 baseRate_) {
+        baseRate_ = config.baseRate;
+    }
+
+    /// @inheritdoc IPoolConfigurator
     function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
         shares_ = IPool(pool).convertToExitShares(assets_);
     }
@@ -285,9 +313,9 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
+    function unrealizedLosses() external view override returns (uint256 unrealizedLosses_) {
         // `totalAssets` does not.
+        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
         unrealizedLosses_ = _min(_loanManager().unrealizedLosses(), _totalAssets());
     }
 
@@ -341,8 +369,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _getMaxAssets(address receiver_, uint256 totalAssets_) internal view returns (uint256 maxAssets_) {
-        bool depositAllowed_ = openToPublic || isLender[receiver_];
-        uint256 poolLimit_ = poolLimit;
+        bool depositAllowed_ = config.openToPublic || isLender[receiver_];
+        uint256 poolLimit_ = _globals().poolLimit(address(this));
         maxAssets_ = poolLimit_ > totalAssets_ && depositAllowed_ ? poolLimit_ - totalAssets_ : 0;
     }
 

@@ -14,7 +14,7 @@ contract Defaults is Constants {
 
     uint256 public constant DELTA = 1e6;
 
-    uint256 public constant POOL_LIMIT = 1_000_000e6;
+    uint104 public constant POOL_LIMIT = 1_000_000e6;
     uint256 public constant POOL_SHARES = 1000e6;
     uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool() in
         // Base.t.sol
@@ -31,7 +31,7 @@ contract Defaults is Constants {
     uint256 public constant REDEEM_AMOUNT = 1000e6;
     uint256 public constant PRINCIPAL = 100e6;
 
-    uint256 public constant ADMIN_FEE = 1000; // 10%
+    uint24 public constant ADMIN_FEE = 1000; // 10%
 
     // Receivable
     uint256 public constant FACE_AMOUNT = 100e6;

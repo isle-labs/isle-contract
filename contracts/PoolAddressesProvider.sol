@@ -61,20 +61,24 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function getLoanManager() external view override returns (address) {
         return getAddress(LOAN_MANAGER);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function setLoanManagerImpl(address newLoanManagerImpl) external override onlyAdmin {
         address oldLoanManagerImpl = _getProxyImplementation(LOAN_MANAGER);
         _updateImpl(LOAN_MANAGER, newLoanManagerImpl);
         emit LoanManagerUpdated(oldLoanManagerImpl, newLoanManagerImpl);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function getWithdrawalManager() external view override returns (address) {
         return getAddress(WITHDRAWAL_MANAGER);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function setWithdrawalManagerImpl(
         address newWithdrawalManagerImpl,
         bytes calldata params
@@ -109,46 +113,36 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolAddressesProvider
-    function getPriceOracle() external view override returns (address) {
-        return getAddress(PRICE_ORACLE);
-    }
-
-    /// @inheritdoc IPoolAddressesProvider
-    function setPriceOracle(address newPriceOracle) external override onlyAdmin {
-        address oldPriceOracle = _addresses[PRICE_ORACLE];
-        _addresses[PRICE_ORACLE] = newPriceOracle;
-        emit PriceOracleUpdated(oldPriceOracle, newPriceOracle);
-    }
-
     function getLopoGlobals() external view override returns (address) {
         return getAddress(LOPO_GLOBALS);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function setLopoGlobals(address newLopoGlobals) external override onlyAdmin {
         address oldLopoGlobals = _addresses[LOPO_GLOBALS];
         _addresses[LOPO_GLOBALS] = newLopoGlobals;
         emit LopoGlobalsUpdated(oldLopoGlobals, newLopoGlobals);
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function getAddress(bytes32 id) public view override returns (address) {
         return _addresses[id];
     }
 
+    /// @inheritdoc IPoolAddressesProvider
     function setAddress(bytes32 id, address newAddress) external override onlyAdmin {
         address oldAddress = _addresses[id];
         _addresses[id] = newAddress;
         emit AddressSet(id, oldAddress, newAddress);
     }
 
-    /**
-     * @notice Internal function to update the implementation of a specific proxied component of the protocol.
-     * @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`
-     *   as implementation and calls the initialize() function on the proxy
-     * @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and
-     *   calls the initialize() function via upgradeToAndCall() in the proxy
-     * @param id The id of the proxy to be updated
-     * @param newAddress The address of the new implementation
-     */
+    /// @notice Internal function to update the implementation of a specific proxied component of the protocol.
+    /// @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`
+    ///   as implementation and calls the initialize() function on the proxy
+    /// @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and
+    ///   calls the initialize() function via upgradeToAndCall() in the proxy
+    /// @param id The id of the proxy to be updated
+    /// @param newAddress The address of the new implementation
     function _updateImpl(bytes32 id, address newAddress) internal {
         _updateImpl(id, newAddress, abi.encodeWithSignature("initialize(address)", address(this)));
     }
@@ -168,24 +162,20 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         }
     }
 
-    /**
-     * @notice Updates the identifier of the Lopo market.
-     * @param newMarketId The new id of the market
-     */
+    /// @notice Updates the identifier of the Lopo market.
+    /// @param newMarketId The new id of the market
     function _setMarketId(string memory newMarketId) internal {
         string memory oldMarketId = _marketId;
         _marketId = newMarketId;
         emit MarketIdSet(oldMarketId, newMarketId);
     }
 
-    /**
-     * @notice Returns the the implementation contract of the proxy contract by its identifier.
-     * @dev It returns ZERO if there is no registered address with the given id
-     * @dev It reverts if the registered address with the given id is not
-     * `InitializableImmutableAdminUpgradeabilityProxy`
-     * @param id The id
-     * @return The address of the implementation contract
-     */
+    /// @notice Returns the the implementation contract of the proxy contract by its identifier.
+    /// @dev It returns ZERO if there is no registered address with the given id
+    /// @dev It reverts if the registered address with the given id is not
+    /// `InitializableImmutableAdminUpgradeabilityProxy`
+    /// @param id The id
+    /// @return The address of the implementation contract
     function _getProxyImplementation(bytes32 id) internal view returns (address) {
         address proxyAddress = _addresses[id];
         if (proxyAddress == address(0)) {
