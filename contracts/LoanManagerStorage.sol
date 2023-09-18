@@ -33,8 +33,8 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
     }
 
     struct PaymentInfo {
-        uint24 protocolFeeRate;
-        uint24 adminFeeRate;
+        uint24 protocolFee;
+        uint24 adminFee;
         uint48 startDate;
         uint48 dueDate;
         uint128 incomingNetInterest;

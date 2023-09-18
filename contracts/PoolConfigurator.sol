@@ -318,14 +318,14 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _hasSufficientCover(ILopoGlobals globals_) internal view returns (bool hasSufficientCover_) {
-        uint256 minCover_ = globals_.minCoverAmount(address(this));
+        uint256 minCover_ = globals_.minCover(address(this));
         hasSufficientCover_ = minCover_ != 0 && poolCover >= minCover_;
     }
 
     function _handleCover(uint256 losses_) internal {
         ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
 
-        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
+        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidation(address(this))) / HUNDRED_PERCENT;
 
         uint256 coverAmount_ = _min(availableCover_, losses_);
 

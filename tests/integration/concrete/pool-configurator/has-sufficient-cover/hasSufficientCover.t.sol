@@ -10,7 +10,7 @@ contract HasSufficientCover_Integration_Concrete_Test is PoolConfigurator_Integr
         PoolConfigurator_Integration_Shared_Test.setUp();
 
         changePrank(users.governor);
-        lopoGlobals.setMinCoverAmount(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
+        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
 
         changePrank(users.poolAdmin);
     }

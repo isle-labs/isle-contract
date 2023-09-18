@@ -95,7 +95,7 @@ library Errors {
 
     error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
 
-    error Globals_ProtocolFeeRateGreaterThanOne(uint256 protocolFeeRate);
+    error Globals_protocolFeeGreaterThanOne(uint256 protocolFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOAN MANAGER

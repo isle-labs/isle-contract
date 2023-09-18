@@ -199,7 +199,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         // accountedInterest = 0e6;
         emit IssuanceParamsUpdated(uint48(block.timestamp + 30 days), newRate, 0e6);
 
-        // assume that the poolCover is higher than minCoverAmount
+        // assume that the poolCover is higher than minCover
         // and the liquidity of the pool after funding is higher than lockedLiquidity for withdrawing
         fundLoan(loanId_);
 
@@ -236,7 +236,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
     function test_repayLoan() public {
         // set the admin and protocol fee rate to 10% and 0.5%
-        _setAdminAndProtocolFeeRate(0.1e6, 0.005e6);
+        _setAdminAndprotocolFee(0.1e6, 0.005e6);
 
         callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
         (, uint256 periodicInterestRate) = _createLoan(100_000e6);
@@ -425,7 +425,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
     function _setupPoolConfigurator() internal {
         changePrank(users.governor);
-        lopoGlobals.setMinCoverAmount(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
+        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
 
         changePrank(users.poolAdmin);
         poolConfigurator.setOpenToPublic(true);
@@ -458,10 +458,10 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         newRate_ = netInterest * 1e27 / 30 days; // e6 * e27 / seconds = e33 / seconds
     }
 
-    function _setAdminAndProtocolFeeRate(uint256 adminFeeRate_, uint256 protocolFeeRate_) internal {
+    function _setAdminAndprotocolFee(uint256 adminFee_, uint24 protocolFee_) internal {
         changePrank(users.governor);
-        lopoGlobals.setProtocolFeeRate(address(poolConfigurator), protocolFeeRate_);
+        lopoGlobals.setProtocolFee(protocolFee_);
         changePrank(users.poolAdmin);
-        poolConfigurator.setAdminFee(adminFeeRate_);
+        poolConfigurator.setAdminFee(adminFee_);
     }
 }

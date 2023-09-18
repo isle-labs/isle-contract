@@ -671,9 +671,9 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         uint256 grossLateInterest_ = grossInterest_[1];
 
-        netLateInterest_ = _getNetInterest(grossLateInterest_, paymentInfo_.protocolFeeRate + paymentInfo_.adminFeeRate);
+        netLateInterest_ = _getNetInterest(grossLateInterest_, paymentInfo_.protocolFee + paymentInfo_.adminFee);
 
-        protocolFees_ = (grossInterest_[0] + grossLateInterest_) * paymentInfo_.protocolFeeRate / HUNDRED_PERCENT;
+        protocolFees_ = (grossInterest_[0] + grossLateInterest_) * paymentInfo_.protocolFee / HUNDRED_PERCENT;
 
         // If the payment is early, scale back the management fees pro-rata based on the current timestamp
         if (grossLateInterest_ == 0) {
@@ -783,9 +783,9 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     }
 
     function _queuePayment(uint16 loanId_, uint256 startDate_, uint256 dueDate_) internal returns (uint256 newRate_) {
-        uint256 protocolFeeRate_ = ILopoGlobals(_globals()).protocolFeeRate(_poolConfigurator());
-        uint256 adminFeeRate_ = IPoolConfigurator(_poolConfigurator()).adminFee();
-        uint256 feeRate_ = protocolFeeRate_ + adminFeeRate_;
+        uint256 protocolFee_ = ILopoGlobals(_globals()).protocolFee();
+        uint256 adminFee_ = IPoolConfigurator(_poolConfigurator()).adminFee();
+        uint256 feeRate_ = protocolFee_ + adminFee_;
 
         LoanInfo memory loan_ = _loans[loanId_];
 
@@ -796,15 +796,15 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 paymentId_ = paymentIdOf[loanId_] = _addPaymentToList(SafeCast.toUint48(dueDate_));
 
         payments[paymentId_] = PaymentInfo({
-            protocolFeeRate: SafeCast.toUint24(protocolFeeRate_),
-            adminFeeRate: SafeCast.toUint24(adminFeeRate_),
+            protocolFee: SafeCast.toUint24(protocolFee_),
+            adminFee: SafeCast.toUint24(adminFee_),
             startDate: SafeCast.toUint48(startDate_),
             dueDate: SafeCast.toUint48(dueDate_),
             incomingNetInterest: SafeCast.toUint128(newRate_ * (dueDate_ - startDate_) / PRECISION),
             issuanceRate: newRate_
         });
 
-        emit PaymentAdded(loanId_, paymentId_, protocolFeeRate_, adminFeeRate_, startDate_, dueDate_, newRate_);
+        emit PaymentAdded(loanId_, paymentId_, protocolFee_, adminFee_, startDate_, dueDate_, newRate_);
     }
 
     function _reverseLoanImpairment(LiquidationInfo memory liquidationInfo_) internal {
@@ -876,10 +876,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             revert Errors.LoanManager_NotLoan(loanId_);
         }
 
-        uint256 protocolFee_ = interest_ * payments[paymentId_].protocolFeeRate / HUNDRED_PERCENT;
+        uint256 protocolFee_ = interest_ * payments[paymentId_].protocolFee / HUNDRED_PERCENT;
 
         uint256 adminFee_ = IPoolConfigurator(_poolConfigurator()).hasSufficientCover()
-            ? interest_ * payments[paymentId_].adminFeeRate / HUNDRED_PERCENT
+            ? interest_ * payments[paymentId_].adminFee / HUNDRED_PERCENT
             : 0;
 
         uint256 netInterest_ = interest_ - protocolFee_ - adminFee_;
