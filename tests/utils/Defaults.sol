@@ -3,6 +3,8 @@ pragma solidity >=0.8.19;
 
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 
+import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
+
 import { Constants } from "./Constants.sol";
 import { Users } from "./Types.sol";
 
@@ -16,13 +18,13 @@ contract Defaults is Constants {
 
     uint104 public constant POOL_LIMIT = 1_000_000e6;
     uint256 public constant POOL_SHARES = 1000e6;
-    uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool() in
-        // Base.t.sol
+    uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool()
 
-    uint8 public constant UNDERLYING_DECIMALS = 18;
+    uint8 public constant UNDERLYING_DECIMALS = 6;
     uint8 public constant DECIMALS_OFFSET = 0;
 
     uint256 public immutable DEADLINE; // for erc20 permit
+
     uint256 public constant DEPOSIT_AMOUNT = 1000e6;
     uint256 public constant MINT_AMOUNT = 100_000e6;
     uint256 public constant COVER_AMOUNT = 10_000e6;
@@ -30,7 +32,6 @@ contract Defaults is Constants {
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint256 public constant REDEEM_AMOUNT = 1000e6;
     uint256 public constant PRINCIPAL = 100e6;
-
     uint24 public constant ADMIN_FEE = 1000; // 10%
 
     // Receivable
@@ -47,12 +48,18 @@ contract Defaults is Constants {
     uint256 public constant EXPECTED_EXIT_ASSETS = 100_000e6;
 
     // For withdrawal manager
-    uint256 public constant WINDOW_DURATION = 2 days;
-    uint256 public constant CYCLE_DURATION = 7 days;
-    uint256 public immutable WINDOW_1;
-    uint256 public immutable CYCLE_1;
-    uint256 public immutable WINDOW_3;
-    uint256 public immutable CYCLE_3;
+    uint64 public constant WINDOW_DURATION = 2 days;
+    uint64 public constant CYCLE_DURATION = 7 days;
+
+    uint64 public immutable WINDOW_1;
+    uint64 public immutable WINDOW_3;
+    uint64 public immutable WINDOW_4;
+
+    uint64 public constant NEW_WINDOW_DURATION = 4 days;
+    uint64 public constant NEW_CYCLE_DURATION = 14 days;
+
+    uint256 public constant ADD_SHARES = 10e6;
+    uint256 public constant REMOVE_SHARES = 5e6; // must be smaller than ADD_SHARES
 
     // For function paused tests
     address public constant PAUSED_CONTRACT = address(0x1);
@@ -72,9 +79,8 @@ contract Defaults is Constants {
     constructor() {
         DEADLINE = MAY_1_2023 + 10 days;
         WINDOW_1 = MAY_1_2023;
-        CYCLE_1 = MAY_1_2023 + WINDOW_DURATION;
         WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
-        CYCLE_3 = CYCLE_1 + CYCLE_DURATION * 2;
+        WINDOW_4 = WINDOW_1 + CYCLE_DURATION * 3;
         REPAYMENT_TIMESTAMP = MAY_1_2023 + 30 days;
     }
 

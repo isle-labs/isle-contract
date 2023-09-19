@@ -30,4 +30,16 @@ abstract contract Events {
     event ValidBuyerSet(address indexed buyer_, bool isValid_);
 
     event ValidLenderSet(address indexed lender_, bool isValid_);
+
+    // WithdrawalManager Events
+    event WithdrawalUpdated(address indexed account_, uint256 lockedShares_, uint64 windowStart_, uint64 windowEnd_);
+    event WithdrawalProcessed(address indexed account_, uint256 sharesToRedeem_, uint256 assetsToWithdraw_);
+    event WithdrawalCancelled(address indexed account_);
+    event ConfigurationUpdated(
+        uint256 indexed configId_,
+        uint64 initialCycleId_,
+        uint64 initialCycleTime_,
+        uint64 cycleDuration_,
+        uint64 windowDuration_
+    );
 }
