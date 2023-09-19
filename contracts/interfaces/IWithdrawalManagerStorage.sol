@@ -6,25 +6,8 @@ pragma solidity ^0.8.19;
 //////////////////////////////////////////////////////////////////////////*/
 
 interface IWithdrawalManagerStorage {
-    struct CycleConfig {
-        uint64 initialCycleId; // Identifier of the first withdrawal cycle using this config
-        uint64 initialCycleTime; // Starting timestamp of the first withdrawal cycle using this config
-        uint64 cycleDuration; // Cycle duration of this config
-        uint64 windowDuration; // Window duration of this config
-    }
-
     /// @notice Gets the id of the latest config
     function latestConfigId() external view returns (uint256 configId_);
-
-    /// @notice Gets the configuration of a config id
-    /// @param configId_ The id of the config
-    /// @return initialCycleId_ The id of the initial cycle
-    /// @return initialCycleTime_ The starting timestamp of the initial cycle
-    /// @return cycleDuration_ The duration of the cycle
-    /// @return windowDuration_ The duration of the window
-    function cycleConfigs(uint256 configId_)
-        external
-        returns (uint64 initialCycleId_, uint64 initialCycleTime_, uint64 cycleDuration_, uint64 windowDuration_);
 
     /// @notice Gets the exit cycle id of an account
     /// @param account_ The address of the account
