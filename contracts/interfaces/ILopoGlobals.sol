@@ -130,8 +130,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
-    function setValidReceivable(address receivable_, bool isValid_) external;
-
     function setRiskFreeRate(uint256 riskFreeRate_) external;
 
     function setMinPoolLiquidityRatio(UD60x18 minPoolLiquidityRatio_) external;

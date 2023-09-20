@@ -236,7 +236,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
-
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
     //////////////////////////////////////////////////////////////////////////*/
