@@ -62,8 +62,6 @@ interface ILopoGlobals is ILopoGlobalsEvents {
      */
     function isCollateralAsset(address collateralAsset_) external view returns (bool isCollateralAsset_);
 
-    function isReceivable(address receivable_) external view returns (bool isReceivable_);
-
     /**
      *  @dev    Gets the validity of a pool asset.
      *  @param  poolAsset_   The address of the poolAsset to query.

@@ -129,14 +129,6 @@ contract LopoGlobals_Unit_Concrete_Test is Base_Test, ILopoGlobalsEvents {
         assertTrue(lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
     }
 
-    function test_setValidReceivable() public {
-        address mockReceivable = address(new Address());
-        vm.expectEmit(true, true, true, true);
-        emit ValidReceivableSet(mockReceivable, true);
-        lopoGlobals.setValidReceivable(mockReceivable, true);
-        assertTrue(lopoGlobals.isReceivable(mockReceivable));
-    }
-
     function test_setValidCollateralAsset() public {
         address mockCollateralAsset = address(new Address());
         vm.expectEmit(true, true, true, true);

@@ -55,7 +55,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
-    mapping(address => bool) public override isReceivable;
 
     // configs by poolAddressesProvider
     mapping(address => bool) public override isEnabled;
@@ -237,10 +236,6 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
-    function setValidReceivable(address receivable_, bool isValid_) external override onlyGovernor {
-        isReceivable[receivable_] = isValid_;
-        emit ValidReceivableSet(receivable_, isValid_);
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                             FEE SETTERS
