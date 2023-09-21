@@ -5,7 +5,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { PoolConfigurator_Unit_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
-contract SetOpenToPublic_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
+contract SetBaseRate_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
     function setUp() public virtual override(PoolConfigurator_Unit_Shared_Test) {
         PoolConfigurator_Unit_Shared_Test.setUp();
     }
@@ -16,13 +16,13 @@ contract SetOpenToPublic_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.poolAdmin, users.eve));
-        setDefaultOpenToPublic();
+        setDefaultBaseRate();
     }
 
-    function test_setOpenToPublic() external whenCallerPoolAdmin {
+    function test_setBaseRate() external whenCallerPoolAdmin {
         vm.expectEmit({ emitter: address(poolConfigurator) });
-        emit OpenToPublicSet({ isOpenToPublic_: defaults.OPEN_TO_PUBLIC() });
-        setDefaultOpenToPublic();
-        assertEq(poolConfigurator.openToPublic(), defaults.OPEN_TO_PUBLIC());
+        emit BaseRateSet({ baseRate_: defaults.BASE_RATE() });
+        setDefaultBaseRate();
+        assertEq(poolConfigurator.baseRate(), defaults.BASE_RATE());
     }
 }

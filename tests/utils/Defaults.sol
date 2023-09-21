@@ -30,9 +30,14 @@ contract Defaults is Constants {
     uint256 public constant COVER_AMOUNT = 10_000e6;
     uint256 public constant WITHDRAW_COVER_AMOUNT = 100e6;
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
-    uint256 public constant REDEEM_AMOUNT = 1000e6;
+    uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
     uint24 public constant ADMIN_FEE = 1000; // 10%
+
+    // Pool Configurator
+    uint96 public constant BASE_RATE = 5000; // 10%
+    uint32 public constant GRACE_PERIOD = 3 days;
+    bool public constant OPEN_TO_PUBLIC = true;
 
     // Receivable
     uint256 public constant FACE_AMOUNT = 100e6;

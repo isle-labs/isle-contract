@@ -6,11 +6,8 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { PoolConfigurator_Unit_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
 contract SetAdminFee_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
-    uint24 private _adminFee;
-
     function setUp() public virtual override(PoolConfigurator_Unit_Shared_Test) {
         PoolConfigurator_Unit_Shared_Test.setUp();
-        _adminFee = defaults.ADMIN_FEE();
     }
 
     function test_RevertWhen_CallerNotPoolAdmin() external {
@@ -19,14 +16,14 @@ contract SetAdminFee_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.poolAdmin, users.eve));
-        poolConfigurator.setAdminFee(_adminFee);
+        setDefaultAdminFee();
     }
 
     function test_setAdminFee() external whenCallerPoolAdmin {
         vm.expectEmit({ emitter: address(poolConfigurator) });
-        emit AdminFeeSet({ adminFee_: _adminFee });
+        emit AdminFeeSet({ adminFee_: defaults.ADMIN_FEE() });
 
-        poolConfigurator.setAdminFee(_adminFee);
-        assertEq(poolConfigurator.adminFee(), _adminFee);
+        setDefaultAdminFee();
+        assertEq(poolConfigurator.adminFee(), defaults.ADMIN_FEE());
     }
 }

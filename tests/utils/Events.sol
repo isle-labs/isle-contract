@@ -31,10 +31,23 @@ abstract contract Events {
 
     event ValidLenderSet(address indexed lender_, bool isValid_);
 
+    event GracePeriodSet(uint256 gracePeriod_);
+
+    event BaseRateSet(uint96 baseRate_);
+
+    event RedeemProcessed(address indexed owner_, uint256 redeemableShares_, uint256 resultingAssets_);
+
+    event SharesRemoved(address indexed owner_, uint256 shares_);
+
+    event OpenToPublicSet(bool isOpenToPublic_);
+
     // WithdrawalManager Events
     event WithdrawalUpdated(address indexed account_, uint256 lockedShares_, uint64 windowStart_, uint64 windowEnd_);
+
     event WithdrawalProcessed(address indexed account_, uint256 sharesToRedeem_, uint256 assetsToWithdraw_);
+
     event WithdrawalCancelled(address indexed account_);
+
     event ConfigurationUpdated(
         uint256 indexed configId_,
         uint64 initialCycleId_,
