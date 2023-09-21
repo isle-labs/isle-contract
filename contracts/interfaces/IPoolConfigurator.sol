@@ -125,11 +125,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @return baseRate_ The base rate of the pool
     function baseRate() external view returns (uint96 baseRate_);
 
-    /// @notice Simply calls pool's `convertToExitShares` function
-    /// @param amount_ The amount of assets to convert for exit
-    /// @return shares_ The amount of shares that would be received
-    function convertToExitShares(uint256 amount_) external view returns (uint256 shares_);
-
     /// @notice Returns the max deposit amount of a receiver
     /// @param receiver_ The address of the receiver
     /// @return maxAssets_ The max amount of assets that can be deposited
