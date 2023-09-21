@@ -169,8 +169,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             address(poolAddressesProvider_),
             users.poolAdmin,
             address(usdc),
-            "BSOS Green Share",
-            "BGS"
+            defaults.POOL_NAME(),
+            defaults.POOL_SYMBOL()
         );
 
         poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);

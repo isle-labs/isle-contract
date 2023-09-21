@@ -39,6 +39,10 @@ contract Defaults is Constants {
     uint32 public constant GRACE_PERIOD = 3 days;
     bool public constant OPEN_TO_PUBLIC = true;
 
+    // Pool
+    string public constant POOL_NAME = "BSOS Green Share";
+    string public constant POOL_SYMBOL = "BGS";
+
     // Receivable
     uint256 public constant FACE_AMOUNT = 100e6;
     uint256 public immutable REPAYMENT_TIMESTAMP;

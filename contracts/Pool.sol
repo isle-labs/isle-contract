@@ -207,7 +207,13 @@ contract Pool is IPool, ERC20Permit {
         uint256 redeemableShares_;
         (redeemableShares_, assets_) = IPoolConfigurator(configurator).processRedeem(shares_, owner_, _msgSender());
 
-        _withdraw(_msgSender(), receiver_, owner_, assets_, redeemableShares_);
+        _withdraw({
+            caller: _msgSender(),
+            receiver: receiver_,
+            owner: owner_,
+            assets: assets_,
+            shares: redeemableShares_
+        });
     }
 
     /**
