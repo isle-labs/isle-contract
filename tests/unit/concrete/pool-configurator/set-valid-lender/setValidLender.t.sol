@@ -21,8 +21,6 @@ contract SetValidLender_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test 
     }
 
     function test_setValidLender() external whenCallerPoolAdmin {
-        assertFalse(poolConfigurator.isLender(users.receiver));
-
         vm.expectEmit({ emitter: address(poolConfigurator) });
         emit ValidLenderSet({ lender_: users.receiver, isValid_: true });
         poolConfigurator.setValidLender(users.receiver, true);

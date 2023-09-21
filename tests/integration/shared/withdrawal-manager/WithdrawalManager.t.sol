@@ -27,10 +27,6 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
         _params.newCycleDuration = defaults.NEW_CYCLE_DURATION();
         _params.newWindowDuration = defaults.NEW_WINDOW_DURATION();
 
-        // Note: If this is a required configuration for everybody, move to deployContracts
-        configurePoolConfigurator();
-        configureGlobals();
-
         // Initialize pool with assets and shares
         initializePool();
 

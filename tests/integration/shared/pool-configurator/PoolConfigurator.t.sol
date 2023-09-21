@@ -7,9 +7,7 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
     function setUp() public virtual override(Integration_Test) {
         Integration_Test.setUp();
 
-        configurePoolConfigurator();
         initializePool();
-        configureGlobals();
 
         changePrank(users.poolAdmin);
     }

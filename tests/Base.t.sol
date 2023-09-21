@@ -114,13 +114,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolAddressesProvider = deployPoolAddressesProvider(lopoGlobals);
 
         changePrank(users.poolAdmin);
-        deployPoolConfigurator(poolAddressesProvider);
-        deployWithdrawalManager(poolAddressesProvider);
-        deployLoanManager(poolAddressesProvider);
-
-        poolConfigurator = PoolConfigurator(poolAddressesProvider.getPoolConfigurator());
-        loanManager = LoanManager(poolAddressesProvider.getLoanManager());
-        withdrawalManager = WithdrawalManager(poolAddressesProvider.getWithdrawalManager());
+        poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
+        withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
+        loanManager = deployLoanManager(poolAddressesProvider);
         pool = Pool(poolConfigurator.pool());
 
         vm.label(address(receivable), "Receivable");
@@ -163,8 +159,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool configurator
-    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address poolConfigurator_ = address(new PoolConfigurator(poolAddressesProvider_));
+    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (IPoolConfigurator poolConfigurator_)
+    {
+        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
         bytes memory params_ = abi.encodeWithSelector(
             IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider_),
@@ -173,12 +172,26 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             "BSOS Green Share",
             "BGS"
         );
-        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfigurator_, params_);
+
+        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
+        poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
+
+        changePrank(users.governor);
+        lopoGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
+        lopoGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
+
+        changePrank(users.poolAdmin);
+        poolConfigurator_.setOpenToPublic(true);
+        poolConfigurator_.setValidLender(users.receiver, true);
+        poolConfigurator_.setValidLender(users.caller, true);
     }
 
     /// @dev Deploy withdrawal manager
-    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address withdrawalManager_ = address(new WithdrawalManager(poolAddressesProvider_));
+    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (IWithdrawalManager withdrawalManager_)
+    {
+        address withdrawalManagerImpl_ = address(new WithdrawalManager(poolAddressesProvider_));
 
         bytes memory params = abi.encodeWithSelector(
             IWithdrawalManager.initialize.selector,
@@ -186,13 +199,18 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             defaults.CYCLE_DURATION(),
             defaults.WINDOW_DURATION()
         );
-        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManager_, params);
+        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManagerImpl_, params);
+        withdrawalManager_ = IWithdrawalManager(poolAddressesProvider_.getWithdrawalManager());
     }
 
     /// @dev Deploy loan manager
-    function deployLoanManager(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address loanManager_ = address(new LoanManager(poolAddressesProvider_));
-        poolAddressesProvider_.setLoanManagerImpl(loanManager_);
+    function deployLoanManager(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (ILoanManager loanManager_)
+    {
+        address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
+        poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_);
+        loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.
@@ -272,27 +290,12 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         loanManager.fundLoan(loanId_);
     }
 
-    function configurePoolConfigurator() internal {
-        changePrank(users.governor);
-        lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());
-
-        changePrank(users.poolAdmin);
-        poolConfigurator.setOpenToPublic(true);
-        poolConfigurator.setValidLender(users.receiver, true);
-        poolConfigurator.setValidLender(users.caller, true);
-    }
-
     function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially
         pool.deposit({ assets: defaults.POOL_SHARES(), receiver: users.receiver });
         // Now the total assets in the pool would be POOL_ASSETS
         airdropTo(address(pool), defaults.POOL_ASSETS() - usdc.balanceOf(address(pool)));
-    }
-
-    function configureGlobals() internal {
-        changePrank(users.governor);
-        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
     }
 
     /*//////////////////////////////////////////////////////////////////////////
