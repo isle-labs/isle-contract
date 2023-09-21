@@ -157,8 +157,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,
-        uint256[2] memory rates_,
-        uint256 fee_
+        uint256[2] memory rates_
     )
         external
         override
@@ -197,7 +196,6 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             drawableFunds: uint256(0),
             interestRate: rates_[0],
             lateInterestPremiumRate: rates_[1],
-            fee: fee_,
             startDate: uint256(0),
             dueDate: receivableInfo_.repaymentTimestamp,
             originalDueDate: uint256(0),
