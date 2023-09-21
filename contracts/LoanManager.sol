@@ -162,7 +162,6 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         external
         override
         whenNotPaused
-        onlyPoolAdmin
         returns (uint16 loanId_)
     {
         // Check if the collateral asset is in the allowed list in LopoGlobals
@@ -172,6 +171,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         ReceivableStorage.ReceivableInfo memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
+
+        _revertIfCallerNotReceivableBuyer(receivableInfo_.buyer);
 
         _revertIfInvalidReceivable(
             receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
@@ -946,6 +947,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     function _revertIfNotPoolAdmin() internal view {
         if (msg.sender != _poolAdmin()) {
             revert Errors.NotPoolAdmin(msg.sender);
+        }
+    }
+
+    function _revertIfCallerNotReceivableBuyer(address buyer_) internal view {
+        if (msg.sender != buyer_) {
+            revert Errors.LoanManager_CallerNotReceivableBuyer({ expectedBuyer_: buyer_ });
         }
     }
 

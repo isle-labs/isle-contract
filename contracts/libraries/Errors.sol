@@ -130,6 +130,8 @@ library Errors {
 
     error LoanManager_NotPastDueDatePlusGracePeriod(uint16 loanId_);
 
+    error LoanManager_CallerNotReceivableBuyer(address expectedBuyer_);
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
     //////////////////////////////////////////////////////////////////////////*/
