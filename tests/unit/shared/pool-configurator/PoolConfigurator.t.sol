@@ -30,11 +30,9 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
 
     function deployContract() internal {
         changePrank(users.governor);
-        lopoGlobals = deployGlobals();
-        poolAddressesProvider = deployPoolAddressesProvider(lopoGlobals);
-        changePrank(users.poolAdmin);
-        deployPoolConfigurator(poolAddressesProvider);
-        poolConfigurator = PoolConfigurator(poolAddressesProvider.getPoolConfigurator());
+        poolAddressesProvider = deployPoolAddressesProvider();
+        lopoGlobals = deployGlobals(poolAddressesProvider);
+        poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
     }
 
     function setDefaultBaseRate() internal {

@@ -58,4 +58,23 @@ abstract contract Events {
         uint64 cycleDuration_,
         uint64 windowDuration_
     );
+
+    // PoolAddressesProvider Events
+
+    event AddressSet(bytes32 indexed id, address indexed oldAddress, address indexed newAddress);
+
+    event AddressSetAsProxy(
+        bytes32 indexed id,
+        address indexed proxyAddress,
+        address oldImplementationAddress,
+        address indexed newImplementationAddress
+    );
+
+    event PoolConfiguratorUpdated(address indexed oldAddress, address indexed newAddress);
+
+    event LoanManagerUpdated(address indexed oldAddress, address indexed newAddress);
+
+    event WithdrawalManagerUpdated(address indexed oldAddress, address indexed newAddress);
+
+    event LopoGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
 }

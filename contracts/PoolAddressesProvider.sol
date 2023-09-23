@@ -22,12 +22,10 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     bytes32 private constant LOPO_GLOBALS = "LOPO_GLOBALS";
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
-    bytes32 private constant PRICE_ORACLE = "PRICE_ORACLE";
 
-    constructor(address admin_, string memory marketId_, address lopoGlobals_) {
-        admin = admin_;
+    constructor(string memory marketId_) {
+        admin = msg.sender;
         _marketId = marketId_;
-        _addresses[LOPO_GLOBALS] = lopoGlobals_;
     }
 
     function getMarketId() external view returns (string memory) {

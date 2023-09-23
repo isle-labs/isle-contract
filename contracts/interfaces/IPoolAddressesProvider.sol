@@ -9,11 +9,6 @@ interface IPoolAddressesProvider {
     /// @param newMarketId The new id of the market
     event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);
 
-    /// @dev Emitted when the pool is updated.
-    /// @param oldAddress The old address of the Pool
-    /// @param newAddress The new address of the Pool
-    event PoolUpdated(address indexed oldAddress, address indexed newAddress);
-
     /// @dev Emitted when the pool configurator is updated.
     /// @param oldAddress The old address of the PoolConfigurator
     /// @param newAddress The new address of the PoolConfigurator
