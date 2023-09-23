@@ -8,6 +8,8 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
+import { Receivable as RCV } from "../contracts/libraries/types/DataTypes.sol";
+
 import { Events } from "./utils/Events.sol";
 import { Defaults } from "./utils/Defaults.sol";
 import { Constants } from "./utils/Constants.sol";
@@ -229,18 +231,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         usdc.mint({ recipient_: recipient_, amount_: amount_ });
     }
 
-    function printReceivableInfo(ReceivableStorage.ReceivableInfo memory RECVInfo) internal view {
-        console.log("# ReceivableInfo ---------------------------------");
-        console.log("-> buyer: %s", RECVInfo.buyer);
-        console.log("-> seller: %s", RECVInfo.seller);
-        // notice that faceAmount is UD60x18
-        console.log("-> faceAmount: %s", RECVInfo.faceAmount.intoUint256());
-        console.log("-> repaymentTimestamp: %s", RECVInfo.repaymentTimestamp);
-        console.log("-> isValid: %s", RECVInfo.isValid);
-        console.log("-> currencyCode: %s", RECVInfo.currencyCode);
-        console.log(""); // for layout
-    }
-
     function approveProtocol() internal {
         changePrank(users.caller);
         usdc.approve(address(pool), type(uint256).max);
@@ -265,10 +255,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         pool.mint(amount, receiver);
     }
 
-    function createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
+    function createReceivableWithFaceAmount(uint256 faceAmount_) internal returns (uint256 tokenId_) {
         changePrank(users.buyer);
-        receivablesTokenId_ =
-            receivable.createReceivable(users.buyer, users.seller, ud(faceAmount_), block.timestamp + 30 days, 804);
+        RCV.Create memory params_ = defaults.createReceivable();
+        params_.faceAmount = faceAmount_;
+        tokenId_ = receivable.createReceivable(params_);
     }
 
     function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {

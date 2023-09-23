@@ -4,7 +4,7 @@ pragma solidity >=0.8.19;
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 import { MockImplementation } from "../mocks/MockImplementation.sol";
 
-import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
+import { WithdrawalManager, Receivable } from "contracts/libraries/types/DataTypes.sol";
 
 import { Constants } from "./Constants.sol";
 import { Users } from "./Types.sol";
@@ -112,5 +112,34 @@ contract Defaults is Constants {
 
     function setUsers(Users memory users_) public {
         users = users_;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STRUCTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function receivableInfo() public view returns (Receivable.Info memory) {
+        return Receivable.Info({
+            buyer: users.buyer,
+            seller: users.seller,
+            faceAmount: FACE_AMOUNT,
+            repaymentTimestamp: REPAYMENT_TIMESTAMP,
+            currencyCode: CURRENCY_CODE,
+            isValid: true
+        });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    PARAMS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function createReceivable() public view returns (Receivable.Create memory) {
+        return Receivable.Create({
+            buyer: users.buyer,
+            seller: users.seller,
+            faceAmount: FACE_AMOUNT,
+            repaymentTimestamp: REPAYMENT_TIMESTAMP,
+            currencyCode: CURRENCY_CODE
+        });
     }
 }

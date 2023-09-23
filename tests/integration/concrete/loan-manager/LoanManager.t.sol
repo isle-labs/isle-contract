@@ -152,7 +152,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
     }
 
     function test_approveLoan() public {
-        uint256 receivablesTokenId_ = createReceivable(1_000_000e6);
+        uint256 receivablesTokenId_ = createReceivableWithFaceAmount(1_000_000e6);
 
         address collateralAsset_ = address(receivable);
         uint256 gracePeriod_ = 7;
@@ -172,7 +172,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
     function test_fundLoan() public {
         // create receivable collateral
-        uint256 receivablesTokenId_ = createReceivable(100_000e6);
+        uint256 receivablesTokenId_ = createReceivableWithFaceAmount(100_000e6);
 
         // caller deposits some funds into the pool
         callerDepositToReceiver(users.caller, users.receiver, 1_000_000e6);
@@ -209,7 +209,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
 
         // second loan with same params
         vm.warp(block.timestamp + 15 days);
-        receivablesTokenId_ = createReceivable(100_000e6);
+        receivablesTokenId_ = createReceivableWithFaceAmount(100_000e6);
 
         // callerDepositToReceiver() already reached the liquidity cap
         poolBalanceBefore = IERC20(address(usdc)).balanceOf(address(pool));
@@ -444,7 +444,7 @@ contract LoanManagerTest is Integration_Test, ILoanManagerEvents {
         internal
         returns (uint256 newRate_, uint256 periodicInterestRate_)
     {
-        uint256 receivablesTokenId = createReceivable(principalRequested_);
+        uint256 receivablesTokenId = createReceivableWithFaceAmount(principalRequested_);
         uint16 loanId = approveLoan(receivablesTokenId, principalRequested_);
         fundLoan(loanId);
 

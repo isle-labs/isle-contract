@@ -10,6 +10,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
+import { Receivable } from "./libraries/types/DataTypes.sol";
 
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
@@ -171,17 +172,17 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
             revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
         }
 
-        ReceivableStorage.ReceivableInfo memory receivableInfo_ =
+        Receivable.Info memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
 
         _revertIfInvalidReceivable(
             receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
         );
 
-        if (principalRequested_ > receivableInfo_.faceAmount.intoUint256()) {
+        if (principalRequested_ > receivableInfo_.faceAmount) {
             revert Errors.LoanManager_PrincipalRequestedTooHigh({
                 principalRequested_: principalRequested_,
-                maxPrincipal_: receivableInfo_.faceAmount.intoUint256()
+                maxPrincipal_: receivableInfo_.faceAmount
             });
         }
 

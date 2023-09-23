@@ -3,27 +3,14 @@ pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
+import { Receivable } from "./libraries/types/DataTypes.sol";
+
 contract ReceivableStorage {
     address public lopoGlobals;
     uint256 internal _tokenIdCounter;
 
-    struct ReceivableInfo {
-        // The address of the buyer that's expected to pay for this receivable
-        address buyer;
-        // The address of the seller that's expected to receive payment for this receivable
-        address seller;
-        // The amount of the receivable
-        UD60x18 faceAmount;
-        // The timestamp when the receivable is expected to be repaid
-        uint256 repaymentTimestamp;
-        // The receivable is created or not
-        bool isValid;
-        // The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for USD
-        uint16 currencyCode;
-    }
-
     // The mapping of the token id to the receivable info
-    mapping(uint256 => ReceivableInfo) public idToReceivableInfo;
+    mapping(uint256 => Receivable.Info) public idToReceivableInfo;
 
     /**
      * @dev This empty reserved space is put in place to allow future versions to add new
