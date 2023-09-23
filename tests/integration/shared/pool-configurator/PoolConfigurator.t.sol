@@ -8,15 +8,10 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         Integration_Test.setUp();
 
         configurePoolConfigurator();
-        configurePool();
+        initializePool();
         configureGlobals();
 
         changePrank(users.poolAdmin);
-    }
-
-    function configureGlobals() internal {
-        changePrank(users.governor);
-        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
     }
 
     modifier whenCallerPoolAdmin() {

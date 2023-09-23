@@ -5,6 +5,7 @@ import { StdCheats } from "@forge-std/StdCheats.sol";
 import { console } from "@forge-std/console.sol";
 import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
 import { Events } from "./utils/Events.sol";
@@ -12,6 +13,7 @@ import { Defaults } from "./utils/Defaults.sol";
 import { Constants } from "./utils/Constants.sol";
 import { Utils } from "./utils/Utils.sol";
 import { Users } from "./utils/Types.sol";
+import { Assertions } from "./utils/Assertions.sol";
 
 // Mocks
 import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
@@ -38,6 +40,8 @@ import { WithdrawalManager } from "../contracts/WithdrawalManager.sol";
 import { Pool } from "../contracts/Pool.sol";
 
 abstract contract Base_Test is StdCheats, Events, Constants, Utils {
+    using SafeCast for uint256;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     VARIABLES
     //////////////////////////////////////////////////////////////////////////*/
@@ -278,12 +282,17 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolConfigurator.setValidLender(users.caller, true);
     }
 
-    function configurePool() internal {
+    function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially
         pool.deposit({ assets: defaults.POOL_SHARES(), receiver: users.receiver });
         // Now the total assets in the pool would be POOL_ASSETS
         airdropTo(address(pool), defaults.POOL_ASSETS() - usdc.balanceOf(address(pool)));
+    }
+
+    function configureGlobals() internal {
+        changePrank(users.governor);
+        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
     }
 
     /*//////////////////////////////////////////////////////////////////////////

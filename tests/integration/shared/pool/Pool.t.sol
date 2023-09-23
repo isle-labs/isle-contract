@@ -8,6 +8,6 @@ abstract contract Pool_Integration_Shared_Test is Integration_Test {
         Integration_Test.setUp();
 
         configurePoolConfigurator();
-        configurePool(); // initialized pool state for testing
+        initializePool(); // initialized pool state for testing
     }
 }
