@@ -41,8 +41,4 @@ contract Integration_Test is Base_Test {
         // Make the pool admin the default caller in the test suite
         changePrank(users.poolAdmin);
     }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    HELPER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 }
