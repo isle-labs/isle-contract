@@ -192,6 +192,7 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         _loans[loanId_] = LoanInfo({
             buyer: receivableInfo_.buyer,
             seller: receivableInfo_.seller,
+            collateralAsset: collateralAsset_,
             collateralTokenId: receivablesTokenId_,
             principal: principalRequested_,
             drawableFunds: uint256(0),
@@ -285,6 +286,9 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
 
         loan_.drawableFunds -= amount_;
+
+        // Transfer receivable token from msg.sender to loanManager
+        IERC721(loan_.collateralAsset).safeTransferFrom(msg.sender, address(this), loan_.collateralTokenId);
 
         IERC20(fundsAsset).safeTransfer(destination_, amount_);
 
