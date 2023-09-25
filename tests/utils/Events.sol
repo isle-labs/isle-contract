@@ -13,6 +13,7 @@ abstract contract Events {
         uint256 faceAmount_,
         uint256 repaymentTimestamp_
     );
+
     event AssetBurned(uint256 indexed tokenId_);
 
     // LoanManager events
@@ -33,6 +34,8 @@ abstract contract Events {
     event FundsDistributed(uint16 indexed loanId_, uint256 principal_, uint256 netInterest_);
     event PaymentRemoved(uint16 indexed loanId_, uint256 indexed paymentId_);
     event FundsWithdrawn(uint16 indexed loanId_, uint256 amount_);
+    event UnrealizedLossesUpdated(uint128 unrealizedLosses_);
+    event LoanImpaired(uint16 indexed loanId_, uint256 newDueDate_);
 
     event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
 }
