@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-
 import { ILoanManagerEvents } from "./ILoanManagerEvents.sol";
 import { ILoanManagerStorage } from "./ILoanManagerStorage.sol";
 
 /// @title ILoanManager
 /// @notice Creates and manages loans.
-interface ILoanManager is IERC721Receiver, ILoanManagerStorage, ILoanManagerEvents {
+interface ILoanManager is ILoanManagerStorage, ILoanManagerEvents {
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

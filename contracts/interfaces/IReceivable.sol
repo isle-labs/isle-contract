@@ -26,4 +26,6 @@ interface IReceivable is IReceivableEvent {
         returns (uint256 tokenId_);
 
     function getReceivableInfoById(uint256 tokenId_) external view returns (ReceivableStorage.ReceivableInfo memory);
+
+    function burnReceivable(uint256 tokenId_) external;
 }

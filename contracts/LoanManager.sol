@@ -6,6 +6,7 @@ import { SignedMath } from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -268,6 +269,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         // 7. Delete paymentId from mapping
         delete paymentIdOf[loanId_];
+
+        // 8. burn the receivable
+        LoanInfo memory loan_ = _loans[loanId_];
+        IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
 
         _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
     }
