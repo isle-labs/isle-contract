@@ -82,7 +82,7 @@ contract ImpairLoan_Integration_Concrete_Test is
 
         loanManager.impairLoan(1);
 
-        //check the unreakized losses
+        //check the unrealized losses
         assertEq(loanManager.unrealizedLosses(), defaults.PRINCIPAL_REQUESTED() + accountedInterest);
     }
 }
