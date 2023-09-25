@@ -272,7 +272,9 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         // 8. burn the receivable
         LoanInfo memory loan_ = _loans[loanId_];
-        IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        if (IERC721(loan_.collateralAsset).ownerOf(loan_.collateralTokenId) == address(this)) {
+            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        }
 
         _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
     }
@@ -297,6 +299,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         loan_.drawableFunds -= amount_;
 
         IERC721(loan_.collateralAsset).safeTransferFrom(msg.sender, address(this), loan_.collateralTokenId);
+
+        // check if the loan is already be repaid
+        if (paymentIdOf[loanId_] == 0) {
+            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        }
 
         IERC20(fundsAsset).safeTransfer(destination_, amount_);
 

@@ -13,6 +13,7 @@ abstract contract Events {
         uint256 faceAmount_,
         uint256 repaymentTimestamp_
     );
+    event AssetBurned(uint256 indexed tokenId_);
 
     // LoanManager events
     event LoanApproved(uint16 indexed loanId_);

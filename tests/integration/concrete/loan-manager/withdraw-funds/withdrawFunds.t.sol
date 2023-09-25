@@ -25,6 +25,10 @@ contract WithdrawFunds_Integration_Concrete_Test is
         _;
     }
 
+    modifier WhenBuyerRepayLoan() {
+        _;
+    }
+
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
         lopoGlobals.setContractPause(address(loanManager), true);
@@ -52,7 +56,7 @@ contract WithdrawFunds_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(users.seller), principalRequested + 1);
     }
 
-    function test_withdrawFunds()
+    function test_WithdrawFunds_WhenBuyerNotRepayLoan()
         external
         WhenNotPaused
         WhenCallerLoanSeller
@@ -73,6 +77,38 @@ contract WithdrawFunds_Integration_Concrete_Test is
 
         assertEq(receivable.balanceOf(address(users.seller)), 0);
         assertEq(receivable.balanceOf(address(loanManager)), 1);
+        assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
+    }
+
+    function test_WithdrawFunds()
+        external
+        WhenNotPaused
+        WhenCallerLoanSeller
+        WhenWithdrawAmountLessThanOrEqualToDrawableAmount
+        WhenBuyerRepayLoan
+    {
+        changePrank(users.buyer);
+        loanManager.repayLoan(1);
+
+        changePrank(users.seller);
+        uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
+        uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
+
+        receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
+
+        vm.expectEmit(true, true, true, true);
+        emit AssetBurned(defaults.RECEIVABLE_TOKEN_ID());
+
+        vm.expectEmit(true, true, true, true);
+        emit FundsWithdrawn(1, principalRequested);
+
+        loanManager.withdrawFunds(1, address(users.seller), principalRequested);
+
+        uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
+
+        // check the receivable token is transferred and burned in the same transaction
+        assertEq(receivable.balanceOf(address(users.seller)), 0);
+        assertEq(receivable.balanceOf(address(loanManager)), 0);
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
     }
 }

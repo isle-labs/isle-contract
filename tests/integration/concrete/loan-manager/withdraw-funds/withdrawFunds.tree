@@ -8,6 +8,13 @@ withdrawFunds.t.sol
       ├── when the withdraw amount is greater than the drawable amount
       │  └── it should revert
       └── when the withdraw amount is less than or equal to the drawable amount
-         ├── it should transfer the collateral receivable from the loan seller to the loanManager
-         ├── it should transfer the drawable amount from loanManager to the loan seller
-         └── it should emit a {FundsWtihdrawn} event
+         ├── when the buyer is not repay the loan
+         │  ├── it should transfer the collateral receivable from the loan seller to the loanManager
+         │  ├── it should transfer the drawable amount from loanManager to the loan seller
+         │  └── it should emit a {FundsWtihdrawn} event
+         └── when the buyer is repay the loan
+            ├── it should transfer the collateral receivable from the loan seller to the loanManager
+            ├── it should burn the receivable token
+            ├── it should emit a {AssetBurned} event
+            ├── it should transfer the drawable amount from loanManager to the loan seller
+            └── it should emit a {FundsWtihdrawn} event
