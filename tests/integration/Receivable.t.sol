@@ -44,7 +44,7 @@ contract ReceivableTest is Integration_Test {
         vm.expectEmit(true, true, true, true);
         emit AssetCreated(users.buyer, users.seller, 0, 1000e18, block.timestamp + 30 days);
 
-        createReceivable(1000e18);
+        receivable.createReceivable(users.buyer, users.seller, ud(1000e18), block.timestamp + 30 days, 804);
 
         MockReceivableV2 receivableV2 = new MockReceivableV2();
 

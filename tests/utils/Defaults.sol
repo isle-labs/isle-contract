@@ -40,17 +40,21 @@ contract Defaults is Constants {
     uint256 public constant WINDOW_DURATION = 1 days;
 
     // For Receivable
+    uint256 public constant RECEIVABLE_TOKEN_ID = 0;
     uint256 public constant FACE_AMOUNT = 100_000e6;
     uint16 public constant CURRENCY_CODE = 804;
 
     // For loan manager
     uint256 public constant POOL_LIQUIDITY = 1_000_000e6;
 
+    uint256 public constant PROTOCOL_FEE_RATE = 0.005e6;
+    uint256 public constant ADMIN_FEE_RATE = 0.1e6;
+
     uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
     uint256 public constant GRACE_PERIOD = 7 days;
     uint256 public constant INTEREST_RATE = 0.12e6;
     uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;
-    uint256 public constant FEE = 0;
+
     // e6 * e18 / e6 = e18
     uint256 public constant PERIODIC_INTEREST_RATE = uint256(INTEREST_RATE) * (1e18 / 1e6) * 30 days / 365 days;
     // e6 * e18 / e18 = e6
@@ -66,6 +70,10 @@ contract Defaults is Constants {
     uint256 public constant LATE_PERIODIC_INTEREST_RATE =
         uint256(INTEREST_RATE + LATE_INTEREST_PREMIUM_RATE) * (1e18 / 1e6) * FULL_DAYS_LATE / 365 days;
     uint256 public constant LATE_INTEREST = PRINCIPAL_REQUESTED * LATE_PERIODIC_INTEREST_RATE / 1e18;
+
+    uint256 public constant ADMIN_FEE = INTEREST * ADMIN_FEE_RATE / 1e6;
+    uint256 public constant PROTOCOL_FEE = INTEREST * PROTOCOL_FEE_RATE / 1e6;
+    uint256 public constant NET_INTEREST = INTEREST - ADMIN_FEE - PROTOCOL_FEE;
 
     // For function paused tests
     address public constant PAUSED_CONTRACT = address(0x1);

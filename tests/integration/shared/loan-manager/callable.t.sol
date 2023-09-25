@@ -15,4 +15,8 @@ abstract contract Callable_Integration_Shared_Test is LoanManager_Integration_Sh
     modifier WhenCallerPoolAdminOrGovernor() {
         _;
     }
+
+    modifier WhenCallerPoolAdmin() {
+        _;
+    }
 }

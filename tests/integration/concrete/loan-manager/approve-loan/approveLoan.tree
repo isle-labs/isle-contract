@@ -1,0 +1,19 @@
+approveLoan.t.sol
+├── when the function is paused
+│  └── it should revert
+└── when the function is not paused
+   ├── when the collateral asset not allowed
+   │  └── it should revert
+   └── when the collateral asset is allowed
+      ├──  when caller is not the receivable buyer
+      │  └── it should revert
+      └── when caller is the receivable buyer
+         ├── when the receivable is invalid
+         │  └── it should revert
+         └── when the the receivable is valid
+            ├── when the requested principal is greater than the face amount of receivable
+            │  └── it should revert
+            └── when the requested principal is less than the face amount of receivable
+               ├── it should approve the loan correctly
+               └── it should emit a {LoanApproved} event
+

@@ -141,6 +141,10 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -287,7 +291,6 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         loan_.drawableFunds -= amount_;
 
-        // Transfer receivable token from msg.sender to loanManager
         IERC721(loan_.collateralAsset).safeTransferFrom(msg.sender, address(this), loan_.collateralTokenId);
 
         IERC20(fundsAsset).safeTransfer(destination_, amount_);
