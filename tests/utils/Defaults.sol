@@ -26,6 +26,7 @@ contract Defaults is Constants {
     uint256 public constant MINT_AMOUNT = 100_000e6;
 
     uint256 public constant MAY_31_2023 = MAY_1_2023 + 30 days;
+    uint256 public constant PERIOD = 30 days;
 
     // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
     uint256 public constant ASSETS = 1_000_000;
@@ -64,9 +65,8 @@ contract Defaults is Constants {
     // e6 * e27 / seconds = e33 / seconds
     uint256 public constant NEW_RATE_ZERO_FEE_RATE = NET_INTEREST_ZERO_FEE_RATE * 1e27 / 30 days;
 
-    // ((MAY_31_2023 + 5 days + 1 - MAY_31_2023 + (1 days - 1)) / 1 days) * 1 days
-    uint256 public constant FULL_DAYS_LATE = 6 days;
-
+    // ((MAY_31_2023 + 9 days + 1 - MAY_31_2023 + (1 days - 1)) / 1 days) * 1 days
+    uint256 public constant FULL_DAYS_LATE = 10 days;
     uint256 public constant LATE_PERIODIC_INTEREST_RATE =
         uint256(INTEREST_RATE + LATE_INTEREST_PREMIUM_RATE) * (1e18 / 1e6) * FULL_DAYS_LATE / 365 days;
     uint256 public constant LATE_INTEREST = PRINCIPAL_REQUESTED * LATE_PERIODIC_INTEREST_RATE / 1e18;
