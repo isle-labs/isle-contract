@@ -9,7 +9,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 import { Mint_Integration_Shared_Test } from "../../../shared/pool/mint.t.sol";
 
-contract Mint_Integration_Concrete_Test is Pool_Integration_Shared_Test, Mint_Integration_Shared_Test {
+contract Mint_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test, Mint_Integration_Shared_Test {
     using Math for uint256;
 
     function setUp() public virtual override(Pool_Integration_Shared_Test, Mint_Integration_Shared_Test) {

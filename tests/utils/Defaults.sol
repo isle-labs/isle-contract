@@ -2,6 +2,7 @@
 pragma solidity >=0.8.19;
 
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
+import { MockImplementation } from "../mocks/MockImplementation.sol";
 
 import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
 
@@ -30,9 +31,18 @@ contract Defaults is Constants {
     uint256 public constant COVER_AMOUNT = 10_000e6;
     uint256 public constant WITHDRAW_COVER_AMOUNT = 100e6;
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
-    uint256 public constant REDEEM_AMOUNT = 1000e6;
+    uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
     uint24 public constant ADMIN_FEE = 1000; // 10%
+
+    // Pool Configurator
+    uint96 public constant BASE_RATE = 5000; // 10%
+    uint32 public constant GRACE_PERIOD = 3 days;
+    bool public constant OPEN_TO_PUBLIC = true;
+
+    // Pool
+    string public constant POOL_NAME = "BSOS Green Share";
+    string public constant POOL_SYMBOL = "BGS";
 
     // Receivable
     uint256 public constant FACE_AMOUNT = 100e6;
@@ -61,6 +71,13 @@ contract Defaults is Constants {
     uint256 public constant ADD_SHARES = 10e6;
     uint256 public constant REMOVE_SHARES = 5e6; // must be smaller than ADD_SHARES
 
+    // For PoolAddressesProvider
+    bytes32 public constant ID = "CONTRACT";
+    address public constant NEW_ADDRESS = address(0x2);
+    string public constant MARKET_ID = "BSOS Green Finance";
+    string public constant NEW_MARKET_ID = "BSOS Green Finance 2";
+    address public immutable NEW_IMPLEMENTATION;
+
     // For function paused tests
     address public constant PAUSED_CONTRACT = address(0x1);
     bytes4 public constant PAUSED_FUNCTION_SIG = bytes4(keccak256("paused()"));
@@ -82,6 +99,7 @@ contract Defaults is Constants {
         WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
         WINDOW_4 = WINDOW_1 + CYCLE_DURATION * 3;
         REPAYMENT_TIMESTAMP = MAY_1_2023 + 30 days;
+        NEW_IMPLEMENTATION = address(new MockImplementation());
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -37,9 +37,6 @@ contract Integration_Test is Base_Test {
         deployAndLabelCore();
 
         approveProtocol();
-
-        // Make the pool admin the default caller in the test suite
-        changePrank(users.poolAdmin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

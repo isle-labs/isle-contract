@@ -272,11 +272,6 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
-        shares_ = IPool(pool).convertToExitShares(assets_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
     function maxDeposit(address receiver_) external view virtual override returns (uint256 maxAssets_) {
         maxAssets_ = _getMaxAssets(receiver_, _totalAssets());
     }

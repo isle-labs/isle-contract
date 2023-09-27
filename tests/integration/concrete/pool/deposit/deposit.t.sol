@@ -9,7 +9,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { Deposit_Integration_Shared_Test } from "../../../shared/pool/deposit.t.sol";
 import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 
-contract Deposit_Integration_Concrete_Test is Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test {
+contract Deposit_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test {
     function setUp() public virtual override(Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test) {
         Pool_Integration_Shared_Test.setUp();
         Deposit_Integration_Shared_Test.setUp();

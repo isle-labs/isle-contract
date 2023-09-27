@@ -9,7 +9,7 @@ import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 import { Deposit_Integration_Shared_Test } from "../../../shared/pool/deposit.t.sol";
 import { Permit_Integration_Shared_Test } from "../../../shared/pool/permit.t.sol";
 
-contract DepositWithPermit_Integration_Concrete_Test is
+contract DepositWithPermit_Pool_Integration_Concrete_Test is
     Pool_Integration_Shared_Test,
     Deposit_Integration_Shared_Test,
     Permit_Integration_Shared_Test

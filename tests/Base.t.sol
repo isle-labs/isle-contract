@@ -98,7 +98,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         defaults.setUsers(users);
 
         vm.warp({ timestamp: MAY_1_2023 });
-        vm.startPrank(users.poolAdmin); // NOTE: Start prank so that change prank can work in the test suite
+
+        vm.startPrank(users.governor);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -108,19 +109,12 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     /// @dev Deploy all related lopo contracts
     function deployAndLabelCore() internal {
         changePrank(users.governor);
+        poolAddressesProvider = deployPoolAddressesProvider();
         receivable = deployReceivable();
-        lopoGlobals = deployGlobals();
-
-        poolAddressesProvider = deployPoolAddressesProvider(lopoGlobals);
-
-        changePrank(users.poolAdmin);
-        deployPoolConfigurator(poolAddressesProvider);
-        deployWithdrawalManager(poolAddressesProvider);
-        deployLoanManager(poolAddressesProvider);
-
-        poolConfigurator = PoolConfigurator(poolAddressesProvider.getPoolConfigurator());
-        loanManager = LoanManager(poolAddressesProvider.getLoanManager());
-        withdrawalManager = WithdrawalManager(poolAddressesProvider.getWithdrawalManager());
+        lopoGlobals = deployGlobals(poolAddressesProvider);
+        poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
+        withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
+        loanManager = deployLoanManager(poolAddressesProvider);
         pool = Pool(poolConfigurator.pool());
 
         vm.label(address(receivable), "Receivable");
@@ -133,9 +127,10 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy lopo Globals as an UUPS proxy
-    function deployGlobals() internal returns (ILopoGlobals lopoGlobals_) {
-        changePrank(users.governor);
-
+    function deployGlobals(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (ILopoGlobals lopoGlobals_)
+    {
         lopoGlobals_ = LopoGlobals(address(new UUPSProxy(address(new LopoGlobals()), "")));
         lopoGlobals_.initialize(users.governor);
 
@@ -143,42 +138,58 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         lopoGlobals_.setValidPoolAdmin(users.poolAdmin, true);
         lopoGlobals_.setValidPoolAsset(address(usdc), true);
         lopoGlobals_.setValidCollateralAsset(address(receivable), true);
+
+        poolAddressesProvider_.setLopoGlobals(address(lopoGlobals_));
     }
 
     /// @dev Deploy receivable as an UUPS proxy
     function deployReceivable() internal returns (IReceivable receivable_) {
-        changePrank(users.governor);
-
         // notice here we use Receivable instead of its interface IReceivable, since we want to call function
         receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
         receivable_.initialize(users.governor);
     }
 
     /// @dev Deploy pool addresses provider
-    function deployPoolAddressesProvider(ILopoGlobals lopoGlobals_)
-        internal
-        returns (IPoolAddressesProvider poolAddressesProvider_)
-    {
-        poolAddressesProvider_ = new PoolAddressesProvider(users.poolAdmin, "BSOS Green Finance", address(lopoGlobals_));
+    function deployPoolAddressesProvider() internal returns (IPoolAddressesProvider poolAddressesProvider_) {
+        poolAddressesProvider_ =
+            new PoolAddressesProvider{salt: keccak256("PoolAddressesProvider")}(defaults.MARKET_ID());
     }
 
     /// @dev Deploy pool configurator
-    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address poolConfigurator_ = address(new PoolConfigurator(poolAddressesProvider_));
+    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (IPoolConfigurator poolConfigurator_)
+    {
+        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
         bytes memory params_ = abi.encodeWithSelector(
             IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider_),
             users.poolAdmin,
             address(usdc),
-            "BSOS Green Share",
-            "BGS"
+            defaults.POOL_NAME(),
+            defaults.POOL_SYMBOL()
         );
-        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfigurator_, params_);
+
+        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
+        poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
+
+        lopoGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
+        lopoGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
+
+        changePrank(users.poolAdmin);
+        poolConfigurator_.setOpenToPublic(true);
+        poolConfigurator_.setValidLender(users.receiver, true);
+        poolConfigurator_.setValidLender(users.caller, true);
+
+        changePrank(users.governor); // change back to governor
     }
 
     /// @dev Deploy withdrawal manager
-    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address withdrawalManager_ = address(new WithdrawalManager(poolAddressesProvider_));
+    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (IWithdrawalManager withdrawalManager_)
+    {
+        address withdrawalManagerImpl_ = address(new WithdrawalManager(poolAddressesProvider_));
 
         bytes memory params = abi.encodeWithSelector(
             IWithdrawalManager.initialize.selector,
@@ -186,13 +197,18 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             defaults.CYCLE_DURATION(),
             defaults.WINDOW_DURATION()
         );
-        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManager_, params);
+        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManagerImpl_, params);
+        withdrawalManager_ = IWithdrawalManager(poolAddressesProvider_.getWithdrawalManager());
     }
 
     /// @dev Deploy loan manager
-    function deployLoanManager(IPoolAddressesProvider poolAddressesProvider_) internal {
-        address loanManager_ = address(new LoanManager(poolAddressesProvider_));
-        poolAddressesProvider_.setLoanManagerImpl(loanManager_);
+    function deployLoanManager(IPoolAddressesProvider poolAddressesProvider_)
+        internal
+        returns (ILoanManager loanManager_)
+    {
+        address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
+        poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_);
+        loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.
@@ -272,27 +288,12 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         loanManager.fundLoan(loanId_);
     }
 
-    function configurePoolConfigurator() internal {
-        changePrank(users.governor);
-        lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());
-
-        changePrank(users.poolAdmin);
-        poolConfigurator.setOpenToPublic(true);
-        poolConfigurator.setValidLender(users.receiver, true);
-        poolConfigurator.setValidLender(users.caller, true);
-    }
-
     function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially
         pool.deposit({ assets: defaults.POOL_SHARES(), receiver: users.receiver });
         // Now the total assets in the pool would be POOL_ASSETS
         airdropTo(address(pool), defaults.POOL_ASSETS() - usdc.balanceOf(address(pool)));
-    }
-
-    function configureGlobals() internal {
-        changePrank(users.governor);
-        lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
     }
 
     /*//////////////////////////////////////////////////////////////////////////

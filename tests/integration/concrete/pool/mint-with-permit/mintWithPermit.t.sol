@@ -10,7 +10,7 @@ import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 import { Mint_Integration_Shared_Test } from "../../../shared/pool/mint.t.sol";
 import { Permit_Integration_Shared_Test } from "../../../shared/pool/permit.t.sol";
 
-contract MintWithPermit_Integration_Concrete_Test is
+contract MintWithPermit_Pool_Integration_Concrete_Test is
     Pool_Integration_Shared_Test,
     Mint_Integration_Shared_Test,
     Permit_Integration_Shared_Test
