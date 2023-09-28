@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
-import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/Callable.t.sol";
+import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/callable.t.sol";
 
 contract TriggerDefault_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,

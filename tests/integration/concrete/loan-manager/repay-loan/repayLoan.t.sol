@@ -6,7 +6,7 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
-import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/Callable.t.sol";
+import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/callable.t.sol";
 
 contract RepayLoan_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
