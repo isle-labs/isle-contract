@@ -21,9 +21,9 @@ contract SetAdminFee_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
 
     function test_setAdminFee() external whenCallerPoolAdmin {
         vm.expectEmit({ emitter: address(poolConfigurator) });
-        emit AdminFeeSet({ adminFee_: defaults.ADMIN_FEE() });
+        emit AdminFeeSet({ adminFee_: defaults.ADMIN_FEE_RATE() });
 
         setDefaultAdminFee();
-        assertEq(poolConfigurator.adminFee(), defaults.ADMIN_FEE());
+        assertEq(poolConfigurator.adminFee(), defaults.ADMIN_FEE_RATE());
     }
 }

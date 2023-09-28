@@ -17,9 +17,9 @@ contract Defaults is Constants {
 
     uint256 public constant DELTA = 1e6;
 
-    uint104 public constant POOL_LIMIT = 1_000_000e6;
-    uint256 public constant POOL_SHARES = 1000e6;
-    uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool()
+    uint104 public constant POOL_LIMIT = 5_000_000e6;
+    uint256 public constant POOL_SHARES = 1_000_000e6;
+    uint256 public constant POOL_ASSETS = 1_500_000e6; // note: must be larger than POOL_SHARES, see initializePool()
 
     uint8 public constant UNDERLYING_DECIMALS = 6;
     uint8 public constant DECIMALS_OFFSET = 0;
@@ -33,10 +33,11 @@ contract Defaults is Constants {
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
-    uint24 public constant ADMIN_FEE_RATE = 1000; // 10%
+    uint24 public constant ADMIN_FEE_RATE = 0.1e6; // 10%
+    uint24 public constant PROTOCOL_FEE_RATE = 0.005e6; // 0.5%
 
     // Pool Configurator
-    uint96 public constant BASE_RATE = 5000; // 10%
+    uint96 public constant BASE_RATE = 0.1e6; // 10%
     uint32 public constant GRACE_PERIOD = 7 days;
     bool public constant OPEN_TO_PUBLIC = true;
 
@@ -46,7 +47,7 @@ contract Defaults is Constants {
 
     // Receivable
     uint256 public constant RECEIVABLE_TOKEN_ID = 0;
-    uint256 public constant FACE_AMOUNT = 100e6;
+    uint256 public constant FACE_AMOUNT = 100_000e6;
     uint256 public immutable REPAYMENT_TIMESTAMP;
     uint16 public constant CURRENCY_CODE = 804;
 
@@ -83,10 +84,6 @@ contract Defaults is Constants {
     address public immutable NEW_IMPLEMENTATION;
 
     // For loan manager
-    uint256 public constant POOL_LIQUIDITY = 1_000_000e6;
-
-    uint256 public constant PROTOCOL_FEE_RATE = 0.005e6;
-
     uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
     uint256 public constant INTEREST_RATE = 0.12e6;
     uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { LoanManager_Integration_Concrete_Test } from "../loanManager.t.sol";
@@ -30,7 +32,7 @@ contract RepayLoan_Integration_Concrete_Test is
 
     function test_RepayLoan_WhenSellerNotWithdrawFunds() external WhenNotPaused {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
-        _setAdminAndProtocolFeeRate();
+        _setAdminAndProtocolFee();
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
@@ -61,6 +63,8 @@ contract RepayLoan_Integration_Concrete_Test is
 
         uint256 poolBalanceAfter = usdc.balanceOf(address(pool));
 
+        IERC721 receivable = IERC721(address(receivable));
+
         // check seller still owns the receivable
         assertEq(receivable.balanceOf(address(loanManager)), 0);
         assertEq(receivable.balanceOf(address(users.seller)), 1);
@@ -71,11 +75,12 @@ contract RepayLoan_Integration_Concrete_Test is
 
     function test_RepayLoan() external WhenNotPaused WhenSellerWithdrawFunds {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
-        _setAdminAndProtocolFeeRate();
+        _setAdminAndProtocolFee();
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
         createLoan();
+        IERC721 receivable = IERC721(address(receivable));
 
         changePrank(users.seller);
         receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
@@ -117,10 +122,10 @@ contract RepayLoan_Integration_Concrete_Test is
         assertEq(poolBalanceAfter - poolBalanceBefore, defaults.NET_INTEREST());
     }
 
-    function _setAdminAndProtocolFeeRate() internal {
+    function _setAdminAndProtocolFee() internal {
         changePrank(users.governor);
-        lopoGlobals.setProtocolFeeRate(address(poolConfigurator), defaults.PROTOCOL_FEE_RATE());
+        lopoGlobals.setProtocolFee(defaults.PROTOCOL_FEE_RATE());
         changePrank(users.poolAdmin);
-        poolConfigurator.setAdminFeeRate(defaults.ADMIN_FEE_RATE());
+        poolConfigurator.setAdminFee(defaults.ADMIN_FEE_RATE());
     }
 }

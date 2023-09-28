@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { LoanManager_Integration_Concrete_Test } from "../loanManager.t.sol";
@@ -66,6 +68,8 @@ contract WithdrawFunds_Integration_Concrete_Test is
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
 
+        IERC721 receivable = IERC721(address(receivable));
+
         receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
 
         vm.expectEmit(true, true, true, true);
@@ -93,6 +97,8 @@ contract WithdrawFunds_Integration_Concrete_Test is
         changePrank(users.seller);
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
+
+        IERC721 receivable = IERC721(address(receivable));
 
         receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
 

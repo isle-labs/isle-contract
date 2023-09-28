@@ -8,6 +8,8 @@ import { PoolConfigurator_Unit_Shared_Test } from "../../../shared/pool-configur
 contract SetValidBuyer_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
     function setUp() public virtual override(PoolConfigurator_Unit_Shared_Test) {
         PoolConfigurator_Unit_Shared_Test.setUp();
+
+        poolConfigurator.setValidBuyer(users.buyer, false);
     }
 
     function test_RevertWhen_CallerNotPoolAdmin() external {
