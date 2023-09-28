@@ -5,6 +5,7 @@ lib
 node_modules
 modules
 out
+.history
 
 # files
 *.env
@@ -18,4 +19,5 @@ yarn.lock
 .solhint.json
 package.json
 README.md
+
 

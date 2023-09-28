@@ -1,10 +1,10 @@
 name: "CI"
 
 env:
+    FOUNDRY_PROFILE: "ci"
     API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
     API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
-    FOUNDRY_PROFILE: "ci"
     MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
@@ -59,8 +59,11 @@ jobs:
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
-            - name: "Build the contracts and print their size"
-              run: "forge build --sizes"
+            - name: "Show the Foundry config"
+              run: "forge config"
+
+            - name: "Build the test contracts and print their size"
+              run: "FOUNDRY_PROFILE=test-optimized forge build --sizes"
 
             - name: "Add build summary"
               run: |
@@ -95,3 +98,30 @@ jobs:
               run: |
                   echo "## Tests result" >> $GITHUB_STEP_SUMMARY
                   echo "✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+    coverage:
+        needs: ["lint", "build"]
+        runs-on: "ubuntu-latest"
+        steps:
+            - name: "Check out the repo"
+              uses: "actions/checkout@v3"
+              with:
+                  submodules: "recursive"
+
+            - name: "Install Foundry"
+              uses: "foundry-rs/foundry-toolchain@v1"
+
+            - name: "Generate the coverage report using the unit and the integration tests"
+              run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov'
+
+            - name: "Upload coverage report to Codecov"
+              uses: "codecov/codecov-action@v3"
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+              with:
+                  files: "./lcov.info"
+
+            - name: "Add coverage summary"
+              run: |
+                  echo "## Coverage result" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
