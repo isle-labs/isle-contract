@@ -21,7 +21,7 @@ contract AccruedInterest_Integration_Concrete_Test is
     }
 
     function test_AccruedInterest_ExistLoan_NotUpdateAccounting() external {
-        createLoan();
+        createDefaultLoan();
         // not matured
         vm.warp(MAY_1_2023 + 15 days);
         uint256 accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 15 days / 1e27;
@@ -36,7 +36,7 @@ contract AccruedInterest_Integration_Concrete_Test is
     }
 
     function test_AccruedInterest_ExistLoan_UpdateAccounting() external {
-        createLoan();
+        createDefaultLoan();
         changePrank(users.poolAdmin);
 
         // not matured

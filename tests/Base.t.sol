@@ -257,30 +257,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         pool.mint(amount, receiver);
     }
 
-    function createReceivableWithFaceAmount(uint256 faceAmount_) internal returns (uint256 tokenId_) {
-        changePrank(users.buyer);
-        RCV.Create memory params_ = defaults.createReceivable();
-        params_.faceAmount = faceAmount_;
-        tokenId_ = receivable.createReceivable(params_);
-    }
-
-    function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
-        address collateralAsset_ = address(receivable);
-        uint256 gracePeriod_ = 7 days;
-        uint256[2] memory rates_ = [uint256(0.12e6), uint256(0.2e6)];
-        uint256 fee_ = 0;
-
-        changePrank(users.poolAdmin);
-        loanId_ = loanManager.approveLoan(
-            collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_, fee_
-        );
-    }
-
-    function fundLoan(uint16 loanId_) internal {
-        changePrank(users.poolAdmin);
-        loanManager.fundLoan(loanId_);
-    }
-
     function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially
