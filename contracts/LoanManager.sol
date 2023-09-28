@@ -21,7 +21,7 @@ import { IReceivable } from "./interfaces/IReceivable.sol";
 import { LoanManagerStorage } from "./LoanManagerStorage.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 
-contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
+contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
     uint256 public constant LOAN_MANAGER_REVISION = 0x1;
 
     uint256 public constant HUNDRED_PERCENT = 1e6; // 100.0000%
@@ -142,7 +142,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
-    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+    /// @inheritdoc IERC721Receiver
+    function onERC721Received(address, address, uint256, bytes calldata) external override pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
