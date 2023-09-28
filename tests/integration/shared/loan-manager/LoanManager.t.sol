@@ -9,7 +9,7 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_U
     function setUp() public virtual override(Base_Test, Receivable_Unit_Shared_Test) { }
 
     function createDefaultLoan() internal {
-        uint256 receivablesTokenId = createDefaultReceivableWithFaceAmount(defaults.FACE_AMOUNT());
+        uint256 receivablesTokenId = createDefaultReceivable();
         changePrank(users.buyer);
         uint16 loanId = approveLoan(receivablesTokenId, defaults.PRINCIPAL_REQUESTED());
         changePrank(users.poolAdmin);

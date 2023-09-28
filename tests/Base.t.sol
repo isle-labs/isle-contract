@@ -247,16 +247,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         usdc.approve(address(poolConfigurator), type(uint256).max);
     }
 
-    function callerDepositToReceiver(address caller, address receiver, uint256 amount) internal {
-        changePrank(caller);
-        pool.deposit(amount, receiver);
-    }
-
-    function callerMintToReceiver(address caller, address receiver, uint256 amount) internal {
-        changePrank(caller);
-        pool.mint(amount, receiver);
-    }
-
     function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially

@@ -15,9 +15,6 @@ abstract contract Receivable_Unit_Shared_Test is Base_Test {
 
     function setUp() public virtual override {
         Base_Test.setUp();
-
-        _params.createReceivable = defaults.createReceivable();
-
         deployAndLabelContract();
     }
 
@@ -33,7 +30,7 @@ abstract contract Receivable_Unit_Shared_Test is Base_Test {
     }
 
     function createDefaultReceivable() internal returns (uint256 tokenId_) {
-        tokenId_ = receivable.createReceivable(_params.createReceivable);
+        tokenId_ = receivable.createReceivable(defaults.createReceivable());
     }
 
     function createDefaultReceivableWithFaceAmount(uint256 faceAmount_) internal returns (uint256 tokenId_) {
