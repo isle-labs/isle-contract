@@ -11,6 +11,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
+import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
@@ -106,7 +107,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         override
         returns (uint256 principal_, uint256[2] memory interest_)
     {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         principal_ = loan_.principal;
         interest_ = _getInterestBreakdown(
@@ -126,7 +127,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         override
         returns (uint256 principal_, uint256 interest_)
     {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
         uint256[2] memory interestArray_;
 
         interestArray_ = _getInterestBreakdown(
@@ -143,7 +144,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc IERC721Receiver
-    function onERC721Received(address, address, uint256, bytes calldata) external override pure returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -175,7 +176,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
         }
 
-        ReceivableStorage.ReceivableInfo memory receivableInfo_ =
+        Receivable.Info memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
 
         _revertIfCallerNotReceivableBuyer(receivableInfo_.buyer);
@@ -184,10 +185,10 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
         );
 
-        if (principalRequested_ > receivableInfo_.faceAmount.intoUint256()) {
+        if (principalRequested_ > receivableInfo_.faceAmount) {
             revert Errors.LoanManager_PrincipalRequestedTooHigh({
                 principalRequested_: principalRequested_,
-                maxPrincipal_: receivableInfo_.faceAmount.intoUint256()
+                maxPrincipal_: receivableInfo_.faceAmount
             });
         }
 
@@ -195,7 +196,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         loanId_ = ++loanCounter;
 
         // Create loan
-        _loans[loanId_] = LoanInfo({
+        _loans[loanId_] = Loan.Info({
             buyer: receivableInfo_.buyer,
             seller: receivableInfo_.seller,
             collateralAsset: collateralAsset_,
@@ -216,7 +217,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     /// @inheritdoc ILoanManager
     function fundLoan(uint16 loanId_) external override nonReentrant whenNotPaused onlyPoolAdmin {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         _advanceGlobalPaymentAccounting();
 
@@ -225,7 +226,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         IPoolConfigurator(_poolConfigurator()).requestFunds(principal_);
 
         // Update loan state
-        LoanInfo storage loanStorage_ = _loans[loanId_];
+        Loan.Info storage loanStorage_ = _loans[loanId_];
         loanStorage_.startDate = block.timestamp;
         loanStorage_.drawableFunds = principal_;
 
@@ -272,7 +273,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         delete paymentIdOf[loanId_];
 
         // 8. burn the receivable
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
         if (IERC721(loan_.collateralAsset).ownerOf(loan_.collateralTokenId) == address(this)) {
             IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
         }
@@ -282,7 +283,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     /// @inheritdoc ILoanManager
     function withdrawFunds(uint16 loanId_, address destination_, uint256 amount_) external override whenNotPaused {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         // Only the seller can drawdown funds
         if (msg.sender != loan_.seller) {
@@ -313,7 +314,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     /// @inheritdoc ILoanManager
     function impairLoan(uint16 loanId_) external override whenNotPaused onlyPoolAdminOrGovernor {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         if (loan_.isImpaired) {
             revert Errors.LoanManager_LoanImpaired({ loanId_: loanId_ });
@@ -325,7 +326,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             revert Errors.LoanManager_NotLoan({ loanId_: loanId_ });
         }
 
-        PaymentInfo memory paymentInfo_ = payments[paymentId_];
+        Loan.PaymentInfo memory paymentInfo_ = payments[paymentId_];
 
         _advanceGlobalPaymentAccounting();
 
@@ -338,7 +339,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         (uint256 netInterest_, uint256 netLateInterest_, uint256 protocolFees_) =
             _getDefaultInterestAndFees(loanId_, paymentInfo_);
 
-        liquidationInfoFor[loanId_] = LiquidationInfo({
+        liquidationInfoFor[loanId_] = Loan.LiquidationInfo({
             triggeredByGovernor: msg.sender == _governor(),
             principal: loan_.principal.toUint128(),
             interest: netInterest_.toUint120(),
@@ -354,7 +355,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         // if payment is late, do not change the payment due date
         uint256 newDueDate_ = _min(block.timestamp, originalDueDate_);
 
-        LoanInfo storage loanStorage_ = _loans[loanId_];
+        Loan.Info storage loanStorage_ = _loans[loanId_];
 
         loanStorage_.dueDate = newDueDate_;
         loanStorage_.originalDueDate = originalDueDate_;
@@ -371,8 +372,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         whenNotPaused
         onlyPoolAdminOrGovernor
     {
-        LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         _advanceGlobalPaymentAccounting();
 
@@ -382,7 +383,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             revert Errors.LoanManager_NotLoan(loanId_);
         }
 
-        PaymentInfo memory paymentInfo_ = payments[paymentId_];
+        Loan.PaymentInfo memory paymentInfo_ = payments[paymentId_];
 
         _reverseLoanImpairment(liquidationInfo_);
 
@@ -441,8 +442,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
 
         // NOTE: must get payment info prior to advancing payment accounting, becasue that will set issuance rate to 0.
-        PaymentInfo memory paymentInfo_ = payments[paymentId_];
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.PaymentInfo memory paymentInfo_ = payments[paymentId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         // This will cause this payment to be removed from the list, so no need to remove it explicitly
         _advanceGlobalPaymentAccounting();
@@ -577,7 +578,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     // Clears all state variables to end a loan, but keep seller withdrawal functionality intact
     function _clearLoanAccounting(uint16 loanId_) internal {
-        LoanInfo storage loan_ = _loans[loanId_];
+        Loan.Info storage loan_ = _loans[loanId_];
 
         loan_.gracePeriod = uint256(0);
         loan_.interestRate = uint256(0);
@@ -669,7 +670,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     function _getDefaultInterestAndFees(
         uint16 loanId_,
-        PaymentInfo memory paymentInfo_
+        Loan.PaymentInfo memory paymentInfo_
     )
         internal
         view
@@ -706,7 +707,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         view
         returns (uint256 netInterest_, uint256 netLateInterest_, uint256 protocolFees_)
     {
-        LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
+        Loan.LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
 
         netInterest_ = liquidationInfo_.interest;
         netLateInterest_ = liquidationInfo_.lateInterest;
@@ -742,7 +743,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         internal
         returns (uint256 accountedInterestIncrease_, uint256 issuanceRateReduction_)
     {
-        PaymentInfo memory payment_ = payments[paymentId_];
+        Loan.PaymentInfo memory payment_ = payments[paymentId_];
 
         _removePaymentFromList(paymentId_);
 
@@ -759,7 +760,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _handlePaymentAccounting(uint16 loanId_) internal returns (uint256 issuanceRate_) {
-        LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
+        Loan.LiquidationInfo memory liquidationInfo_ = liquidationInfoFor[loanId_];
 
         uint256 paymentId_ = paymentIdOf[loanId_];
 
@@ -768,7 +769,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
 
         // Remove the payment from the mapping once cached in memory
-        PaymentInfo memory paymentInfo_ = payments[paymentId_];
+        Loan.PaymentInfo memory paymentInfo_ = payments[paymentId_];
         delete payments[paymentId_];
 
         emit PaymentRemoved({ loanId_: loanId_, paymentId_: paymentId_ });
@@ -806,7 +807,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         uint256 adminFee_ = IPoolConfigurator(_poolConfigurator()).adminFee();
         uint256 feeRate_ = protocolFee_ + adminFee_;
 
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         uint256 interest_ = _getInterest(loan_.principal, loan_.interestRate, dueDate_ - startDate_);
         newRate_ = (_getNetInterest(interest_, feeRate_) * PRECISION) / (dueDate_ - startDate_);
@@ -814,7 +815,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         // Add the payment to the sorted list
         uint256 paymentId_ = paymentIdOf[loanId_] = _addPaymentToList(SafeCast.toUint48(dueDate_));
 
-        payments[paymentId_] = PaymentInfo({
+        payments[paymentId_] = Loan.PaymentInfo({
             protocolFee: SafeCast.toUint24(protocolFee_),
             adminFee: SafeCast.toUint24(adminFee_),
             startDate: SafeCast.toUint48(startDate_),
@@ -826,7 +827,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         emit PaymentAdded(loanId_, paymentId_, protocolFee_, adminFee_, startDate_, dueDate_, newRate_);
     }
 
-    function _reverseLoanImpairment(LiquidationInfo memory liquidationInfo_) internal {
+    function _reverseLoanImpairment(Loan.LiquidationInfo memory liquidationInfo_) internal {
         _compareAndSubtractAccountedInterest(liquidationInfo_.interest);
         unrealizedLosses -= SafeCast.toUint128(liquidationInfo_.principal + liquidationInfo_.interest);
 
@@ -860,11 +861,12 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             sortedPayments[next_].previous = paymentId_;
         }
 
-        sortedPayments[paymentId_] = SortedPayment({ previous: current_, next: next_, paymentDueDate: paymentDueDate_ });
+        sortedPayments[paymentId_] =
+            Loan.SortedPayment({ previous: current_, next: next_, paymentDueDate: paymentDueDate_ });
     }
 
     function _removePaymentFromList(uint256 paymentId_) internal {
-        SortedPayment memory sortedPayment_ = sortedPayments[paymentId_];
+        Loan.SortedPayment memory sortedPayment_ = sortedPayments[paymentId_];
 
         uint24 previous_ = sortedPayment_.previous;
         uint24 next_ = sortedPayment_.next;
@@ -925,7 +927,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         internal
         returns (uint256 remainingLosses_)
     {
-        LoanInfo memory loan_ = _loans[loanId_];
+        Loan.Info memory loan_ = _loans[loanId_];
 
         uint256 principal_ = loan_.principal;
 

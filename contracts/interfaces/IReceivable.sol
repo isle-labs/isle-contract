@@ -3,6 +3,8 @@ pragma solidity 0.8.19;
 
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
+import { Receivable } from "../libraries/types/DataTypes.sol";
+
 import { ReceivableStorage } from "../ReceivableStorage.sol";
 import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
 
@@ -11,21 +13,21 @@ interface IReceivable is IReceivableEvent {
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function initialize(address lopoGlobals_) external;
+    /// @param initialAdmin_ The address of the admin
+    function initialize(address initialAdmin_) external;
 
-    function getImplementation() external view returns (address);
+    /// @dev Mint a new receivable
+    /// @notice Only the buyer can call this function
+    /// @notice The input type of faceAmount_ is UD60x18, which is a fixed-point number with 18 decimals
+    /// @notice The event faceAmount is converted to decimal with 6 decimals
+    /// @param create_ The struct containing the information of the receivable to be created
+    /// @return tokenId_ The id of the newly created receivable
+    function createReceivable(Receivable.Create memory create_) external returns (uint256 tokenId_);
 
-    function createReceivable(
-        address buyer_,
-        address seller_,
-        UD60x18 faceAmount_,
-        uint256 repaymentTimestamp_,
-        uint16 currencyCode_
-    )
-        external
-        returns (uint256 tokenId_);
-
-    function getReceivableInfoById(uint256 tokenId_) external view returns (ReceivableStorage.ReceivableInfo memory);
+    /// @dev Get the information of a receivable
+    /// @param tokenId_ The id of the receivable
+    /// @return info_ The struct containing the information of the receivable
+    function getReceivableInfoById(uint256 tokenId_) external view returns (Receivable.Info memory info_);
 
     function burnReceivable(uint256 tokenId_) external;
 }

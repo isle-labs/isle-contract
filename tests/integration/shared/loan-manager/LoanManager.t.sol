@@ -1,23 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { Base_Test, ud } from "../../../Base.t.sol";
+import { Base_Test } from "../../../Base.t.sol";
 
-abstract contract LoanManager_Integration_Shared_Test is Base_Test {
-    function setUp() public virtual override(Base_Test) { }
+import { Receivable_Unit_Shared_Test } from "../../../unit/shared/receivable/Receivable.t.sol";
 
-    function createLoan() internal {
-        uint256 receivablesTokenId = createReceivable(defaults.FACE_AMOUNT());
+abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_Unit_Shared_Test {
+    function setUp() public virtual override(Base_Test, Receivable_Unit_Shared_Test) { }
+
+    function createDefaultLoan() internal {
+        uint256 receivablesTokenId = createDefaultReceivable();
         changePrank(users.buyer);
         uint16 loanId = approveLoan(receivablesTokenId, defaults.PRINCIPAL_REQUESTED());
         changePrank(users.poolAdmin);
         fundLoan(loanId);
-    }
-
-    function createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
-        receivablesTokenId_ = receivable.createReceivable(
-            users.buyer, users.seller, ud(faceAmount_), defaults.MAY_31_2023(), defaults.CURRENCY_CODE()
-        );
     }
 
     function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {

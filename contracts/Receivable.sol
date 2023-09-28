@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { ERC721Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import { ERC721EnumerableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
@@ -11,6 +10,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { Errors } from "./libraries/Errors.sol";
+import { Receivable as RCV } from "./libraries/types/DataTypes.sol";
 
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
@@ -35,18 +35,12 @@ contract Receivable is
 
     function _authorizeUpgrade(address newImplementation) internal override onlyAdmin { }
 
-    function getImplementation() external view override returns (address) {
-        return _getImplementation();
-    }
-
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        // _disableInitializers();
-    }
+    // constructor() {
+    // _disableInitializers();
+    // }
 
-    /**
-     * @dev Initializer that sets the default admin and buyer roles
-     */
+    /// @inheritdoc IReceivable
     function initialize(address initialAdmin_) external override initializer {
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
@@ -56,47 +50,29 @@ contract Receivable is
         emit IAdminable.TransferAdmin({ oldAdmin: address(0), newAdmin: initialAdmin_ });
     }
 
-    /**
-     * @dev Mint a new receivable
-     * @param buyer_ The address of the buyer that's expected to pay for this receivable
-     * @param seller_ The address of the seller that's expected to receive payment for this receivable
-     * @param faceAmount_ The amount of the receivable
-     * @param repaymentTimestamp_ The timestamp when the receivable is expected to be repaid
-     * @param currencyCode_ The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for
-     * USD
-     * @return tokenId_ The id of the newly created receivable
-     * @notice Only the buyer can call this function
-     * @notice The input type of faceAmount_ is UD60x18, which is a fixed-point number with 18 decimals
-     * @notice The event faceAmount is converted to decimal with 6 decimals
-     */
-    function createReceivable(
-        address buyer_,
-        address seller_,
-        UD60x18 faceAmount_,
-        uint256 repaymentTimestamp_,
-        uint16 currencyCode_
-    )
-        external
-        override
-        returns (uint256 tokenId_)
-    {
+    /// @inheritdoc IReceivable
+    function createReceivable(RCV.Create calldata params_) external override returns (uint256 tokenId_) {
         tokenId_ = _tokenIdCounter;
         _tokenIdCounter += 1;
 
-        idToReceivableInfo[tokenId_] = ReceivableInfo({
-            buyer: buyer_,
-            seller: seller_,
-            faceAmount: faceAmount_,
-            repaymentTimestamp: repaymentTimestamp_,
-            isValid: true,
-            currencyCode: currencyCode_
+        idToReceivableInfo[tokenId_] = RCV.Info({
+            buyer: params_.buyer,
+            seller: params_.seller,
+            faceAmount: params_.faceAmount,
+            repaymentTimestamp: params_.repaymentTimestamp,
+            currencyCode: params_.currencyCode,
+            isValid: true
         });
 
-        _safeMint(seller_, tokenId_);
-        uint256 faceAmountToUint256 = faceAmount_.intoUint256();
-        emit AssetCreated(buyer_, seller_, tokenId_, faceAmountToUint256, repaymentTimestamp_);
+        _safeMint(params_.seller, tokenId_);
+        emit AssetCreated(params_.buyer, params_.seller, tokenId_, params_.faceAmount, params_.repaymentTimestamp);
 
         return tokenId_;
+    }
+
+    /// @inheritdoc IReceivable
+    function getReceivableInfoById(uint256 tokenId_) external view override returns (RCV.Info memory info_) {
+        info_ = idToReceivableInfo[tokenId_];
     }
 
     function burnReceivable(uint256 tokenId_) external {
@@ -104,16 +80,10 @@ contract Receivable is
         emit AssetBurned(tokenId_);
     }
 
-    function getReceivableInfoById(uint256 tokenId_) external view override returns (ReceivableInfo memory) {
-        return idToReceivableInfo[tokenId_];
-    }
-
     // The following functions are overrides required by Solidity.
 
-    /**
-     * @dev Hook that is called before any token transfer.
-     * @notice not support batch transfer
-     */
+    /// @dev Hook that is called before any token transfer.
+    /// @notice not support batch transfer
     function _beforeTokenTransfer(
         address from_,
         address to_,
@@ -126,10 +96,7 @@ contract Receivable is
         super._beforeTokenTransfer(from_, to_, tokenId_, batchSize_);
     }
 
-    // function _burn(uint256 tokenId_) internal override(ERC721Upgradeable) {
-    //     super._burn(tokenId_);
-    // }
-
+    /// @inheritdoc ERC721Upgradeable
     function supportsInterface(bytes4 interfaceId_)
         public
         view
