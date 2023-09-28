@@ -14,7 +14,7 @@ abstract contract Paused_Integration_Shared_Test is LopoGlobals_Integration_Shar
 
     modifier whenFunctionNotUnpaused() {
         changePrank(users.governor);
-        lopoGlobals.setFunctionUnpause(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), false);
+        lopoGlobals.setFunctionUnpaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), false);
         _;
     }
 }

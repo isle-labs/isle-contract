@@ -6,6 +6,7 @@ import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/Saf
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { WithdrawalManager as WM } from "./libraries/types/DataTypes.sol";
 
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
@@ -75,7 +76,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             });
         }
 
-        cycleConfigs[0] = CycleConfig({
+        cycleConfigs[0] = WM.CycleConfig({
             initialCycleId: 1,
             initialCycleTime: uint64(block.timestamp),
             cycleDuration: uint64(cycleDuration_),
@@ -118,12 +119,12 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         uint256 initialCycleTime_ = getWindowStart(currentCycleId_);
         uint256 latestConfigId_ = latestConfigId;
 
-        // This isn't the most optimal way to do this, since the internal function `getConfigAt` iterates through
+        // This isn't the most optimal way to do this, since the internal function `getConfigAtId` iterates through
         // configs.
-        // But this function should only be called by the pool delegate and not often, and, at most, we need to iterate
+        // But this function should only be called by the pool admin and not often, and, at most, we need to iterate
         // through 3 cycles.
         for (uint256 i = currentCycleId_; i < initialCycleId_; i++) {
-            CycleConfig memory config = getConfigAtId(i);
+            WM.CycleConfig memory config = getConfigAtId(i);
             initialCycleTime_ += config.cycleDuration;
         }
 
@@ -133,19 +134,19 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             latestConfigId_ = ++latestConfigId;
         }
 
-        cycleConfigs[latestConfigId_] = CycleConfig({
-            initialCycleId: uint64(initialCycleId_),
-            initialCycleTime: uint64(initialCycleTime_),
-            cycleDuration: uint64(cycleDuration_),
-            windowDuration: uint64(windowDuration_)
+        cycleConfigs[latestConfigId_] = WM.CycleConfig({
+            initialCycleId: initialCycleId_.toUint64(),
+            initialCycleTime: initialCycleTime_.toUint64(),
+            cycleDuration: cycleDuration_.toUint64(),
+            windowDuration: windowDuration_.toUint64()
         });
 
         emit ConfigurationUpdated({
             configId_: latestConfigId_,
-            initialCycleId_: uint64(initialCycleId_),
-            initialCycleTime_: uint64(initialCycleTime_),
-            cycleDuration_: uint64(cycleDuration_),
-            windowDuration_: uint64(windowDuration_)
+            initialCycleId_: initialCycleId_.toUint64(),
+            initialCycleTime_: initialCycleTime_.toUint64(),
+            cycleDuration_: cycleDuration_.toUint64(),
+            windowDuration_: windowDuration_.toUint64()
         });
     }
 
@@ -196,7 +197,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             revert Errors.WithdrawalManager_WithdrawalPending(owner_);
         }
 
-        if (shares_ >= lockedShares_) {
+        if (shares_ > lockedShares_) {
             revert Errors.WithdrawalManager_Overremove(owner_, shares_, lockedShares_);
         }
 
@@ -246,7 +247,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
 
         bool partialLiquidity_;
 
-        (uint256 windowStart_, uint256 windowEnd_) = getWindowAtId(exitCycleId_);
+        (uint64 windowStart_, uint64 windowEnd_) = getWindowAtId(exitCycleId_);
 
         if (block.timestamp < windowStart_ || block.timestamp >= windowEnd_) {
             revert Errors.WithdrawalManager_NotInWindow(block.timestamp, windowStart_, windowEnd_);
@@ -288,7 +289,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
 
         if (exitCycleId_ == 0) return false; // No withdrawal request
 
-        (uint256 windowStart_, uint256 windowEnd_) = getWindowAtId(exitCycleId_);
+        (uint64 windowStart_, uint64 windowEnd_) = getWindowAtId(exitCycleId_);
 
         isInExitWindow_ = block.timestamp >= windowStart_ && block.timestamp < windowEnd_;
     }
@@ -297,7 +298,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     function lockedLiquidity() external view override returns (uint256 lockedLiquidity_) {
         uint256 currentCycleId_ = getCurrentCycleId();
 
-        (uint256 windowStart_, uint256 windowEnd_) = getWindowAtId(currentCycleId_);
+        (uint64 windowStart_, uint64 windowEnd_) = getWindowAtId(currentCycleId_);
 
         if (block.timestamp >= windowStart_ && block.timestamp < windowEnd_) {
             IPoolConfigurator poolConfigurator_ = IPoolConfigurator(_poolConfigurator());
@@ -336,29 +337,17 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         (redeemableShares_, resultingAssets_,) = getRedeemableAmounts(lockedShares_, owner_);
     }
 
-    /// @inheritdoc IWithdrawalManager
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        pure
-        override
-        returns (uint256 redeemableAssets_, uint256 resultingShares_)
-    {
-        owner_;
-        assets_;
-        redeemableAssets_;
-        resultingShares_; // Silence compiler warnings
-        return (redeemableAssets_, resultingShares_); // NOTE: Withdrawal not implemented use redeem instead
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IWithdrawalManager
-    function getConfigAtId(uint256 cycleId_) public view override returns (CycleConfig memory config_) {
+    function getCycleConfig(uint256 configId_) public view override returns (WM.CycleConfig memory config_) {
+        config_ = cycleConfigs[configId_];
+    }
+
+    /// @inheritdoc IWithdrawalManager
+    function getConfigAtId(uint256 cycleId_) public view override returns (WM.CycleConfig memory config_) {
         uint256 configId_ = latestConfigId;
 
         if (configId_ == 0) {
@@ -373,7 +362,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     }
 
     /// @inheritdoc IWithdrawalManager
-    function getCurrentConfig() public view override returns (CycleConfig memory config_) {
+    function getCurrentConfig() public view override returns (WM.CycleConfig memory config_) {
         uint256 configId_ = latestConfigId;
 
         while (block.timestamp < cycleConfigs[configId_].initialCycleTime) {
@@ -385,23 +374,25 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
 
     /// @inheritdoc IWithdrawalManager
     function getCurrentCycleId() public view override returns (uint256 cycleId_) {
-        CycleConfig memory config_ = getCurrentConfig();
+        WM.CycleConfig memory config_ = getCurrentConfig();
         cycleId_ = config_.initialCycleId + ((block.timestamp - config_.initialCycleTime) / config_.cycleDuration);
     }
 
     /// @inheritdoc IWithdrawalManager
-    function getWindowStart(uint256 cycleId_) public view override returns (uint256 windowStart_) {
-        CycleConfig memory config_ = getConfigAtId(cycleId_);
+    function getWindowStart(uint256 cycleId_) public view override returns (uint64 windowStart_) {
+        WM.CycleConfig memory config_ = getConfigAtId(cycleId_);
 
-        windowStart_ = config_.initialCycleTime + ((cycleId_ - config_.initialCycleId) * config_.cycleDuration);
+        windowStart_ =
+            (config_.initialCycleTime + ((cycleId_ - config_.initialCycleId) * config_.cycleDuration)).toUint64();
     }
 
     /// @inheritdoc IWithdrawalManager
-    function getWindowAtId(uint256 cycleId_) public view override returns (uint256 windowStart_, uint256 windowEnd_) {
-        CycleConfig memory config_ = getConfigAtId(cycleId_);
+    function getWindowAtId(uint256 cycleId_) public view override returns (uint64 windowStart_, uint64 windowEnd_) {
+        WM.CycleConfig memory config_ = getConfigAtId(cycleId_);
 
-        windowStart_ = config_.initialCycleTime + (cycleId_ - config_.initialCycleId) * config_.cycleDuration;
-        windowEnd_ = windowStart_ + config_.windowDuration;
+        windowStart_ =
+            (config_.initialCycleTime + (cycleId_ - config_.initialCycleId) * config_.cycleDuration).toUint64();
+        windowEnd_ = (windowStart_ + config_.windowDuration).toUint64();
     }
 
     function getRedeemableAmounts(

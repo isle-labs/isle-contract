@@ -8,6 +8,7 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { PoolDeployer } from "./libraries/PoolDeployer.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
+
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
@@ -114,19 +115,26 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setLiquidityCap(uint256 liquidityCap_) external override whenNotPaused onlyAdmin {
-        emit LiquidityCapSet(liquidityCap = liquidityCap_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
-    function setAdminFeeRate(uint256 adminFeeRate_) external override whenNotPaused onlyAdmin {
-        emit AdminFeeRateSet(adminFeeRate = adminFeeRate_);
+    function setAdminFee(uint24 adminFee_) external override whenNotPaused onlyAdmin {
+        emit AdminFeeSet(config.adminFee = adminFee_);
     }
 
     /// @inheritdoc IPoolConfigurator
     function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdmin {
-        openToPublic = isOpenToPublic_;
+        config.openToPublic = isOpenToPublic_;
         emit OpenToPublicSet(isOpenToPublic_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setGracePeriod(uint32 gracePeriod_) external override whenNotPaused onlyAdmin {
+        config.gracePeriod = gracePeriod_;
+        emit GracePeriodSet(gracePeriod_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setBaseRate(uint96 baseRate_) external override whenNotPaused onlyAdmin {
+        config.baseRate = baseRate_;
+        emit BaseRateSet(baseRate_);
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -244,8 +252,23 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolConfigurator
-    function convertToExitShares(uint256 assets_) external view override returns (uint256 shares_) {
-        shares_ = IPool(pool).convertToExitShares(assets_);
+    function openToPublic() external view override returns (bool openToPublic_) {
+        openToPublic_ = config.openToPublic;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function adminFee() external view override returns (uint24 adminFee_) {
+        adminFee_ = config.adminFee;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function gracePeriod() external view override returns (uint32 gracePeriod_) {
+        gracePeriod_ = config.gracePeriod;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function baseRate() external view override returns (uint96 baseRate_) {
+        baseRate_ = config.baseRate;
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -275,20 +298,6 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        virtual
-        override
-        returns (uint256 shares_)
-    {
-        (, shares_) = _withdrawalManager().previewWithdraw(owner_, assets_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
     function totalAssets() external view override returns (uint256 totalAssets_) {
         totalAssets_ = _totalAssets();
     }
@@ -299,9 +308,9 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
+    function unrealizedLosses() external view override returns (uint256 unrealizedLosses_) {
         // `totalAssets` does not.
+        // NOTE: Use minimum to prevent underflows in the case that `unrealizedLosses` includes late interest and
         unrealizedLosses_ = _min(_loanManager().unrealizedLosses(), _totalAssets());
     }
 
@@ -332,13 +341,14 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _hasSufficientCover(ILopoGlobals globals_) internal view returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = poolCover >= globals_.minCoverAmount(address(this));
+        uint256 minCover_ = globals_.minCover(address(this));
+        hasSufficientCover_ = minCover_ != 0 && poolCover >= minCover_;
     }
 
     function _handleCover(uint256 losses_) internal {
         ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
 
-        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidationPercent(address(this))) / HUNDRED_PERCENT;
+        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidation(address(this))) / HUNDRED_PERCENT;
 
         uint256 coverAmount_ = _min(availableCover_, losses_);
 
@@ -354,9 +364,9 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _getMaxAssets(address receiver_, uint256 totalAssets_) internal view returns (uint256 maxAssets_) {
-        bool depositAllowed_ = openToPublic || isLender[receiver_];
-        uint256 liquidityCap_ = liquidityCap;
-        maxAssets_ = liquidityCap_ > totalAssets_ && depositAllowed_ ? liquidityCap_ - totalAssets_ : 0;
+        bool depositAllowed_ = config.openToPublic || isLender[receiver_];
+        uint256 poolLimit_ = _globals().poolLimit(address(this));
+        maxAssets_ = poolLimit_ > totalAssets_ && depositAllowed_ ? poolLimit_ - totalAssets_ : 0;
     }
 
     function _globals() internal view returns (ILopoGlobals globals_) {

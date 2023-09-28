@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { WithdrawalManager } from "../libraries/types/DataTypes.sol";
+
 import { IPoolAddressesProvider } from "./IPoolAddressesProvider.sol";
 import { IWithdrawalManagerStorage } from "./IWithdrawalManagerStorage.sol";
 
@@ -111,31 +113,23 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
         view
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
-    /// @notice Previews the amount of shares and assets that can be withdrawn
-    /// @param owner_ The owner of the shares
-    /// @param assets_ The amount of assets to withdraw
-    /// @return redeemableAssets_ The amount of redeemable assets
-    /// @return resultingShares_ The corresponding amount of shares with the redeemable assets
-    function previewWithdraw(
-        address owner_,
-        uint256 assets_
-    )
-        external
-        view
-        returns (uint256 redeemableAssets_, uint256 resultingShares_);
-
     /*//////////////////////////////////////////////////////////////////////////
                             PUBLIC CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Gets the configuration of a config id
+    /// @param configId_ The id of the config
+    /// @return config_ The config
+    function getCycleConfig(uint256 configId_) external view returns (WithdrawalManager.CycleConfig memory config_);
+
     /// @notice Gets the configuration of a given cycle id
     /// @param cycleId_  The cycle id
-    /// @return config_ The configuration of the cycle id
-    function getConfigAtId(uint256 cycleId_) external view returns (CycleConfig memory config_);
+    /// @return config_ The configuration used at the cycle id
+    function getConfigAtId(uint256 cycleId_) external view returns (WithdrawalManager.CycleConfig memory config_);
 
     /// @notice Gets the configuration of the current cycle id
-    /// @return config_ The configuration of the current cycle id
-    function getCurrentConfig() external view returns (CycleConfig memory config_);
+    /// @return config_ The configuration used at the current cycle id
+    function getCurrentConfig() external view returns (WithdrawalManager.CycleConfig memory config_);
 
     /// @notice Gets the current cycle id
     /// @return cycleId_ The id of the current cycle
@@ -144,13 +138,13 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     /// @notice Gets the starting time of a window for a given cycle id
     /// @param cycleId_ The id of the cycle
     /// @return windowStart_ The starting time of the window
-    function getWindowStart(uint256 cycleId_) external view returns (uint256 windowStart_);
+    function getWindowStart(uint256 cycleId_) external view returns (uint64 windowStart_);
 
     /// @notice Gets the start and end time of a window for a given cycle id
     /// @param cycleId_ The id of the cycle
     /// @return windowStart_ The starting time of the window
     /// @return windowEnd_ The ending time of the window
-    function getWindowAtId(uint256 cycleId_) external view returns (uint256 windowStart_, uint256 windowEnd_);
+    function getWindowAtId(uint256 cycleId_) external view returns (uint64 windowStart_, uint64 windowEnd_);
 
     /// @notice Gets the redeemable amount of an owner based in the current cycle
     /// @param lockedShares_ The amount of locked shares under the owner

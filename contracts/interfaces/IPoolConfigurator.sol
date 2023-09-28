@@ -46,16 +46,21 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param isValid_ Whether the lender is valid
     function setValidLender(address lender_, bool isValid_) external;
 
-    /// @notice Sets the liquidity cap for the pool
-    /// @param liquidityCap_ The new liquidity cap
-    function setLiquidityCap(uint256 liquidityCap_) external;
+    /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
+    /// @param isOpenToPublic_ Whether the pool is open to the public
+    function setOpenToPublic(bool isOpenToPublic_) external;
 
     /// @notice Sets the admin fee rate that would be applied to the pool
-    /// @param adminFeeRate_ The new admin fee rate
-    function setAdminFeeRate(uint256 adminFeeRate_) external;
+    /// @param adminFee_ The new admin fee
+    function setAdminFee(uint24 adminFee_) external;
 
-    /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
-    function setOpenToPublic(bool isOpenToPublic_) external;
+    /// @notice Sets the grace period for the pool
+    /// @param gracePeriod_ The new grace period
+    function setGracePeriod(uint32 gracePeriod_) external;
+
+    /// @notice Sets the base rate for the pool
+    /// @param baseRate_ The new base rate
+    function setBaseRate(uint96 baseRate_) external;
 
     /// @notice Request funds from the pool and fund the loan manager
     /// @param principal_ The amount of principal to request
@@ -104,10 +109,21 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Simply calls pool's `convertToExitShares` function
-    /// @param amount_ The amount of assets to convert for exit
-    /// @return shares_ The amount of shares that would be received
-    function convertToExitShares(uint256 amount_) external view returns (uint256 shares_);
+    /// @notice Returns whether the pool is open to public
+    /// @return openToPublic_ Whether the pool is open to public
+    function openToPublic() external view returns (bool openToPublic_);
+
+    /// @notice Returns the admin fee of the pool
+    /// @return adminFee_ The admin fee of the pool
+    function adminFee() external view returns (uint24 adminFee_);
+
+    /// @notice Returns the grace period of the pool
+    /// @return gracePeriod_ The grace period of the pool
+    function gracePeriod() external view returns (uint32 gracePeriod_);
+
+    /// @notice Returns the base rate of the pool
+    /// @return baseRate_ The base rate of the pool
+    function baseRate() external view returns (uint96 baseRate_);
 
     /// @notice Returns the max deposit amount of a receiver
     /// @param receiver_ The address of the receiver
@@ -129,12 +145,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param shares_ The amount of shares to redeem
     /// @return assets_ The amount of assets that would be received
     function previewRedeem(address owner_, uint256 shares_) external view returns (uint256 assets_);
-
-    /// @notice Previews the amount of shares that can be withdrawn for the amount of assets specified
-    /// @param owner_ The address of the owner
-    /// @param assets_ The amount of assets to withdraw
-    /// @return shares_ The amount of shares that would be redeemed
-    function previewWithdraw(address owner_, uint256 assets_) external view returns (uint256 shares_);
 
     /// @notice Returns the total amount of assets in the pool
     /// @return totalAssets_ The total amount of assets in the pool

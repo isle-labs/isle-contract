@@ -1,6 +1,6 @@
 # Lopo Protocol
 
-[![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry] 
+[![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry]
 
 [gha]: https://github.com/PaulRBerg/foundry-template/actions
 [gha-badge]: https://github.com/PaulRBerg/foundry-template/actions/workflows/ci.yml/badge.svg
@@ -72,6 +72,12 @@ Get a test coverage report:
 
 ```sh
 $ forge coverage
+```
+
+Get a .lcov coverage report
+
+```sh
+$ forge coverage --report lcov
 ```
 
 ### Deploy

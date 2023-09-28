@@ -2,10 +2,6 @@
 pragma solidity ^0.8.19;
 
 interface ILoanManagerEvents {
-    /*//////////////////////////////////////////////////////////////////////////
-                                    EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @notice Emitted when a loan is approved
     /// @param loanId_ The id of the loan
     event LoanApproved(uint16 indexed loanId_);
@@ -43,16 +39,16 @@ interface ILoanManagerEvents {
     /// @notice Emitted when a new payment is added to the payment linked list
     /// @param loanId_ The new loan id that the payment id is linked to
     /// @param paymentId_ The payment id of the payment
-    /// @param protocolFeeRate_ The protocol fee rate of the payment
-    /// @param adminFeeRate_ The admin fee rate of the payment
+    /// @param protocolFee_ The protocol fee rate of the payment
+    /// @param adminFee_ The admin fee rate of the payment
     /// @param startDate_ The start date of the payment
     /// @param dueDate_ The due date of the payment
     /// @param newRate_ The new issuance rate of the payment
     event PaymentAdded(
         uint16 indexed loanId_,
         uint256 indexed paymentId_,
-        uint256 protocolFeeRate_,
-        uint256 adminFeeRate_,
+        uint256 protocolFee_,
+        uint256 adminFee_,
         uint256 startDate_,
         uint256 dueDate_,
         uint256 newRate_

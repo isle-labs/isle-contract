@@ -6,9 +6,9 @@ import { ILoanManagerStorage } from "./ILoanManagerStorage.sol";
 
 /// @title ILoanManager
 /// @notice Creates and manages loans.
-interface ILoanManager is ILoanManagerStorage, ILoanManagerEvents {
+interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /*//////////////////////////////////////////////////////////////////////////
-                                EXTERNAL CONSTANT FUNCTIONS
+                        EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Gets the amounf of interest up until this point in time

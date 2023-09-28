@@ -23,17 +23,21 @@ interface IPoolConfiguratorEvents {
     /// @param isValid_ Whether the lender is valid
     event ValidLenderSet(address indexed lender_, bool isValid_);
 
-    /// @notice Emitted when a liquidity cap is set
-    /// @param liquidityCap_ The new liquidity cap
-    event LiquidityCapSet(uint256 liquidityCap_);
-
     /// @notice Emitted when an admin fee rate is set
-    /// @param adminFeeRate_ The new admin fee rate
-    event AdminFeeRateSet(uint256 adminFeeRate_);
+    /// @param adminFee_ The new admin fee rate
+    event AdminFeeSet(uint256 adminFee_);
 
     /// @notice Emitted when the pool is set as open to the public
     /// @param isOpenToPublic_ Whether the pool is open to the public
     event OpenToPublicSet(bool isOpenToPublic_);
+
+    /// @notice Emitted when the grace period of the pool is set
+    /// @param gracePeriod_ The new grace period
+    event GracePeriodSet(uint256 gracePeriod_);
+
+    /// @notice Emitted when the base rate of the pool is set
+    /// @param baseRate_ The new base rate
+    event BaseRateSet(uint96 baseRate_);
 
     /// @notice Emitted when a redeem is processed
     /// @param owner_ The address of the owner

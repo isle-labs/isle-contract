@@ -11,6 +11,8 @@ import { Errors } from "./libraries/Errors.sol";
 import { IPool } from "./interfaces/IPool.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 
+/// @title Pool
+/// @notice See the documentation in {IPool}.
 contract Pool is IPool, ERC20Permit {
     using Math for uint256;
 
@@ -32,12 +34,112 @@ contract Pool is IPool, ERC20Permit {
         if ((configurator = configurator_) == address(0)) revert Errors.Pool_ZeroConfigurator();
         if (!IERC20(asset_).approve(configurator_, type(uint256).max)) revert Errors.Pool_FailedApprove();
 
-        _underlyingDecimals = 18;
+        _underlyingDecimals = 6;
         _asset = ERC20Permit(asset_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                LP Functions
+                        EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IPool
+    function depositWithPermit(
+        uint256 assets_,
+        address receiver_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    )
+        external
+        returns (uint256 shares_)
+    {
+        // Checks: receiver is not the zero address.
+        if (receiver_ == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: deposit amount is less than or equal to the max deposit.
+        if (assets_ > maxDeposit(receiver_)) revert Errors.Pool_DepositGreaterThanMax(assets_, maxDeposit(receiver_));
+
+        _asset.permit(_msgSender(), address(this), assets_, deadline_, v_, r_, s_);
+
+        shares_ = deposit(assets_, receiver_);
+    }
+
+    /// @inheritdoc IPool
+    function mintWithPermit(
+        uint256 shares_,
+        address receiver_,
+        uint256 maxAssets_,
+        uint256 deadline_,
+        uint8 v_,
+        bytes32 r_,
+        bytes32 s_
+    )
+        external
+        returns (uint256 assets_)
+    {
+        // Checks: receiver is not the zero address.
+        if (receiver_ == address(0)) revert Errors.Pool_RecipientZeroAddress();
+
+        // Checks: mint amount is less than or equal to the max mint.
+        if (shares_ > maxMint(receiver_)) revert Errors.Pool_MintGreaterThanMax(shares_, maxMint(receiver_));
+
+        assets_ = previewMint(shares_);
+        if (assets_ > maxAssets_) revert Errors.Pool_InsufficientPermit(assets_, maxAssets_);
+
+        _asset.permit(_msgSender(), address(this), maxAssets_, deadline_, v_, r_, s_);
+        _deposit(_msgSender(), receiver_, assets_, shares_);
+    }
+
+    /// @inheritdoc IPool
+    function removeShares(uint256 shares_, address owner_) external override returns (uint256 sharesReturned_) {
+        if (_msgSender() != owner_) {
+            _spendAllowance(owner_, _msgSender(), shares_);
+        }
+        sharesReturned_ = IPoolConfigurator(configurator).removeShares(shares_, owner_);
+    }
+
+    /// @inheritdoc IPool
+    function requestRedeem(uint256 shares_, address owner_) external override {
+        address destination_ = configurator;
+
+        if (_msgSender() != owner_) {
+            _spendAllowance(owner_, _msgSender(), shares_);
+        }
+
+        if (shares_ != 0 && destination_ != address(0)) {
+            _transfer(owner_, destination_, shares_);
+        }
+
+        IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_, sender_: _msgSender() });
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                        PUBLIC CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IPool
+    function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
+        balanceOfAssets_ = convertToAssets(balanceOf(account_));
+    }
+
+    /// @inheritdoc IPool
+    function convertToExitAssets(uint256 shares_) public view override returns (uint256 assets_) {
+        assets_ = _convertToExitAssets(shares_, Math.Rounding.Down);
+    }
+
+    /// @inheritdoc IPool
+    function convertToExitShares(uint256 assets_) public view override returns (uint256 shares_) {
+        shares_ = _convertToExitShares(assets_, Math.Rounding.Down);
+    }
+
+    /// @inheritdoc IPool
+    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
+        unrealizedLosses_ = IPoolConfigurator(configurator).unrealizedLosses();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                IERC4626
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
@@ -56,28 +158,6 @@ contract Pool is IPool, ERC20Permit {
         return shares;
     }
 
-    function depositWithPermit(
-        uint256 assets,
-        address receiver,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    )
-        external
-        returns (uint256)
-    {
-        // Checks: receiver is not the zero address.
-        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
-
-        // Checks: deposit amount is less than or equal to the max deposit.
-        if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositGreaterThanMax(assets, maxDeposit(receiver));
-
-        _asset.permit(_msgSender(), address(this), assets, deadline, v, r, s);
-
-        return deposit(assets, receiver);
-    }
-
     /**
      * @dev See {IERC4626-mint}.
      *
@@ -92,33 +172,6 @@ contract Pool is IPool, ERC20Permit {
         if (shares > maxMint(receiver)) revert Errors.Pool_MintGreaterThanMax(shares, maxMint(receiver));
 
         uint256 assets = previewMint(shares);
-        _deposit(_msgSender(), receiver, assets, shares);
-
-        return assets;
-    }
-
-    function mintWithPermit(
-        uint256 shares,
-        address receiver,
-        uint256 maxAssets,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    )
-        external
-        returns (uint256)
-    {
-        // Checks: receiver is not the zero address.
-        if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
-
-        // Checks: mint amount is less than or equal to the max mint.
-        if (shares > maxMint(receiver)) revert Errors.Pool_MintGreaterThanMax(shares, maxMint(receiver));
-
-        uint256 assets = previewMint(shares);
-        if (assets > maxAssets) revert Errors.Pool_InsufficientPermit(assets, maxAssets);
-
-        _asset.permit(_msgSender(), address(this), maxAssets, deadline, v, r, s);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return assets;
@@ -141,6 +194,8 @@ contract Pool is IPool, ERC20Permit {
         receiver_;
         owner_;
         shares_; // Not implemented
+
+        revert Errors.Pool_WithdrawalNotImplemented();
     }
 
     /**
@@ -152,38 +207,160 @@ contract Pool is IPool, ERC20Permit {
         uint256 redeemableShares_;
         (redeemableShares_, assets_) = IPoolConfigurator(configurator).processRedeem(shares_, owner_, _msgSender());
 
-        _withdraw(_msgSender(), receiver_, owner_, assets_, redeemableShares_);
+        _withdraw({
+            caller: _msgSender(),
+            receiver: receiver_,
+            owner: owner_,
+            assets: assets_,
+            shares: redeemableShares_
+        });
+    }
+
+    /**
+     * @dev See {IERC4626-maxDeposit}.
+     */
+    function maxDeposit(address receiver_) public view override returns (uint256 maxAssets_) {
+        maxAssets_ = IPoolConfigurator(configurator).maxDeposit(receiver_);
+    }
+
+    /**
+     * @dev See {IERC4626-maxMint}.
+     */
+    function maxMint(address receiver_) public view override returns (uint256 maxShares_) {
+        maxShares_ = IPoolConfigurator(configurator).maxMint(receiver_);
+    }
+
+    /**
+     * @dev See {IERC4626-maxWithdraw}.
+     */
+    function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
+        owner_;
+        maxAssets_; // Not implemented
+        revert Errors.Pool_WithdrawalNotImplemented();
+    }
+
+    /**
+     * @dev See {IERC4626-maxRedeem}.
+     */
+    function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {
+        maxShares_ = IPoolConfigurator(configurator).maxRedeem(owner_);
+    }
+
+    /**
+     * @dev See {IERC4626-previewWithdraw}.
+     */
+    function previewWithdraw(uint256 assets_) public pure override returns (uint256 shares_) {
+        shares_;
+        assets_; // not implemented
+        revert Errors.Pool_WithdrawalNotImplemented();
+    }
+
+    /**
+     * @dev See {IERC4626-previewRedeem}.
+     */
+    function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {
+        assets_ = IPoolConfigurator(configurator).previewRedeem(msg.sender, shares_);
+    }
+
+    /**
+     * @dev See {IERC4626-convertToShares}.
+     */
+    function convertToShares(uint256 assets_) public view override returns (uint256 shares_) {
+        shares_ = _convertToShares(assets_, Math.Rounding.Down);
+    }
+
+    /**
+     * @dev See {IERC4626-convertToAssets}.
+     */
+    function convertToAssets(uint256 shares_) public view override returns (uint256 assets_) {
+        assets_ = _convertToAssets(shares_, Math.Rounding.Down);
+    }
+
+    /**
+     * @dev See {IERC4626-previewDeposit}.
+     */
+    function previewDeposit(uint256 assets_) public view override returns (uint256 shares_) {
+        shares_ = _convertToShares(assets_, Math.Rounding.Down);
+    }
+
+    /**
+     *  @dev See {IERC4626-previewMint}.
+     */
+    function previewMint(uint256 shares_) public view override returns (uint256 assets_) {
+        assets_ = _convertToAssets(shares_, Math.Rounding.Up);
+    }
+
+    /**
+     * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
+     * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
+     * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
+     */
+    function decimals() public view override(IERC20Metadata, ERC20) returns (uint8) {
+        return _underlyingDecimals + _decimalsOffset();
+    }
+
+    /**
+     * @dev See {IERC4626-asset}.
+     */
+    function asset() public view override returns (address) {
+        return address(_asset);
+    }
+
+    /**
+     * @dev See {IERC4626-totalAssets}.
+     */
+    function totalAssets() public view override returns (uint256) {
+        return _asset.balanceOf(address(this));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Withdrawal Request Functions
+                        INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function removeShares(uint256 shares_, address owner_) external override returns (uint256 sharesReturned_) {
-        if (_msgSender() != owner_) {
-            _spendAllowance(owner_, _msgSender(), shares_);
-        }
+    /**
+     * @dev Deposit/mint common workflow.
+     */
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal {
+        // If _asset is ERC777, `transferFrom` can trigger a reentrancy BEFORE the transfer happens through the
+        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
+        // calls the vault, which is assumed not malicious.
+        //
+        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
+        // assets are transferred and before the shares are minted, which is a valid state.
+        // slither-disable-next-line reentrancy-no-eth
+        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
+        _mint(receiver, shares);
 
-        emit SharesRemoved(owner_, sharesReturned_ = IPoolConfigurator(configurator).removeShares(shares_, owner_));
+        emit Deposit(caller, receiver, assets, shares);
     }
 
-    function requestRedeem(uint256 shares_, address owner_) external override returns (uint256 escrowShares_) {
-        address destination_ = configurator;
-
-        if (_msgSender() != owner_) {
-            _spendAllowance(owner_, _msgSender(), shares_);
+    /**
+     * @dev Withdraw/redeem common workflow.
+     */
+    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) internal {
+        if (caller != owner) {
+            _spendAllowance(owner, caller, shares);
         }
 
-        if (shares_ != 0 && destination_ != address(0)) {
-            _transfer(owner_, destination_, escrowShares_);
-        }
+        // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
+        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
+        // calls the vault, which is assumed not malicious.
+        //
+        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
+        // shares are burned and after the assets are transferred, which is a valid state.
+        _burn(owner, shares);
+        SafeERC20.safeTransfer(_asset, receiver, assets);
 
-        IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_, sender_: _msgSender() });
+        emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                Internal Functions
+                            INTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _decimalsOffset() internal pure returns (uint8) {
+        return 0;
+    }
 
     function _convertToShares(
         uint256 assets_,
@@ -233,137 +410,5 @@ contract Pool is IPool, ERC20Permit {
     {
         assets_ =
             shares_.mulDiv(totalAssets() - unrealizedLosses() + 1, totalSupply() + 10 ** _decimalsOffset(), rounding_);
-    }
-
-    /**
-     * @dev Deposit/mint common workflow.
-     */
-    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal {
-        // If _asset is ERC777, `transferFrom` can trigger a reentrancy BEFORE the transfer happens through the
-        // `tokensToSend` hook. On the other hand, the `tokenReceived` hook, that is triggered after the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer before we mint so that any reentrancy would happen before the
-        // assets are transferred and before the shares are minted, which is a valid state.
-        // slither-disable-next-line reentrancy-no-eth
-        SafeERC20.safeTransferFrom(_asset, caller, address(this), assets);
-        _mint(receiver, shares);
-
-        emit Deposit(caller, receiver, assets, shares);
-    }
-
-    /**
-     * @dev Withdraw/redeem common workflow.
-     */
-    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) internal {
-        if (caller != owner) {
-            _spendAllowance(owner, caller, shares);
-        }
-
-        // If _asset is ERC777, `transfer` can trigger a reentrancy AFTER the transfer happens through the
-        // `tokensReceived` hook. On the other hand, the `tokensToSend` hook, that is triggered before the transfer,
-        // calls the vault, which is assumed not malicious.
-        //
-        // Conclusion: we need to do the transfer after the burn so that any reentrancy would happen after the
-        // shares are burned and after the assets are transferred, which is a valid state.
-        _burn(owner, shares);
-        SafeERC20.safeTransfer(_asset, receiver, assets);
-
-        emit Withdraw(caller, receiver, owner, assets, shares);
-    }
-
-    function _decimalsOffset() internal pure returns (uint8) {
-        return 0;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                Public View Functions
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
-        balanceOfAssets_ = convertToAssets(balanceOf(account_));
-    }
-
-    function maxDeposit(address receiver_) public view override returns (uint256 maxAssets_) {
-        maxAssets_ = IPoolConfigurator(configurator).maxDeposit(receiver_);
-    }
-
-    function maxMint(address receiver_) public view override returns (uint256 maxShares_) {
-        maxShares_ = IPoolConfigurator(configurator).maxMint(receiver_);
-    }
-
-    function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
-        owner_;
-        maxAssets_; // Not implemented
-    }
-
-    function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {
-        maxShares_ = IPoolConfigurator(configurator).maxRedeem(owner_);
-    }
-
-    function previewWithdraw(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = IPoolConfigurator(configurator).previewWithdraw(msg.sender, assets_);
-    }
-
-    function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {
-        assets_ = IPoolConfigurator(configurator).previewRedeem(msg.sender, shares_);
-    }
-
-    function convertToShares(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = _convertToShares(assets_, Math.Rounding.Down);
-    }
-
-    function convertToExitShares(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = _convertToExitShares(assets_, Math.Rounding.Down);
-    }
-
-    function convertToAssets(uint256 shares_) public view override returns (uint256 assets_) {
-        assets_ = _convertToAssets(shares_, Math.Rounding.Down);
-    }
-
-    function convertToExitAssets(uint256 shares_) public view override returns (uint256 assets_) {
-        assets_ = _convertToExitAssets(shares_, Math.Rounding.Down);
-    }
-
-    function unrealizedLosses() public view override returns (uint256 unrealizedLosses_) {
-        unrealizedLosses_ = IPoolConfigurator(configurator).unrealizedLosses();
-    }
-
-    /**
-     * @dev See {IERC4626-previewDeposit}.
-     */
-    function previewDeposit(uint256 assets_) public view override returns (uint256 shares_) {
-        shares_ = _convertToShares(assets_, Math.Rounding.Down);
-    }
-
-    /**
-     * @dev See {IERC4626-previewMint}.
-     */
-    function previewMint(uint256 shares_) public view override returns (uint256 assets_) {
-        assets_ = _convertToAssets(shares_, Math.Rounding.Up);
-    }
-
-    /**
-     * @dev Decimals are computed by adding the decimal offset on top of the underlying asset's decimals. This
-     * "original" value is cached during construction of the vault contract. If this read operation fails (e.g., the
-     * asset has not been created yet), a default of 18 is used to represent the underlying asset's decimals.
-     *
-     */
-    function decimals() public view override(IERC20Metadata, ERC20) returns (uint8) {
-        return _underlyingDecimals + _decimalsOffset();
-    }
-
-    /**
-     * @dev See {IERC4626-asset}.
-     */
-    function asset() public view override returns (address) {
-        return address(_asset);
-    }
-
-    /**
-     * @dev See {IERC4626-totalAssets}.
-     */
-    function totalAssets() public view override returns (uint256) {
-        return _asset.balanceOf(address(this));
     }
 }

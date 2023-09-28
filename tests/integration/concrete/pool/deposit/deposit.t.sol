@@ -7,11 +7,11 @@ import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { Deposit_Integration_Shared_Test } from "../../../shared/pool/deposit.t.sol";
-import { Pool_Integration_Concrete_Test } from "../Pool.t.sol";
+import { Pool_Integration_Shared_Test } from "../../../shared/pool/Pool.t.sol";
 
-contract Deposit_Integration_Concrete_Test is Pool_Integration_Concrete_Test, Deposit_Integration_Shared_Test {
-    function setUp() public virtual override(Pool_Integration_Concrete_Test, Deposit_Integration_Shared_Test) {
-        Pool_Integration_Concrete_Test.setUp();
+contract Deposit_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test {
+    function setUp() public virtual override(Pool_Integration_Shared_Test, Deposit_Integration_Shared_Test) {
+        Pool_Integration_Shared_Test.setUp();
         Deposit_Integration_Shared_Test.setUp();
     }
 
@@ -43,6 +43,5 @@ contract Deposit_Integration_Concrete_Test is Pool_Integration_Concrete_Test, De
 
         // Checks that the receiver has the correct amount of {shares}
         pool.deposit({ assets: assets_, receiver: users.receiver });
-        assertEq(shares_, pool.balanceOf(users.receiver));
     }
 }

@@ -4,10 +4,6 @@ pragma solidity 0.8.19;
 import { ILoanManagerStorage } from "./interfaces/ILoanManagerStorage.sol";
 
 abstract contract LoanManagerStorage is ILoanManagerStorage {
-    /*//////////////////////////////////////////////////////////////////////////
-                                    STRUCTS
-    //////////////////////////////////////////////////////////////////////////*/
-
     struct LoanInfo {
         address buyer;
         address seller;
@@ -33,8 +29,8 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
     }
 
     struct PaymentInfo {
-        uint24 protocolFeeRate;
-        uint24 adminFeeRate;
+        uint24 protocolFee;
+        uint24 adminFee;
         uint48 startDate;
         uint48 dueDate;
         uint128 incomingNetInterest;
@@ -52,24 +48,24 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
         bool impariedByGovernor;
     }
 
-    uint16 public loanCounter;
-    uint24 public paymentCounter;
-    uint24 public paymentWithEarliestDueDate;
-    uint48 public domainStart;
-    uint48 public domainEnd;
-    uint112 public accountedInterest;
-    uint128 public principalOut;
+    uint16 public override loanCounter;
+    uint24 public override paymentCounter;
+    uint24 public override paymentWithEarliestDueDate;
+    uint48 public override domainStart;
+    uint48 public override domainEnd;
+    uint112 public override accountedInterest;
+    uint128 public override principalOut;
     uint128 public override unrealizedLosses;
-    uint256 public issuanceRate;
+    uint256 public override issuanceRate;
 
-    address public fundsAsset;
-    address public collateralAsset;
+    address public override fundsAsset;
+    address public override collateralAsset;
 
+    mapping(uint16 => uint24) public override paymentIdOf;
     mapping(uint16 => Impairment) public impairmentFor;
     mapping(uint256 => PaymentInfo) public payments;
     mapping(uint256 => SortedPayment) public sortedPayments;
     mapping(uint16 => LiquidationInfo) public liquidationInfoFor;
-    mapping(uint16 => uint24) public paymentIdOf;
 
     mapping(uint16 => LoanInfo) internal _loans;
 }

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19;
 
-import { PRBTest } from "@prb-test/PRBTest.sol";
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
+import { Assertions } from "./Assertions.sol";
 
-abstract contract Utils is PRBTest {
+abstract contract Utils is Assertions {
     // Returns a valid `permit` signature signed by this contract's `owner` address
     function getValidPermitSignature(
         address token_,

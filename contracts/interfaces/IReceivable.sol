@@ -19,7 +19,7 @@ interface IReceivable is IReceivableEvent {
         address buyer_,
         address seller_,
         UD60x18 faceAmount_,
-        uint256 repaymentTimestam_,
+        uint256 repaymentTimestamp_,
         uint16 currencyCode_
     )
         external
