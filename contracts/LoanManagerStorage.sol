@@ -7,12 +7,12 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
     struct LoanInfo {
         address buyer;
         address seller;
+        address collateralAsset;
         uint256 collateralTokenId;
         uint256 principal;
         uint256 drawableFunds;
         uint256 interestRate;
         uint256 lateInterestPremiumRate;
-        uint256 fee;
         uint256 startDate;
         uint256 dueDate;
         uint256 originalDueDate;

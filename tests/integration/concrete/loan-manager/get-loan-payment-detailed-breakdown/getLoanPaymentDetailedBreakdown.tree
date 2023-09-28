@@ -1,0 +1,10 @@
+getLoanPaymentDetailedBreakdown.t.sol
+├── when given a loan id that does not exist
+│  └── it should return (0, 0, 0)
+└── when given a loan id that exists
+   ├── when the loan is not defaulted
+   │  └── it should return (principal, interest, 0)
+   └── when the loan is defaulted
+      └── it should return (principal, interest, late interest)
+
+

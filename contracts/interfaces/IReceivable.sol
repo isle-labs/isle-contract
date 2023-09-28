@@ -28,4 +28,6 @@ interface IReceivable is IReceivableEvent {
     /// @param tokenId_ The id of the receivable
     /// @return info_ The struct containing the information of the receivable
     function getReceivableInfoById(uint256 tokenId_) external view returns (Receivable.Info memory info_);
+
+    function burnReceivable(uint256 tokenId_) external;
 }

@@ -6,7 +6,7 @@ import { ERC721EnumerableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import { ERC721BurnableUpgradeable } from
     "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -73,6 +73,11 @@ contract Receivable is
     /// @inheritdoc IReceivable
     function getReceivableInfoById(uint256 tokenId_) external view override returns (RCV.Info memory info_) {
         info_ = idToReceivableInfo[tokenId_];
+    }
+
+    function burnReceivable(uint256 tokenId_) external {
+        ERC721BurnableUpgradeable.burn(tokenId_);
+        emit AssetBurned(tokenId_);
     }
 
     // The following functions are overrides required by Solidity.

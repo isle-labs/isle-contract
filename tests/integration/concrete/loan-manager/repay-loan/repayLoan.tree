@@ -1,0 +1,22 @@
+repayLoan.t.sol
+├── when the function is paused
+│  └── it should revert
+└── when the function is not paused
+   ├── when the seller had  not withdrawn the funds of the loan
+   │  ├── it should repay the loan
+   │  ├── it should emit a {LoanRepaid} event
+   │  ├── it should emit a {FeesPaid} event
+   │  ├── it should emit a {FundsDistributed} event
+   │  ├── it should emit a {PrincipalOutUpdated} event
+   │  ├── it should emit a {PaymentRemoved} event
+   │  └── it should emit a {IssuanceParamsUpdated} event
+   └── when the seller had withdrawn the funds of the loan
+      ├── it should repay the loan
+      ├── it should emit a {LoanRepaid} event
+      ├── it should emit a {FeesPaid} event
+      ├── it should emit a {FundsDistributed} event
+      ├── it should emit a {PrincipalOutUpdated} event
+      ├── it should emit a {PaymentRemoved} event
+      ├── it should burn the receivable token
+      ├── it should emit a {AssetBurned} event
+      └── it should emit a {IssuanceParamsUpdated} event
