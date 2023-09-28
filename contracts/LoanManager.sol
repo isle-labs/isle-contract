@@ -6,6 +6,7 @@ import { SignedMath } from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
@@ -20,7 +21,7 @@ import { IReceivable } from "./interfaces/IReceivable.sol";
 import { LoanManagerStorage } from "./LoanManagerStorage.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 
-contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
+contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
     uint256 public constant LOAN_MANAGER_REVISION = 0x1;
 
     uint256 public constant HUNDRED_PERCENT = 1e6; // 100.0000%
@@ -141,6 +142,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
+    /// @inheritdoc IERC721Receiver
+    function onERC721Received(address, address, uint256, bytes calldata) external override pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -157,13 +163,11 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,
-        uint256[2] memory rates_,
-        uint256 fee_
+        uint256[2] memory rates_
     )
         external
         override
         whenNotPaused
-        onlyPoolAdmin
         returns (uint16 loanId_)
     {
         // Check if the collateral asset is in the allowed list in LopoGlobals
@@ -173,6 +177,8 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
 
         ReceivableStorage.ReceivableInfo memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
+
+        _revertIfCallerNotReceivableBuyer(receivableInfo_.buyer);
 
         _revertIfInvalidReceivable(
             receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
@@ -192,12 +198,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         _loans[loanId_] = LoanInfo({
             buyer: receivableInfo_.buyer,
             seller: receivableInfo_.seller,
+            collateralAsset: collateralAsset_,
             collateralTokenId: receivablesTokenId_,
             principal: principalRequested_,
             drawableFunds: uint256(0),
             interestRate: rates_[0],
             lateInterestPremiumRate: rates_[1],
-            fee: fee_,
             startDate: uint256(0),
             dueDate: receivableInfo_.repaymentTimestamp,
             originalDueDate: uint256(0),
@@ -265,6 +271,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         // 7. Delete paymentId from mapping
         delete paymentIdOf[loanId_];
 
+        // 8. burn the receivable
+        LoanInfo memory loan_ = _loans[loanId_];
+        if (IERC721(loan_.collateralAsset).ownerOf(loan_.collateralTokenId) == address(this)) {
+            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        }
+
         _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
     }
 
@@ -286,6 +298,13 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
         }
 
         loan_.drawableFunds -= amount_;
+
+        IERC721(loan_.collateralAsset).safeTransferFrom(msg.sender, address(this), loan_.collateralTokenId);
+
+        // check if the loan is already be repaid
+        if (paymentIdOf[loanId_] == 0) {
+            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        }
 
         IERC20(fundsAsset).safeTransfer(destination_, amount_);
 
@@ -948,6 +967,12 @@ contract LoanManager is ILoanManager, LoanManagerStorage, ReentrancyGuard, Versi
     function _revertIfNotPoolAdmin() internal view {
         if (msg.sender != _poolAdmin()) {
             revert Errors.NotPoolAdmin(msg.sender);
+        }
+    }
+
+    function _revertIfCallerNotReceivableBuyer(address buyer_) internal view {
+        if (msg.sender != buyer_) {
+            revert Errors.LoanManager_CallerNotReceivableBuyer({ expectedBuyer_: buyer_ });
         }
     }
 

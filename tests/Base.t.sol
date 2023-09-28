@@ -180,6 +180,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolConfigurator_.setOpenToPublic(true);
         poolConfigurator_.setValidLender(users.receiver, true);
         poolConfigurator_.setValidLender(users.caller, true);
+        poolConfigurator_.setValidBuyer(users.buyer, true);
+        poolConfigurator_.setValidSeller(users.seller, true);
 
         changePrank(users.governor); // change back to governor
     }
@@ -253,39 +255,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
         changePrank(users.poolAdmin);
         usdc.approve(address(poolConfigurator), type(uint256).max);
-    }
-
-    function callerDepositToReceiver(address caller, address receiver, uint256 amount) internal {
-        changePrank(caller);
-        pool.deposit(amount, receiver);
-    }
-
-    function callerMintToReceiver(address caller, address receiver, uint256 amount) internal {
-        changePrank(caller);
-        pool.mint(amount, receiver);
-    }
-
-    function createReceivable(uint256 faceAmount_) internal returns (uint256 receivablesTokenId_) {
-        changePrank(users.buyer);
-        receivablesTokenId_ =
-            receivable.createReceivable(users.buyer, users.seller, ud(faceAmount_), block.timestamp + 30 days, 804);
-    }
-
-    function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
-        address collateralAsset_ = address(receivable);
-        uint256 gracePeriod_ = 7 days;
-        uint256[2] memory rates_ = [uint256(0.12e6), uint256(0.2e6)];
-        uint256 fee_ = 0;
-
-        changePrank(users.poolAdmin);
-        loanId_ = loanManager.approveLoan(
-            collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_, fee_
-        );
-    }
-
-    function fundLoan(uint16 loanId_) internal {
-        changePrank(users.poolAdmin);
-        loanManager.fundLoan(loanId_);
     }
 
     function initializePool() internal {

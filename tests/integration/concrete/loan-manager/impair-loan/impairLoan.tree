@@ -1,0 +1,17 @@
+impairLoan.t.sol
+├── when the function is paused
+│  └── it should revert
+└── when the function is not paused
+   ├── when caller is not the pool admin or governor
+   │  └── it should revert
+   └── when caller is the pool admin or governor
+      ├── when the loan is impaired
+      │  └── it should revert
+      └── when the loan is not impaired
+         ├── when the payment id of the loan is 0
+         │  └── it should revert
+         └── when the payment id of the loan is not 0
+            ├── it should emit a {IssuanceParamsUpdated} event
+            ├── it should emit a {UnrealizedLossesUpdated} event  
+            └── it should emit a {LoanImpairment} event
+

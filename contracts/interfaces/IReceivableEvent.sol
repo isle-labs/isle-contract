@@ -9,4 +9,8 @@ interface IReceivableEvent {
         uint256 faceAmount_,
         uint256 repaymentTimestamp_
     );
+
+    event AssetBurned(uint256 indexed tokenId_);
+
+    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
 }

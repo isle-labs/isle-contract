@@ -50,15 +50,13 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @param rates_                   Rates parameters:
     ///                                     [0]: interestRate,
     ///                                     [1]: lateInterestPremiumRate,
-    /// @param fee_                     PoolAdmin Fees
     /// @return loanId_                 Id of the loan that is created
     function approveLoan(
         address collateralAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,
-        uint256[2] memory rates_,
-        uint256 fee_
+        uint256[2] memory rates_
     )
         external
         returns (uint16 loanId_);

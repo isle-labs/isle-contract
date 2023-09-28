@@ -17,6 +17,30 @@ abstract contract Events {
         uint256 repaymentTimestamp_
     );
 
+    event AssetBurned(uint256 indexed tokenId_);
+
+    // LoanManager events
+    event LoanApproved(uint16 indexed loanId_);
+    event PrincipalOutUpdated(uint128 principalOut_);
+    event PaymentAdded(
+        uint16 indexed loanId_,
+        uint256 indexed paymentId_,
+        uint256 protocolFeeRate_,
+        uint256 adminFeeRate_,
+        uint256 startDate_,
+        uint256 dueDate_,
+        uint256 newRate_
+    );
+    event IssuanceParamsUpdated(uint48 indexed domainEnd_, uint256 issuanceRate_, uint112 accountedInterest_);
+    event LoanRepaid(uint16 indexed loanId_, uint256 principal_, uint256 interest_);
+    event FeesPaid(uint16 indexed loanId_, uint256 adminFee_, uint256 protocolFee_);
+    event FundsDistributed(uint16 indexed loanId_, uint256 principal_, uint256 netInterest_);
+    event PaymentRemoved(uint16 indexed loanId_, uint256 indexed paymentId_);
+    event FundsWithdrawn(uint16 indexed loanId_, uint256 amount_);
+    event UnrealizedLossesUpdated(uint128 unrealizedLosses_);
+    event LoanImpaired(uint16 indexed loanId_, uint256 newDueDate_);
+    event ImpairmentRemoved(uint16 indexed loanId_, uint256 originalPaymentDueDate_);
+
     event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
 
     // Pool configurator events

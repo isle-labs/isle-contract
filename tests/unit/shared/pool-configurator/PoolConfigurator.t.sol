@@ -19,7 +19,7 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
         Base_Test.setUp();
 
         _params.baseRate = defaults.BASE_RATE();
-        _params.adminFee = defaults.ADMIN_FEE();
+        _params.adminFee = defaults.ADMIN_FEE_RATE();
         _params.gracePeriod = defaults.GRACE_PERIOD();
         _params.openToPublic = defaults.OPEN_TO_PUBLIC();
 

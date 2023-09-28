@@ -17,9 +17,9 @@ contract Defaults is Constants {
 
     uint256 public constant DELTA = 1e6;
 
-    uint104 public constant POOL_LIMIT = 1_000_000e6;
-    uint256 public constant POOL_SHARES = 1000e6;
-    uint256 public constant POOL_ASSETS = 1500e6; // note: must be larger than POOL_SHARES, see setupPool()
+    uint104 public constant POOL_LIMIT = 5_000_000e6;
+    uint256 public constant POOL_SHARES = 1_000_000e6;
+    uint256 public constant POOL_ASSETS = 1_500_000e6; // note: must be larger than POOL_SHARES, see initializePool()
 
     uint8 public constant UNDERLYING_DECIMALS = 6;
     uint8 public constant DECIMALS_OFFSET = 0;
@@ -33,11 +33,12 @@ contract Defaults is Constants {
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
-    uint24 public constant ADMIN_FEE = 1000; // 10%
+    uint24 public constant ADMIN_FEE_RATE = 0.1e6; // 10%
+    uint24 public constant PROTOCOL_FEE_RATE = 0.005e6; // 0.5%
 
     // Pool Configurator
-    uint96 public constant BASE_RATE = 5000; // 10%
-    uint32 public constant GRACE_PERIOD = 3 days;
+    uint96 public constant BASE_RATE = 0.1e6; // 10%
+    uint32 public constant GRACE_PERIOD = 7 days;
     bool public constant OPEN_TO_PUBLIC = true;
 
     // Pool
@@ -45,9 +46,13 @@ contract Defaults is Constants {
     string public constant POOL_SYMBOL = "BGS";
 
     // Receivable
-    uint256 public constant FACE_AMOUNT = 100e6;
+    uint256 public constant RECEIVABLE_TOKEN_ID = 0;
+    uint256 public constant FACE_AMOUNT = 100_000e6;
     uint256 public immutable REPAYMENT_TIMESTAMP;
     uint16 public constant CURRENCY_CODE = 804;
+
+    uint256 public constant MAY_31_2023 = MAY_1_2023 + 30 days;
+    uint256 public constant PERIOD = 30 days;
 
     // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
     uint256 public constant ASSETS = 1_000_000;
@@ -77,6 +82,30 @@ contract Defaults is Constants {
     string public constant MARKET_ID = "BSOS Green Finance";
     string public constant NEW_MARKET_ID = "BSOS Green Finance 2";
     address public immutable NEW_IMPLEMENTATION;
+
+    // For loan manager
+    uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
+    uint256 public constant INTEREST_RATE = 0.12e6;
+    uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;
+
+    // e6 * e18 / e6 = e18
+    uint256 public constant PERIODIC_INTEREST_RATE = uint256(INTEREST_RATE) * (1e18 / 1e6) * 30 days / 365 days;
+    // e6 * e18 / e18 = e6
+    uint256 public constant INTEREST = PRINCIPAL_REQUESTED * PERIODIC_INTEREST_RATE / 1e18;
+    // e6 * e6 / e6 = e6
+    uint256 public constant NET_INTEREST_ZERO_FEE_RATE = INTEREST * (1e6 - 0e6) / 1e6;
+    // e6 * e27 / seconds = e33 / seconds
+    uint256 public constant NEW_RATE_ZERO_FEE_RATE = NET_INTEREST_ZERO_FEE_RATE * 1e27 / 30 days;
+
+    // ((MAY_31_2023 + 9 days + 1 - MAY_31_2023 + (1 days - 1)) / 1 days) * 1 days
+    uint256 public constant FULL_DAYS_LATE = 10 days;
+    uint256 public constant LATE_PERIODIC_INTEREST_RATE =
+        uint256(INTEREST_RATE + LATE_INTEREST_PREMIUM_RATE) * (1e18 / 1e6) * FULL_DAYS_LATE / 365 days;
+    uint256 public constant LATE_INTEREST = PRINCIPAL_REQUESTED * LATE_PERIODIC_INTEREST_RATE / 1e18;
+
+    uint256 public constant ADMIN_FEE = INTEREST * ADMIN_FEE_RATE / 1e6;
+    uint256 public constant PROTOCOL_FEE = INTEREST * PROTOCOL_FEE_RATE / 1e6;
+    uint256 public constant NET_INTEREST = INTEREST - ADMIN_FEE - PROTOCOL_FEE;
 
     // For function paused tests
     address public constant PAUSED_CONTRACT = address(0x1);

@@ -1,0 +1,19 @@
+removeLoanImpairment.t.sol
+├── when the function is paused
+│  └── it should revert
+└── when the function is not paused
+   ├── when caller is not the pool admin or governor
+   │  └── it should revert
+   └── when caller is the pool admin or governor
+      ├── when the payment id of the loan is 0
+      │  └── it should revert
+      └── when the payment id of the loan is not 0
+         ├── when the loan is not impaired
+         │  └── it should revert
+         └── when the loan is impaired
+            ├── when the block timestamp is greater than the original due date of the loan
+            │  └── it should revert
+            └── when the block timestamp is less than or equal to the original due date of the loan
+               ├── it should emit a {UnrealizedLossesUpdated} event
+               ├── it should emit a {IssuanceParamsUpdated} event
+               └── it should emit a {ImpairmentRemoved} event
