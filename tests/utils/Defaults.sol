@@ -33,11 +33,11 @@ contract Defaults is Constants {
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
-    uint24 public constant ADMIN_FEE = 1000; // 10%
+    uint24 public constant ADMIN_FEE_RATE = 1000; // 10%
 
     // Pool Configurator
     uint96 public constant BASE_RATE = 5000; // 10%
-    uint32 public constant GRACE_PERIOD = 3 days;
+    uint32 public constant GRACE_PERIOD = 7 days;
     bool public constant OPEN_TO_PUBLIC = true;
 
     // Pool
@@ -45,6 +45,7 @@ contract Defaults is Constants {
     string public constant POOL_SYMBOL = "BGS";
 
     // Receivable
+    uint256 public constant RECEIVABLE_TOKEN_ID = 0;
     uint256 public constant FACE_AMOUNT = 100e6;
     uint256 public immutable REPAYMENT_TIMESTAMP;
     uint16 public constant CURRENCY_CODE = 804;
@@ -81,19 +82,12 @@ contract Defaults is Constants {
     string public constant NEW_MARKET_ID = "BSOS Green Finance 2";
     address public immutable NEW_IMPLEMENTATION;
 
-    // For Receivable
-    uint256 public constant RECEIVABLE_TOKEN_ID = 0;
-    uint256 public constant FACE_AMOUNT = 100_000e6;
-    uint16 public constant CURRENCY_CODE = 804;
-
     // For loan manager
     uint256 public constant POOL_LIQUIDITY = 1_000_000e6;
 
     uint256 public constant PROTOCOL_FEE_RATE = 0.005e6;
-    uint256 public constant ADMIN_FEE_RATE = 0.1e6;
 
     uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
-    uint256 public constant GRACE_PERIOD = 7 days;
     uint256 public constant INTEREST_RATE = 0.12e6;
     uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;
 
