@@ -6,6 +6,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
+import { Globals } from "./libraries/types/DataTypes.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
 
@@ -50,8 +51,8 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => bool) public override isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public override isFunctionUnpaused;
 
-    mapping(address => PoolAdmin) public override poolAdmins;
-    mapping(address => PoolConfigurator) public override poolConfigurators;
+    mapping(address => Globals.PoolAdmin) public override poolAdmins;
+    mapping(address => Globals.PoolConfigurator) public override poolConfigurators;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
 

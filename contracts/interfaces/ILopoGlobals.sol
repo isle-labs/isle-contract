@@ -10,23 +10,6 @@ import { ILopoGlobalsEvents } from "./ILopoGlobalsEvents.sol";
 /// @notice This interface provides functions for managing the global settings of the Lopo protocol
 interface ILopoGlobals is ILopoGlobalsEvents {
     /*//////////////////////////////////////////////////////////////////////////
-                                Struct
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Struct representing a pool admin
-    struct PoolAdmin {
-        bool isPoolAdmin; // Slot 1: bool - 1 byte
-        address ownedPoolConfigurator; //         address - 20 byte
-    }
-
-    /// @notice Struct representing a pool configurator
-    struct PoolConfigurator {
-        uint24 maxCoverLiquidation; // Slot 1: uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6
-        uint104 minCover; //         uint104 - 13 byte: max = 2e31 / precision: 10e18
-        uint104 poolLimit; //         uint128 - 16 byte: max = 3.4e38 / precision: 10e18
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                             INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
 
