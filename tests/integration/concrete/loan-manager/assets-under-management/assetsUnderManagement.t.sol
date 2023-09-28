@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { LoanManager_Integration_Concrete_Test } from "../loanManager.t.sol";
+import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
 
 contract AssetsUnderManagement_Integration_Concrete_Test is
