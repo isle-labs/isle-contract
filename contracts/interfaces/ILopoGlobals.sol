@@ -71,20 +71,9 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @param isValid_   A boolean indicating the validity of the pool asset.
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
 
-<<<<<<< HEAD
-    function setRiskFreeRate(uint256 riskFreeRate_) external;
-
-    function setMinPoolLiquidityRatio(UD60x18 minPoolLiquidityRatio_) external;
-
-    function setMinDepositLimit(address poolManager_, UD60x18 minDepositLimit_) external;
-
-    function protocolFeeRate(address poolConfigurator_) external view returns (uint256 protocolFeeRate_);
-
-=======
     /// @notice Sets the validity of a pool admin.
     /// @param poolAdmin_ The address of the pool admin to set the validity for.
     /// @param isValid_   A boolean indicating the validity of the pool admin.
->>>>>>> main
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
     /// @notice Sets the pool configurator that is owned by the pool admin.
