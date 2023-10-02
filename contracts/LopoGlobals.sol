@@ -71,7 +71,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc ILopoGlobals
     function setLopoVault(address vault_) external override onlyGovernor {
-        if (lopoVault == address(0)) {
+        if (vault_ == address(0)) {
             revert Errors.Globals_InvalidVault(vault_);
         }
         emit LopoVaultSet(lopoVault, vault_);
