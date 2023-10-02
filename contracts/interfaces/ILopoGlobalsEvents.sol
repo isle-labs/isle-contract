@@ -31,7 +31,7 @@ interface ILopoGlobalsEvents {
 
     /// @dev Emitted when the protocol fee has been set.
     /// @param protocolFee_ The new protocol fee value.
-    event ProtocolFeeSet(uint256 protocolFee_);
+    event ProtocolFeeSet(uint24 protocolFee_);
 
     /// @dev   A valid asset was set.
     /// @param collateralAsset_ The address of the collateral asset.
