@@ -1,0 +1,6 @@
+setMinCover.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── it should emit a {MinCoverSet} event
+   └── it should set the minimum cover for the specific pool configurator

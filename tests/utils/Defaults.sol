@@ -17,7 +17,6 @@ contract Defaults is Constants {
 
     uint256 public constant DELTA = 1e6;
 
-    uint104 public constant POOL_LIMIT = 5_000_000e6;
     uint256 public constant POOL_SHARES = 1_000_000e6;
     uint256 public constant POOL_ASSETS = 1_500_000e6; // note: must be larger than POOL_SHARES, see initializePool()
 
@@ -30,11 +29,15 @@ contract Defaults is Constants {
     uint256 public constant MINT_AMOUNT = 100_000e6;
     uint256 public constant COVER_AMOUNT = 10_000e6;
     uint256 public constant WITHDRAW_COVER_AMOUNT = 100e6;
-    uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint256 public constant REDEEM_SHARES = 100e6;
     uint256 public constant PRINCIPAL = 100e6;
     uint24 public constant ADMIN_FEE_RATE = 0.1e6; // 10%
     uint24 public constant PROTOCOL_FEE_RATE = 0.005e6; // 0.5%
+
+    // Lopo Globals
+    uint24 public constant MAX_COVER_LIQUIDATION = 0.5e6; // 50%
+    uint104 public constant MIN_COVER_AMOUNT = 10e6;
+    uint104 public constant POOL_LIMIT = 5_000_000e6;
 
     // Pool Configurator
     uint96 public constant BASE_RATE = 0.1e6; // 10%

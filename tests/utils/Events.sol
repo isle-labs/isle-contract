@@ -2,6 +2,33 @@
 pragma solidity ^0.8.19;
 
 abstract contract Events {
+    // LopoGlobals events
+    event LopoVaultSet(address indexed previousLopoVault_, address indexed currentLopoVault_);
+
+    event ProtocolPausedSet(address indexed caller_, bool protocolPaused_);
+
+    event ContractPausedSet(address indexed caller_, address indexed contract_, bool contractPaused_);
+
+    event FunctionUnpausedSet(
+        address indexed caller_, address indexed contract_, bytes4 indexed sig_, bool functionUnpaused_
+    );
+
+    event ProtocolFeeSet(uint24 protocolFee_);
+
+    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
+
+    event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
+
+    event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
+
+    event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
+
+    event MaxCoverLiquidationSet(address indexed poolManager_, uint24 maxCoverLiquidation_);
+
+    event MinCoverSet(address indexed poolConfigurator_, uint104 indexed minCover_);
+
+    event PoolLimitSet(address indexed poolConfigurator_, uint104 poolLimit_);
+
     // Pool events
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
     event Withdraw(

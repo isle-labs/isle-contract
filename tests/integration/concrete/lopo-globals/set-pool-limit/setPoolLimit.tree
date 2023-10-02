@@ -1,0 +1,6 @@
+setPoolLimit.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── it should emit a {PoolLimitSet} event
+   └── it should set the limit of the pool's capacity for the specific pool configurator
