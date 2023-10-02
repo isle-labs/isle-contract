@@ -103,8 +103,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc ILopoGlobals
     function setProtocolFee(uint24 protocolFee_) external override onlyGovernor {
-        emit ProtocolFeeSet(protocolFee_);
-        protocolFee = protocolFee_;
+        emit ProtocolFeeSet(protocolFee = protocolFee_);
     }
 
     /// @inheritdoc ILopoGlobals
