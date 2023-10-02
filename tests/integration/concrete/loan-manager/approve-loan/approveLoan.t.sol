@@ -33,7 +33,7 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
 
         vm.expectRevert(
             abi.encodeWithSelector(

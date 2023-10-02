@@ -18,7 +18,7 @@ contract IsFunctionPaused_Integration_Concrete_Test is
     }
 
     function test_IsFunctionPaused_WhenContractPaused() external whenFunctionNotUnpaused {
-        lopoGlobals.setContractPause(defaults.PAUSED_CONTRACT(), true);
+        lopoGlobals.setContractPaused(defaults.PAUSED_CONTRACT(), true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 

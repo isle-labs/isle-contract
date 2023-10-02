@@ -49,7 +49,7 @@ interface ILopoGlobals is ILopoGlobalsEvents {
     /// @notice Sets the pause status of a specific contract
     /// @param contract_ The address of the contract to set the pause status for
     /// @param contractPaused_ A boolean indicating the pause status of the contract
-    function setContractPause(address contract_, bool contractPaused_) external;
+    function setContractPaused(address contract_, bool contractPaused_) external;
 
     /// @notice Sets the unpause status of a specific function in a contract
     /// @param contract_ The address of the contract

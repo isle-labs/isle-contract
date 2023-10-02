@@ -84,7 +84,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     }
 
     /// @inheritdoc ILopoGlobals
-    function setContractPause(address contract_, bool contractPaused_) external override onlyGovernor {
+    function setContractPaused(address contract_, bool contractPaused_) external override onlyGovernor {
         emit ContractPausedSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
     }
 
