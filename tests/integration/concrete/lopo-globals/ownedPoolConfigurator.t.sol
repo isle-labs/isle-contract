@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { LopoGlobals_Integration_Concrete_Test } from "./lopoGlobals.t.sol";
+import { LopoGlobals_Integration_Concrete_Test } from "./LopoGlobals.t.sol";
 
 contract OwnedPoolConfigurator_Integration_Concrete_Test is LopoGlobals_Integration_Concrete_Test {
     function setUp() public virtual override(LopoGlobals_Integration_Concrete_Test) {

@@ -143,7 +143,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc IERC721Receiver
-    function onERC721Received(address, address, uint256, bytes calldata) external override pure returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
     }
 
