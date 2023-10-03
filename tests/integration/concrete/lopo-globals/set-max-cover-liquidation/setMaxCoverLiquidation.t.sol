@@ -22,7 +22,6 @@ contract SetMaxCoverLiquidation_Integration_Concrete_Test is
     }
 
     function test_SetMaxCoverLiquidation() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit MaxCoverLiquidationSet(address(poolConfigurator), defaults.MAX_COVER_LIQUIDATION());
         lopoGlobals.setMaxCoverLiquidation(address(poolConfigurator), defaults.MAX_COVER_LIQUIDATION());

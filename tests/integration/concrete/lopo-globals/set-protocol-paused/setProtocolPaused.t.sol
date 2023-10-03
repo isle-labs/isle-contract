@@ -21,7 +21,6 @@ contract SetProtocolPaused_Integration_Concrete_Test is
     }
 
     function test_SetProtocolPaused() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ProtocolPausedSet(users.governor, true);
         lopoGlobals.setProtocolPaused(true);

@@ -33,13 +33,11 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_PoolAdminNotValid() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_ToInvalidPoolAdmin.selector, users.eve));
         lopoGlobals.setPoolConfigurator(users.eve, address(poolConfigurator));
     }
 
     function test_RevertWhen_PoolAdminAlreadyOwnPoolConfigurator() external WhenCallerGovernor WhenPoolAdminIsValid {
-        changePrank(users.governor);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.Globals_AlreadyHasConfigurator.selector, users.poolAdmin, address(poolConfigurator)
@@ -54,7 +52,6 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
         WhenPoolAdminIsValid
         WhenPoolAdminDoNotOwnPoolConfigurator
     {
-        changePrank(users.governor);
         // onboard users.caller as pool admin
         lopoGlobals.setValidPoolAdmin(users.caller, true);
 
@@ -69,7 +66,6 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
         WhenPoolAdminDoNotOwnPoolConfigurator
         WhenPoolConfiguratorIsNotZeroAddress
     {
-        changePrank(users.governor);
         // onboard users.caller as pool admin
         lopoGlobals.setValidPoolAdmin(users.caller, true);
 

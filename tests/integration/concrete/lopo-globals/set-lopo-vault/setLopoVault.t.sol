@@ -25,13 +25,11 @@ contract SetLopoVault_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_VaultIsZeroAddress() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
         lopoGlobals.setLopoVault(address(0));
     }
 
     function test_SetLopoVault() external WhenCallerGovernor WhenVaultIsNotZeroAddress {
-        changePrank(users.governor);
         address previousVault = lopoGlobals.lopoVault();
 
         vm.expectEmit(true, true, true, true);

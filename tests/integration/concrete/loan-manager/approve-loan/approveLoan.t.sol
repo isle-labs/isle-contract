@@ -47,6 +47,7 @@ contract ApproveLoan_Integration_Concrete_Test is
     function test_RevertWhen_CollateralAssetNotAllowed() external WhenNotPaused {
         changePrank(users.governor);
         lopoGlobals.setValidCollateralAsset(address(receivable), false);
+
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CollateralAssetNotAllowed.selector, address(receivable))
         );

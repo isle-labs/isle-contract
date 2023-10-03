@@ -41,7 +41,6 @@ contract ImpairLoan_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_LoanIsImpaired() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
-        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanImpaired.selector, 1));
@@ -54,7 +53,6 @@ contract ImpairLoan_Integration_Concrete_Test is
         WhenCallerPoolAdminOrGovernor
         WhenLoanIsNotImpaired
     {
-        changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.impairLoan(0);
     }
@@ -67,7 +65,6 @@ contract ImpairLoan_Integration_Concrete_Test is
         WhenPaymentIdIsNotZero
     {
         vm.warp(MAY_1_2023 + 10 days);
-        changePrank(users.poolAdmin);
 
         uint112 accountedInterest = uint112(defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days / 1e27);
 

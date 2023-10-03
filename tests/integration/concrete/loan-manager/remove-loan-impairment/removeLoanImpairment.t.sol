@@ -47,7 +47,6 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_PaymentIdIsZero() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
-        changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.removeLoanImpairment(0);
     }
@@ -58,7 +57,6 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         WhenCallerPoolAdminOrGovernor
         WhenPaymentIdIsNotZero
     {
-        changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanNotImpaired.selector, 1));
         loanManager.removeLoanImpairment(1);
     }
@@ -70,7 +68,6 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         WhenPaymentIdIsNotZero
         WhenLoanIsImpaired
     {
-        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.warp(defaults.MAY_31_2023() + 1);
@@ -93,7 +90,6 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
     {
         vm.warp(MAY_1_2023 + 10 days);
 
-        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.warp(MAY_1_2023 + 15 days);

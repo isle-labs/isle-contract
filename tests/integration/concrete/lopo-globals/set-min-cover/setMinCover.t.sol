@@ -22,7 +22,6 @@ contract SetMinCover_Integration_Concrete_Test is
     }
 
     function test_SetMinCover() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit MinCoverSet(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());
         lopoGlobals.setMinCover(address(poolConfigurator), defaults.MIN_COVER_AMOUNT());

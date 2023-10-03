@@ -48,7 +48,6 @@ contract TriggerDefault_Integration_Concrete_Test is
         WhenCallerPoolAdmin
     {
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD());
-        changePrank(users.poolAdmin);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotPastDueDatePlusGracePeriod.selector, 1));
         loanManager.triggerDefault(1);
@@ -60,7 +59,6 @@ contract TriggerDefault_Integration_Concrete_Test is
         WhenCallerPoolAdmin
         WhenBlockTimestampGreaterThanDueDatePlusGracePeriod
     {
-        changePrank(users.poolAdmin);
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.triggerDefault(0);

@@ -22,7 +22,6 @@ contract SetPoolLimit_Integration_Concrete_Test is
     }
 
     function test_SetPoolLimit() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit PoolLimitSet(address(poolConfigurator), defaults.POOL_LIMIT());
         lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());

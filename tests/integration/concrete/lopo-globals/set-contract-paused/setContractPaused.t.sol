@@ -21,7 +21,6 @@ contract SetContractPaused_Integration_Concrete_Test is
     }
 
     function test_SetContractPaused() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ContractPausedSet(users.governor, address(loanManager), true);
         lopoGlobals.setContractPaused(address(loanManager), true);

@@ -21,7 +21,6 @@ contract SetValidCollateralAsset_Integration_Concrete_Test is
     }
 
     function test_SetValidCollateralAsset() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ValidCollateralAssetSet(address(receivable), true);
         lopoGlobals.setValidCollateralAsset(address(receivable), true);

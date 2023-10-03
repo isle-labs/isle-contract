@@ -21,7 +21,6 @@ contract SetValidPoolAsset_Integration_Concrete_Test is
     }
 
     function test_SetValidPoolAsset() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAssetSet(address(usdc), true);
         lopoGlobals.setValidPoolAsset(address(usdc), true);

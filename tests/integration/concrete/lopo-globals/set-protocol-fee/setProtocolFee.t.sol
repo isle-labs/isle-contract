@@ -22,7 +22,6 @@ contract SetProtocolFee_Integration_Concrete_Test is
     }
 
     function test_SetProtocolFee() external WhenCallerGovernor {
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ProtocolFeeSet(defaults.PROTOCOL_FEE_RATE());
         lopoGlobals.setProtocolFee(defaults.PROTOCOL_FEE_RATE());

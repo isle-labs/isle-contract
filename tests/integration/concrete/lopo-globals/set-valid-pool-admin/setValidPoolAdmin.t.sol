@@ -23,7 +23,6 @@ contract SetValidPoolAdmin_Integration_Concrete_Test is
     function test_SetValidPoolAdmin() external WhenCallerGovernor {
         assertEq(lopoGlobals.isPoolAdmin(address(users.poolAdmin)), true);
 
-        changePrank(users.governor);
         vm.expectEmit(true, true, true, true);
         emit ValidPoolAdminSet(address(users.poolAdmin), false);
         lopoGlobals.setValidPoolAdmin(address(users.poolAdmin), false);
