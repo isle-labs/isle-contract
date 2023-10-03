@@ -22,7 +22,7 @@ contract SetFunctionUnpaused_Integration_Concrete_Test is
         lopoGlobals.setFunctionUnpaused(pausedContract, pausedFunctionSig, true);
     }
 
-    function test_SetFunctionUnpaused() external WhenCallerGovernor {
+    function test_SetFunctionUnpaused() external whenCallerGovernor {
         vm.expectEmit(true, true, true, true);
         emit FunctionUnpausedSet(users.governor, defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), true);
         lopoGlobals.setFunctionUnpaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG(), true);

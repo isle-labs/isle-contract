@@ -15,19 +15,19 @@ contract ApproveLoan_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
     }
 
-    modifier WhenCallerReceivableBuyer() {
+    modifier whenCallerReceivableBuyer() {
         _;
     }
 
-    modifier WhenCollateralAssetAllowed() {
+    modifier whenCollateralAssetAllowed() {
         _;
     }
 
-    modifier WhenReceivableValid() {
+    modifier whenReceivableValid() {
         _;
     }
 
-    modifier WhenPrincipalRequestedLessThanFaceAmount() {
+    modifier whenPrincipalRequestedLessThanFaceAmount() {
         _;
     }
 
@@ -44,7 +44,7 @@ contract ApproveLoan_Integration_Concrete_Test is
         loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CollateralAssetNotAllowed() external WhenNotPaused {
+    function test_RevertWhen_CollateralAssetNotAllowed() external whenNotPaused {
         changePrank(users.governor);
         lopoGlobals.setValidCollateralAsset(address(receivable), false);
 
@@ -54,7 +54,7 @@ contract ApproveLoan_Integration_Concrete_Test is
         loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CallerNotReceivableBuyer() external WhenNotPaused WhenCollateralAssetAllowed {
+    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenCollateralAssetAllowed {
         createReceivable(defaults.FACE_AMOUNT());
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CallerNotReceivableBuyer.selector, address(users.buyer))
@@ -64,9 +64,9 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_ReceivableInvalid()
         external
-        WhenNotPaused
-        WhenCollateralAssetAllowed
-        WhenCallerReceivableBuyer
+        whenNotPaused
+        whenCollateralAssetAllowed
+        whenCallerReceivableBuyer
     {
         createReceivable(defaults.FACE_AMOUNT());
 
@@ -81,10 +81,10 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_PrincipalRequestedGreaterThanFaceAmount()
         external
-        WhenNotPaused
-        WhenCollateralAssetAllowed
-        WhenCallerReceivableBuyer
-        WhenReceivableValid
+        whenNotPaused
+        whenCollateralAssetAllowed
+        whenCallerReceivableBuyer
+        whenReceivableValid
     {
         uint256 receivablesTokenId = createReceivable(defaults.FACE_AMOUNT());
         changePrank(users.buyer);
@@ -100,11 +100,11 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_approveLoan()
         external
-        WhenNotPaused
-        WhenCollateralAssetAllowed
-        WhenCallerReceivableBuyer
-        WhenReceivableValid
-        WhenPrincipalRequestedLessThanFaceAmount
+        whenNotPaused
+        whenCollateralAssetAllowed
+        whenCallerReceivableBuyer
+        whenReceivableValid
+        whenPrincipalRequestedLessThanFaceAmount
     {
         uint256 receivablesTokenId = createReceivable(defaults.FACE_AMOUNT());
         changePrank(users.buyer);

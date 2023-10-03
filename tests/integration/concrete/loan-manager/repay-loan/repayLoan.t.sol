@@ -17,7 +17,7 @@ contract RepayLoan_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
     }
 
-    modifier WhenSellerWithdrawFunds() {
+    modifier whenSellerWithdrawFunds() {
         _;
     }
 
@@ -30,7 +30,7 @@ contract RepayLoan_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenSellerNotWithdrawFunds() external WhenNotPaused {
+    function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
@@ -73,7 +73,7 @@ contract RepayLoan_Integration_Concrete_Test is
         assertEq(poolBalanceAfter - poolBalanceBefore, defaults.NET_INTEREST());
     }
 
-    function test_RepayLoan() external WhenNotPaused WhenSellerWithdrawFunds {
+    function test_RepayLoan() external whenNotPaused whenSellerWithdrawFunds {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 

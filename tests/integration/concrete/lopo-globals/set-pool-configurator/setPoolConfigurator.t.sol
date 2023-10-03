@@ -14,15 +14,15 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
         LopoGlobals_Integration_Concrete_Test.setUp();
     }
 
-    modifier WhenPoolAdminIsValid() {
+    modifier whenPoolAdminIsValid() {
         _;
     }
 
-    modifier WhenPoolAdminDoNotOwnPoolConfigurator() {
+    modifier whenPoolAdminDoNotOwnPoolConfigurator() {
         _;
     }
 
-    modifier WhenPoolConfiguratorIsNotZeroAddress() {
+    modifier whenPoolConfiguratorIsNotZeroAddress() {
         _;
     }
 
@@ -32,12 +32,12 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
         lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
     }
 
-    function test_RevertWhen_PoolAdminNotValid() external WhenCallerGovernor {
+    function test_RevertWhen_PoolAdminNotValid() external whenCallerGovernor {
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_ToInvalidPoolAdmin.selector, users.eve));
         lopoGlobals.setPoolConfigurator(users.eve, address(poolConfigurator));
     }
 
-    function test_RevertWhen_PoolAdminAlreadyOwnPoolConfigurator() external WhenCallerGovernor WhenPoolAdminIsValid {
+    function test_RevertWhen_PoolAdminAlreadyOwnPoolConfigurator() external whenCallerGovernor whenPoolAdminIsValid {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.Globals_AlreadyHasConfigurator.selector, users.poolAdmin, address(poolConfigurator)
@@ -48,9 +48,9 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
 
     function test_RevertWhen_PoolConfiguratorIsZeroAddress()
         external
-        WhenCallerGovernor
-        WhenPoolAdminIsValid
-        WhenPoolAdminDoNotOwnPoolConfigurator
+        whenCallerGovernor
+        whenPoolAdminIsValid
+        whenPoolAdminDoNotOwnPoolConfigurator
     {
         // onboard users.caller as pool admin
         lopoGlobals.setValidPoolAdmin(users.caller, true);
@@ -61,10 +61,10 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
 
     function test_SetPoolConfigurator()
         external
-        WhenCallerGovernor
-        WhenPoolAdminIsValid
-        WhenPoolAdminDoNotOwnPoolConfigurator
-        WhenPoolConfiguratorIsNotZeroAddress
+        whenCallerGovernor
+        whenPoolAdminIsValid
+        whenPoolAdminDoNotOwnPoolConfigurator
+        whenPoolConfiguratorIsNotZeroAddress
     {
         // onboard users.caller as pool admin
         lopoGlobals.setValidPoolAdmin(users.caller, true);

@@ -17,15 +17,15 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         createLoan();
     }
 
-    modifier WhenPaymentIdIsNotZero() {
+    modifier whenPaymentIdIsNotZero() {
         _;
     }
 
-    modifier WhenLoanIsImpaired() {
+    modifier whenLoanIsImpaired() {
         _;
     }
 
-    modifier WhenBlockTimestampIsLessThanOrEqualToOriginalDueDate() {
+    modifier whenBlockTimestampIsLessThanOrEqualToOriginalDueDate() {
         _;
     }
 
@@ -40,22 +40,22 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         loanManager.removeLoanImpairment(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, address(users.caller)));
         loanManager.removeLoanImpairment(1);
     }
 
-    function test_RevertWhen_PaymentIdIsZero() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
+    function test_RevertWhen_PaymentIdIsZero() external whenNotPaused whenCallerPoolAdminOrGovernor {
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.removeLoanImpairment(0);
     }
 
     function test_RevertWhen_LoanIsNotImpaired()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanNotImpaired.selector, 1));
         loanManager.removeLoanImpairment(1);
@@ -63,10 +63,10 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
 
     function test_RevertWhen_BlockTimestampIsGreaterThanOriginalDueDate()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
-        WhenLoanIsImpaired
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
+        whenLoanIsImpaired
     {
         loanManager.impairLoan(1);
 
@@ -82,11 +82,11 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
 
     function test_RemoveLoanImpairment()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
-        WhenLoanIsImpaired
-        WhenBlockTimestampIsLessThanOrEqualToOriginalDueDate
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
+        whenLoanIsImpaired
+        whenBlockTimestampIsLessThanOrEqualToOriginalDueDate
     {
         vm.warp(MAY_1_2023 + 10 days);
 

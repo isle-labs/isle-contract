@@ -20,7 +20,7 @@ contract SetProtocolPaused_Integration_Concrete_Test is
         lopoGlobals.setProtocolPaused(true);
     }
 
-    function test_SetProtocolPaused() external WhenCallerGovernor {
+    function test_SetProtocolPaused() external whenCallerGovernor {
         vm.expectEmit(true, true, true, true);
         emit ProtocolPausedSet(users.governor, true);
         lopoGlobals.setProtocolPaused(true);

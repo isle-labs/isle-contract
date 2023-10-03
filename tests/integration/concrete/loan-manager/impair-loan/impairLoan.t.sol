@@ -17,11 +17,11 @@ contract ImpairLoan_Integration_Concrete_Test is
         createLoan();
     }
 
-    modifier WhenLoanIsNotImpaired() {
+    modifier whenLoanIsNotImpaired() {
         _;
     }
 
-    modifier WhenPaymentIdIsNotZero() {
+    modifier whenPaymentIdIsNotZero() {
         _;
     }
 
@@ -34,13 +34,13 @@ contract ImpairLoan_Integration_Concrete_Test is
         loanManager.impairLoan(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, address(users.caller)));
         loanManager.impairLoan(1);
     }
 
-    function test_RevertWhen_LoanIsImpaired() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
+    function test_RevertWhen_LoanIsImpaired() external whenNotPaused whenCallerPoolAdminOrGovernor {
         loanManager.impairLoan(1);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanImpaired.selector, 1));
@@ -49,9 +49,9 @@ contract ImpairLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_PaymentIdIsZero()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenLoanIsNotImpaired
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenLoanIsNotImpaired
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.impairLoan(0);
@@ -59,10 +59,10 @@ contract ImpairLoan_Integration_Concrete_Test is
 
     function test_impairLoan()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenLoanIsNotImpaired
-        WhenPaymentIdIsNotZero
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenLoanIsNotImpaired
+        whenPaymentIdIsNotZero
     {
         vm.warp(MAY_1_2023 + 10 days);
 

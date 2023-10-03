@@ -14,7 +14,7 @@ contract SetLopoVault_Integration_Concrete_Test is
         LopoGlobals_Integration_Concrete_Test.setUp();
     }
 
-    modifier WhenVaultIsNotZeroAddress() {
+    modifier whenVaultIsNotZeroAddress() {
         _;
     }
 
@@ -24,12 +24,12 @@ contract SetLopoVault_Integration_Concrete_Test is
         lopoGlobals.setLopoVault(address(0));
     }
 
-    function test_RevertWhen_VaultIsZeroAddress() external WhenCallerGovernor {
+    function test_RevertWhen_VaultIsZeroAddress() external whenCallerGovernor {
         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
         lopoGlobals.setLopoVault(address(0));
     }
 
-    function test_SetLopoVault() external WhenCallerGovernor WhenVaultIsNotZeroAddress {
+    function test_SetLopoVault() external whenCallerGovernor whenVaultIsNotZeroAddress {
         address previousVault = lopoGlobals.lopoVault();
 
         vm.expectEmit(true, true, true, true);

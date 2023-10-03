@@ -21,7 +21,7 @@ contract SetPoolLimit_Integration_Concrete_Test is
         lopoGlobals.setPoolLimit(address(poolConfigurator), poolLimit);
     }
 
-    function test_SetPoolLimit() external WhenCallerGovernor {
+    function test_SetPoolLimit() external whenCallerGovernor {
         vm.expectEmit(true, true, true, true);
         emit PoolLimitSet(address(poolConfigurator), defaults.POOL_LIMIT());
         lopoGlobals.setPoolLimit(address(poolConfigurator), defaults.POOL_LIMIT());

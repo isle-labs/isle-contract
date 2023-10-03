@@ -24,13 +24,13 @@ contract FundLoan_Integration_Concrete_Test is
         loanManager.fundLoan(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdmin() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdmin() external whenNotPaused {
         changePrank(users.governor);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdmin.selector, address(users.governor)));
         loanManager.fundLoan(1);
     }
 
-    function test_FundLoan() external WhenNotPaused WhenCallerPoolAdmin {
+    function test_FundLoan() external whenNotPaused whenCallerPoolAdmin {
         uint256 receivableTokenId = createReceivable(defaults.FACE_AMOUNT());
 
         changePrank(users.buyer);
