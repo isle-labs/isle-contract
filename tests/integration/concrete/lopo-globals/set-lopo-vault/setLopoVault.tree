@@ -1,0 +1,9 @@
+setLopoVault.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── when the input vault address is zero address
+   │  └── it should revert
+   └── when the input vault address is not zero address
+      ├── it should emit a {LopoVaultSet} event
+      └── it should set the vault address

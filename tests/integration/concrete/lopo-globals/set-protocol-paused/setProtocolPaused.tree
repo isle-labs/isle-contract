@@ -1,0 +1,6 @@
+setProtocolPaused.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── it should set the protocol paused state
+   └── it should emit a {ProtocolPausedSet} event

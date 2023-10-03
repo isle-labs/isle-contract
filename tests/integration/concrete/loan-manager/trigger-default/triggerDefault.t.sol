@@ -17,17 +17,17 @@ contract TriggerDefault_Integration_Concrete_Test is
         createDefaultLoan();
     }
 
-    modifier WhenBlockTimestampGreaterThanDueDatePlusGracePeriod() {
+    modifier whenBlockTimestampGreaterThanDueDatePlusGracePeriod() {
         _;
     }
 
-    modifier WhenPaymentIdIsNotZero() {
+    modifier whenPaymentIdIsNotZero() {
         _;
     }
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
 
         changePrank(users.poolAdmin);
         vm.expectRevert(
@@ -36,7 +36,7 @@ contract TriggerDefault_Integration_Concrete_Test is
         loanManager.triggerDefault(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdmin() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdmin() external whenNotPaused {
         changePrank(users.governor);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdmin.selector, address(users.governor)));
         loanManager.triggerDefault(1);
@@ -44,11 +44,10 @@ contract TriggerDefault_Integration_Concrete_Test is
 
     function test_RevertWhen_BlockTimestampLessThanOrEqualToDueDatePlusGracePeriod()
         external
-        WhenNotPaused
-        WhenCallerPoolAdmin
+        whenNotPaused
+        whenCallerPoolAdmin
     {
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD());
-        changePrank(users.poolAdmin);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotPastDueDatePlusGracePeriod.selector, 1));
         loanManager.triggerDefault(1);
@@ -56,11 +55,10 @@ contract TriggerDefault_Integration_Concrete_Test is
 
     function test_RevertWhen_PaymentIdIsZero()
         external
-        WhenNotPaused
-        WhenCallerPoolAdmin
-        WhenBlockTimestampGreaterThanDueDatePlusGracePeriod
+        whenNotPaused
+        whenCallerPoolAdmin
+        whenBlockTimestampGreaterThanDueDatePlusGracePeriod
     {
-        changePrank(users.poolAdmin);
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 1);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.triggerDefault(0);
@@ -68,10 +66,10 @@ contract TriggerDefault_Integration_Concrete_Test is
 
     function test_TriggerDefault()
         external
-        WhenNotPaused
-        WhenCallerPoolAdmin
-        WhenBlockTimestampGreaterThanDueDatePlusGracePeriod
-        WhenPaymentIdIsNotZero
+        whenNotPaused
+        whenCallerPoolAdmin
+        whenBlockTimestampGreaterThanDueDatePlusGracePeriod
+        whenPaymentIdIsNotZero
     {
         // 10 days late = 30 days + (7 days grace period + 2 days + 1s)
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 2 days + 1);

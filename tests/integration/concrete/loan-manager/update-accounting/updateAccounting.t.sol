@@ -17,18 +17,18 @@ contract UpdateAccounting_Integration_Concrete_Test is
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
         vm.expectRevert(abi.encodeWithSelector(Errors.FunctionPaused.selector, bytes4(keccak256("updateAccounting()"))));
         loanManager.updateAccounting();
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, users.caller));
         loanManager.updateAccounting();
     }
 
-    function test_UpdateAccounting() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
+    function test_UpdateAccounting() external whenNotPaused whenCallerPoolAdminOrGovernor {
         assertEq(loanManager.accruedInterest(), 0);
 
         createDefaultLoan();

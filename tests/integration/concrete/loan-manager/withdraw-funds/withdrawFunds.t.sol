@@ -19,21 +19,21 @@ contract WithdrawFunds_Integration_Concrete_Test is
         createDefaultLoan();
     }
 
-    modifier WhenCallerLoanSeller() {
+    modifier whenCallerLoanSeller() {
         _;
     }
 
-    modifier WhenWithdrawAmountLessThanOrEqualToDrawableAmount() {
+    modifier whenWithdrawAmountLessThanOrEqualToDrawableAmount() {
         _;
     }
 
-    modifier WhenBuyerRepayLoan() {
+    modifier whenBuyerRepayLoan() {
         _;
     }
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -43,13 +43,13 @@ contract WithdrawFunds_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(0), 0);
     }
 
-    function test_RevertWhen_CallerNotLoanSeller() external WhenNotPaused {
+    function test_RevertWhen_CallerNotLoanSeller() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_CallerNotSeller.selector, users.seller));
         loanManager.withdrawFunds(1, address(0), 0);
     }
 
-    function test_RevertWhen_WithdrawAmountGreaterThanDrawableAmount() external WhenNotPaused WhenCallerLoanSeller {
+    function test_RevertWhen_WithdrawAmountGreaterThanDrawableAmount() external whenNotPaused whenCallerLoanSeller {
         changePrank(users.seller);
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         vm.expectRevert(
@@ -60,9 +60,9 @@ contract WithdrawFunds_Integration_Concrete_Test is
 
     function test_WithdrawFunds_WhenBuyerNotRepayLoan()
         external
-        WhenNotPaused
-        WhenCallerLoanSeller
-        WhenWithdrawAmountLessThanOrEqualToDrawableAmount
+        whenNotPaused
+        whenCallerLoanSeller
+        whenWithdrawAmountLessThanOrEqualToDrawableAmount
     {
         changePrank(users.seller);
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
@@ -86,10 +86,10 @@ contract WithdrawFunds_Integration_Concrete_Test is
 
     function test_WithdrawFunds()
         external
-        WhenNotPaused
-        WhenCallerLoanSeller
-        WhenWithdrawAmountLessThanOrEqualToDrawableAmount
-        WhenBuyerRepayLoan
+        whenNotPaused
+        whenCallerLoanSeller
+        whenWithdrawAmountLessThanOrEqualToDrawableAmount
+        whenBuyerRepayLoan
     {
         changePrank(users.buyer);
         loanManager.repayLoan(1);

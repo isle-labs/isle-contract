@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { LopoGlobals_Integration_Concrete_Test } from "../lopoGlobals.t.sol";
+import { LopoGlobals_Integration_Concrete_Test } from "../LopoGlobals.t.sol";
 import { Paused_Integration_Shared_Test } from "../../../shared/lopo-globals/paused.t.sol";
 
 contract IsFunctionPaused_Integration_Concrete_Test is
@@ -18,7 +18,7 @@ contract IsFunctionPaused_Integration_Concrete_Test is
     }
 
     function test_IsFunctionPaused_WhenContractPaused() external whenFunctionNotUnpaused {
-        lopoGlobals.setContractPause(defaults.PAUSED_CONTRACT(), true);
+        lopoGlobals.setContractPaused(defaults.PAUSED_CONTRACT(), true);
         assertEq(lopoGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 

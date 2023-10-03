@@ -1,0 +1,6 @@
+setValidCollateralAsset.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── it should set the valid collateral asset
+   └── it should emit a {ValidCollateralAssetSet} event

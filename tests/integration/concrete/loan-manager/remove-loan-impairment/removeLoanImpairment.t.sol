@@ -17,21 +17,21 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         createDefaultLoan();
     }
 
-    modifier WhenPaymentIdIsNotZero() {
+    modifier whenPaymentIdIsNotZero() {
         _;
     }
 
-    modifier WhenLoanIsImpaired() {
+    modifier whenLoanIsImpaired() {
         _;
     }
 
-    modifier WhenBlockTimestampIsLessThanOrEqualToOriginalDueDate() {
+    modifier whenBlockTimestampIsLessThanOrEqualToOriginalDueDate() {
         _;
     }
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.FunctionPaused.selector, bytes4(keccak256("removeLoanImpairment(uint16)")))
@@ -40,37 +40,34 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
         loanManager.removeLoanImpairment(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, address(users.caller)));
         loanManager.removeLoanImpairment(1);
     }
 
-    function test_RevertWhen_PaymentIdIsZero() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
-        changePrank(users.poolAdmin);
+    function test_RevertWhen_PaymentIdIsZero() external whenNotPaused whenCallerPoolAdminOrGovernor {
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.removeLoanImpairment(0);
     }
 
     function test_RevertWhen_LoanIsNotImpaired()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
     {
-        changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanNotImpaired.selector, 1));
         loanManager.removeLoanImpairment(1);
     }
 
     function test_RevertWhen_BlockTimestampIsGreaterThanOriginalDueDate()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
-        WhenLoanIsImpaired
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
+        whenLoanIsImpaired
     {
-        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.warp(defaults.MAY_31_2023() + 1);
@@ -85,15 +82,14 @@ contract RemoveLoanImpairment_Integration_Concrete_Test is
 
     function test_RemoveLoanImpairment()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenPaymentIdIsNotZero
-        WhenLoanIsImpaired
-        WhenBlockTimestampIsLessThanOrEqualToOriginalDueDate
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenPaymentIdIsNotZero
+        whenLoanIsImpaired
+        whenBlockTimestampIsLessThanOrEqualToOriginalDueDate
     {
         vm.warp(MAY_1_2023 + 10 days);
 
-        changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
 
         vm.warp(MAY_1_2023 + 15 days);

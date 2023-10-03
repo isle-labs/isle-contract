@@ -72,7 +72,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc ILopoGlobals
     function setLopoVault(address vault_) external override onlyGovernor {
-        if (lopoVault == address(0)) {
+        if (vault_ == address(0)) {
             revert Errors.Globals_InvalidVault(vault_);
         }
         emit LopoVaultSet(lopoVault, vault_);
@@ -85,7 +85,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
     }
 
     /// @inheritdoc ILopoGlobals
-    function setContractPause(address contract_, bool contractPaused_) external override onlyGovernor {
+    function setContractPaused(address contract_, bool contractPaused_) external override onlyGovernor {
         emit ContractPausedSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
     }
 
@@ -104,8 +104,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc ILopoGlobals
     function setProtocolFee(uint24 protocolFee_) external override onlyGovernor {
-        emit ProtocolFeeSet(protocolFee_);
-        protocolFee = protocolFee_;
+        emit ProtocolFeeSet(protocolFee = protocolFee_);
     }
 
     /// @inheritdoc ILopoGlobals

@@ -17,31 +17,30 @@ contract ImpairLoan_Integration_Concrete_Test is
         createDefaultLoan();
     }
 
-    modifier WhenLoanIsNotImpaired() {
+    modifier whenLoanIsNotImpaired() {
         _;
     }
 
-    modifier WhenPaymentIdIsNotZero() {
+    modifier whenPaymentIdIsNotZero() {
         _;
     }
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPause(address(loanManager), true);
+        lopoGlobals.setContractPaused(address(loanManager), true);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.FunctionPaused.selector, bytes4(keccak256("impairLoan(uint16)"))));
 
         loanManager.impairLoan(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external WhenNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, address(users.caller)));
         loanManager.impairLoan(1);
     }
 
-    function test_RevertWhen_LoanIsImpaired() external WhenNotPaused WhenCallerPoolAdminOrGovernor {
-        changePrank(users.poolAdmin);
+    function test_RevertWhen_LoanIsImpaired() external whenNotPaused whenCallerPoolAdminOrGovernor {
         loanManager.impairLoan(1);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanImpaired.selector, 1));
@@ -50,24 +49,22 @@ contract ImpairLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_PaymentIdIsZero()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenLoanIsNotImpaired
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenLoanIsNotImpaired
     {
-        changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
         loanManager.impairLoan(0);
     }
 
     function test_impairLoan()
         external
-        WhenNotPaused
-        WhenCallerPoolAdminOrGovernor
-        WhenLoanIsNotImpaired
-        WhenPaymentIdIsNotZero
+        whenNotPaused
+        whenCallerPoolAdminOrGovernor
+        whenLoanIsNotImpaired
+        whenPaymentIdIsNotZero
     {
         vm.warp(MAY_1_2023 + 10 days);
-        changePrank(users.poolAdmin);
 
         uint112 accountedInterest = uint112(defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days / 1e27);
 
