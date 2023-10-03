@@ -30,8 +30,8 @@ contract FundLoan_Integration_Concrete_Test is
         loanManager.fundLoan(1);
     }
 
-    function test_FundLoan() external whenNotPaused whenCallerPoolAdmin {
-        uint256 receivableTokenId = createReceivable(defaults.FACE_AMOUNT());
+    function test_FundLoan() external WhenNotPaused WhenCallerPoolAdmin {
+        uint256 receivableTokenId = createDefaultReceivable();
 
         changePrank(users.buyer);
         uint16 loanId = approveLoan(receivableTokenId, defaults.PRINCIPAL_REQUESTED());

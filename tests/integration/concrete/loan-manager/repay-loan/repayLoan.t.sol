@@ -36,7 +36,7 @@ contract RepayLoan_Integration_Concrete_Test is
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
-        createLoan();
+        createDefaultLoan();
 
         vm.warp(defaults.MAY_31_2023());
 
@@ -79,7 +79,7 @@ contract RepayLoan_Integration_Concrete_Test is
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
-        createLoan();
+        createDefaultLoan();
         IERC721 receivable = IERC721(address(receivable));
 
         changePrank(users.seller);

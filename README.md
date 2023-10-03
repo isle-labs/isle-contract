@@ -1,13 +1,15 @@
 # Lopo Protocol
 
-[![Github Actions][gha-badge]][gha] [![Foundry][foundry-badge]][foundry]
+[![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
-[gha]: https://github.com/PaulRBerg/foundry-template/actions
-[gha-badge]: https://github.com/PaulRBerg/foundry-template/actions/workflows/ci.yml/badge.svg
+[gha]: https://github.com/bsostech/lopo-protocol/actions
+[gha-badge]: https://github.com/bsostech/lopo-protocol/actions/workflows/ci.yml/badge.svg
+[codecov]: https://codecov.io/gh/bsostech/lopo-protocol
+[codecov-badge]: https://codecov.io/gh/bsostech/lopo-protocol/graph/badge.svg?token=MZCPLVNMTH
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains the core smart contracts for the Lopo Protocol.
+This repository contains the core smart contracts for the Lopo Protocol. In-depth documentation is available at [docs.lopo.finance](https://docs.lopo.finance)
 
 ## Getting Started
 
@@ -29,14 +31,17 @@ This repository contains the core smart contracts for the Lopo Protocol.
     forge install
     ```
 
-## Writing Tests
+## Architecture
 
-To write a new test contract, you start by importing [PRBTest](https://github.com/PaulRBerg/prb-test) and inherit from
-it in your test contract. PRBTest comes with a pre-instantiated [cheatcodes](https://book.getfoundry.sh/cheatcodes/)
-environment accessible via the `vm` property. If you would like to view the logs in the terminal output you can add the
-`-vvv` flag and use [console.log](https://book.getfoundry.sh/faq?highlight=console.log#how-do-i-use-consolelog).
+Lopo Protocol is a designed where each pool will be a set of contracts
 
-This template comes with an example test contract [Foo.t.sol](./test/Foo.t.sol)
+- `PoolAddressesProvider`
+- `LoanManager`
+- `WithdrawalManager`
+- `PoolConfigurator`
+- `Pool`
+
+That is to say, each pool will have its own set of contracts so as to maximize customisability for pool admins. Please see the following [diagrams](https://docs.lopo.finance/technical-resources/diagrams) to have a better view of the design and flow.
 
 ## Usage
 

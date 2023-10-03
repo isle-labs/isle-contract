@@ -14,7 +14,7 @@ contract ImpairLoan_Integration_Concrete_Test is
         LoanManager_Integration_Concrete_Test.setUp();
         Callable_Integration_Shared_Test.setUp();
 
-        createLoan();
+        createDefaultLoan();
     }
 
     modifier whenLoanIsNotImpaired() {
