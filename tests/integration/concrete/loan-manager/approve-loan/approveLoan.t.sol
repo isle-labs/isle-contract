@@ -54,7 +54,7 @@ contract ApproveLoan_Integration_Concrete_Test is
         loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CallerNotReceivableBuyer() external WhenNotPaused WhenCollateralAssetAllowed {
+    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenCollateralAssetAllowed {
         createDefaultReceivable();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CallerNotReceivableBuyer.selector, address(users.buyer))

@@ -13,12 +13,7 @@ abstract contract Callable_Integration_Shared_Test is LoanManager_Integration_Sh
     }
 
     modifier whenCallerPoolAdminOrGovernor() {
-        changePrank(users.poolAdmin);
-        _;
-    }
-
-    modifier whenCallerPoolAdmin() {
-        changePrank(users.poolAdmin);
+        changePrank({ msgSender: users.poolAdmin });
         _;
     }
 }
