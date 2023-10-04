@@ -40,7 +40,7 @@ contract SetPoolConfigurator_Integration_Concrete_Test is
     function test_RevertWhen_PoolAdminAlreadyOwnPoolConfigurator() external whenCallerGovernor whenPoolAdminIsValid {
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.Globals_AlreadyHasConfigurator.selector, users.poolAdmin, address(poolConfigurator)
+                Errors.Globals_AlreadyOwnsConfigurator.selector, users.poolAdmin, address(poolConfigurator)
             )
         );
         lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
