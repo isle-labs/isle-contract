@@ -131,7 +131,7 @@ contract LopoGlobals is ILopoGlobals, VersionedInitializable, Adminable, UUPSUpg
             revert Errors.Globals_ToInvalidPoolAdmin(poolAdmin_);
         }
         if (poolAdmins[poolAdmin_].ownedPoolConfigurator != address(0)) {
-            revert Errors.Globals_AlreadyHasConfigurator(poolAdmin_, poolAdmins[poolAdmin_].ownedPoolConfigurator);
+            revert Errors.Globals_AlreadyOwnsConfigurator(poolAdmin_, poolAdmins[poolAdmin_].ownedPoolConfigurator);
         }
         if (poolConfigurator_ == address(0)) {
             revert Errors.Globals_ToInvalidPoolConfigurator(poolConfigurator_);

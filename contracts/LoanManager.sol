@@ -50,7 +50,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     /// @param provider_ The address of the PoolAddressesProvider
     function initialize(IPoolAddressesProvider provider_) external virtual initializer {
         if (ADDRESSES_PROVIDER != provider_) {
-            revert Errors.InvalidAddressProvider({
+            revert Errors.InvalidAddressesProvider({
                 expectedProvider: address(ADDRESSES_PROVIDER),
                 provider: address(provider_)
             });

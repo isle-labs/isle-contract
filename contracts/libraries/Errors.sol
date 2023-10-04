@@ -21,7 +21,7 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the pool configurator
     error NotPoolConfigurator(address caller_);
 
-    error InvalidAddressProvider(address provider, address expectedProvider);
+    error InvalidAddressesProvider(address provider, address expectedProvider);
 
     error ERC20TransferFailed(address asset, address from, address to, uint256 amount);
 
@@ -35,6 +35,9 @@ library Errors {
 
     /// @notice Thrown when the pool admin set is not on the whitelist
     error PoolConfigurator_InvalidPoolAdmin(address poolAdmin_);
+
+    /// @notice Thrown when the pool admin set is already owned another pool configurator
+    error PoolConfigurator_AlreadyOwnsConfigurator(address poolAdmin_, address poolConfigurator_);
 
     /// @notice Thrown when the asset set is not on the whitelist
     error PoolConfigurator_InvalidPoolAsset(address asset_);
@@ -79,7 +82,7 @@ library Errors {
 
     error Globals_ToInvalidPoolConfigurator(address poolConfigurator);
 
-    error Globals_AlreadyHasConfigurator(address poolAdmin, address poolConfigurator);
+    error Globals_AlreadyOwnsConfigurator(address poolAdmin, address poolConfigurator);
 
     error Globals_AdminZeroAddress();
 
