@@ -5,11 +5,11 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 
-import { Initialize_Unit_Shared_Test } from "tests/unit/shared/pool-configurator/initialize.t.sol";
+import { Initialize_Integration_Shared_Test } from "tests/integration/shared/pool-configurator/initialize.t.sol";
 
-contract Initialize_Unit_Concrete_Test is Initialize_Unit_Shared_Test {
-    function setUp() public virtual override(Initialize_Unit_Shared_Test) {
-        Initialize_Unit_Shared_Test.setUp();
+contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_Test {
+    function setUp() public virtual override(Initialize_Integration_Shared_Test) {
+        Initialize_Integration_Shared_Test.setUp();
     }
 
     modifier whenNotInitialized() {

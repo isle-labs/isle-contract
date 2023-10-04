@@ -5,16 +5,16 @@ import { PoolConfigurator } from "contracts/PoolConfigurator.sol";
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfigurator } from "contracts/interfaces/IPoolConfigurator.sol";
 
-import { PoolConfigurator_Unit_Shared_Test, Base_Test } from "./PoolConfigurator.t.sol";
+import { PoolConfigurator_Integration_Shared_Test, Integration_Test } from "./PoolConfigurator.t.sol";
 
-abstract contract Initialize_Unit_Shared_Test is PoolConfigurator_Unit_Shared_Test {
+abstract contract Initialize_Integration_Shared_Test is PoolConfigurator_Integration_Shared_Test {
     IPoolConfigurator public poolConfiguratorNotInitialized;
 
     IPoolAddressesProvider internal poolAddressesProviderNew;
     IPoolConfigurator internal poolConfiguratorNotInitializedNew;
 
     function setUp() public virtual override {
-        Base_Test.setUp();
+        Integration_Test.setUp();
 
         changePrank(users.governor);
         lopoGlobals = deployGlobals();

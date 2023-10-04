@@ -124,8 +124,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         loanManager = deployLoanManager(poolAddressesProvider);
         pool = Pool(poolConfigurator.pool());
 
-        
-
         vm.label(address(receivable), "Receivable");
         vm.label(address(lopoGlobals), "LopoGlobals");
         vm.label(address(poolAddressesProvider), "PoolAddressesProvider");
