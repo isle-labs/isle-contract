@@ -1,0 +1,20 @@
+initialize.t.sol
+├── when the pool configurator has already been initialized in the same revision
+│  └── it should revert
+└── when the pool configurator has not been initialized in the same revision
+   ├── when the input pool address provider is not the pool address provider given at construction
+   │  └── it should revert
+   └── when the input pool address provider is the pool address provider given at construction
+      ├── when the input pool admin is zero address or invalid pool admin
+      │  └── it should revert
+      └── when the input pool admin is not zero address and is a valid pool admin
+         ├── when the input pool admin has already owned a pool configurator
+         │  └── it should revert
+         └── when the input pool admin has not owned a pool configurator
+            ├── when the input asset is zero address or invalid asset
+            │  └── it should revert
+            └── when the input asset is not zero address and is a valid asset
+               ├── it should create a pool
+               ├── it should assign the pool admin
+               ├── it should assign the asset
+               └── it should emit a {Initialized} event

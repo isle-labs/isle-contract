@@ -70,7 +70,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         initializer
     {
         if (ADDRESSES_PROVIDER != provider_) {
-            revert Errors.InvalidAddressProvider({
+            revert Errors.InvalidAddressesProvider({
                 expectedProvider: address(ADDRESSES_PROVIDER),
                 provider: address(provider_)
             });

@@ -71,6 +71,8 @@ abstract contract Events {
     event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
 
     // Pool configurator events
+    event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);
+
     event CoverDeposited(uint256 amount_);
 
     event CoverWithdrawn(uint256 amount_);

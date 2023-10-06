@@ -72,7 +72,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     {
         /* Checks */
         if (ADDRESSES_PROVIDER != provider_) {
-            revert Errors.InvalidAddressProvider({
+            revert Errors.InvalidAddressesProvider({
                 expectedProvider: address(ADDRESSES_PROVIDER),
                 provider: address(provider_)
             });
@@ -82,6 +82,12 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         if (poolAdmin_ == address(0) || !globals_.isPoolAdmin(poolAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(poolAdmin_);
         }
+
+        address ownedPoolConfigurator = globals_.ownedPoolConfigurator(poolAdmin_);
+        if (ownedPoolConfigurator != address(0)) {
+            revert Errors.PoolConfigurator_AlreadyOwnsConfigurator(poolAdmin_, ownedPoolConfigurator);
+        }
+
         if (asset_ == address(0) || !globals_.isPoolAsset(asset_)) {
             revert Errors.PoolConfigurator_InvalidPoolAsset(asset_);
         }

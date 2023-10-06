@@ -111,9 +111,14 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     /// @dev Deploy all related lopo contracts
     function deployAndLabelCore() internal {
         changePrank(users.governor);
-        poolAddressesProvider = deployPoolAddressesProvider();
+
+        // Deploy globals and receivable
         receivable = deployReceivable();
-        lopoGlobals = deployGlobals(poolAddressesProvider);
+        lopoGlobals = deployGlobals();
+
+        // Deploy pool side contracts
+        poolAddressesProvider = deployPoolAddressesProvider();
+        setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
         withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
         loanManager = deployLoanManager(poolAddressesProvider);
@@ -129,19 +134,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy lopo Globals as an UUPS proxy
-    function deployGlobals(IPoolAddressesProvider poolAddressesProvider_)
-        internal
-        returns (ILopoGlobals lopoGlobals_)
-    {
+    function deployGlobals() internal returns (ILopoGlobals lopoGlobals_) {
         lopoGlobals_ = LopoGlobals(address(new UUPSProxy(address(new LopoGlobals()), "")));
         lopoGlobals_.initialize(users.governor);
-
-        // Quick setup for globals
-        lopoGlobals_.setValidPoolAdmin(users.poolAdmin, true);
-        lopoGlobals_.setValidPoolAsset(address(usdc), true);
-        lopoGlobals_.setValidCollateralAsset(address(receivable), true);
-
-        poolAddressesProvider_.setLopoGlobals(address(lopoGlobals_));
     }
 
     /// @dev Deploy receivable as an UUPS proxy
@@ -153,8 +148,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     /// @dev Deploy pool addresses provider
     function deployPoolAddressesProvider() internal returns (IPoolAddressesProvider poolAddressesProvider_) {
-        poolAddressesProvider_ =
-            new PoolAddressesProvider{salt: keccak256("PoolAddressesProvider")}(defaults.MARKET_ID());
+        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID());
     }
 
     /// @dev Deploy pool configurator
@@ -213,6 +207,14 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
         poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_);
         loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
+    }
+
+    function setDefaultGlobals(IPoolAddressesProvider poolAddressesProvider_) internal {
+        lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
+        lopoGlobals.setValidPoolAsset(address(usdc), true);
+        lopoGlobals.setValidCollateralAsset(address(receivable), true);
+
+        poolAddressesProvider_.setLopoGlobals(address(lopoGlobals));
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.

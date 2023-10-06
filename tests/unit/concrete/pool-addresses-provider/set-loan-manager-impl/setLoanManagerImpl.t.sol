@@ -10,7 +10,8 @@ contract SetLoanManagerImpl_PoolAddressesProvider_Unit_Concrete_Test is PoolAddr
     function setUp() public virtual override(PoolAddressesProvider_Unit_Shared_Test) {
         PoolAddressesProvider_Unit_Shared_Test.setUp();
 
-        lopoGlobals = deployGlobals(poolAddressesProvider);
+        lopoGlobals = deployGlobals();
+        setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
     }
 
