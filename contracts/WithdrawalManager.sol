@@ -12,7 +12,7 @@ import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IPool } from "./interfaces/IPool.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 
 import { WithdrawalManagerStorage } from "./WithdrawalManagerStorage.sol";
 
@@ -40,7 +40,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     }
 
     modifier whenProtocolNotPaused() {
-        if (ILopoGlobals(_globals()).protocolPaused()) {
+        if (IIsleGlobals(_globals()).protocolPaused()) {
             revert Errors.ProtocolPaused();
         }
         _;
@@ -433,7 +433,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     }
 
     function _globals() internal view returns (address globals_) {
-        globals_ = ADDRESSES_PROVIDER.getLopoGlobals();
+        globals_ = ADDRESSES_PROVIDER.getIsleGlobals();
     }
 
     function _asset() internal view returns (address asset_) {

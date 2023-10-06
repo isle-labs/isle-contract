@@ -17,7 +17,7 @@ contract FundLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPaused(address(loanManager), true);
+        isleGlobals.setContractPaused(address(loanManager), true);
 
         changePrank(users.poolAdmin);
         vm.expectRevert(abi.encodeWithSelector(Errors.FunctionPaused.selector, bytes4(keccak256("fundLoan(uint16)"))));

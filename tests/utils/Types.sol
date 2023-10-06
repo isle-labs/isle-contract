@@ -4,7 +4,7 @@ pragma solidity >=0.8.19;
 import { StdCheats } from "@forge-std/StdCheats.sol";
 
 struct Users {
-    // Default governor for all Lopo contracts
+    // Default governor for all Isle contracts
     address payable governor;
     // Default pool admin for the pools
     address payable poolAdmin;

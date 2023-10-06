@@ -12,7 +12,7 @@ import { PoolAddressesProvider } from "contracts/PoolAddressesProvider.sol";
 import { LoanManager } from "contracts/LoanManager.sol";
 import { WithdrawalManager } from "contracts/WithdrawalManager.sol";
 import { PoolConfigurator } from "contracts/PoolConfigurator.sol";
-import { LopoGlobals } from "contracts/LopoGlobals.sol";
+import { IsleGlobals } from "contracts/IsleGlobals.sol";
 
 abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
     struct Params {
@@ -24,7 +24,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         address newWithdrawalManager;
         address newLoanManager;
         address newPoolConfigurator;
-        address newLopoGlobals;
+        address newIsleGlobals;
         uint64 windowDuration;
         uint64 cycleDuration;
         string newMarketId;
@@ -55,8 +55,8 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         _params.newWithdrawalManager = address(new WithdrawalManager{salt: "WithdrawalManager"}(poolAddressesProvider));
         _params.newLoanManager = address(new LoanManager{salt: "LoanManager"}(poolAddressesProvider));
         _params.newPoolConfigurator = address(new PoolConfigurator{salt: "PoolConfigurator"}(poolAddressesProvider));
-        _params.newLopoGlobals =
-            address(new UUPSProxy{salt: "LopoGlobals"}(address(new LopoGlobals{salt: "LopoGlobals"}()), ""));
+        _params.newIsleGlobals =
+            address(new UUPSProxy{salt: "IsleGlobals"}(address(new IsleGlobals{salt: "IsleGlobals"}()), ""));
     }
 
     function deployContract() internal {
@@ -114,7 +114,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         poolAddressesProvider.setPoolConfiguratorImpl(_params.newPoolConfigurator, params_);
     }
 
-    function setDefaultLopoGlobals() internal {
-        poolAddressesProvider.setLopoGlobals(_params.newLopoGlobals);
+    function setDefaultIsleGlobals() internal {
+        poolAddressesProvider.setIsleGlobals(_params.newIsleGlobals);
     }
 }

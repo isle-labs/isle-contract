@@ -111,15 +111,15 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolAddressesProvider
-    function getLopoGlobals() external view override returns (address) {
+    function getIsleGlobals() external view override returns (address) {
         return getAddress(LOPO_GLOBALS);
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setLopoGlobals(address newLopoGlobals) external override onlyAdmin {
-        address oldLopoGlobals = _addresses[LOPO_GLOBALS];
-        _addresses[LOPO_GLOBALS] = newLopoGlobals;
-        emit LopoGlobalsUpdated(oldLopoGlobals, newLopoGlobals);
+    function setIsleGlobals(address newIsleGlobals) external override onlyAdmin {
+        address oldIsleGlobals = _addresses[LOPO_GLOBALS];
+        _addresses[LOPO_GLOBALS] = newIsleGlobals;
+        emit IsleGlobalsUpdated(oldIsleGlobals, newIsleGlobals);
     }
 
     /// @inheritdoc IPoolAddressesProvider
@@ -160,7 +160,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         }
     }
 
-    /// @notice Updates the identifier of the Lopo market.
+    /// @notice Updates the identifier of the Isle market.
     /// @param newMarketId The new id of the market
     function _setMarketId(string memory newMarketId) internal {
         string memory oldMarketId = _marketId;

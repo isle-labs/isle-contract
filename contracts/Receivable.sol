@@ -12,7 +12,7 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 import { Errors } from "./libraries/Errors.sol";
 import { Receivable as RCV } from "./libraries/types/DataTypes.sol";
 
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
 import { IAdminable } from "./interfaces/IAdminable.sol";
 

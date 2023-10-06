@@ -11,7 +11,7 @@ import { Adminable } from "./abstracts/Adminable.sol";
 
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IPool } from "./interfaces/IPool.sol";
@@ -78,7 +78,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
             });
         }
 
-        ILopoGlobals globals_ = _globals();
+        IIsleGlobals globals_ = _globals();
         if (poolAdmin_ == address(0) || !globals_.isPoolAdmin(poolAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(poolAdmin_);
         }
@@ -346,13 +346,13 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         }
     }
 
-    function _hasSufficientCover(ILopoGlobals globals_) internal view returns (bool hasSufficientCover_) {
+    function _hasSufficientCover(IIsleGlobals globals_) internal view returns (bool hasSufficientCover_) {
         uint256 minCover_ = globals_.minCover(address(this));
         hasSufficientCover_ = minCover_ != 0 && poolCover >= minCover_;
     }
 
     function _handleCover(uint256 losses_) internal {
-        ILopoGlobals globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
+        IIsleGlobals globals_ = IIsleGlobals(ADDRESSES_PROVIDER.getIsleGlobals());
 
         uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidation(address(this))) / HUNDRED_PERCENT;
 
@@ -375,8 +375,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         maxAssets_ = poolLimit_ > totalAssets_ && depositAllowed_ ? poolLimit_ - totalAssets_ : 0;
     }
 
-    function _globals() internal view returns (ILopoGlobals globals_) {
-        globals_ = ILopoGlobals(ADDRESSES_PROVIDER.getLopoGlobals());
+    function _globals() internal view returns (IIsleGlobals globals_) {
+        globals_ = IIsleGlobals(ADDRESSES_PROVIDER.getIsleGlobals());
     }
 
     function _loanManager() internal view returns (ILoanManager loanManager_) {

@@ -10,7 +10,7 @@ contract SetPoolConfiguratorImpl_PoolAddressesProvider_Unit_Concrete_Test is Poo
     function setUp() public virtual override(PoolAddressesProvider_Unit_Shared_Test) {
         PoolAddressesProvider_Unit_Shared_Test.setUp();
 
-        lopoGlobals = deployGlobals();
+        isleGlobals = deployGlobals();
         setDefaultGlobals(poolAddressesProvider);
     }
 

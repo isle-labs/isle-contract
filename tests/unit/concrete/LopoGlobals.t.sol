@@ -6,15 +6,15 @@ pragma solidity ^0.8.19;
 
 // import { Errors } from "../../../contracts/libraries/Errors.sol";
 
-// import { ILopoGlobalsEvents } from "../../../contracts/interfaces/ILopoGlobalsEvents.sol";
+// import { IIsleGlobalsEvents } from "../../../contracts/interfaces/IIsleGlobalsEvents.sol";
 
-// import { MockLopoGlobalsV2 } from "../../mocks/MockLopoGlobalsV2.sol";
+// import { MockIsleGlobalsV2 } from "../../mocks/MockIsleGlobalsV2.sol";
 
 // import { Address } from "../../accounts/Address.sol";
 
 // import { Base_Test } from "../../Base.t.sol";
 
-// contract LopoGlobals_Unit_Concrete_Test is Base_Test, ILopoGlobalsEvents {
+// contract IsleGlobals_Unit_Concrete_Test is Base_Test, IIsleGlobalsEvents {
 //     uint256 public constant HUNDRED_PERCENT = 1_000_000; // 100.0000%
 
 //     uint256 internal constant PROTOCOL_FEE = 5 * HUNDRED_PERCENT / 1000; // 0.5%
@@ -33,64 +33,64 @@ pragma solidity ^0.8.19;
 //         /**
 //          * only the governor can call upgradeTo()
 //          * upgradeTo() has a onlyProxy mpdifier, and calls _authorizeUpgrade()
-//          * _authorizeUpgrade() has a onlyGovernor modifier, which is implemented in LopoGlobals
+//          * _authorizeUpgrade() has a onlyGovernor modifier, which is implemented in IsleGlobals
 //          */
 
-//         MockLopoGlobalsV2 globalsImplV2 = new MockLopoGlobalsV2();
-//         UUPSUpgradeable(address(lopoGlobals)).upgradeTo(address(globalsImplV2));
+//         MockIsleGlobalsV2 globalsImplV2 = new MockIsleGlobalsV2();
+//         UUPSUpgradeable(address(isleGlobals)).upgradeTo(address(globalsImplV2));
 
 //         // re-wrap the proxy to the new implementation
-//         MockLopoGlobalsV2 lopoGlobalsV2 = MockLopoGlobalsV2(address(lopoGlobals));
+//         MockIsleGlobalsV2 isleGlobalsV2 = MockIsleGlobalsV2(address(isleGlobals));
 
-//         assertEq(lopoGlobalsV2.governor(), users.governor);
+//         assertEq(isleGlobalsV2.governor(), users.governor);
 
-//         // @notice: in our mock, we inherit from LopoGlobals
+//         // @notice: in our mock, we inherit from IsleGlobals
 //         // which means the REVISON still = 0x1
-//         // so we cannot do lopoGlobalsV2.initialize(governorV2)
+//         // so we cannot do isleGlobalsV2.initialize(governorV2)
 //         vm.expectEmit(true, true, true, true);
 //         emit PendingGovernorSet(governorV2);
-//         lopoGlobals.setPendingLopoGovernor(governorV2);
+//         isleGlobals.setPendingIsleGovernor(governorV2);
 
-//         assertEq(lopoGlobals.pendingLopoGovernor(), governorV2);
+//         assertEq(isleGlobals.pendingIsleGovernor(), governorV2);
 
 //         vm.expectEmit(true, true, true, true);
 //         emit GovernorshipAccepted(users.governor, governorV2);
 
 //         changePrank(governorV2);
-//         lopoGlobals.acceptLopoGovernor();
+//         isleGlobals.acceptIsleGovernor();
 
-//         assertEq(lopoGlobals.governor(), governorV2);
+//         assertEq(isleGlobals.governor(), governorV2);
 
 //         // new function in mockV2
-//         string memory text = lopoGlobalsV2.upgradeV2Test();
+//         string memory text = isleGlobalsV2.upgradeV2Test();
 //         assertEq(text, "Hello World V2");
 //     }
 
-//     function test_setPendingLopoGovernor_acceptLopoGovernor() public {
+//     function test_setPendingIsleGovernor_acceptIsleGovernor() public {
 //         vm.expectEmit(true, true, true, true);
 //         emit PendingGovernorSet(governorV2);
-//         lopoGlobals.setPendingLopoGovernor(governorV2);
+//         isleGlobals.setPendingIsleGovernor(governorV2);
 
-//         assertEq(lopoGlobals.pendingLopoGovernor(), governorV2);
+//         assertEq(isleGlobals.pendingIsleGovernor(), governorV2);
 
 //         vm.expectEmit(true, true, true, true);
 //         emit GovernorshipAccepted(users.governor, governorV2);
 
 //         changePrank(governorV2);
-//         lopoGlobals.acceptLopoGovernor();
-//         assertEq(lopoGlobals.governor(), governorV2);
+//         isleGlobals.acceptIsleGovernor();
+//         assertEq(isleGlobals.governor(), governorV2);
 //     }
 
-//     function test_Revert_IfZeroAddress_setLopoVault() public {
+//     function test_Revert_IfZeroAddress_setIsleVault() public {
 //         vm.expectRevert(abi.encodeWithSelector(Errors.Globals_InvalidVault.selector, address(0)));
-//         lopoGlobals.setLopoVault(address(0));
+//         isleGlobals.setIsleVault(address(0));
 //     }
 
 //     function test_setProtocolPause() public {
 //         vm.expectEmit(true, true, true, true);
 //         emit ProtocolPauseSet(users.governor, true);
-//         lopoGlobals.setProtocolPause(true);
-//         assertTrue(lopoGlobals.protocolPaused());
+//         isleGlobals.setProtocolPause(true);
+//         assertTrue(isleGlobals.protocolPaused());
 //     }
 
 //     function test_setValidPoolAdmin_setPoolConfigurator_transferOwnedPoolConfigurator() public {
@@ -101,50 +101,50 @@ pragma solidity ^0.8.19;
 //         // onboard the pool admin
 //         vm.expectEmit(true, true, true, true);
 //         emit ValidPoolAdminSet(mockPoolAdmin, true);
-//         lopoGlobals.setValidPoolAdmin(mockPoolAdmin, true);
-//         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
-//         assertEq(lopoGlobals.isPoolAdmin(mockPoolAdmin), true);
+//         isleGlobals.setValidPoolAdmin(mockPoolAdmin, true);
+//         assertEq(isleGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
+//         assertEq(isleGlobals.isPoolAdmin(mockPoolAdmin), true);
 
 //         // set the pool configurator to the pool admin
 //         vm.expectEmit(true, true, true, true);
 //         emit PoolConfiguratorSet(mockPoolAdmin, mockPoolConfigurator);
-//         lopoGlobals.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
-//         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
+//         isleGlobals.setPoolConfigurator(mockPoolAdmin, mockPoolConfigurator);
+//         assertEq(isleGlobals.ownedPoolConfigurator(mockPoolAdmin), mockPoolConfigurator);
 
 //         // before onboard the next pool admin
-//         assertTrue(!lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
-//         assertEq(lopoGlobals.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
+//         assertTrue(!isleGlobals.isPoolAdmin(mockNextPoolAdmin));
+//         assertEq(isleGlobals.ownedPoolConfigurator(mockNextPoolAdmin), address(0));
 //         // onboard the next pool admin
-//         lopoGlobals.setValidPoolAdmin(mockNextPoolAdmin, true);
-//         assertTrue(lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
+//         isleGlobals.setValidPoolAdmin(mockNextPoolAdmin, true);
+//         assertTrue(isleGlobals.isPoolAdmin(mockNextPoolAdmin));
 
 //         // transfer the pool configurator from the pool admin to the next pool admin
 //         vm.expectEmit(true, true, true, true);
 //         emit PoolConfiguratorOwnershipTransferred(mockPoolAdmin, mockNextPoolAdmin, mockPoolConfigurator);
 //         changePrank(mockPoolConfigurator);
-//         lopoGlobals.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
-//         assertEq(lopoGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
-//         assertEq(lopoGlobals.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
-//         assertTrue(lopoGlobals.isPoolAdmin(mockPoolAdmin));
-//         assertTrue(lopoGlobals.isPoolAdmin(mockNextPoolAdmin));
+//         isleGlobals.transferOwnedPoolConfigurator(mockPoolAdmin, mockNextPoolAdmin);
+//         assertEq(isleGlobals.ownedPoolConfigurator(mockPoolAdmin), address(0));
+//         assertEq(isleGlobals.ownedPoolConfigurator(mockNextPoolAdmin), mockPoolConfigurator);
+//         assertTrue(isleGlobals.isPoolAdmin(mockPoolAdmin));
+//         assertTrue(isleGlobals.isPoolAdmin(mockNextPoolAdmin));
 //     }
 
 //     function test_setValidCollateralAsset() public {
 //         address mockCollateralAsset = address(new Address());
 //         vm.expectEmit(true, true, true, true);
 //         emit ValidCollateralAssetSet(mockCollateralAsset, true);
-//         lopoGlobals.setValidCollateralAsset(mockCollateralAsset, true);
-//         assertTrue(lopoGlobals.isCollateralAsset(mockCollateralAsset));
-//         assertFalse(lopoGlobals.isCollateralAsset(users.seller));
+//         isleGlobals.setValidCollateralAsset(mockCollateralAsset, true);
+//         assertTrue(isleGlobals.isCollateralAsset(mockCollateralAsset));
+//         assertFalse(isleGlobals.isCollateralAsset(users.seller));
 //     }
 
 //     function test_setValidPoolAsset() public {
 //         address mockPoolAsset = address(new Address());
 //         vm.expectEmit(true, true, true, true);
 //         emit ValidPoolAssetSet(mockPoolAsset, true);
-//         lopoGlobals.setValidPoolAsset(mockPoolAsset, true);
-//         assertTrue(lopoGlobals.isPoolAsset(mockPoolAsset));
-//         assertFalse(lopoGlobals.isPoolAsset(users.seller));
+//         isleGlobals.setValidPoolAsset(mockPoolAsset, true);
+//         assertTrue(isleGlobals.isPoolAsset(mockPoolAsset));
+//         assertFalse(isleGlobals.isPoolAsset(users.seller));
 //     }
 
 //     function test_setRiskFreeRate() public {
@@ -152,38 +152,38 @@ pragma solidity ^0.8.19;
 //         vm.expectEmit(true, true, true, true);
 
 //         emit RiskFreeRateSet(newRiskFreeRate_);
-//         lopoGlobals.setRiskFreeRate(newRiskFreeRate_);
-//         assertEq(lopoGlobals.riskFreeRate(), newRiskFreeRate_);
+//         isleGlobals.setRiskFreeRate(newRiskFreeRate_);
+//         assertEq(isleGlobals.riskFreeRate(), newRiskFreeRate_);
 //     }
 
 //     function test_setMinPoolLiquidityRatio() public {
 //         vm.expectEmit(true, true, true, true);
 //         emit MinPoolLiquidityRatioSet(0.05e18);
-//         lopoGlobals.setMinPoolLiquidityRatio(ud(0.05e18));
-//         assertEq(lopoGlobals.minPoolLiquidityRatio().intoUint256(), 0.05e18);
+//         isleGlobals.setMinPoolLiquidityRatio(ud(0.05e18));
+//         assertEq(isleGlobals.minPoolLiquidityRatio().intoUint256(), 0.05e18);
 //     }
 
 //     function test_setProtocolFeeRate() public {
 //         address POOL_ADDRESS = address(new Address());
 //         vm.expectEmit(true, true, true, true);
 //         emit ProtocolFeeRateSet(POOL_ADDRESS, PROTOCOL_FEE);
-//         lopoGlobals.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
-//         assertEq(lopoGlobals.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
+//         isleGlobals.setProtocolFeeRate(POOL_ADDRESS, PROTOCOL_FEE);
+//         assertEq(isleGlobals.protocolFeeRate(POOL_ADDRESS), PROTOCOL_FEE);
 //     }
 
 //     function test_setMinDepositLimit() public {
 //         address mockPoolConfigurator = address(new Address());
 //         vm.expectEmit(true, true, true, true);
 //         emit MinDepositLimitSet(mockPoolConfigurator, 100e18);
-//         lopoGlobals.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
-//         assertEq(lopoGlobals.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
+//         isleGlobals.setMinDepositLimit(mockPoolConfigurator, ud(100e18));
+//         assertEq(isleGlobals.minDepositLimit(mockPoolConfigurator).intoUint256(), 100e18);
 //     }
 
 //     function test_setWithdrawalDurationInDays() public {
 //         address mockPoolConfigurator = address(new Address());
 //         vm.expectEmit(true, true, true, true);
 //         emit WithdrawalDurationInDaysSet(mockPoolConfigurator, 30);
-//         lopoGlobals.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
-//         assertEq(lopoGlobals.withdrawalDurationInDays(mockPoolConfigurator), 30);
+//         isleGlobals.setWithdrawalDurationInDays(mockPoolConfigurator, 30);
+//         assertEq(isleGlobals.withdrawalDurationInDays(mockPoolConfigurator), 30);
 //     }
 // }

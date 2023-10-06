@@ -12,5 +12,5 @@ interface IReceivableEvent {
 
     event AssetBurned(uint256 indexed tokenId_);
 
-    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
+    event IsleGlobalsSet(address indexed previousIsleGlobals_, address indexed currentIsleGlobals_);
 }

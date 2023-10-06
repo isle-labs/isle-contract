@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 abstract contract Events {
-    // LopoGlobals events
-    event LopoVaultSet(address indexed previousLopoVault_, address indexed currentLopoVault_);
+    // IsleGlobals events
+    event IsleVaultSet(address indexed previousIsleVault_, address indexed currentIsleVault_);
 
     event ProtocolPausedSet(address indexed caller_, bool protocolPaused_);
 
@@ -68,7 +68,7 @@ abstract contract Events {
     event LoanImpaired(uint16 indexed loanId_, uint256 newDueDate_);
     event ImpairmentRemoved(uint16 indexed loanId_, uint256 originalPaymentDueDate_);
 
-    event LopoGlobalsSet(address indexed previousLopoGlobals_, address indexed currentLopoGlobals_);
+    event IsleGlobalsSet(address indexed previousIsleGlobals_, address indexed currentIsleGlobals_);
 
     // Pool configurator events
     event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);
@@ -129,5 +129,5 @@ abstract contract Events {
 
     event WithdrawalManagerUpdated(address indexed oldAddress, address indexed newAddress);
 
-    event LopoGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
+    event IsleGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
 }
