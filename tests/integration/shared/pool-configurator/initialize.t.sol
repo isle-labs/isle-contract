@@ -10,40 +10,23 @@ import { PoolConfigurator_Integration_Shared_Test, Integration_Test } from "./Po
 abstract contract Initialize_Integration_Shared_Test is PoolConfigurator_Integration_Shared_Test {
     IPoolConfigurator public poolConfiguratorNotInitialized;
 
-    IPoolAddressesProvider internal poolAddressesProviderNew;
-    IPoolConfigurator internal poolConfiguratorNotInitializedNew;
-
     function setUp() public virtual override {
         Integration_Test.setUp();
 
         changePrank(users.governor);
-        lopoGlobals = deployGlobals();
-        poolConfiguratorNotInitialized = deployPoolSideWithPoolConfiguratorNotInitialized();
-        poolConfiguratorNotInitializedNew = deployPoolSideWithPoolConfiguratorNotInitializedNew();
+
+        poolAddressesProvider = deployPoolAddressesProvider();
+        poolConfiguratorNotInitialized = deployPoolSideWithPoolConfiguratorNotInitialized(poolAddressesProvider);
 
         setDefaultGlobals(poolAddressesProvider);
     }
 
-    function deployPoolSideWithPoolConfiguratorNotInitialized()
+    function deployPoolSideWithPoolConfiguratorNotInitialized(IPoolAddressesProvider poolAddressesProvider_)
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {
-        poolAddressesProvider = deployPoolAddressesProvider();
-
-        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider));
-        poolAddressesProvider.setPoolConfiguratorImpl(poolConfiguratorImpl_, bytes(""));
-        poolConfigurator_ = IPoolConfigurator(poolAddressesProvider.getPoolConfigurator());
-    }
-
-    function deployPoolSideWithPoolConfiguratorNotInitializedNew()
-        internal
-        returns (IPoolConfigurator poolConfigurator_)
-    {
-        poolAddressesProviderNew = deployPoolAddressesProvider();
-        poolAddressesProviderNew.setLopoGlobals(address(lopoGlobals));
-
-        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProviderNew));
-        poolAddressesProviderNew.setPoolConfiguratorImpl(poolConfiguratorImpl_, bytes(""));
-        poolConfigurator_ = IPoolConfigurator(poolAddressesProviderNew.getPoolConfigurator());
+        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
+        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, bytes(""));
+        poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
     }
 }

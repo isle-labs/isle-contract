@@ -3,11 +3,15 @@ pragma solidity ^0.8.19;
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
+import { IPoolConfigurator } from "contracts/interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 
 import { Initialize_Integration_Shared_Test } from "tests/integration/shared/pool-configurator/initialize.t.sol";
 
 contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_Test {
+    IPoolConfigurator internal originalPoolConfiguratorNotInitialized;
+    IPoolAddressesProvider internal originalPoolAddressesProvider;
+
     function setUp() public virtual override(Initialize_Integration_Shared_Test) {
         Initialize_Integration_Shared_Test.setUp();
     }
@@ -70,16 +74,17 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         whenAddressesProviderNotMismatch
         whenPoolAdminIsNotZeroAddressAndIsValid
     {
-        poolConfiguratorNotInitializedNew.initialize(
-            poolAddressesProviderNew, users.poolAdmin, address(usdc), "name", "symbol"
-        );
-        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfiguratorNotInitializedNew));
+        // Deploy new pool addresses provider and pool configurator, and set pool configurator to pool admin.
+        originalPoolAddressesProvider = deployPoolAddressesProvider();
+        originalPoolConfiguratorNotInitialized =
+            deployPoolSideWithPoolConfiguratorNotInitialized(originalPoolAddressesProvider);
+        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(originalPoolConfiguratorNotInitialized));
 
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.PoolConfigurator_AlreadyOwnsConfigurator.selector,
                 users.poolAdmin,
-                address(poolConfiguratorNotInitializedNew)
+                address(originalPoolConfiguratorNotInitialized)
             )
         );
         poolConfiguratorNotInitialized.initialize(
