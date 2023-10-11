@@ -53,12 +53,6 @@ interface IIsleGlobalsEvents {
     /// @param isValid_ The validity of the pool admin.
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
 
-    /// @dev Emitted when a pool configurator is set.
-    /// @param poolAdmin_ The address of the pool admin.
-    /// @param poolConfigurator_ The address of the pool configurator.
-
-    event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
-
     /// @dev   The max liquidation percent for the given pool manager has been set.
     /// @param poolManager_                The address of the pool manager.
     /// @param maxCoverLiquidation_ The new value for the cover liquidation percent.

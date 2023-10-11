@@ -36,9 +36,6 @@ library Errors {
     /// @notice Thrown when the pool admin set is not on the whitelist
     error PoolConfigurator_InvalidPoolAdmin(address poolAdmin_);
 
-    /// @notice Thrown when the pool admin set is already owned another pool configurator
-    error PoolConfigurator_AlreadyOwnsConfigurator(address poolAdmin_, address poolConfigurator_);
-
     /// @notice Thrown when the asset set is not on the whitelist
     error PoolConfigurator_InvalidPoolAsset(address asset_);
 
@@ -84,8 +81,6 @@ library Errors {
     error Globals_ToInvalidPoolAdmin(address poolAdmin);
 
     error Globals_ToInvalidPoolConfigurator(address poolConfigurator);
-
-    error Globals_AlreadyOwnsConfigurator(address poolAdmin, address poolConfigurator);
 
     error Globals_AdminZeroAddress();
 

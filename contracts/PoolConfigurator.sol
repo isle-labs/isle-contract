@@ -84,11 +84,6 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
             revert Errors.PoolConfigurator_InvalidPoolAdmin(poolAdmin_);
         }
 
-        address ownedPoolConfigurator = globals_.ownedPoolConfigurator(poolAdmin_);
-        if (ownedPoolConfigurator != address(0)) {
-            revert Errors.PoolConfigurator_AlreadyOwnsConfigurator(poolAdmin_, ownedPoolConfigurator);
-        }
-
         if (asset_ == address(0) || !globals_.isPoolAsset(asset_)) {
             revert Errors.PoolConfigurator_InvalidPoolAsset(asset_);
         }

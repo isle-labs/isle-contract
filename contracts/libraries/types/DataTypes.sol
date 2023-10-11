@@ -90,12 +90,6 @@ library Loan {
 }
 
 library Globals {
-    /// @notice Struct representing a pool admin
-    struct PoolAdmin {
-        bool isPoolAdmin; // Slot 1: bool - 1 byte
-        address ownedPoolConfigurator; //         address - 20 byte
-    }
-
     /// @notice Struct representing a pool configurator
     struct PoolConfigurator {
         uint24 maxCoverLiquidation; // Slot 1: uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6
