@@ -1,0 +1,385 @@
+| contracts/IsleGlobals.sol:IsleGlobals contract |                 |       |        |       |         |
+|------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                | Deployment Size |       |        |       |         |
+| 1590351                                        | 8012            |       |        |       |         |
+| Function Name                                  | min             | avg   | median | max   | # calls |
+| governor                                       | 2356            | 2356  | 2356   | 2356  | 8       |
+| initialize                                     | 54552           | 54552 | 54552  | 54552 | 177     |
+| isCollateralAsset                              | 620             | 1543  | 620    | 2620  | 52      |
+| isFunctionPaused(address,bytes4)(bool)         | 1004            | 3013  | 3062   | 4923  | 4       |
+| isFunctionPaused(bytes4)(bool)                 | 843             | 1800  | 843    | 5122  | 1160    |
+| isPoolAdmin                                    | 639             | 735   | 639    | 2639  | 186     |
+| isPoolAsset                                    | 643             | 687   | 643    | 2643  | 179     |
+| isleVault                                      | 394             | 794   | 394    | 2394  | 5       |
+| maxCoverLiquidation                            | 642             | 642   | 642    | 642   | 1       |
+| minCover                                       | 630             | 1518  | 630    | 2630  | 54      |
+| ownedPoolConfigurator                          | 658             | 679   | 658    | 2658  | 184     |
+| poolLimit                                      | 615             | 865   | 615    | 2615  | 152     |
+| protocolFee                                    | 397             | 1162  | 397    | 2397  | 47      |
+| protocolPaused                                 | 2417            | 2417  | 2417   | 2417  | 1       |
+| setContractPaused                              | 2821            | 21317 | 26675  | 26675 | 13      |
+| setFunctionUnpaused                            | 2928            | 13240 | 7343   | 27243 | 6       |
+| setIsleVault                                   | 2650            | 9919  | 2729   | 24378 | 3       |
+| setMaxCoverLiquidation                         | 2865            | 6065  | 6065   | 9265  | 2       |
+| setMinCover                                    | 2534            | 2558  | 2534   | 6534  | 178     |
+| setPoolConfigurator                            | 1231            | 3219  | 2998   | 9798  | 42      |
+| setPoolLimit                                   | 2813            | 24104 | 24327  | 24327 | 177     |
+| setProtocolFee                                 | 2718            | 5658  | 6639   | 6639  | 4       |
+| setProtocolPaused                              | 2762            | 17704 | 24175  | 26175 | 3       |
+| setValidCollateralAsset                        | 2441            | 23331 | 24341  | 24341 | 186     |
+| setValidPoolAdmin                              | 2429            | 23441 | 24329  | 26329 | 187     |
+| setValidPoolAsset                              | 2406            | 23382 | 24306  | 24306 | 185     |
+| contracts/LoanManager.sol:LoanManager contract |                 |        |        |        |         |
+|------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                | Deployment Size |        |        |        |         |
+| 3870171                                        | 19431           |        |        |        |         |
+| Function Name                                  | min             | avg    | median | max    | # calls |
+| accountedInterest                              | 405             | 405    | 405    | 405    | 1       |
+| accruedInterest                                | 434             | 1185   | 937    | 2434   | 8       |
+| approveLoan                                    | 12205           | 218061 | 227297 | 257797 | 53      |
+| assetsUnderManagement                          | 826             | 2994   | 4826   | 4826   | 276     |
+| fundLoan                                       | 33955           | 298576 | 300717 | 349517 | 49      |
+| getLoanPaymentBreakdown                        | 3411            | 12697  | 4340   | 30340  | 3       |
+| getLoanPaymentDetailedBreakdown                | 3504            | 10700  | 4433   | 30433  | 4       |
+| impairLoan                                     | 7327            | 109644 | 125810 | 190377 | 8       |
+| initialize                                     | 55823           | 55888  | 55823  | 66223  | 160     |
+| onERC721Received                               | 794             | 794    | 794    | 794    | 3       |
+| removeLoanImpairment                           | 16856           | 94252  | 97401  | 198152 | 6       |
+| repayLoan                                      | 11766           | 83603  | 84667  | 153311 | 4       |
+| triggerDefault(uint16)                         | 38332           | 67124  | 67124  | 95917  | 2       |
+| triggerDefault(uint16)(uint256,uint256)        | 11744           | 28742  | 33925  | 40559  | 3       |
+| unrealizedLosses()(uint128)                    | 427             | 2273   | 2427   | 2427   | 13      |
+| unrealizedLosses()(uint256)                    | 427             | 2154   | 2427   | 2427   | 44      |
+| updateAccounting                               | 10179           | 13850  | 10446  | 37934  | 9       |
+| withdrawFunds                                  | 11857           | 50443  | 46422  | 88855  | 6       |
+| contracts/Pool.sol:Pool contract            |                 |        |        |        |         |
+|---------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                             | Deployment Size |        |        |        |         |
+| 2262022                                     | 12795           |        |        |        |         |
+| Function Name                               | min             | avg    | median | max    | # calls |
+| approve(address,uint256)                    | 24692           | 24692  | 24692  | 24692  | 9       |
+| approve(address,uint256)(bool)              | 24692           | 24692  | 24692  | 24692  | 13      |
+| asset                                       | 281             | 281    | 281    | 281    | 2       |
+| balanceOf                                   | 620             | 1620   | 1620   | 2620   | 4       |
+| balanceOfAssets                             | 10909           | 10909  | 10909  | 10909  | 1       |
+| configurator                                | 449             | 449    | 449    | 449    | 1       |
+| convertToAssets                             | 8555            | 8555   | 8555   | 8555   | 1       |
+| convertToShares                             | 8597            | 8597   | 8597   | 8597   | 1       |
+| decimals                                    | 380             | 380    | 380    | 380    | 1       |
+| deposit                                     | 476             | 86437  | 87817  | 87817  | 120     |
+| depositWithPermit                           | 627             | 62854  | 69880  | 121640 | 8       |
+| maxDeposit                                  | 8465            | 34187  | 34564  | 58465  | 6       |
+| maxMint                                     | 11034           | 37756  | 38133  | 63034  | 6       |
+| maxRedeem                                   | 7510            | 7510   | 7510   | 7510   | 1       |
+| maxWithdraw                                 | 408             | 408    | 408    | 408    | 1       |
+| mint                                        | 475             | 35266  | 21794  | 83530  | 3       |
+| mintWithPermit                              | 675             | 56920  | 58769  | 116305 | 5       |
+| name                                        | 1331            | 1331   | 1331   | 1331   | 1       |
+| previewDeposit                              | 2096            | 3069   | 2096   | 8596   | 19      |
+| previewMint                                 | 2176            | 7863   | 8676   | 8676   | 8       |
+| previewRedeem                               | 54954           | 54954  | 54954  | 54954  | 1       |
+| previewWithdraw                             | 373             | 373    | 373    | 373    | 1       |
+| redeem                                      | 79012           | 79012  | 79012  | 79012  | 1       |
+| removeShares                                | 36661           | 36661  | 36661  | 36661  | 1       |
+| requestRedeem                               | 171805          | 175005 | 175805 | 175805 | 5       |
+| symbol                                      | 1329            | 1329   | 1329   | 1329   | 1       |
+| totalSupply                                 | 372             | 935    | 372    | 2372   | 103     |
+| transfer                                    | 2526            | 20472  | 25057  | 29857  | 23      |
+| transferFrom(address,address,uint256)       | 22159           | 24816  | 24816  | 27474  | 6       |
+| transferFrom(address,address,uint256)(bool) | 20559           | 24125  | 22159  | 27474  | 10      |
+| withdraw                                    | 553             | 553    | 553    | 553    | 1       |
+| contracts/PoolAddressesProvider.sol:PoolAddressesProvider contract |                 |         |         |         |         |
+|--------------------------------------------------------------------|-----------------|---------|---------|---------|---------|
+| Deployment Cost                                                    | Deployment Size |         |         |         |         |
+| 1697334                                                            | 9038            |         |         |         |         |
+| Function Name                                                      | min             | avg     | median  | max     | # calls |
+| admin                                                              | 414             | 414     | 414     | 414     | 1       |
+| getAddress                                                         | 490             | 490     | 490     | 490     | 2       |
+| getIsleGlobals                                                     | 367             | 496     | 367     | 2367    | 1657    |
+| getLoanManager                                                     | 388             | 575     | 388     | 2388    | 524     |
+| getMarketId                                                        | 1263            | 1263    | 1263    | 1263    | 2       |
+| getPoolConfigurator                                                | 412             | 569     | 412     | 2412    | 736     |
+| getWithdrawalManager                                               | 433             | 699     | 433     | 2433    | 225     |
+| setAddress                                                         | 2701            | 14665   | 14665   | 26629   | 2       |
+| setAddressAsProxy                                                  | 2945            | 296220  | 296220  | 589496  | 2       |
+| setIsleGlobals                                                     | 2737            | 24137   | 24243   | 26243   | 185     |
+| setLoanManagerImpl                                                 | 2715            | 631189  | 635008  | 652508  | 161     |
+| setMarketId                                                        | 2959            | 5552    | 5552    | 8145    | 2       |
+| setPoolConfiguratorImpl                                            | 2950            | 2881801 | 2989428 | 3009432 | 184     |
+| setWithdrawalManagerImpl                                           | 2895            | 633701  | 637616  | 642116  | 161     |
+| contracts/PoolConfigurator.sol:PoolConfigurator contract |                 |         |         |         |         |
+|----------------------------------------------------------|-----------------|---------|---------|---------|---------|
+| Deployment Cost                                          | Deployment Size |         |         |         |         |
+| 2270537                                                  | 11555           |         |         |         |         |
+| Function Name                                            | min             | avg     | median  | max     | # calls |
+| admin                                                    | 447             | 1356    | 447     | 2447    | 77      |
+| adminFee                                                 | 373             | 1123    | 373     | 2373    | 48      |
+| asset                                                    | 406             | 501     | 406     | 2406    | 168     |
+| baseRate                                                 | 374             | 374     | 374     | 374     | 1       |
+| depositCover                                             | 50237           | 51577   | 50237   | 77037   | 60      |
+| gracePeriod                                              | 396             | 396     | 396     | 396     | 1       |
+| hasSufficientCover                                       | 2710            | 4210    | 3710    | 6710    | 4       |
+| initialize                                               | 1857            | 2313498 | 2402241 | 2420256 | 185     |
+| isBuyer                                                  | 637             | 1521    | 637     | 2637    | 52      |
+| isLender                                                 | 636             | 636     | 636     | 636     | 1       |
+| isSeller                                                 | 613             | 1514    | 613     | 2613    | 51      |
+| maxDeposit                                               | 6887            | 15047   | 12887   | 45887   | 136     |
+| maxMint                                                  | 9468            | 30057   | 43968   | 52968   | 15      |
+| maxRedeem                                                | 5967            | 5967    | 5967    | 5967    | 3       |
+| openToPublic                                             | 362             | 362     | 362     | 362     | 1       |
+| pool                                                     | 450             | 515     | 450     | 2450    | 246     |
+| poolCover                                                | 373             | 373     | 373     | 373     | 2       |
+| previewRedeem(address,uint256)(uint256)                  | 53473           | 53473   | 53473   | 53473   | 1       |
+| previewRedeem(address,uint256)(uint256,uint256)          | 53473           | 53473   | 53473   | 53473   | 1       |
+| processRedeem                                            | 55090           | 55090   | 55090   | 55090   | 2       |
+| removeShares                                             | 35356           | 35356   | 35356   | 35356   | 2       |
+| requestFunds                                             | 14809           | 72852   | 59804   | 102604  | 48      |
+| requestRedeem                                            | 137146          | 138568  | 138746  | 138746  | 9       |
+| setAdminFee                                              | 19659           | 21680   | 20201   | 26659   | 4       |
+| setBaseRate                                              | 20746           | 23702   | 23702   | 26658   | 2       |
+| setGracePeriod                                           | 20747           | 23704   | 23704   | 26662   | 2       |
+| setOpenToPublic                                          | 10521           | 29941   | 30251   | 30251   | 179     |
+| setValidBuyer                                            | 3914            | 26566   | 26792   | 42292   | 180     |
+| setValidLender                                           | 20876           | 26823   | 26847   | 26847   | 352     |
+| setValidSeller                                           | 3922            | 26599   | 26802   | 42302   | 179     |
+| totalAssets                                              | 4147            | 4656    | 4147    | 30147   | 56      |
+| unrealizedLosses()(uint128)                              | 7048            | 11891   | 8545    | 23545   | 13      |
+| unrealizedLosses()(uint256)                              | 7048            | 10592   | 8545    | 30045   | 42      |
+| withdrawCover                                            | 47098           | 47098   | 47098   | 47098   | 1       |
+| contracts/Receivable.sol:Receivable contract |                 |        |        |        |         |
+|----------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                              | Deployment Size |        |        |        |         |
+| 2402061                                      | 12073           |        |        |        |         |
+| Function Name                                | min             | avg    | median | max    | # calls |
+| admin                                        | 447             | 447    | 447    | 447    | 1       |
+| approve(address,uint256)                     | 25192           | 25192  | 25192  | 25192  | 1       |
+| approve(address,uint256)(bool)               | 25192           | 26192  | 26192  | 27192  | 2       |
+| balanceOf                                    | 656             | 878    | 656    | 2656   | 9       |
+| burnReceivable                               | 6534            | 10054  | 10054  | 13574  | 2       |
+| createReceivable                             | 216066          | 218866 | 218566 | 229966 | 53      |
+| getReceivableInfoById                        | 1513            | 1513   | 1513   | 1513   | 53      |
+| initialize                                   | 93782           | 93782  | 93782  | 93782  | 163     |
+| ownerOf                                      | 558             | 1058   | 558    | 2558   | 4       |
+| safeTransferFrom                             | 28894           | 35134  | 38254  | 38254  | 3       |
+| tokenByIndex                                 | 783             | 783    | 783    | 783    | 1       |
+| totalSupply                                  | 393             | 393    | 393    | 393    | 1       |
+| contracts/WithdrawalManager.sol:WithdrawalManager contract |                 |        |        |        |         |
+|------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                            | Deployment Size |        |        |        |         |
+| 1794572                                                    | 9158            |        |        |        |         |
+| Function Name                                              | min             | avg    | median | max    | # calls |
+| addShares                                                  | 88776           | 105719 | 90376  | 126246 | 16      |
+| exitCycleId                                                | 557             | 557    | 557    | 557    | 1       |
+| getConfigAtId                                              | 5062            | 5062   | 5062   | 5062   | 1       |
+| getCurrentConfig                                           | 5215            | 5215   | 5215   | 5215   | 2       |
+| getCycleConfig                                             | 960             | 960    | 960    | 960    | 1       |
+| getRedeemableAmounts                                       | 49253           | 49253  | 49253  | 49253  | 1       |
+| getWindowAtId                                              | 5552            | 5552   | 5552   | 5552   | 2       |
+| getWindowStart                                             | 5361            | 5361   | 5361   | 5361   | 1       |
+| initialize                                                 | 57384           | 57384  | 57384  | 57384  | 160     |
+| isInExitWindow                                             | 1944            | 1944   | 1944   | 1944   | 4       |
+| latestConfigId                                             | 361             | 1361   | 1361   | 2361   | 2       |
+| lockedLiquidity                                            | 2686            | 26310  | 25781  | 45281  | 49      |
+| lockedShares                                               | 602             | 602    | 602    | 602    | 4       |
+| previewRedeem(address,uint256)(uint256)                    | 51051           | 51051  | 51051  | 51051  | 2       |
+| previewRedeem(address,uint256)(uint256,uint256)            | 51051           | 51051  | 51051  | 51051  | 1       |
+| processExit                                                | 49442           | 50722  | 49442  | 53282  | 3       |
+| removeShares                                               | 30120           | 31400  | 30120  | 33960  | 3       |
+| setExitConfig                                              | 84001           | 84001  | 84001  | 84001  | 1       |
+| modules/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol:ERC1967Proxy contract |                 |        |        |        |         |
+|-----------------------------------------------------------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                                                                               | Deployment Size |        |        |        |         |
+| 51501                                                                                         | 1321            |        |        |        |         |
+| Function Name                                                                                 | min             | avg    | median | max    | # calls |
+| admin                                                                                         | 830             | 830    | 830    | 830    | 1       |
+| approve(address,uint256)                                                                      | 25578           | 25578  | 25578  | 25578  | 1       |
+| approve(address,uint256)(bool)                                                                | 25578           | 28828  | 28828  | 32078  | 2       |
+| balanceOf                                                                                     | 1042            | 1264   | 1042   | 3042   | 9       |
+| burnReceivable                                                                                | 6840            | 10360  | 10360  | 13880  | 2       |
+| createReceivable                                                                              | 216473          | 221480 | 223473 | 230373 | 53      |
+| getReceivableInfoById                                                                         | 1923            | 1923   | 1923   | 1923   | 53      |
+| governor                                                                                      | 2739            | 3301   | 2739   | 7239   | 8       |
+| initialize                                                                                    | 54858           | 73702  | 54858  | 94165  | 340     |
+| isCollateralAsset                                                                             | 1006            | 1929   | 1006   | 3006   | 52      |
+| isFunctionPaused(address,bytes4)(bool)                                                        | 1393            | 3402   | 3451   | 5312   | 4       |
+| isFunctionPaused(bytes4)(bool)                                                                | 1229            | 2449   | 1229   | 9729   | 1160    |
+| isPoolAdmin                                                                                   | 1025            | 1339   | 1025   | 7525   | 186     |
+| isPoolAsset                                                                                   | 1029            | 1073   | 1029   | 3029   | 179     |
+| isleVault                                                                                     | 777             | 2077   | 777    | 7277   | 5       |
+| maxCoverLiquidation                                                                           | 1028            | 1028   | 1028   | 1028   | 1       |
+| minCover                                                                                      | 1016            | 1904   | 1016   | 3016   | 54      |
+| ownedPoolConfigurator                                                                         | 1044            | 1090   | 1044   | 7544   | 184     |
+| ownerOf                                                                                       | 944             | 2569   | 944    | 7444   | 4       |
+| poolLimit                                                                                     | 1001            | 1813   | 1001   | 7501   | 152     |
+| protocolFee                                                                                   | 780             | 1545   | 780    | 2780   | 47      |
+| protocolPaused                                                                                | 7300            | 7300   | 7300   | 7300   | 1       |
+| safeTransferFrom                                                                              | 29208           | 35448  | 38568  | 38568  | 3       |
+| setContractPaused                                                                             | 5161            | 25165  | 31561  | 31561  | 13      |
+| setFunctionUnpaused                                                                           | 7830            | 18134  | 12235  | 32135  | 6       |
+| setIsleVault                                                                                  | 7540            | 13307  | 7622   | 24761  | 3       |
+| setMaxCoverLiquidation                                                                        | 7761            | 10956  | 10956  | 14151  | 2       |
+| setMinCover                                                                                   | 2920            | 2994   | 2920   | 11420  | 178     |
+| setPoolConfigurator                                                                           | 1624            | 4034   | 3384   | 14684  | 42      |
+| setPoolLimit                                                                                  | 7709            | 24541  | 24713  | 24713  | 177     |
+| setProtocolFee                                                                                | 7611            | 10544  | 11522  | 11522  | 4       |
+| setProtocolPaused                                                                             | 7655            | 21090  | 24558  | 31058  | 3       |
+| setValidCollateralAsset                                                                       | 2827            | 23785  | 24727  | 24727  | 186     |
+| setValidPoolAdmin                                                                             | 2815            | 23899  | 24715  | 31215  | 187     |
+| setValidPoolAsset                                                                             | 2792            | 23817  | 24692  | 24692  | 185     |
+| tokenByIndex                                                                                  | 1169            | 1169   | 1169   | 1169   | 1       |
+| totalSupply                                                                                   | 776             | 776    | 776    | 776    | 1       |
+| modules/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy contract |                 |        |        |         |         |
+|---------------------------------------------------------------------------------------------------------------------------------|-----------------|--------|--------|---------|---------|
+| Deployment Cost                                                                                                                 | Deployment Size |        |        |         |         |
+| 574783                                                                                                                          | 4022            |        |        |         |         |
+| Function Name                                                                                                                   | min             | avg    | median | max     | # calls |
+| accountedInterest                                                                                                               | 1041            | 1041   | 1041   | 1041    | 1       |
+| accruedInterest                                                                                                                 | 1070            | 3446   | 1573   | 9570    | 8       |
+| addShares                                                                                                                       | 94488           | 111649 | 96088  | 133385  | 16      |
+| admin                                                                                                                           | 1083            | 3342   | 1083   | 9583    | 77      |
+| adminFee                                                                                                                        | 1009            | 1759   | 1009   | 3009    | 48      |
+| approveLoan                                                                                                                     | 19375           | 221793 | 227963 | 264963  | 53      |
+| asset                                                                                                                           | 1042            | 1175   | 1042   | 9542    | 168     |
+| assetsUnderManagement                                                                                                           | 1462            | 4125   | 5462   | 11962   | 276     |
+| baseRate                                                                                                                        | 1010            | 1010   | 1010   | 1010    | 1       |
+| depositCover                                                                                                                    | 50873           | 52538  | 50873  | 84173   | 60      |
+| exitCycleId                                                                                                                     | 1196            | 1196   | 1196   | 1196    | 1       |
+| fundLoan                                                                                                                        | 41098           | 299478 | 301353 | 350153  | 49      |
+| getConfigAtId                                                                                                                   | 12213           | 12213  | 12213  | 12213   | 1       |
+| getCurrentConfig                                                                                                                | 12363           | 12363  | 12363  | 12363   | 2       |
+| getCycleConfig                                                                                                                  | 1611            | 1611   | 1611   | 1611    | 1       |
+| getLoanPaymentBreakdown                                                                                                         | 4053            | 15505  | 4982   | 37482   | 3       |
+| getLoanPaymentDetailedBreakdown                                                                                                 | 4149            | 12970  | 5078   | 37578   | 4       |
+| getRedeemableAmounts                                                                                                            | 49901           | 49901  | 49901  | 49901   | 1       |
+| getWindowAtId                                                                                                                   | 12694           | 12694  | 12694  | 12694   | 2       |
+| getWindowStart                                                                                                                  | 12500           | 12500  | 12500  | 12500   | 1       |
+| gracePeriod                                                                                                                     | 1032            | 1032   | 1032   | 1032    | 1       |
+| hasSufficientCover                                                                                                              | 3346            | 6471   | 4346   | 13846   | 4       |
+| impairLoan                                                                                                                      | 7970            | 115971 | 132949 | 197513  | 8       |
+| initialize                                                                                                                      | 2554            | 582828 | 69184  | 2427437 | 9       |
+| initialized                                                                                                                     | 2912            | 2912   | 2912   | 2912    | 1       |
+| isBuyer                                                                                                                         | 1276            | 4785   | 1276   | 9776    | 52      |
+| isInExitWindow                                                                                                                  | 2583            | 2583   | 2583   | 2583    | 4       |
+| isLender                                                                                                                        | 1275            | 1275   | 1275   | 1275    | 1       |
+| isSeller                                                                                                                        | 1252            | 2281   | 1252   | 9752    | 51      |
+| latestConfigId                                                                                                                  | 997             | 5247   | 5247   | 9497    | 2       |
+| lockedLiquidity                                                                                                                 | 3322            | 29732  | 26417  | 47417   | 49      |
+| lockedShares                                                                                                                    | 1241            | 1241   | 1241   | 1241    | 4       |
+| maxDeposit                                                                                                                      | 7526            | 16212  | 13526  | 53026   | 136     |
+| maxMint                                                                                                                         | 10107           | 34162  | 51107  | 60107   | 15      |
+| maxRedeem                                                                                                                       | 6606            | 6606   | 6606   | 6606    | 3       |
+| onERC721Received                                                                                                                | 1454            | 1454   | 1454   | 1454    | 3       |
+| openToPublic                                                                                                                    | 998             | 998    | 998    | 998     | 1       |
+| pool                                                                                                                            | 1086            | 1336   | 1086   | 9586    | 246     |
+| poolCover                                                                                                                       | 1009            | 1009   | 1009   | 1009    | 2       |
+| previewRedeem(address,uint256)(uint256)                                                                                         | 51696           | 52502  | 51696  | 54115   | 3       |
+| previewRedeem(address,uint256)(uint256,uint256)                                                                                 | 51696           | 52905  | 52905  | 54115   | 2       |
+| processExit                                                                                                                     | 49958           | 51238  | 49958  | 53798   | 3       |
+| processRedeem                                                                                                                   | 55611           | 55611  | 55611  | 55611   | 2       |
+| removeLoanImpairment                                                                                                            | 23999           | 106239 | 101939 | 219695  | 6       |
+| removeShares                                                                                                                    | 30634           | 33496  | 34474  | 35870   | 5       |
+| repayLoan                                                                                                                       | 18909           | 87431  | 85181  | 160453  | 4       |
+| requestFunds                                                                                                                    | 15445           | 73488  | 60440  | 103240  | 48      |
+| requestRedeem                                                                                                                   | 142862          | 144284 | 144462 | 144462  | 9       |
+| setAdminFee                                                                                                                     | 26795           | 28818  | 27342  | 33795   | 4       |
+| setBaseRate                                                                                                                     | 27892           | 30843  | 30843  | 33794   | 2       |
+| setExitConfig                                                                                                                   | 84640           | 84640  | 84640  | 84640   | 1       |
+| setGracePeriod                                                                                                                  | 27893           | 30845  | 30845  | 33798   | 2       |
+| setOpenToPublic                                                                                                                 | 11030           | 30649  | 30887  | 30987   | 179     |
+| setValidBuyer                                                                                                                   | 4425            | 27276  | 27431  | 42931   | 180     |
+| setValidLender                                                                                                                  | 27486           | 27499  | 27486  | 31586   | 352     |
+| setValidSeller                                                                                                                  | 4433            | 27273  | 27441  | 42941   | 179     |
+| totalAssets                                                                                                                     | 4783            | 5408   | 4783   | 37283   | 56      |
+| triggerDefault(uint16)                                                                                                          | 45475           | 73553  | 73553  | 101631  | 2       |
+| triggerDefault(uint16)(uint256,uint256)                                                                                         | 18887           | 35885  | 41068  | 47702   | 3       |
+| unrealizedLosses()(uint128)                                                                                                     | 1063            | 8468   | 9181   | 24181   | 26      |
+| unrealizedLosses()(uint256)                                                                                                     | 1063            | 7364   | 9181   | 30681   | 86      |
+| updateAccounting                                                                                                                | 10812           | 15873  | 10952  | 45074   | 9       |
+| withdrawCover                                                                                                                   | 54237           | 54237  | 54237  | 54237   | 1       |
+| withdrawFunds                                                                                                                   | 19009           | 55145  | 53577  | 94571   | 6       |
+| tests/mocks/MintableERC20WithPermit.sol:MintableERC20WithPermit contract |                 |       |        |       |         |
+|--------------------------------------------------------------------------|-----------------|-------|--------|-------|---------|
+| Deployment Cost                                                          | Deployment Size |       |        |       |         |
+| 622826                                                                   | 3906            |       |        |       |         |
+| Function Name                                                            | min             | avg   | median | max   | # calls |
+| DOMAIN_SEPARATOR                                                         | 2961            | 2961  | 2961   | 2961  | 13      |
+| PERMIT_TYPEHASH                                                          | 218             | 218   | 218    | 218   | 13      |
+| approve(address,uint256)                                                 | 24573           | 24573 | 24573  | 24573 | 281     |
+| approve(address,uint256)(bool)                                           | 24573           | 24573 | 24573  | 24573 | 534     |
+| balanceOf                                                                | 564             | 1216  | 564    | 2564  | 6325    |
+| mint                                                                     | 22888           | 22888 | 22888  | 22888 | 117     |
+| permit                                                                   | 739             | 26934 | 27632  | 51727 | 8       |
+| transfer                                                                 | 1181            | 7529  | 5981   | 23081 | 14      |
+| transferFrom(address,address,uint256)                                    | 1664            | 22265 | 21564  | 30364 | 73      |
+| transferFrom(address,address,uint256)(bool)                              | 1664            | 22398 | 21564  | 30364 | 159     |
+| tests/mocks/MockImplementation.sol:MockImplementation contract |                 |      |        |      |         |
+|----------------------------------------------------------------|-----------------|------|--------|------|---------|
+| Deployment Cost                                                | Deployment Size |      |        |      |         |
+| 21275                                                          | 136             |      |        |      |         |
+| Function Name                                                  | min             | avg  | median | max  | # calls |
+| initialized                                                    | 2276            | 2276 | 2276   | 2276 | 1       |
+| tests/utils/Defaults.sol:Defaults contract |                 |        |        |        |         |
+|--------------------------------------------|-----------------|--------|--------|--------|---------|
+| Deployment Cost                            | Deployment Size |        |        |        |         |
+| 1003092                                    | 5360            |        |        |        |         |
+| Function Name                              | min             | avg    | median | max    | # calls |
+| ADD_SHARES                                 | 252             | 252    | 252    | 252    | 33      |
+| ADMIN_FEE                                  | 883             | 883    | 883    | 883    | 2       |
+| ADMIN_FEE_RATE                             | 293             | 293    | 293    | 293    | 18      |
+| ASSETS                                     | 252             | 252    | 252    | 252    | 1       |
+| BASE_RATE                                  | 316             | 316    | 316    | 316    | 16      |
+| COVER_AMOUNT                               | 319             | 319    | 319    | 319    | 60      |
+| CYCLE_DURATION                             | 294             | 294    | 294    | 294    | 178     |
+| DEADLINE                                   | 319             | 319    | 319    | 319    | 13      |
+| DECIMALS_OFFSET                            | 272             | 272    | 272    | 272    | 1       |
+| DELTA                                      | 317             | 317    | 317    | 317    | 1       |
+| DEPOSIT_AMOUNT                             | 295             | 295    | 295    | 295    | 7       |
+| EXPECTED_ASSETS                            | 274             | 274    | 274    | 274    | 1       |
+| EXPECTED_SHARES                            | 252             | 252    | 252    | 252    | 1       |
+| FACE_AMOUNT                                | 274             | 274    | 274    | 274    | 3       |
+| GRACE_PERIOD                               | 293             | 293    | 293    | 293    | 67      |
+| ID                                         | 274             | 274    | 274    | 274    | 19      |
+| INTEREST                                   | 724             | 724    | 724    | 724    | 6       |
+| INTEREST_RATE                              | 296             | 296    | 296    | 296    | 47      |
+| LATE_INTEREST                              | 782             | 782    | 782    | 782    | 4       |
+| LATE_INTEREST_PREMIUM_RATE                 | 273             | 273    | 273    | 273    | 47      |
+| MARKET_ID                                  | 546             | 546    | 546    | 546    | 197     |
+| MAX_COVER_LIQUIDATION                      | 315             | 315    | 315    | 315    | 4       |
+| MAY_31_2023                                | 407             | 407    | 407    | 407    | 19      |
+| MINT_AMOUNT                                | 252             | 252    | 252    | 252    | 8       |
+| MIN_COVER_AMOUNT                           | 315             | 315    | 315    | 315    | 180     |
+| NET_INTEREST                               | 1987            | 1987   | 1987   | 1987   | 4       |
+| NEW_ADDRESS                                | 329             | 329    | 329    | 329    | 17      |
+| NEW_CYCLE_DURATION                         | 338             | 338    | 338    | 338    | 14      |
+| NEW_IMPLEMENTATION                         | 349             | 349    | 349    | 349    | 16      |
+| NEW_MARKET_ID                              | 612             | 612    | 612    | 612    | 16      |
+| NEW_RATE_ZERO_FEE_RATE                     | 1013            | 1013   | 1013   | 1013   | 21      |
+| NEW_WINDOW_DURATION                        | 295             | 295    | 295    | 295    | 14      |
+| OPEN_TO_PUBLIC                             | 268             | 268    | 268    | 268    | 16      |
+| PAUSED_CONTRACT                            | 307             | 307    | 307    | 307    | 14      |
+| PAUSED_FUNCTION_SIG                        | 316             | 316    | 316    | 316    | 11      |
+| PERIOD                                     | 318             | 318    | 318    | 318    | 1       |
+| POOL_ASSETS                                | 274             | 274    | 274    | 274    | 131     |
+| POOL_LIMIT                                 | 294             | 294    | 294    | 294    | 183     |
+| POOL_NAME                                  | 546             | 546    | 546    | 546    | 192     |
+| POOL_SHARES                                | 253             | 253    | 253    | 253    | 125     |
+| POOL_SYMBOL                                | 589             | 589    | 589    | 589    | 192     |
+| PRINCIPAL                                  | 251             | 251    | 251    | 251    | 1       |
+| PRINCIPAL_REQUESTED                        | 297             | 297    | 297    | 297    | 78      |
+| PROTOCOL_FEE                               | 885             | 885    | 885    | 885    | 2       |
+| PROTOCOL_FEE_RATE                          | 295             | 295    | 295    | 295    | 5       |
+| RECEIVABLE_TOKEN_ID                        | 294             | 294    | 294    | 294    | 5       |
+| REDEEM_SHARES                              | 295             | 295    | 295    | 295    | 61      |
+| REMOVE_SHARES                              | 319             | 319    | 319    | 319    | 65      |
+| REPAYMENT_TIMESTAMP                        | 275             | 275    | 275    | 275    | 1       |
+| SHARES                                     | 296             | 296    | 296    | 296    | 1       |
+| UNDERLYING_DECIMALS                        | 294             | 294    | 294    | 294    | 1       |
+| WINDOW_1                                   | 317             | 317    | 317    | 317    | 3       |
+| WINDOW_3                                   | 295             | 295    | 295    | 295    | 14      |
+| WINDOW_4                                   | 315             | 315    | 315    | 315    | 1       |
+| WINDOW_DURATION                            | 337             | 337    | 337    | 337    | 179     |
+| WITHDRAW_COVER_AMOUNT                      | 273             | 273    | 273    | 273    | 1       |
+| createReceivable                           | 951             | 2913   | 951    | 4951   | 53      |
+| receivableInfo                             | 978             | 978    | 978    | 978    | 2       |
+| setAsset                                   | 22575           | 22575  | 22575  | 22575  | 191     |
+| setUsers                                   | 267720          | 267720 | 267720 | 267720 | 191     |
