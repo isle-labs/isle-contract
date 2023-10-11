@@ -162,6 +162,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             address(poolAddressesProvider_),
             users.poolAdmin,
             address(usdc),
+            address(users.buyer),
             defaults.POOL_NAME(),
             defaults.POOL_SYMBOL()
         );
@@ -174,9 +175,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
         changePrank(users.poolAdmin);
         poolConfigurator_.setOpenToPublic(true);
+
+        poolConfigurator_.assignPoolBuyer(users.buyer);
+
         poolConfigurator_.setValidLender(users.receiver, true);
         poolConfigurator_.setValidLender(users.caller, true);
-        poolConfigurator_.setValidBuyer(users.buyer, true);
         poolConfigurator_.setValidSeller(users.seller, true);
 
         changePrank(users.governor); // change back to governor
@@ -212,6 +215,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     function setDefaultGlobals(IPoolAddressesProvider poolAddressesProvider_) internal {
         isleGlobals.setValidPoolAdmin(users.poolAdmin, true);
         isleGlobals.setValidPoolAsset(address(usdc), true);
+        isleGlobals.setValidPoolBuyer(users.buyer, true);
         isleGlobals.setValidCollateralAsset(address(receivable), true);
 
         poolAddressesProvider_.setIsleGlobals(address(isleGlobals));

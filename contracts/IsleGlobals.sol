@@ -55,6 +55,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => Globals.PoolConfigurator) public override poolConfigurators;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
+    mapping(address => bool) public override isPoolBuyer;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INITIALIZER
@@ -123,6 +124,11 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
         poolAdmins[poolAdmin_].isPoolAdmin = isValid_;
         emit ValidPoolAdminSet(poolAdmin_, isValid_);
+    }
+
+    function setValidPoolBuyer(address poolBuyer_, bool isValid_) external override onlyGovernor {
+        isPoolBuyer[poolBuyer_] = isValid_;
+        emit ValidPoolBuyerSet(poolBuyer_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals

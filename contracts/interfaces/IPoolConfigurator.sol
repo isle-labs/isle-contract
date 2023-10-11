@@ -22,6 +22,7 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
         IPoolAddressesProvider provider_,
         address poolAdmin_,
         address asset_,
+        address buyer_,
         string memory name_,
         string memory symbol_
     )
@@ -31,10 +32,9 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
                             EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Sets the status of a buyer
-    /// @param buyer_ The address of the buyer
-    /// @param isValid_ Whether the buyer is valid
-    function setValidBuyer(address buyer_, bool isValid_) external;
+    /// @notice assigns a pool buyer to the pool
+    /// @param buyer_ The address of the buyer for this pool
+    function assignPoolBuyer(address buyer_) external;
 
     /// @notice Sets the status of a seller
     /// @param seller_ The address of the seller

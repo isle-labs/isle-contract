@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 interface IPoolConfiguratorStorage {
     function asset() external view returns (address asset_);
     function pool() external view returns (address pool_);
+    function buyer() external view returns (address buyer_);
 
     function config()
         external
@@ -12,7 +13,6 @@ interface IPoolConfiguratorStorage {
 
     function poolCover() external view returns (uint256 poolCover_);
 
-    function isBuyer(address buyer_) external view returns (bool isBuyer_);
     function isSeller(address seller_) external view returns (bool isSeller_);
     function isLender(address lender_) external view returns (bool isLender_);
 }

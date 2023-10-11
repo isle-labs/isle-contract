@@ -107,6 +107,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
             address(poolAddressesProvider),
             users.poolAdmin,
             address(usdc),
+            address(users.buyer),
             _params.poolSymbol,
             _params.poolName
         );
