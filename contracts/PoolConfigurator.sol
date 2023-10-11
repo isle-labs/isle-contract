@@ -7,7 +7,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { PoolDeployer } from "./libraries/PoolDeployer.sol";
 
-import { Adminable } from "./abstracts/Adminable.sol";
+import { Adminable, IAdminable } from "./abstracts/Adminable.sol";
 
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
@@ -37,6 +37,11 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     modifier onlyAdminOrGovernor() {
         _revertIfNotAdminOrGovernor();
+        _;
+    }
+
+    modifier onlyGovernor() {
+        _revertIfNotGovernor();
         _;
     }
 
@@ -105,6 +110,16 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function transferAdmin(address newAdmin_) external override(Adminable, IAdminable) onlyGovernor {
+        if (newAdmin_ == address(0) || !_globals().isPoolAdmin(newAdmin_)) {
+            revert Errors.PoolConfigurator_InvalidPoolAdmin(newAdmin_);
+        }
+
+        address oldAdmin_ = admin;
+        admin = newAdmin_;
+        emit TransferAdmin({ oldAdmin: oldAdmin_, newAdmin: newAdmin_ });
+    }
 
     /// @inheritdoc IPoolConfigurator
     function assignPoolBuyer(address buyer_) external override whenNotPaused onlyAdmin {
@@ -338,6 +353,12 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     function _revertIfNotAdminOrGovernor() internal view {
         if (msg.sender != admin && msg.sender != _globals().governor()) {
             revert Errors.PoolConfigurator_CallerNotPoolAdminOrGovernor(msg.sender);
+        }
+    }
+
+    function _revertIfNotGovernor() internal view {
+        if (msg.sender != _globals().governor()) {
+            revert Errors.PoolConfigurator_CallerNotGovernor(msg.sender);
         }
     }
 

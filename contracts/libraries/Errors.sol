@@ -48,6 +48,9 @@ library Errors {
     /// @notice Thrown when caller is not pool admin or governor
     error PoolConfigurator_CallerNotPoolAdminOrGovernor(address caller_);
 
+    /// @notice Thrown when caller is not governor
+    error PoolConfigurator_CallerNotGovernor(address caller_);
+
     /// @notice Thrown when the total supply of the pool is zero
     error PoolConfigurator_PoolSupplyZero();
 
