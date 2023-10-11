@@ -6,7 +6,7 @@ import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { Receivable } from "./libraries/types/DataTypes.sol";
 
 contract ReceivableStorage {
-    address public lopoGlobals;
+    address public isleGlobals;
     uint256 internal _tokenIdCounter;
 
     // The mapping of the token id to the receivable info

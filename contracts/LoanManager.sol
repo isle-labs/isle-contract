@@ -13,7 +13,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
-import { ILopoGlobals } from "./interfaces/ILopoGlobals.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
@@ -171,8 +171,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         whenNotPaused
         returns (uint16 loanId_)
     {
-        // Check if the collateral asset is in the allowed list in LopoGlobals
-        if (!ILopoGlobals(_globals()).isCollateralAsset(collateralAsset_)) {
+        // Check if the collateral asset is in the allowed list in IsleGlobals
+        if (!IIsleGlobals(_globals()).isCollateralAsset(collateralAsset_)) {
             revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
         }
 
@@ -532,11 +532,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _globals() internal view returns (address globals_) {
-        globals_ = ADDRESSES_PROVIDER.getLopoGlobals();
+        globals_ = ADDRESSES_PROVIDER.getIsleGlobals();
     }
 
     function _governor() internal view returns (address governor_) {
-        governor_ = ILopoGlobals(_globals()).governor();
+        governor_ = IIsleGlobals(_globals()).governor();
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
@@ -548,7 +548,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _vault() internal view returns (address vault_) {
-        vault_ = ILopoGlobals(_globals()).lopoVault();
+        vault_ = IIsleGlobals(_globals()).isleVault();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -803,7 +803,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _queuePayment(uint16 loanId_, uint256 startDate_, uint256 dueDate_) internal returns (uint256 newRate_) {
-        uint256 protocolFee_ = ILopoGlobals(_globals()).protocolFee();
+        uint256 protocolFee_ = IIsleGlobals(_globals()).protocolFee();
         uint256 adminFee_ = IPoolConfigurator(_poolConfigurator()).adminFee();
         uint256 feeRate_ = protocolFee_ + adminFee_;
 
@@ -955,7 +955,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     //////////////////////////////////////////////////////////////////////////*/
 
     function _revertIfPaused() internal view {
-        if (ILopoGlobals(_globals()).isFunctionPaused(msg.sig)) {
+        if (IIsleGlobals(_globals()).isFunctionPaused(msg.sig)) {
             revert Errors.FunctionPaused(msg.sig);
         }
     }

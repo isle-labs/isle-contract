@@ -33,7 +33,7 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
-        lopoGlobals.setContractPaused(address(loanManager), true);
+        isleGlobals.setContractPaused(address(loanManager), true);
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -46,7 +46,7 @@ contract ApproveLoan_Integration_Concrete_Test is
 
     function test_RevertWhen_CollateralAssetNotAllowed() external whenNotPaused {
         changePrank(users.governor);
-        lopoGlobals.setValidCollateralAsset(address(receivable), false);
+        isleGlobals.setValidCollateralAsset(address(receivable), false);
 
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CollateralAssetNotAllowed.selector, address(receivable))

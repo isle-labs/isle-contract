@@ -24,10 +24,10 @@ interface IPoolAddressesProvider {
     /// @param newAddress The new address of the withdrawal manager
     event WithdrawalManagerUpdated(address indexed oldAddress, address indexed newAddress);
 
-    /// @dev Emitted when lopo globals is updated.
-    /// @param oldAddress The old address of lopo globals
-    /// @param newAddress The new address of lopo globals
-    event LopoGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
+    /// @dev Emitted when isle globals is updated.
+    /// @param oldAddress The old address of isle globals
+    /// @param newAddress The new address of isle globals
+    event IsleGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
 
     /// @dev Emitted when a new proxy is created.
     /// @param id The identifier of the proxy
@@ -113,11 +113,11 @@ interface IPoolAddressesProvider {
     /// @param newWithdrawalManagerImpl The new WithdrawalManager implementation
     function setWithdrawalManagerImpl(address newWithdrawalManagerImpl, bytes calldata params) external;
 
-    /// @notice Returns the address of lopo globals.
-    /// @return The LopoGlobals address
-    function getLopoGlobals() external view returns (address);
+    /// @notice Returns the address of isle globals.
+    /// @return The IsleGlobals address
+    function getIsleGlobals() external view returns (address);
 
-    /// @notice Sets an address for LopoGlobals replacing the address saved in the addresses map
-    /// @param newLopoGlobals LopoGlobals address
-    function setLopoGlobals(address newLopoGlobals) external;
+    /// @notice Sets an address for IsleGlobals replacing the address saved in the addresses map
+    /// @param newIsleGlobals IsleGlobals address
+    function setIsleGlobals(address newIsleGlobals) external;
 }

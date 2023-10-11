@@ -21,7 +21,7 @@ import { Assertions } from "./utils/Assertions.sol";
 import { MintableERC20WithPermit } from "./mocks/MintableERC20WithPermit.sol";
 
 // interfaces
-import { ILopoGlobals } from "../contracts/interfaces/ILopoGlobals.sol";
+import { IIsleGlobals } from "../contracts/interfaces/IIsleGlobals.sol";
 import { IReceivable } from "../contracts/interfaces/IReceivable.sol";
 import { IPoolAddressesProvider } from "../contracts/interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfigurator } from "../contracts/interfaces/IPoolConfigurator.sol";
@@ -33,7 +33,7 @@ import { IPool } from "../contracts/interfaces/IPool.sol";
 import { ReceivableStorage } from "../contracts/ReceivableStorage.sol";
 
 // main contracts
-import { LopoGlobals } from "../contracts/LopoGlobals.sol";
+import { IsleGlobals } from "../contracts/IsleGlobals.sol";
 import { Receivable } from "../contracts/Receivable.sol";
 import { PoolAddressesProvider } from "../contracts/PoolAddressesProvider.sol";
 import { PoolConfigurator } from "../contracts/PoolConfigurator.sol";
@@ -57,8 +57,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     MintableERC20WithPermit internal usdc;
     Defaults internal defaults;
 
-    // Lopo Globals UUPS contract
-    ILopoGlobals internal lopoGlobals;
+    // Isle Globals UUPS contract
+    IIsleGlobals internal isleGlobals;
 
     // Receivable UUPS contract
     IReceivable internal receivable;
@@ -108,13 +108,13 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
                                     HELPER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Deploy all related lopo contracts
+    /// @dev Deploy all related isle contracts
     function deployAndLabelCore() internal {
         changePrank(users.governor);
 
         // Deploy globals and receivable
         receivable = deployReceivable();
-        lopoGlobals = deployGlobals();
+        isleGlobals = deployGlobals();
 
         // Deploy pool side contracts
         poolAddressesProvider = deployPoolAddressesProvider();
@@ -125,7 +125,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         pool = Pool(poolConfigurator.pool());
 
         vm.label(address(receivable), "Receivable");
-        vm.label(address(lopoGlobals), "LopoGlobals");
+        vm.label(address(isleGlobals), "IsleGlobals");
         vm.label(address(poolAddressesProvider), "PoolAddressesProvider");
         vm.label(address(poolConfigurator), "PoolConfigurator");
         vm.label(address(pool), "Pool");
@@ -133,10 +133,10 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         vm.label(address(withdrawalManager), "WithdrawalManager");
     }
 
-    /// @dev Deploy lopo Globals as an UUPS proxy
-    function deployGlobals() internal returns (ILopoGlobals lopoGlobals_) {
-        lopoGlobals_ = LopoGlobals(address(new UUPSProxy(address(new LopoGlobals()), "")));
-        lopoGlobals_.initialize(users.governor);
+    /// @dev Deploy isle Globals as an UUPS proxy
+    function deployGlobals() internal returns (IIsleGlobals isleGlobals_) {
+        isleGlobals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), "")));
+        isleGlobals_.initialize(users.governor);
     }
 
     /// @dev Deploy receivable as an UUPS proxy
@@ -169,8 +169,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
         poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
 
-        lopoGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
-        lopoGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
+        isleGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
+        isleGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
 
         changePrank(users.poolAdmin);
         poolConfigurator_.setOpenToPublic(true);
@@ -210,11 +210,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     function setDefaultGlobals(IPoolAddressesProvider poolAddressesProvider_) internal {
-        lopoGlobals.setValidPoolAdmin(users.poolAdmin, true);
-        lopoGlobals.setValidPoolAsset(address(usdc), true);
-        lopoGlobals.setValidCollateralAsset(address(receivable), true);
+        isleGlobals.setValidPoolAdmin(users.poolAdmin, true);
+        isleGlobals.setValidPoolAsset(address(usdc), true);
+        isleGlobals.setValidCollateralAsset(address(receivable), true);
 
-        poolAddressesProvider_.setLopoGlobals(address(lopoGlobals));
+        poolAddressesProvider_.setIsleGlobals(address(isleGlobals));
     }
 
     /// @dev Generates a user, labels its address, and funds it with test assets.

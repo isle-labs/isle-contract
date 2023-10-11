@@ -34,7 +34,7 @@ contract Defaults is Constants {
     uint24 public constant ADMIN_FEE_RATE = 0.1e6; // 10%
     uint24 public constant PROTOCOL_FEE_RATE = 0.005e6; // 0.5%
 
-    // Lopo Globals
+    // Isle Globals
     uint24 public constant MAX_COVER_LIQUIDATION = 0.5e6; // 50%
     uint104 public constant MIN_COVER_AMOUNT = 10e6;
     uint104 public constant POOL_LIMIT = 5_000_000e6;

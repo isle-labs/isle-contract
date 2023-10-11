@@ -1,15 +1,15 @@
-# Lopo Protocol
+# Isle Protocol
 
 [![Github Actions][gha-badge]][gha] [![Coverage][codecov-badge]][codecov] [![Foundry][foundry-badge]][foundry]
 
-[gha]: https://github.com/bsostech/lopo-protocol/actions
-[gha-badge]: https://github.com/bsostech/lopo-protocol/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/bsostech/lopo-protocol
-[codecov-badge]: https://codecov.io/gh/bsostech/lopo-protocol/graph/badge.svg?token=MZCPLVNMTH
+[gha]: https://github.com/bsostech/isle/actions
+[gha-badge]: https://github.com/bsostech/isle/actions/workflows/ci.yml/badge.svg
+[codecov]: https://codecov.io/gh/bsostech/isle
+[codecov-badge]: https://codecov.io/gh/bsostech/isle/graph/badge.svg?token=MZCPLVNMTH
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
 
-This repository contains the core smart contracts for the Lopo Protocol. In-depth documentation is available at [docs.lopo.finance](https://docs.lopo.finance)
+This repository contains the core smart contracts for the Isle Protocol. In-depth documentation is available at [docs.isle.finance](https://docs.isle.finance)
 
 ## Getting Started
 
@@ -33,7 +33,7 @@ This repository contains the core smart contracts for the Lopo Protocol. In-dept
 
 ## Architecture
 
-Lopo Protocol is a designed where each pool will be a set of contracts
+Isle Protocol is a designed where each pool will be a set of contracts
 
 - `PoolAddressesProvider`
 - `LoanManager`
@@ -41,7 +41,7 @@ Lopo Protocol is a designed where each pool will be a set of contracts
 - `PoolConfigurator`
 - `Pool`
 
-That is to say, each pool will have its own set of contracts so as to maximize customisability for pool admins. Please see the following [diagrams](https://docs.lopo.finance/technical-resources/diagrams) to have a better view of the design and flow.
+That is to say, each pool will have its own set of contracts so as to maximize customisability for pool admins. Please see the following [diagrams](https://docs.isle.finance/technical-resources/diagrams) to have a better view of the design and flow.
 
 ## Usage
 

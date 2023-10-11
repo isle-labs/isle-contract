@@ -78,7 +78,7 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         originalPoolAddressesProvider = deployPoolAddressesProvider();
         originalPoolConfiguratorNotInitialized =
             deployPoolSideWithPoolConfiguratorNotInitialized(originalPoolAddressesProvider);
-        lopoGlobals.setPoolConfigurator(users.poolAdmin, address(originalPoolConfiguratorNotInitialized));
+        isleGlobals.setPoolConfigurator(users.poolAdmin, address(originalPoolConfiguratorNotInitialized));
 
         vm.expectRevert(
             abi.encodeWithSelector(
