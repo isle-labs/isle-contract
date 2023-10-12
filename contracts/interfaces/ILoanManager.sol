@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { Loan } from "../libraries/types/DataTypes.sol";
+
 import { ILoanManagerEvents } from "./ILoanManagerEvents.sol";
 import { ILoanManagerStorage } from "./ILoanManagerStorage.sol";
 
@@ -10,6 +12,11 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Gets the loan info
+    /// @param loanId_ The id of the loan
+    /// @return loan_ Struct that contains the info of the loan
+    function getLoanInfo(uint16 loanId_) external view returns (Loan.Info memory loan_);
 
     /// @notice Gets the amounf of interest up until this point in time
     /// @return accruedInterest_ The amount of accrued interest up until this point in time

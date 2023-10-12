@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
@@ -44,7 +43,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
                                 Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint24 public override protocolFee;
+    uint24 public override protocolFee; // 100.0000%
     address public override isleVault;
 
     bool public override protocolPaused;

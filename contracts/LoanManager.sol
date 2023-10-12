@@ -7,7 +7,6 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
@@ -87,6 +86,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     /// @inheritdoc VersionedInitializable
     function getRevision() internal pure virtual override returns (uint256 revision_) {
         revision_ = LOAN_MANAGER_REVISION;
+    }
+
+    /// @inheritdoc ILoanManager
+    function getLoanInfo(uint16 loanId_) external view returns (Loan.Info memory loan_) {
+        return _loans[loanId_];
     }
 
     /// @inheritdoc ILoanManager

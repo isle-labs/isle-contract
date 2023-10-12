@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-
 import { Receivable } from "../libraries/types/DataTypes.sol";
 
 import { ReceivableStorage } from "../ReceivableStorage.sol";
@@ -18,7 +16,6 @@ interface IReceivable is IReceivableEvent {
 
     /// @dev Mint a new receivable
     /// @notice Only the buyer can call this function
-    /// @notice The input type of faceAmount_ is UD60x18, which is a fixed-point number with 18 decimals
     /// @notice The event faceAmount is converted to decimal with 6 decimals
     /// @param create_ The struct containing the information of the receivable to be created
     /// @return tokenId_ The id of the newly created receivable
