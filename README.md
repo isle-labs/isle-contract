@@ -136,3 +136,29 @@ Run the tests:
 ```sh
 $ forge test
 ```
+
+### Scripts
+
+View balance of address
+```sh
+cast balance --rpc-url "sepolia" -e $ADDRESS
+```
+
+Send ETH to another address
+
+```sh
+cast send $ADDRESS --rpc-url "sepolia" --value 0.1ether --private-key $PRIV_KEY
+```
+
+Run deploy scripts
+
+```sh
+forge script scripts/DeployCore.s.sol --broadcast --rpc-url "sepolia" --sig "run(address)" --verify -vvvv "$ARG1" "$ARG2"
+```
+
+### Deployment Addresses
+
+- Receivable: `0x32b58D93c903b8A105bDDFb77E6E96E98F50B721`
+- ReceivableProxy: `0x8264c54eDdCEAe79f2efa9370b96b795Ea6C14B7`
+- IsleGlobals: `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
+- [IsleUSD](https://sepolia.etherscan.io/token/0xb401711cc0f7ec96a8931526e94046e0e3a6b403): `0xB401711cc0f7EC96A8931526e94046e0E3A6B403`
