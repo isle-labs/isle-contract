@@ -9,11 +9,5 @@ abstract contract IsleGlobals_Integration_Concrete_Test is Integration_Test {
 
         // Make the msg sender the default governor
         changePrank(users.governor);
-        assignPoolConfigurator();
-    }
-
-    function assignPoolConfigurator() internal {
-        // assign the pool configurator to specific pool admin
-        isleGlobals.setPoolConfigurator(users.poolAdmin, address(poolConfigurator));
     }
 }

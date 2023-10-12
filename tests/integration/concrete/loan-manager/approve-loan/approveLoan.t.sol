@@ -71,7 +71,9 @@ contract ApproveLoan_Integration_Concrete_Test is
         createDefaultReceivable();
 
         changePrank(users.poolAdmin);
-        poolConfigurator.setValidBuyer(users.buyer, false);
+        // Hacky workaround: we should instead use receivables with a wrong buyer, not change the buyer of the
+        // {PoolConfigurator}.
+        poolConfigurator.setBuyer(users.caller);
 
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_InvalidReceivable.selector, 0));
 

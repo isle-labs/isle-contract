@@ -123,7 +123,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         // configs.
         // But this function should only be called by the pool admin and not often, and, at most, we need to iterate
         // through 3 cycles.
-        for (uint256 i = currentCycleId_; i < initialCycleId_; i++) {
+        for (uint256 i = currentCycleId_; i < initialCycleId_; ++i) {
             WM.CycleConfig memory config = getConfigAtId(i);
             initialCycleTime_ += config.cycleDuration;
         }

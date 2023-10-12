@@ -68,30 +68,6 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         poolConfiguratorNotInitialized.initialize(poolAddressesProvider, address(0), address(usdc), "name", "symbol");
     }
 
-    function test_RevertWhen_PoolAdminAlreadyOwnedPoolConfigurator()
-        external
-        whenNotInitialized
-        whenAddressesProviderNotMismatch
-        whenPoolAdminIsNotZeroAddressAndIsValid
-    {
-        // Deploy new pool addresses provider and pool configurator, and set pool configurator to pool admin.
-        originalPoolAddressesProvider = deployPoolAddressesProvider();
-        originalPoolConfiguratorNotInitialized =
-            deployPoolSideWithPoolConfiguratorNotInitialized(originalPoolAddressesProvider);
-        isleGlobals.setPoolConfigurator(users.poolAdmin, address(originalPoolConfiguratorNotInitialized));
-
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Errors.PoolConfigurator_AlreadyOwnsConfigurator.selector,
-                users.poolAdmin,
-                address(originalPoolConfiguratorNotInitialized)
-            )
-        );
-        poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, address(usdc), "name", "symbol"
-        );
-    }
-
     function test_RevertWhen_AssetIsZeroAddressOrInvalid()
         external
         whenNotInitialized

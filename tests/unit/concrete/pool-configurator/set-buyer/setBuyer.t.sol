@@ -5,11 +5,12 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { PoolConfigurator_Unit_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
-contract SetValidBuyer_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
+contract SetBuyer_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
     function setUp() public virtual override(PoolConfigurator_Unit_Shared_Test) {
         PoolConfigurator_Unit_Shared_Test.setUp();
 
-        poolConfigurator.setValidBuyer(users.buyer, false);
+        // switch current pool buyer for testing purposes
+        poolConfigurator.setBuyer(users.caller);
     }
 
     function test_RevertWhen_CallerNotPoolAdmin() external {
@@ -18,16 +19,15 @@ contract SetValidBuyer_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test {
 
         // Run the test.
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.poolAdmin, users.eve));
-        poolConfigurator.setValidBuyer(users.buyer, true);
+        poolConfigurator.setBuyer(users.buyer);
     }
 
-    function test_setValidBuyer() external whenCallerPoolAdmin {
-        assertFalse(poolConfigurator.isBuyer(users.buyer));
-
+    function test_SetBuyer() external whenCallerPoolAdmin {
+        assertNotEq(poolConfigurator.buyer(), users.buyer);
         vm.expectEmit({ emitter: address(poolConfigurator) });
-        emit ValidBuyerSet({ buyer_: users.buyer, isValid_: true });
-        poolConfigurator.setValidBuyer(users.buyer, true);
+        emit BuyerSet({ buyer_: users.buyer });
+        poolConfigurator.setBuyer(users.buyer);
 
-        assertTrue(poolConfigurator.isBuyer(users.buyer));
+        assertEq(poolConfigurator.buyer(), users.buyer);
     }
 }

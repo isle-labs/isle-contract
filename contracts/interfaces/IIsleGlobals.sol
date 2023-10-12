@@ -59,11 +59,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param isValid_   A boolean indicating the validity of the pool admin.
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
-    /// @notice Sets the pool configurator that is owned by the pool admin.
-    /// @param poolAdmin_ The address of the pool admin.
-    /// @param poolConfigurator_ The address of the pool configurator.
-    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external;
-
     /// @notice Sets the max cover liquidation that is applied for the pool admin
     /// @param poolConfigurator_ The address of the pool admin
     /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
@@ -105,12 +100,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param sig_ The function signature
     /// @return functionUnpaused_ A boolean indicating the unpause status of the function
     function isFunctionUnpaused(address contract_, bytes4 sig_) external view returns (bool functionUnpaused_);
-
-    /// @notice Returns the information about the pool admin
-    /// @param poolAdmin_ The address of the pool admin
-    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
-    /// @return ownedPoolConfigurator_ The address of the pool admin's pool configurator
-    function poolAdmins(address poolAdmin_) external view returns (bool isPoolAdmin_, address ownedPoolConfigurator_);
 
     /// @notice Returns the information about the pool admin
     /// @param poolAdmin_ The address of the pool admin
@@ -159,11 +148,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param account_ The address of the account to check
     /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
     function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
-
-    /// @notice Returns the pool configurator that the account owns
-    /// @param poolAdmin_ The address of the pool admin
-    /// @return poolConfigurator_ The address of the pool configurator
-    function ownedPoolConfigurator(address poolAdmin_) external view returns (address poolConfigurator_);
 
     /// @notice Returns the max cover liquidation as a percentage for the pool configurator
     /// @param poolConfigurator_ The address of the pool configurator

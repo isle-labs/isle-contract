@@ -51,7 +51,8 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     mapping(address => bool) public override isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public override isFunctionUnpaused;
 
-    mapping(address => Globals.PoolAdmin) public override poolAdmins;
+    mapping(address => bool) public override isPoolAdmin;
+
     mapping(address => Globals.PoolConfigurator) public override poolConfigurators;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
@@ -121,23 +122,8 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc IIsleGlobals
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
-        poolAdmins[poolAdmin_].isPoolAdmin = isValid_;
+        isPoolAdmin[poolAdmin_] = isValid_;
         emit ValidPoolAdminSet(poolAdmin_, isValid_);
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external override onlyGovernor {
-        if (!poolAdmins[poolAdmin_].isPoolAdmin) {
-            revert Errors.Globals_ToInvalidPoolAdmin(poolAdmin_);
-        }
-        if (poolAdmins[poolAdmin_].ownedPoolConfigurator != address(0)) {
-            revert Errors.Globals_AlreadyOwnsConfigurator(poolAdmin_, poolAdmins[poolAdmin_].ownedPoolConfigurator);
-        }
-        if (poolConfigurator_ == address(0)) {
-            revert Errors.Globals_ToInvalidPoolConfigurator(poolConfigurator_);
-        }
-        poolAdmins[poolAdmin_].ownedPoolConfigurator = poolConfigurator_;
-        emit PoolConfiguratorSet(poolAdmin_, poolConfigurator_);
     }
 
     /// @inheritdoc IIsleGlobals
@@ -182,16 +168,6 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     /// @inheritdoc IIsleGlobals
     function isFunctionPaused(bytes4 sig_) external view override returns (bool functionIsPaused_) {
         functionIsPaused_ = isFunctionPaused(msg.sender, sig_);
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function isPoolAdmin(address account_) external view override returns (bool isPoolAdmin_) {
-        isPoolAdmin_ = poolAdmins[account_].isPoolAdmin;
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function ownedPoolConfigurator(address poolAdmin_) external view override returns (address poolConfigurator_) {
-        poolConfigurator_ = poolAdmins[poolAdmin_].ownedPoolConfigurator;
     }
 
     /// @inheritdoc IIsleGlobals

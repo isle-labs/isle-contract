@@ -174,9 +174,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
         changePrank(users.poolAdmin);
         poolConfigurator_.setOpenToPublic(true);
+        poolConfigurator_.setBuyer(users.buyer);
         poolConfigurator_.setValidLender(users.receiver, true);
         poolConfigurator_.setValidLender(users.caller, true);
-        poolConfigurator_.setValidBuyer(users.buyer, true);
         poolConfigurator_.setValidSeller(users.seller, true);
 
         changePrank(users.governor); // change back to governor
