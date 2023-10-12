@@ -22,7 +22,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
         IPoolAddressesProvider provider_,
         address poolAdmin_,
         address asset_,
-        address buyer_,
         string memory name_,
         string memory symbol_
     )
@@ -34,7 +33,7 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
 
     /// @notice assigns a pool buyer to the pool
     /// @param buyer_ The address of the buyer for this pool
-    function assignPoolBuyer(address buyer_) external;
+    function setBuyer(address buyer_) external;
 
     /// @notice Sets the status of a seller
     /// @param seller_ The address of the seller

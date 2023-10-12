@@ -8,9 +8,9 @@ interface IPoolConfiguratorEvents {
     /// @param pool_ The address of the pool
     event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);
 
-    /// @notice Emitted when a pool buyer is assigned
-    /// @param buyer_ The address of the buyer for this pool
-    event PoolBuyerAssign(address indexed buyer_);
+    /// @notice Emitted when the buyer of a pool is set
+    /// @param buyer_ The address of the buyer
+    event BuyerSet(address indexed buyer_);
 
     /// @notice Emitted when a valid seller is set
     /// @param seller_ The address of the seller

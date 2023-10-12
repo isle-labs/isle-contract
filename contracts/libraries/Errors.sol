@@ -39,9 +39,6 @@ library Errors {
     /// @notice Thrown when the asset set is not on the whitelist
     error PoolConfigurator_InvalidPoolAsset(address asset_);
 
-    /// @notice Thrown when the buyer set is not on the whitelist
-    error PoolConfigurator_InvalidPoolBuyer(address buyer_);
-
     /// @notice Thrown when `msg.sender` is not the loan manager
     error PoolConfigurator_CallerNotLoanManager(address expectedCaller_, address caller_);
 

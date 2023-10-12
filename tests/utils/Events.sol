@@ -19,8 +19,6 @@ abstract contract Events {
 
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
-    event ValidPoolBuyerSet(address indexed poolBuyer_, bool isValid_);
-
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
 
     event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
@@ -83,7 +81,7 @@ abstract contract Events {
 
     event AdminFeeSet(uint256 adminFee_);
 
-    event PoolBuyerAssign(address indexed buyer_);
+    event BuyerSet(address indexed buyer_);
 
     event ValidSellerSet(address indexed seller_, bool isValid_);
 

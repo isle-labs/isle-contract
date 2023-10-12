@@ -59,11 +59,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param isValid_   A boolean indicating the validity of the pool admin.
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
-    /// @notice Sets the validity of a pool buyer.
-    /// @param poolBuyer_ The address of the pool buyer to set the validity for.
-    /// @param isValid_   A boolean indicating the validity of the pool buyer.
-    function setValidPoolBuyer(address poolBuyer_, bool isValid_) external;
-
     /// @notice Sets the max cover liquidation that is applied for the pool admin
     /// @param poolConfigurator_ The address of the pool admin
     /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
@@ -125,11 +120,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param  poolAsset_   The address of the poolAsset to query.
     /// @return isPoolAsset_ A boolean indicating the validity of the pool asset.
     function isPoolAsset(address poolAsset_) external view returns (bool isPoolAsset_);
-
-    /// @notice    Gets the validity of a pool buyer.
-    /// @param  poolBuyer_   The address of the pool buyer to query.
-    /// @return isPoolBuyer_ A boolean indicating the validity of the pool buyer.
-    function isPoolBuyer(address poolBuyer_) external view returns (bool isPoolBuyer_);
 
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL CONSTANT FUNCTIONS

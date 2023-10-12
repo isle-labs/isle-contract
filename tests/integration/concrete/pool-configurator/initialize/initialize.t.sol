@@ -38,12 +38,12 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
 
     function test_RevertWhen_AlreadyInitialized() external {
         poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, address(usdc), users.buyer, "name", "symbol"
+            poolAddressesProvider, users.poolAdmin, address(usdc), "name", "symbol"
         );
 
         vm.expectRevert(bytes("Contract instance has already been initialized"));
         poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, address(usdc), users.buyer, "name", "symbol"
+            poolAddressesProvider, users.poolAdmin, address(usdc), "name", "symbol"
         );
     }
 
@@ -52,7 +52,7 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
             abi.encodeWithSelector(Errors.InvalidAddressesProvider.selector, address(0), address(poolAddressesProvider))
         );
         poolConfiguratorNotInitialized.initialize(
-            IPoolAddressesProvider(address(0)), users.poolAdmin, address(usdc), users.buyer, "name", "symbol"
+            IPoolAddressesProvider(address(0)), users.poolAdmin, address(usdc), "name", "symbol"
         );
     }
 
@@ -62,14 +62,10 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         whenAddressesProviderNotMismatch
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InvalidPoolAdmin.selector, users.eve));
-        poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.eve, address(usdc), users.buyer, "name", "symbol"
-        );
+        poolConfiguratorNotInitialized.initialize(poolAddressesProvider, users.eve, address(usdc), "name", "symbol");
 
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InvalidPoolAdmin.selector, address(0)));
-        poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, address(0), address(usdc), users.buyer, "name", "symbol"
-        );
+        poolConfiguratorNotInitialized.initialize(poolAddressesProvider, address(0), address(usdc), "name", "symbol");
     }
 
     function test_RevertWhen_AssetIsZeroAddressOrInvalid()
@@ -80,14 +76,10 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         whenPoolAdminNotOwnedPoolConfigurator
     {
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InvalidPoolAsset.selector, address(0)));
-        poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, address(0), users.buyer, "name", "symbol"
-        );
+        poolConfiguratorNotInitialized.initialize(poolAddressesProvider, users.poolAdmin, address(0), "name", "symbol");
 
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InvalidPoolAsset.selector, users.eve));
-        poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, users.eve, users.buyer, "name", "symbol"
-        );
+        poolConfiguratorNotInitialized.initialize(poolAddressesProvider, users.poolAdmin, users.eve, "name", "symbol");
     }
 
     function test_Initialize()
@@ -99,7 +91,7 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         whenAssetIsNotZeroAddressAndIsValid
     {
         poolConfiguratorNotInitialized.initialize(
-            poolAddressesProvider, users.poolAdmin, address(usdc), users.buyer, "name", "symbol"
+            poolAddressesProvider, users.poolAdmin, address(usdc), "name", "symbol"
         );
 
         assertEq(poolConfiguratorNotInitialized.asset(), address(usdc));

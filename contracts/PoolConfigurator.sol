@@ -68,7 +68,6 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         IPoolAddressesProvider provider_,
         address poolAdmin_,
         address asset_,
-        address buyer_,
         string memory name_,
         string memory symbol_
     )
@@ -93,16 +92,11 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
             revert Errors.PoolConfigurator_InvalidPoolAsset(asset_);
         }
 
-        if (buyer_ == address(0) || !globals_.isPoolBuyer(buyer_)) {
-            revert Errors.PoolConfigurator_InvalidPoolBuyer(buyer_);
-        }
-
         /* Effects */
         address pool_ = PoolDeployer.createPool(address(this), asset_, name_, symbol_);
         admin = poolAdmin_; // Sets admin for Adminable
         asset = asset_;
         pool = pool_;
-        buyer = buyer_;
 
         emit Initialized(poolAdmin_, asset_, pool_);
     }
@@ -122,8 +116,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     /// @inheritdoc IPoolConfigurator
-    function assignPoolBuyer(address buyer_) external override whenNotPaused onlyAdmin {
-        emit PoolBuyerAssign(buyer = buyer_);
+    function setBuyer(address buyer_) external override whenNotPaused onlyAdmin {
+        emit BuyerSet(buyer = buyer_);
     }
 
     /// @inheritdoc IPoolConfigurator

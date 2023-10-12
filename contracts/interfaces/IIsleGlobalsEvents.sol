@@ -43,11 +43,6 @@ interface IIsleGlobalsEvents {
     /// @param isValid_   The validity of the asset.
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
-    /// @dev   A valid pool buyer was set.
-    /// @param poolBuyer_ The address of the pool buyer.
-    /// @param isValid_   The validity of the pool buyer.
-    event ValidPoolBuyerSet(address indexed poolBuyer_, bool isValid_);
-
     /// @dev Emitted when a valid pool admin is set.
     /// @param poolAdmin_ The address of the pool admin.
     /// @param isValid_ The validity of the pool admin.
