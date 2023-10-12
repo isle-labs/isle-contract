@@ -3,3 +3,4 @@
 @prb/math/=modules/prb-math/src/
 @openzeppelin/contracts/=modules/openzeppelin-contracts/contracts/
 @openzeppelin/contracts-upgradeable/=modules/openzeppelin-contracts-upgradeable/contracts/
+solarray/=modules/solarray/src/
