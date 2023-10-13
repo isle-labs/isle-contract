@@ -153,9 +153,9 @@ cast send $ADDRESS --rpc-url "sepolia" --value 0.1ether --private-key $PRIV_KEY
 Run deploy scripts
 
 ```sh
-forge script scripts/DeployERC20Mint.s.sol --rpc-url "localhost" --sender "$DEPLOYER" --broadcast --sig "run()" --verify -vvvv
-forge script scripts/DeployCore.s.sol --rpc-url "localhost" --sender "$DEPLOYER" --broadcast --sig "run(address)" --verify -vvvv "$ADDRESS"
-forge script scripts/Init.s.sol --rpc-url "localhost" --sender "$DEPLOYER" --broadcast --sig "run(address,address)" --verify -vvvv "$RECEIVABLE" "$PAP"
+forge script scripts/DeployERC20Mint.s.sol --rpc-url "$RPC_URL" --sender "$SENDER" --broadcast --sig "run()" --verify -vvvv
+forge script scripts/DeployCore.s.sol --rpc-url "$RPC_URL" --sender "$SENDER" --broadcast --sig "run(address)" --verify -vvvv "$ADDRESS"
+forge script scripts/Init.s.sol --rpc-url "$RPC_URL" --sender "$SENDER" --broadcast --sig "run(address,address)" --verify -vvvv "$RECEIVABLE" "$PAP"
 ```
 
 Run Anvil with specified Mnemonic
@@ -179,3 +179,11 @@ cast to-unit $(cast gas-price --rpc-url="$RPC_URL") gwei
 - Receivable: `0x5B7B3F2A2F8b306F6C8B368414A8c0f2B385cCbA`
 - IsleGlobals: `0x3e17bE3a67006497cF1d4b0791D1c4e6fEd2C2dc`
 - PoolAddressesProvider: `0x393Ed07ff75e4eD8E64fa664438EC969396081d9`
+
+#### Linea
+
+- [IsleUSD](): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
+- Deployer: `0xBbC9928618b05356841a8565C72E4493D12ad163`
+- Receivable: `0x9eDC5845AcEC7D8eeb3Eb5d73E9546D760b95c10`
+- IsleGlobals: `0x8264c54eDdCEAe79f2efa9370b96b795Ea6C14B7`
+- PoolAddressesProvider: `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`

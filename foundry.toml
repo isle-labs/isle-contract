@@ -36,6 +36,8 @@ mainnet = { key = "${API_KEY_ETHERSCAN}" }
 # optimism = { key = "${API_KEY_OPTIMISTIC_ETHERSCAN}" }
 # polygon = { key = "${API_KEY_POLYGONSCAN}" }
 sepolia = { key = "${API_KEY_ETHERSCAN}" }
+linea-mainnet = { key = "${API_KEY_LINEASCAN}", url = "https://api.lineascan.build/api" }
+linea-testnet = { key = "${API_KEY_LINEASCAN}", url = "https://api-testnet.lineascan.build/api" }
 
 [fmt]
 bracket_spacing = true
@@ -58,3 +60,5 @@ optimism = "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}"
 polygon = "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}"
 sepolia = "https://eth-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 mainnet = "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
+linea-mainnet = "https://linea.infura.io/v3/${API_KEY_INFURA}"
+linea-testnet = "https://linea-goerli.infura.io/v3/${API_KEY_INFURA}"
