@@ -27,14 +27,14 @@
   optimizer = false
 
 [etherscan]
-arbitrum_one = { key = "${API_KEY_ARBISCAN}" }
-avalanche = { key = "${API_KEY_SNOWTRACE}" }
-bnb_smart_chain = { key = "${API_KEY_BSCSCAN}" }
-gnosis_chain = { key = "${API_KEY_GNOSISSCAN}" }
+# arbitrum_one = { key = "${API_KEY_ARBISCAN}" }
+# avalanche = { key = "${API_KEY_SNOWTRACE}" }
+# bnb_smart_chain = { key = "${API_KEY_BSCSCAN}" }
+# gnosis_chain = { key = "${API_KEY_GNOSISSCAN}" }
 goerli = { key = "${API_KEY_ETHERSCAN}" }
 mainnet = { key = "${API_KEY_ETHERSCAN}" }
-optimism = { key = "${API_KEY_OPTIMISTIC_ETHERSCAN}" }
-polygon = { key = "${API_KEY_POLYGONSCAN}" }
+# optimism = { key = "${API_KEY_OPTIMISTIC_ETHERSCAN}" }
+# polygon = { key = "${API_KEY_POLYGONSCAN}" }
 sepolia = { key = "${API_KEY_ETHERSCAN}" }
 
 [fmt]
