@@ -137,7 +137,10 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool configurator
     /// @return minCover_ The min cover required for the pool configurator
     /// @return poolLimit_ The limit for the pool under the pool configurator
-    function poolConfigurators(address poolConfigurator_) external view returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
+    function poolConfigurators(address poolConfigurator_)
+        external
+        view
+        returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
 
     /// @notice Returns if the account is a valid poolAdmin
     /// @param account_ The address of the account to check
