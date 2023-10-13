@@ -164,6 +164,12 @@ Run Anvil with specified Mnemonic
 anvil -m "$MNEMONIC"
 ```
 
+Get crurrent gas price in gwei
+
+```sh
+cast to-unit $(cast gas-price --rpc-url="$RPC_URL") gwei
+```
+
 ### Deployment Addresses
 
 #### Sepolia
