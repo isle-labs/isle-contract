@@ -2,18 +2,19 @@ name: "Deploy Core"
 
 env:
     FOUNDRY_PROFILE: "lite"
+    MNEMONIC: ${{ secrets.MNEMONIC }}
+    API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     # API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
-    # API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     # API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
-    # MNEMONIC: ${{ secrets.MNEMONIC }}
 
 on:
     workflow_dispatch:
         inputs:
-            governor:
-                default: "0x516ABfc478658666950CD371685A4Fc6ce73C6C7"
-                description: "Initial Governor"
+            asset:
+                default: "0xD7719799520b89A6b934A4402388e9EDdFD85387"
+                description: "Base asset for the pool (Isle USD)"
                 required: false
+
             chain:
                 default: "sepolia"
                 description: "Chain name as defined in foundry.toml"
@@ -37,7 +38,7 @@ jobs:
                 --rpc-url "${{ inputs.chain }}"
                 --sig "run(address)"
                 --verify
-                "${{ inputs.governor }}"
+                "${{ inputs.asset }}"
                 -vvvv
 
             - name: "Add workflow summary"
