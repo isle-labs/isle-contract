@@ -31,7 +31,7 @@ abstract contract Adminable is IAdminable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IAdminable
-    function transferAdmin(address newAdmin) public virtual override onlyAdmin {
+    function transferAdmin(address newAdmin) external virtual override onlyAdmin {
         // Effects: update the admin.
         admin = newAdmin;
 

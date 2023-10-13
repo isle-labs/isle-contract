@@ -13,12 +13,12 @@ abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
 
     address public override asset;
     address public override pool;
+    address public override buyer;
 
     Config public override config;
 
     uint256 public override poolCover;
 
-    mapping(address => bool) public override isBuyer;
     mapping(address => bool) public override isSeller;
     mapping(address => bool) public override isLender;
 }

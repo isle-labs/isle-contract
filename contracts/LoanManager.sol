@@ -993,7 +993,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     {
         IPoolConfigurator poolConfigurator_ = IPoolConfigurator(_poolConfigurator());
         if (
-            !poolConfigurator_.isBuyer(buyer_) || !poolConfigurator_.isSeller(seller_)
+            poolConfigurator_.buyer() != buyer_ || !poolConfigurator_.isSeller(seller_)
                 || repaymentTimestamp_ < block.timestamp
         ) {
             revert Errors.LoanManager_InvalidReceivable({ receivablesTokenId_: receivablesTokenId_ });

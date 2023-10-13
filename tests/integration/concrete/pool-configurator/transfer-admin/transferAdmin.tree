@@ -1,0 +1,9 @@
+transferAdmin.t.sol
+├── when caller is not governor
+│  └── it should revert
+└── when caller is governor
+   ├── when new admin is zero address or invalid
+   │  └── it should revert
+   └── when new admin is not zero address, and is valid
+      ├── it should transfer the pool admin to the new address
+      └── it should emit a {TransferAdmin} event

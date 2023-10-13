@@ -39,7 +39,7 @@ contract Init is BaseScript {
 
     function initPool(IPoolConfigurator poolConfigurator_) internal broadcast(poolAdmin) {
         poolConfigurator_.setAdminFee(0.1e6);
-        poolConfigurator_.setValidBuyer(buyer, true);
+        poolConfigurator_.setBuyer(buyer);
         poolConfigurator_.setValidSeller(seller, true);
         poolConfigurator_.setOpenToPublic(true);
 

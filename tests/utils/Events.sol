@@ -81,9 +81,9 @@ abstract contract Events {
 
     event AdminFeeSet(uint256 adminFee_);
 
-    event ValidSellerSet(address indexed seller_, bool isValid_);
+    event BuyerSet(address indexed buyer_);
 
-    event ValidBuyerSet(address indexed buyer_, bool isValid_);
+    event ValidSellerSet(address indexed seller_, bool isValid_);
 
     event ValidLenderSet(address indexed lender_, bool isValid_);
 
