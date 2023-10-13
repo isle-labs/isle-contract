@@ -16,19 +16,10 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     uint256 public constant HUNDRED_ = 1_000_000; // 100.0000%
 
     /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    modifier onlyGovernor() {
-        _revertIfNotGovernor();
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _authorizeUpgrade(address newImplementation_) internal override onlyGovernor { }
+    function _authorizeUpgrade(address newImplementation_) internal override onlyAdmin { }
 
     function getImplementation() external view override returns (address implementation_) {
         implementation_ = _getImplementation();
@@ -70,7 +61,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIsleGlobals
-    function setIsleVault(address vault_) external override onlyGovernor {
+    function setIsleVault(address vault_) external override onlyAdmin {
         if (vault_ == address(0)) {
             revert Errors.Globals_InvalidVault(vault_);
         }
@@ -79,53 +70,45 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     }
 
     /// @inheritdoc IIsleGlobals
-    function setProtocolPaused(bool protocolPaused_) external override onlyGovernor {
+    function setProtocolPaused(bool protocolPaused_) external override onlyAdmin {
         emit ProtocolPausedSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setContractPaused(address contract_, bool contractPaused_) external override onlyGovernor {
+    function setContractPaused(address contract_, bool contractPaused_) external override onlyAdmin {
         emit ContractPausedSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setFunctionUnpaused(
-        address contract_,
-        bytes4 sig_,
-        bool functionUnpaused_
-    )
-        external
-        override
-        onlyGovernor
-    {
+    function setFunctionUnpaused(address contract_, bytes4 sig_, bool functionUnpaused_) external override onlyAdmin {
         emit FunctionUnpausedSet(msg.sender, contract_, sig_, isFunctionUnpaused[contract_][sig_] = functionUnpaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setProtocolFee(uint24 protocolFee_) external override onlyGovernor {
+    function setProtocolFee(uint24 protocolFee_) external override onlyAdmin {
         emit ProtocolFeeSet(protocolFee = protocolFee_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
+    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyAdmin {
         isCollateralAsset[collateralAsset_] = isValid_;
         emit ValidCollateralAssetSet(collateralAsset_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyGovernor {
+    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyAdmin {
         isPoolAsset[poolAsset_] = isValid_;
         emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyAdmin {
         poolAdmins[poolAdmin_].isPoolAdmin = isValid_;
         emit ValidPoolAdminSet(poolAdmin_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external override onlyGovernor {
+    function setPoolConfigurator(address poolAdmin_, address poolConfigurator_) external override onlyAdmin {
         if (!poolAdmins[poolAdmin_].isPoolAdmin) {
             revert Errors.Globals_ToInvalidPoolAdmin(poolAdmin_);
         }
@@ -146,20 +129,20 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     )
         external
         override
-        onlyGovernor
+        onlyAdmin
     {
         emit MaxCoverLiquidationSet(poolConfigurator_, maxCoverLiquidation_);
         poolConfigurators[poolConfigurator_].maxCoverLiquidation = maxCoverLiquidation_;
     }
 
     /// @inheritdoc IIsleGlobals
-    function setMinCover(address poolConfigurator_, uint104 minCover_) external override onlyGovernor {
+    function setMinCover(address poolConfigurator_, uint104 minCover_) external override onlyAdmin {
         emit MinCoverSet(poolConfigurator_, minCover_);
         poolConfigurators[poolConfigurator_].minCover = minCover_;
     }
 
     /// @inheritdoc IIsleGlobals
-    function setPoolLimit(address poolConfigurator_, uint104 poolLimit_) external override onlyGovernor {
+    function setPoolLimit(address poolConfigurator_, uint104 poolLimit_) external override onlyAdmin {
         emit PoolLimitSet(poolConfigurator_, poolLimit_);
         poolConfigurators[poolConfigurator_].poolLimit = poolLimit_;
     }
@@ -167,11 +150,6 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc IIsleGlobals
-    function governor() external view override returns (address governor_) {
-        governor_ = admin;
-    }
 
     /// @inheritdoc IIsleGlobals
     function isFunctionPaused(address contract_, bytes4 sig_) public view override returns (bool functionIsPaused_) {
@@ -211,15 +189,5 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     /// @inheritdoc IIsleGlobals
     function poolLimit(address poolConfigurator_) external view override returns (uint104 poolLimit_) {
         poolLimit_ = poolConfigurators[poolConfigurator_].poolLimit;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _revertIfNotGovernor() internal view {
-        if (msg.sender != admin) {
-            revert Errors.Globals_CallerNotGovernor(admin, msg.sender);
-        }
     }
 }

@@ -138,10 +138,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @return implementation_ The address of the implementation contract
     function getImplementation() external view returns (address implementation_);
 
-    /// @notice    Gets governor address.
-    /// @return governor_ The address of the governor.
-    function governor() external view returns (address governor_);
-
     /// @notice Returns the pause status of a specific function in a contract
     /// @param contract_ The address of the contract
     /// @param sig_ The function signature
