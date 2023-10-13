@@ -6,6 +6,7 @@ docs
 .history
 
 # files
+*.tmp
 *.env
 *.log
 .DS_Store
