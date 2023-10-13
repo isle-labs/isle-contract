@@ -34,7 +34,7 @@ contract Pool is IPool, ERC20Permit {
         if ((configurator = configurator_) == address(0)) revert Errors.Pool_ZeroConfigurator();
         if (!IERC20(asset_).approve(configurator_, type(uint256).max)) revert Errors.Pool_FailedApprove();
 
-        _underlyingDecimals = 6;
+        _underlyingDecimals = ERC20(asset_).decimals();
         _asset = ERC20Permit(asset_);
     }
 
