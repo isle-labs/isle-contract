@@ -1,4 +1,4 @@
-name: "Deploy Core"
+name: "Init"
 
 env:
     FOUNDRY_PROFILE: "lite"
@@ -9,11 +9,14 @@ env:
 on:
     workflow_dispatch:
         inputs:
-            asset:
-                default: "0xD7719799520b89A6b934A4402388e9EDdFD85387"
-                description: "Base asset for the pool (Isle USD)"
+            receivable:
+                default: ""
+                description: "Receivable address"
                 required: false
-
+            poolAddressesProvider:
+                default: ""
+                description: "PoolAddressesProvider address"
+                required: false
             chain:
                 default: "sepolia"
                 description: "Chain name as defined in foundry.toml"
@@ -32,12 +35,13 @@ jobs:
 
             - name: "Deploy the Receivable and Globals contract of Isle Finance"
               run: >-
-                forge script scripts/DeployCore.s.sol
+                forge script scripts/Init.s.sol
                 --broadcast
                 --rpc-url "${{ inputs.chain }}"
-                --sig "run(address)"
+                --sig "run(address,address)"
                 --verify
-                "${{ inputs.asset }}"
+                "${{ inputs.receivable }}"
+                "${{ inputs.poolAddressesProvider }}"
                 -vvvv
 
             - name: "Add workflow summary"
