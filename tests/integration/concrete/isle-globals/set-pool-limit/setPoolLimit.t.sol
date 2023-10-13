@@ -17,7 +17,7 @@ contract SetPoolLimit_Integration_Concrete_Test is
     function test_RevertWhen_CallerNotGovernor() external {
         changePrank(users.eve);
         uint104 poolLimit = defaults.POOL_LIMIT();
-        vm.expectRevert(abi.encodeWithSelector(Errors.Globals_CallerNotGovernor.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
         isleGlobals.setPoolLimit(address(poolConfigurator), poolLimit);
     }
 

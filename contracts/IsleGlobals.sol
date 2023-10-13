@@ -152,6 +152,11 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIsleGlobals
+    function governor() external view override returns (address governor_) {
+        governor_ = admin;
+    }
+
+    /// @inheritdoc IIsleGlobals
     function isFunctionPaused(address contract_, bytes4 sig_) public view override returns (bool functionIsPaused_) {
         functionIsPaused_ = (protocolPaused || isContractPaused[contract_]) && !isFunctionUnpaused[contract_][sig_];
     }

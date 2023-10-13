@@ -86,8 +86,6 @@ library Errors {
 
     error Globals_AdminZeroAddress();
 
-    error Globals_CallerNotGovernor(address governor, address caller);
-
     error Globals_CallerNotPendingGovernor(address pendingGovernor, address caller);
 
     error Globals_InvalidVault(address vault);
