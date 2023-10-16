@@ -3,7 +3,6 @@ pragma solidity ^0.8.19;
 
 import { StdCheats } from "@forge-std/StdCheats.sol";
 import { console } from "@forge-std/console.sol";
-import { ud, UD60x18 } from "@prb/math/UD60x18.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
@@ -148,7 +147,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     /// @dev Deploy pool addresses provider
     function deployPoolAddressesProvider() internal returns (IPoolAddressesProvider poolAddressesProvider_) {
-        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID());
+        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID(), users.governor);
     }
 
     /// @dev Deploy pool configurator

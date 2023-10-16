@@ -13,7 +13,7 @@ contract Constructor_PoolAddressesProvider_Unit_Concrete_Test is PoolAddressesPr
 
     function test_constructor() external {
         changePrank(users.governor);
-        PoolAddressesProvider poolAddressesProvider = new PoolAddressesProvider(defaults.MARKET_ID());
+        PoolAddressesProvider poolAddressesProvider = new PoolAddressesProvider(defaults.MARKET_ID(), users.governor);
 
         assertEq(poolAddressesProvider.getMarketId(), defaults.MARKET_ID(), "marketId");
         assertEq(poolAddressesProvider.admin(), users.governor, "admin");

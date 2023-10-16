@@ -17,7 +17,7 @@ contract SetMaxCoverLiquidation_Integration_Concrete_Test is
     function test_RevertWhen_CallerNotGovernor() external {
         changePrank(users.eve);
         uint24 maxCoverLiquidation = defaults.MAX_COVER_LIQUIDATION();
-        vm.expectRevert(abi.encodeWithSelector(Errors.Globals_CallerNotGovernor.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
         isleGlobals.setMaxCoverLiquidation(address(poolConfigurator), maxCoverLiquidation);
     }
 

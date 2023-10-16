@@ -18,7 +18,7 @@ contract SetFunctionUnpaused_Integration_Concrete_Test is
         changePrank(users.eve);
         address pausedContract = defaults.PAUSED_CONTRACT();
         bytes4 pausedFunctionSig = defaults.PAUSED_FUNCTION_SIG();
-        vm.expectRevert(abi.encodeWithSelector(Errors.Globals_CallerNotGovernor.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
         isleGlobals.setFunctionUnpaused(pausedContract, pausedFunctionSig, true);
     }
 

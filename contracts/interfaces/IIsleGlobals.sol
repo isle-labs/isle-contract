@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { UD60x18, ud } from "@prb/math/UD60x18.sol";
-
 import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 
 /// @title IIsleGlobals
@@ -101,16 +99,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @return functionUnpaused_ A boolean indicating the unpause status of the function
     function isFunctionUnpaused(address contract_, bytes4 sig_) external view returns (bool functionUnpaused_);
 
-    /// @notice Returns the information about the pool admin
-    /// @param poolAdmin_ The address of the pool admin
-    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
-    /// @return minCover_ The min cover required for the pool admin
-    /// @return poolLimit_ The size limit of the pool
-    function poolConfigurators(address poolAdmin_)
-        external
-        view
-        returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
-
     /// @notice    Gets the validity of a collateral asset.
     /// @param  collateralAsset_   The address of the collateralAsset to query.
     /// @return isCollateralAsset_ A boolean indicating the validity of the collateral asset.
@@ -125,13 +113,13 @@ interface IIsleGlobals is IIsleGlobalsEvents {
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the address of the governor
+    /// @return governor_ The address of the governor
+    function governor() external view returns (address governor_);
+
     /// @notice Returns the address of the implementation contract
     /// @return implementation_ The address of the implementation contract
     function getImplementation() external view returns (address implementation_);
-
-    /// @notice    Gets governor address.
-    /// @return governor_ The address of the governor.
-    function governor() external view returns (address governor_);
 
     /// @notice Returns the pause status of a specific function in a contract
     /// @param contract_ The address of the contract
@@ -143,6 +131,16 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param sig_ The function signature
     /// @return isFunctionPaused_ A boolean indicating the pause status of the function
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
+
+    /// @notice Returns the configuration info of a pool configurator
+    /// @param poolConfigurator_ The address of the pool configurator
+    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool configurator
+    /// @return minCover_ The min cover required for the pool configurator
+    /// @return poolLimit_ The limit for the pool under the pool configurator
+    function poolConfigurators(address poolConfigurator_)
+        external
+        view
+        returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
 
     /// @notice Returns if the account is a valid poolAdmin
     /// @param account_ The address of the account to check

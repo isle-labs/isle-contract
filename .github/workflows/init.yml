@@ -1,0 +1,44 @@
+name: "Init"
+
+env:
+    FOUNDRY_PROFILE: "lite"
+    MNEMONIC: ${{ secrets.MNEMONIC }}
+    API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
+    API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
+
+on:
+    workflow_dispatch:
+        inputs:
+            receivable:
+                default: ""
+                description: "Receivable address"
+                required: false
+            poolAddressesProvider:
+                default: ""
+                description: "PoolAddressesProvider address"
+                required: false
+            chain:
+                default: "sepolia"
+                description: "Chain name as defined in foundry.toml"
+                required: false
+jobs:
+    deploy-core:
+        runs-on: "ubuntu-latest"
+        steps:
+            - name: "Check out the repo"
+              uses: "actions/checkout@v3"
+              with:
+                  submodules: "recursive"
+
+            - name: "Install Foundry"
+              uses: "foundry-rs/foundry-toolchain@v1"
+
+            - name: "Deploy the Receivable and Globals contract of Isle Finance"
+              run: >-
+                  forge script scripts/Init.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig
+                  "run(address,address)" --verify "${{ inputs.receivable }}" "${{ inputs.poolAddressesProvider }}" -vvvv
+
+            - name: "Add workflow summary"
+              run: |
+                  echo "## Result" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Done" >> $GITHUB_STEP_SUMMARY

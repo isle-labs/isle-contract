@@ -2,9 +2,11 @@
 cache
 node_modules
 out
+docs
 .history
 
 # files
+*.tmp
 *.env
 *.log
 .DS_Store

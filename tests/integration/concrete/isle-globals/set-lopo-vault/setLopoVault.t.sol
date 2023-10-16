@@ -20,7 +20,7 @@ contract SetIsleVault_Integration_Concrete_Test is
 
     function test_RevertWhen_CallerNotGovernor() external {
         changePrank(users.eve);
-        vm.expectRevert(abi.encodeWithSelector(Errors.Globals_CallerNotGovernor.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
         isleGlobals.setIsleVault(address(0));
     }
 

@@ -23,8 +23,8 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
 
-    constructor(string memory marketId_) {
-        admin = msg.sender;
+    constructor(string memory marketId_, address initialAdmin_) {
+        admin = initialAdmin_;
         _marketId = marketId_;
     }
 
