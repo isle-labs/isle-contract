@@ -25,24 +25,17 @@ jobs:
             - name: "Check out the repo"
               uses: "actions/checkout@v3"
               with:
-                submodules: "recursive"
+                  submodules: "recursive"
 
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
             - name: "Deploy the Receivable and Globals contract of Isle Finance"
               run: >-
-                forge script scripts/DeployCore.s.sol
-                --broadcast
-                --rpc-url "${{ inputs.chain }}"
-                --sig "run(address)"
-                --verify
-                "${{ inputs.asset }}"
-                -vvvv
+                  forge script scripts/DeployCore.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig "run(address)"
+                  --verify "${{ inputs.asset }}" -vvvv
 
             - name: "Add workflow summary"
               run: |
-                echo "## Result" >> $GITHUB_STEP_SUMMARY
-                echo "✅ Done" >> $GITHUB_STEP_SUMMARY
-
-
+                  echo "## Result" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Done" >> $GITHUB_STEP_SUMMARY
