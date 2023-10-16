@@ -5,7 +5,6 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
-import { Globals } from "./libraries/types/DataTypes.sol";
 
 import { Adminable } from "./abstracts/Adminable.sol";
 
@@ -40,8 +39,6 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     bool public override protocolPaused;
     mapping(address => bool) public override isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public override isFunctionUnpaused;
-
-    mapping(address => Globals.PoolConfigurator) public override poolConfigurators;
     mapping(address => bool) public override isPoolAdmin;
     mapping(address => bool) public override isCollateralAsset;
     mapping(address => bool) public override isPoolAsset;
@@ -107,31 +104,6 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
         emit ValidPoolAdminSet(poolAdmin_, isValid_);
     }
 
-    /// @inheritdoc IIsleGlobals
-    function setMaxCoverLiquidation(
-        address poolConfigurator_,
-        uint24 maxCoverLiquidation_
-    )
-        external
-        override
-        onlyAdmin
-    {
-        emit MaxCoverLiquidationSet(poolConfigurator_, maxCoverLiquidation_);
-        poolConfigurators[poolConfigurator_].maxCoverLiquidation = maxCoverLiquidation_;
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function setMinCover(address poolConfigurator_, uint104 minCover_) external override onlyAdmin {
-        emit MinCoverSet(poolConfigurator_, minCover_);
-        poolConfigurators[poolConfigurator_].minCover = minCover_;
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function setPoolLimit(address poolConfigurator_, uint104 poolLimit_) external override onlyAdmin {
-        emit PoolLimitSet(poolConfigurator_, poolLimit_);
-        poolConfigurators[poolConfigurator_].poolLimit = poolLimit_;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -149,25 +121,5 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     /// @inheritdoc IIsleGlobals
     function isFunctionPaused(bytes4 sig_) external view override returns (bool functionIsPaused_) {
         functionIsPaused_ = isFunctionPaused(msg.sender, sig_);
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function maxCoverLiquidation(address poolConfigurator_)
-        external
-        view
-        override
-        returns (uint24 maxCoverLiqduidation_)
-    {
-        maxCoverLiqduidation_ = poolConfigurators[poolConfigurator_].maxCoverLiquidation;
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function minCover(address poolConfigurator_) external view override returns (uint104 minCover_) {
-        minCover_ = poolConfigurators[poolConfigurator_].minCover;
-    }
-
-    /// @inheritdoc IIsleGlobals
-    function poolLimit(address poolConfigurator_) external view override returns (uint104 poolLimit_) {
-        poolLimit_ = poolConfigurators[poolConfigurator_].poolLimit;
     }
 }

@@ -57,21 +57,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @param isValid_   A boolean indicating the validity of the pool admin.
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
-    /// @notice Sets the max cover liquidation that is applied for the pool admin
-    /// @param poolConfigurator_ The address of the pool admin
-    /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
-    function setMaxCoverLiquidation(address poolConfigurator_, uint24 maxCoverLiquidation_) external;
-
-    /// @notice Sets the min cover required for the pool admin.
-    /// @param poolConfigurator_ The address of the pool admin.
-    /// @param minCover_ The min cover required for the pool admin.
-    function setMinCover(address poolConfigurator_, uint104 minCover_) external;
-
-    /// @notice Sets the pool limit for the pool configurator
-    /// @param poolConfigurator_ The address of the pool configurator
-    /// @param poolLimit_ The size limit of the pool
-    function setPoolLimit(address poolConfigurator_, uint104 poolLimit_) external;
-
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL STORAGE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -132,33 +117,8 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /// @return isFunctionPaused_ A boolean indicating the pause status of the function
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
 
-    /// @notice Returns the configuration info of a pool configurator
-    /// @param poolConfigurator_ The address of the pool configurator
-    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool configurator
-    /// @return minCover_ The min cover required for the pool configurator
-    /// @return poolLimit_ The limit for the pool under the pool configurator
-    function poolConfigurators(address poolConfigurator_)
-        external
-        view
-        returns (uint24 maxCoverLiquidation_, uint104 minCover_, uint104 poolLimit_);
-
     /// @notice Returns if the account is a valid poolAdmin
     /// @param account_ The address of the account to check
     /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
     function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
-
-    /// @notice Returns the max cover liquidation as a percentage for the pool configurator
-    /// @param poolConfigurator_ The address of the pool configurator
-    /// @return maxCoverLiquidation_ The max cover liquidation as a percentage for the pool configurator
-    function maxCoverLiquidation(address poolConfigurator_) external view returns (uint24 maxCoverLiquidation_);
-
-    /// @notice Returns the min cover required for a pool configurator
-    /// @param poolConfigurator_ The address of the pool configurator
-    /// @return minCover_ The min cover required for the pool configurator
-    function minCover(address poolConfigurator_) external view returns (uint104 minCover_);
-
-    /// @notice Returns the pool limit of the pool under the pool configurator
-    /// @param poolConfigurator_ The address of the pool configurator
-    /// @return poolLimit_ The limit for the pool under the pool configurator
-    function poolLimit(address poolConfigurator_) external view returns (uint104 poolLimit_);
 }

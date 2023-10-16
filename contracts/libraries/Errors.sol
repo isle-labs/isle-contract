@@ -29,6 +29,9 @@ library Errors {
 
     error ProtocolPaused();
 
+    /// @notice Thrown when pool addresses provider is set to 0
+    error AddressesProviderZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/

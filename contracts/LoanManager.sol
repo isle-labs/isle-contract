@@ -12,6 +12,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
+import { IAdminable } from "./interfaces/IAdminable.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
@@ -39,8 +40,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(IPoolAddressesProvider provider) {
-        ADDRESSES_PROVIDER = provider;
+    constructor(IPoolAddressesProvider provider_) {
+        if (address(provider_) == address(0)) {
+            revert Errors.AddressesProviderZeroAddress();
+        }
+        ADDRESSES_PROVIDER = provider_;
     }
 
     /// @notice Initializes the Loan Manager.
@@ -544,7 +548,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
-        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).admin();
+        poolAdmin_ = IAdminable(_poolConfigurator()).admin();
     }
 
     function _pool() internal view returns (address pool_) {

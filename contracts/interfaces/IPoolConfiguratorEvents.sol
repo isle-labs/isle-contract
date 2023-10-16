@@ -4,11 +4,23 @@ pragma solidity 0.8.19;
 interface IPoolConfiguratorEvents {
     /// @notice Emitted when a pool configurator is initialized
     /// @param poolAdmin_ The address of the pool admin
-    /// @param asset_ The address of the asset
+    /// @param asset_ The address of the base asset of the pool
     /// @param pool_ The address of the pool
     event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);
 
-    /// @notice Emitted when the buyer of a pool is set
+    /// @notice Emitted when the max cover liquidation is set
+    /// @param maxCoverLiquidation_ The max cover liquidation as a percentage
+    event MaxCoverLiquidationSet(uint24 maxCoverLiquidation_);
+
+    /// @notice Emitted when the min cover is set
+    /// @param minCover_ The min cover required
+    event MinCoverSet(uint104 minCover_);
+
+    /// @notice Emitted when the pool limit is set
+    /// @param poolLimit_ The pool limit
+    event PoolLimitSet(uint104 poolLimit_);
+
+    /// @notice Emitted when the buyer of the pool is set
     /// @param buyer_ The address of the buyer
     event BuyerSet(address indexed buyer_);
 
@@ -30,11 +42,7 @@ interface IPoolConfiguratorEvents {
     /// @param isOpenToPublic_ Whether the pool is open to the public
     event OpenToPublicSet(bool isOpenToPublic_);
 
-    /// @notice Emitted when the grace period of the pool is set
-    /// @param gracePeriod_ The new grace period
-    event GracePeriodSet(uint256 gracePeriod_);
-
-    /// @notice Emitted when the base rate of the pool is set
+    /// @notice Emitted when the base rate (the minimum interest rate for buyers) of the pool is set
     /// @param baseRate_ The new base rate
     event BaseRateSet(uint96 baseRate_);
 

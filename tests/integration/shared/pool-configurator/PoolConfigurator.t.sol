@@ -28,6 +28,11 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         _;
     }
 
+    modifier whenCallerGovernor() {
+        changePrank({ msgSender: users.governor });
+        _;
+    }
+
     modifier whenCallerPool() {
         changePrank({ msgSender: address(pool) });
         _;

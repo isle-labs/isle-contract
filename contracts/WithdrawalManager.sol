@@ -8,6 +8,7 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { Errors } from "./libraries/Errors.sol";
 import { WithdrawalManager as WM } from "./libraries/types/DataTypes.sol";
 
+import { IAdminable } from "./interfaces/IAdminable.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
@@ -55,8 +56,12 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         revision_ = WITHDRAWAL_MANAGER_REVISION;
     }
 
-    constructor(IPoolAddressesProvider provider) {
-        ADDRESSES_PROVIDER = provider;
+    constructor(IPoolAddressesProvider provider_) {
+        if (address(provider_) == address(0)) {
+            revert Errors.AddressesProviderZeroAddress();
+        }
+
+        ADDRESSES_PROVIDER = provider_;
     }
 
     /// @inheritdoc IWithdrawalManager
@@ -429,7 +434,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
-        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).admin();
+        poolAdmin_ = IAdminable(_poolConfigurator()).admin();
     }
 
     function _globals() internal view returns (address globals_) {

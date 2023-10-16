@@ -168,8 +168,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
         poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
 
-        isleGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
-        isleGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
+        poolConfigurator_.setPoolLimit(defaults.POOL_LIMIT());
+        poolConfigurator_.setMinCover(defaults.MIN_COVER_AMOUNT());
 
         changePrank(users.poolAdmin);
         poolConfigurator_.setOpenToPublic(true);

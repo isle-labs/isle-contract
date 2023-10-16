@@ -44,10 +44,6 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
         poolConfigurator.setAdminFee(_params.adminFee);
     }
 
-    function setDefaultGracePeriod() internal {
-        poolConfigurator.setGracePeriod(_params.gracePeriod);
-    }
-
     function setDefaultOpenToPublic() internal {
         poolConfigurator.setOpenToPublic(_params.openToPublic);
     }

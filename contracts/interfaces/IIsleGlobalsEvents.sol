@@ -47,19 +47,4 @@ interface IIsleGlobalsEvents {
     /// @param poolAdmin_ The address of the pool admin.
     /// @param isValid_ The validity of the pool admin.
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
-
-    /// @dev   The max liquidation percent for the given pool manager has been set.
-    /// @param poolManager_                The address of the pool manager.
-    /// @param maxCoverLiquidation_ The new value for the cover liquidation percent.
-    event MaxCoverLiquidationSet(address indexed poolManager_, uint24 maxCoverLiquidation_);
-
-    /// @dev Emitted when the min cover value is set.
-    /// @param poolConfigurator_ The address of the pool configurator.
-    /// @param minCover_ The new min cover value.
-    event MinCoverSet(address indexed poolConfigurator_, uint104 indexed minCover_);
-
-    /// @dev Emitted when the pool limit is set.
-    /// @param poolConfigurator_ The address of the pool configurator.
-    /// @param poolLimit_ The new pool limit value.
-    event PoolLimitSet(address indexed poolConfigurator_, uint104 poolLimit_);
 }

@@ -21,12 +21,11 @@ import { BaseScript } from "./Base.s.sol";
 contract Init is BaseScript {
     function run(IReceivable receivable_, IPoolAddressesProvider poolAddressesProvider_) public {
         IPoolConfigurator poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
-        IIsleGlobals globals_ = IIsleGlobals(poolAddressesProvider_.getIsleGlobals());
         IPool pool_ = IPool(poolConfigurator_.pool());
         ILoanManager loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
 
-        initGlobals(poolConfigurator_, globals_);
-        initPool(poolConfigurator_);
+        initPoolWithGovernor(poolConfigurator_);
+        initPoolWithPoolAdmin(poolConfigurator_);
 
         deposit(pool_);
 
@@ -37,7 +36,7 @@ contract Init is BaseScript {
         withdrawFunds(loanManager_, loanIds_, loanIds_.length - 2);
     }
 
-    function initPool(IPoolConfigurator poolConfigurator_) internal broadcast(poolAdmin) {
+    function initPoolWithPoolAdmin(IPoolConfigurator poolConfigurator_) internal broadcast(poolAdmin) {
         poolConfigurator_.setAdminFee(0.1e6);
         poolConfigurator_.setBuyer(buyer);
         poolConfigurator_.setValidSeller(seller, true);
@@ -49,9 +48,9 @@ contract Init is BaseScript {
         poolConfigurator_.depositCover(100e18);
     }
 
-    function initGlobals(IPoolConfigurator poolConfigurator_, IIsleGlobals globals_) internal broadcast(governor) {
-        globals_.setPoolLimit(address(poolConfigurator_), 100_000_000e18);
-        globals_.setMinCover(address(poolConfigurator_), 10e18);
+    function initPoolWithGovernor(IPoolConfigurator poolConfigurator_) internal broadcast(governor) {
+        poolConfigurator_.setPoolLimit(100_000_000e18);
+        poolConfigurator_.setMinCover(10e18);
     }
 
     function deposit(IPool pool_) internal broadcast(lender) {
