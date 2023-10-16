@@ -15,7 +15,7 @@ contract SetOpenToPublic_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.poolAdmin, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_CallerNotPoolAdmin.selector, users.eve));
         setDefaultOpenToPublic();
     }
 

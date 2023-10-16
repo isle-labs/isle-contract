@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
-import { IAdminable } from "contracts/interfaces/IAdminable.sol";
+import { IGovernable } from "contracts/interfaces/IGovernable.sol";
 import { IPoolConfigurator } from "contracts/interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 
@@ -96,6 +96,6 @@ contract Initialize_Integration_Concrete_Test is Initialize_Integration_Shared_T
         );
 
         assertEq(poolConfiguratorNotInitialized.asset(), address(usdc));
-        assertEq(IAdminable(address(poolConfiguratorNotInitialized)).admin(), users.poolAdmin);
+        assertEq(poolConfiguratorNotInitialized.admin(), users.poolAdmin);
     }
 }

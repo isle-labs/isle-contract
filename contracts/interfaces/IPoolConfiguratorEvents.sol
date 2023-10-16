@@ -8,6 +8,11 @@ interface IPoolConfiguratorEvents {
     /// @param pool_ The address of the pool
     event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);
 
+    /// @notice Emitted when the admin is transferred.
+    /// @param oldAdmin_ The address of the old admin.
+    /// @param newAdmin_ The address of the new admin.
+    event TransferAdmin(address indexed oldAdmin_, address indexed newAdmin_);
+
     /// @notice Emitted when the max cover liquidation is set
     /// @param maxCoverLiquidation_ The max cover liquidation as a percentage
     event MaxCoverLiquidationSet(uint24 maxCoverLiquidation_);

@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
+import { IGovernable } from "./IGovernable.sol";
+
 import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 
 /// @title IIsleGlobals
 /// @notice Interface for the IsleGlobals contract
 /// @notice This interface provides functions for managing the global settings of the Isle protocol
-interface IIsleGlobals is IIsleGlobalsEvents {
+interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /*//////////////////////////////////////////////////////////////////////////
                             INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
@@ -97,10 +99,6 @@ interface IIsleGlobals is IIsleGlobalsEvents {
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Returns the address of the governor
-    /// @return governor_ The address of the governor
-    function governor() external view returns (address governor_);
 
     /// @notice Returns the address of the implementation contract
     /// @return implementation_ The address of the implementation contract

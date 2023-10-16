@@ -2,6 +2,10 @@
 pragma solidity 0.8.19;
 
 interface IPoolConfiguratorStorage {
+    /// @notice Returns the addres of the pool admin
+    /// @return admin_ The address of the pool admin
+    function admin() external view returns (address admin_);
+
     /// @notice Retrieves the ERC20 asset used for the poo
     /// @return asset_ The address of the asset
     function asset() external view returns (address asset_);

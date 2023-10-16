@@ -16,7 +16,7 @@ contract SetValidCollateralAsset_Integration_Concrete_Test is
 
     function test_RevertWhen_CallerNotGovernor() external {
         changePrank(users.eve);
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotGovernor.selector, users.governor, users.eve));
         isleGlobals.setValidCollateralAsset(address(receivable), true);
     }
 

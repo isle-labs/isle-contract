@@ -26,7 +26,7 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
         external;
 
     /*//////////////////////////////////////////////////////////////////////////
-                            GOVERNOR FUNCTIONS
+                                GOVERNOR FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Sets the max cover liquidation for the pool configurator
@@ -40,6 +40,10 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @notice Sets the pool limit for the pool configurator
     /// @param poolLimit_ The size limit of the pool
     function setPoolLimit(uint104 poolLimit_) external;
+
+    /// @notice Transfers to a new admin
+    /// @param newAdmin_ The address of the new admin
+    function transferAdmin(address newAdmin_) external;
 
     /*//////////////////////////////////////////////////////////////////////////
                             POOL ADMIN FUNCTIONS

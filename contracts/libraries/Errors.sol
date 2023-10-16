@@ -9,8 +9,8 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the expected one.
     error InvalidCaller(address caller, address expectedCaller);
 
-    /// @notice Thrown when `msg.sender` is not the expected one.
-    error CallerNotAdmin(address admin_, address caller_);
+    /// @notice Thrown when `msg.sender` is not the governor.
+    error CallerNotGovernor(address governor_, address caller_);
 
     /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
     error NotPoolAdminOrGovernor(address caller_);
@@ -47,6 +47,9 @@ library Errors {
 
     /// @notice Thrown when caller is not pool admin or governor
     error PoolConfigurator_CallerNotPoolAdminOrGovernor(address caller_);
+
+    /// @notice Thrown when caller is not pool admin
+    error PoolConfigurator_CallerNotPoolAdmin(address caller_);
 
     /// @notice Thrown when caller is not governor
     error PoolConfigurator_CallerNotGovernor(address caller_);

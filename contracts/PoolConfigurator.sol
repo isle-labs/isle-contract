@@ -7,8 +7,6 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { PoolDeployer } from "./libraries/PoolDeployer.sol";
 
-import { Adminable, IAdminable } from "./abstracts/Adminable.sol";
-
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
@@ -20,7 +18,7 @@ import { PoolConfiguratorStorage } from "./PoolConfiguratorStorage.sol";
 
 /// @title Pool Configurator
 /// @notice See the documentation in {IPoolConfigurator}.
-contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
+contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // e.g. 100% = 100 * HUNDRED_PERCENT, integer with 6 decimal
         // precision
     uint256 public constant POOL_CONFIGURATOR_REVISION = 0x1;
@@ -43,6 +41,11 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     modifier onlyGovernor() {
         _revertIfNotGovernor();
+        _;
+    }
+
+    modifier onlyAdmin() {
+        _revertIfNotAdmin();
         _;
     }
 
@@ -100,7 +103,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         address pool_ =
             PoolDeployer.createPool({ configurator_: address(this), asset_: asset_, name_: name_, symbol_: symbol_ });
 
-        admin = poolAdmin_; // Sets admin for Adminable
+        admin = poolAdmin_; // Sets admin for Governable
         asset = asset_;
         pool = pool_;
 
@@ -111,16 +114,14 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
                         EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice This overrides the original `transferAdmin()` method in {Adminable}
-    ///         as the admin here should only be on the whitelist
-    ///         and only callable by the governor
+    /// @inheritdoc IPoolConfigurator
     function transferAdmin(address newAdmin_) external virtual override onlyGovernor {
         if (newAdmin_ == address(0) || !_globals().isPoolAdmin(newAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(newAdmin_);
         }
         address oldAdmin_ = admin;
         admin = newAdmin_;
-        emit TransferAdmin({ oldAdmin: oldAdmin_, newAdmin: newAdmin_ });
+        emit TransferAdmin({ oldAdmin_: oldAdmin_, newAdmin_: newAdmin_ });
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -366,6 +367,12 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     function _revertIfPaused() internal view {
         if (_globals().isFunctionPaused(msg.sig)) {
             revert Errors.PoolConfigurator_Paused();
+        }
+    }
+
+    function _revertIfNotAdmin() internal view {
+        if (msg.sender != admin) {
+            revert Errors.PoolConfigurator_CallerNotPoolAdmin(msg.sender);
         }
     }
 

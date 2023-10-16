@@ -12,7 +12,7 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
-import { IAdminable } from "./interfaces/IAdminable.sol";
+import { IGovernable } from "./interfaces/IGovernable.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
@@ -548,7 +548,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     function _poolAdmin() internal view returns (address poolAdmin_) {
-        poolAdmin_ = IAdminable(_poolConfigurator()).admin();
+        poolAdmin_ = IPoolConfigurator(_poolConfigurator()).admin();
     }
 
     function _pool() internal view returns (address pool_) {

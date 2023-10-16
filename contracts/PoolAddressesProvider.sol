@@ -6,13 +6,13 @@ import {
     TransparentUpgradeableProxy
 } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
-import { Adminable } from "./abstracts/Adminable.sol";
+import { Governable } from "./abstracts/Governable.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 
-contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
+contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
     string private _marketId;
 
     mapping(bytes32 => address) private _addresses;
@@ -23,8 +23,8 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
 
-    constructor(string memory marketId_, address initialAdmin_) {
-        admin = initialAdmin_;
+    constructor(string memory marketId_, address initialGovernor_) {
+        governor = initialGovernor_;
         _marketId = marketId_;
     }
 
@@ -32,7 +32,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
         return _marketId;
     }
 
-    function setMarketId(string memory newMarketId_) external onlyAdmin {
+    function setMarketId(string memory newMarketId_) external onlyGovernor {
         _marketId = newMarketId_;
     }
 
@@ -52,7 +52,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     )
         external
         override
-        onlyAdmin
+        onlyGovernor
     {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
@@ -65,7 +65,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setLoanManagerImpl(address newLoanManagerImpl) external override onlyAdmin {
+    function setLoanManagerImpl(address newLoanManagerImpl) external override onlyGovernor {
         address oldLoanManagerImpl = _getProxyImplementation(LOAN_MANAGER);
         _updateImpl(LOAN_MANAGER, newLoanManagerImpl);
         emit LoanManagerUpdated(oldLoanManagerImpl, newLoanManagerImpl);
@@ -83,7 +83,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     )
         external
         override
-        onlyAdmin
+        onlyGovernor
     {
         address oldWithdrawalManagerImpl = _getProxyImplementation(WITHDRAWAL_MANAGER);
         _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl, params);
@@ -98,7 +98,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     )
         external
         override
-        onlyAdmin
+        onlyGovernor
     {
         address proxyAddress = _addresses[id];
         address oldImplementationAddress = _getProxyImplementation(id);
@@ -116,7 +116,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setIsleGlobals(address newIsleGlobals) external override onlyAdmin {
+    function setIsleGlobals(address newIsleGlobals) external override onlyGovernor {
         address oldIsleGlobals = _addresses[LOPO_GLOBALS];
         _addresses[LOPO_GLOBALS] = newIsleGlobals;
         emit IsleGlobalsUpdated(oldIsleGlobals, newIsleGlobals);
@@ -128,7 +128,7 @@ contract PoolAddressesProvider is Adminable, IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setAddress(bytes32 id, address newAddress) external override onlyAdmin {
+    function setAddress(bytes32 id, address newAddress) external override onlyGovernor {
         address oldAddress = _addresses[id];
         _addresses[id] = newAddress;
         emit AddressSet(id, oldAddress, newAddress);

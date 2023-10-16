@@ -6,11 +6,11 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Errors } from "./libraries/Errors.sol";
 
-import { Adminable } from "./abstracts/Adminable.sol";
+import { Governable } from "./abstracts/Governable.sol";
 
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 
-contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpgradeable {
+contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUpgradeable {
     uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
     uint256 public constant HUNDRED_ = 1_000_000; // 100.0000%
 
@@ -18,7 +18,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _authorizeUpgrade(address newImplementation_) internal override onlyAdmin { }
+    function _authorizeUpgrade(address newImplementation_) internal override onlyGovernor { }
 
     function getImplementation() external view override returns (address implementation_) {
         implementation_ = _getImplementation();
@@ -49,7 +49,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
 
     /// @inheritdoc IIsleGlobals
     function initialize(address governor_) external override initializer {
-        admin = governor_;
+        governor = governor_;
         emit Initialized();
     }
 
@@ -58,7 +58,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IIsleGlobals
-    function setIsleVault(address vault_) external override onlyAdmin {
+    function setIsleVault(address vault_) external override onlyGovernor {
         if (vault_ == address(0)) {
             revert Errors.Globals_InvalidVault(vault_);
         }
@@ -67,39 +67,47 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     }
 
     /// @inheritdoc IIsleGlobals
-    function setProtocolPaused(bool protocolPaused_) external override onlyAdmin {
+    function setProtocolPaused(bool protocolPaused_) external override onlyGovernor {
         emit ProtocolPausedSet(msg.sender, protocolPaused = protocolPaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setContractPaused(address contract_, bool contractPaused_) external override onlyAdmin {
+    function setContractPaused(address contract_, bool contractPaused_) external override onlyGovernor {
         emit ContractPausedSet(msg.sender, contract_, isContractPaused[contract_] = contractPaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setFunctionUnpaused(address contract_, bytes4 sig_, bool functionUnpaused_) external override onlyAdmin {
+    function setFunctionUnpaused(
+        address contract_,
+        bytes4 sig_,
+        bool functionUnpaused_
+    )
+        external
+        override
+        onlyGovernor
+    {
         emit FunctionUnpausedSet(msg.sender, contract_, sig_, isFunctionUnpaused[contract_][sig_] = functionUnpaused_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setProtocolFee(uint24 protocolFee_) external override onlyAdmin {
+    function setProtocolFee(uint24 protocolFee_) external override onlyGovernor {
         emit ProtocolFeeSet(protocolFee = protocolFee_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyAdmin {
+    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
         isCollateralAsset[collateralAsset_] = isValid_;
         emit ValidCollateralAssetSet(collateralAsset_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyAdmin {
+    function setValidPoolAsset(address poolAsset_, bool isValid_) external override onlyGovernor {
         isPoolAsset[poolAsset_] = isValid_;
         emit ValidPoolAssetSet(poolAsset_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyAdmin {
+    function setValidPoolAdmin(address poolAdmin_, bool isValid_) external override onlyGovernor {
         isPoolAdmin[poolAdmin_] = isValid_;
         emit ValidPoolAdminSet(poolAdmin_, isValid_);
     }
@@ -107,11 +115,6 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Adminable, UUPSUpg
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc IIsleGlobals
-    function governor() external view override returns (address governor_) {
-        governor_ = admin;
-    }
 
     /// @inheritdoc IIsleGlobals
     function isFunctionPaused(address contract_, bytes4 sig_) public view override returns (bool functionIsPaused_) {

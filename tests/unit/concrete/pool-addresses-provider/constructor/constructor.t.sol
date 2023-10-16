@@ -16,6 +16,6 @@ contract Constructor_PoolAddressesProvider_Unit_Concrete_Test is PoolAddressesPr
         PoolAddressesProvider poolAddressesProvider = new PoolAddressesProvider(defaults.MARKET_ID(), users.governor);
 
         assertEq(poolAddressesProvider.getMarketId(), defaults.MARKET_ID(), "marketId");
-        assertEq(poolAddressesProvider.admin(), users.governor, "admin");
+        assertEq(poolAddressesProvider.governor(), users.governor, "governor");
     }
 }

@@ -8,6 +8,8 @@ import { IPoolConfiguratorStorage } from "./interfaces/IPoolConfiguratorStorage.
 abstract contract PoolConfiguratorStorage is IPoolConfiguratorStorage {
     PoolConfigurator.Config internal _config;
 
+    address public override admin;
+
     address public override asset;
     address public override pool;
     address public override buyer;

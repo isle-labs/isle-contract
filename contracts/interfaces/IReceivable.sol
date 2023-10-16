@@ -3,10 +3,12 @@ pragma solidity 0.8.19;
 
 import { Receivable } from "../libraries/types/DataTypes.sol";
 
-import { ReceivableStorage } from "../ReceivableStorage.sol";
 import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
+import { IGovernable } from "./IGovernable.sol";
 
-interface IReceivable is IReceivableEvent {
+import { ReceivableStorage } from "../ReceivableStorage.sol";
+
+interface IReceivable is IGovernable, IReceivableEvent {
     /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
