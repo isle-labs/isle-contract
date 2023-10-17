@@ -34,7 +34,7 @@ contract FundLoan_Integration_Concrete_Test is
         uint256 receivableTokenId = createDefaultReceivable();
 
         changePrank(users.buyer);
-        uint16 loanId = approveLoan(receivableTokenId, defaults.PRINCIPAL_REQUESTED());
+        uint16 loanId = requestLoan(receivableTokenId, defaults.PRINCIPAL_REQUESTED());
 
         changePrank(users.poolAdmin);
         vm.expectEmit(true, true, true, true);

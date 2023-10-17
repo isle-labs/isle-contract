@@ -107,7 +107,7 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         asset = asset_;
         pool = pool_;
 
-        emit Initialized(poolAdmin_, asset_, pool_);
+        emit Initialized({ poolAdmin_: poolAdmin_, asset_: asset_, pool_: pool_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

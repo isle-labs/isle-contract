@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import { IGovernable } from "./IGovernable.sol";
-
 import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 
 /// @title IIsleGlobals
@@ -25,31 +24,32 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @param isleVault_ The address of the Isle vault.
     function setIsleVault(address isleVault_) external;
 
-    /// @notice   Sets the protocol pause.
+    /// @notice Pause or unpause the protocol.
     /// @param protocolPaused_ A boolean indicating the status of the protocol pause.
     function setProtocolPaused(bool protocolPaused_) external;
 
-    /// @notice Sets the pause status of a specific contract
+    /// @notice Pause or unpause a specific contract
     /// @param contract_ The address of the contract to set the pause status for
     /// @param contractPaused_ A boolean indicating the pause status of the contract
     function setContractPaused(address contract_, bool contractPaused_) external;
 
-    /// @notice Sets the unpause status of a specific function in a contract
+    /// @notice Unpause or ununpause (xD) a specific function in a contract
+    /// @notice Normally used to unpause specific functions when a contract is paused
     /// @param contract_ The address of the contract
     /// @param sig_ The function signature
-    /// @param functionUnpaused_ A boolean indicating the unpause status of the function
+    /// @param functionUnpaused_ A boolean indicating whether the function is unpaused
     function setFunctionUnpaused(address contract_, bytes4 sig_, bool functionUnpaused_) external;
 
-    /// @notice   Sets the protocol fee
-    /// @param protocolFee_ A uint24 indicating the protocol fee
+    /// @notice Sets the protocol fee
+    /// @param protocolFee_ A uint24 indicating the protocol fee (100.0000% = 1e6 (6 decimal precision))
     function setProtocolFee(uint24 protocolFee_) external;
 
-    /// @notice   Sets the validity of a collateral asset.
+    /// @notice Sets the validity of a collateral asset (should match ERC-721).
     /// @param collateralAsset_ The address of the collateral asset to set the validity for.
     /// @param isValid_         A boolean indicating the validity of the collateral asset.
     function setValidCollateralAsset(address collateralAsset_, bool isValid_) external;
 
-    /// @notice   Sets the validity of the pool asset.
+    /// @notice Sets the validity of the pool asset (should match ERC-20).
     /// @param poolAsset_ The address of the pool asset to set the validity for.
     /// @param isValid_   A boolean indicating the validity of the pool asset.
     function setValidPoolAsset(address poolAsset_, bool isValid_) external;
@@ -67,31 +67,36 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @return protocolFee_ A uint24 indicating the protocol fee
     function protocolFee() external view returns (uint24 protocolFee_);
 
-    /// @notice    Gets isle vault address.
+    /// @notice Gets isle vault address.
     /// @return isleVault_ The address of the isle vault.
     function isleVault() external view returns (address isleVault_);
 
-    /// @notice    Gets the status of the protocol pause.
-    /// @return protocolPaused_ A boolean indicating the status of the protocol pause.
+    /// @notice Gets the status of the protocol pause.
+    /// @return protocolPaused_ A boolean indicating whether the protocol is paused.
     function protocolPaused() external view returns (bool protocolPaused_);
 
     /// @notice Returns the pause status of a specific contract
     /// @param contract_ The address of the contract to check
-    /// @return contractPaused_ A boolean indicating the pause status of the contract
+    /// @return contractPaused_ A boolean indicating whether a contract is paused
     function isContractPaused(address contract_) external view returns (bool contractPaused_);
 
     /// @notice Returns the unpause status of a specific function in a contract
     /// @param contract_ The address of the contract
     /// @param sig_ The function signature
-    /// @return functionUnpaused_ A boolean indicating the unpause status of the function
+    /// @return functionUnpaused_ A boolean indicating whether the function is unpaused
     function isFunctionUnpaused(address contract_, bytes4 sig_) external view returns (bool functionUnpaused_);
 
-    /// @notice    Gets the validity of a collateral asset.
+    /// @notice Returns if the account is a valid poolAdmin
+    /// @param account_ The address of the account to check
+    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
+    function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
+
+    /// @notice Gets the validity of a collateral asset.
     /// @param  collateralAsset_   The address of the collateralAsset to query.
     /// @return isCollateralAsset_ A boolean indicating the validity of the collateral asset.
     function isCollateralAsset(address collateralAsset_) external view returns (bool isCollateralAsset_);
 
-    /// @notice    Gets the validity of a pool asset.
+    /// @notice Gets the validity of a pool asset.
     /// @param  poolAsset_   The address of the poolAsset to query.
     /// @return isPoolAsset_ A boolean indicating the validity of the pool asset.
     function isPoolAsset(address poolAsset_) external view returns (bool isPoolAsset_);
@@ -114,9 +119,4 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @param sig_ The function signature
     /// @return isFunctionPaused_ A boolean indicating the pause status of the function
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
-
-    /// @notice Returns if the account is a valid poolAdmin
-    /// @param account_ The address of the account to check
-    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
-    function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
 }

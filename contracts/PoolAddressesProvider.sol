@@ -28,11 +28,11 @@ contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
         _marketId = marketId_;
     }
 
-    function getMarketId() external view returns (string memory) {
-        return _marketId;
+    function getMarketId() external view override returns (string memory marketId_) {
+        marketId_ = _marketId;
     }
 
-    function setMarketId(string memory newMarketId_) external onlyGovernor {
+    function setMarketId(string memory newMarketId_) external override onlyGovernor {
         _marketId = newMarketId_;
     }
 

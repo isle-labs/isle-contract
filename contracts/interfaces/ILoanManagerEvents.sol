@@ -2,9 +2,22 @@
 pragma solidity ^0.8.19;
 
 interface ILoanManagerEvents {
-    /// @notice Emitted when a loan is approved
+    /// @notice Emitted when the loan manager is initialized.
+    /// @param poolAddressesProvider_ The address of the pool addresses provider
+    event Initialized(address poolAddressesProvider_);
+
+    /// @notice Emitted when the accounting state is updated.
+    /// @param issuanceRate_ The updated issuance rate.
+    /// @param accountedInterest_ The updated accounted interest.
+    event AccountingStateUpdated(uint256 issuanceRate_, uint112 accountedInterest_);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                POOL ADMIN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @notice Emitted when a loan is requested
     /// @param loanId_ The id of the loan
-    event LoanApproved(uint16 indexed loanId_);
+    event LoanRequested(uint16 indexed loanId_);
 
     /// @notice Emitted when a loan is repaid
     /// @param loanId_ The id of the loan
@@ -16,11 +29,6 @@ interface ILoanManagerEvents {
     /// @param loanId_ The id of the loan
     /// @param amount_ The amount of principal withdrawn
     event FundsWithdrawn(uint16 indexed loanId_, uint256 amount_);
-
-    /// @notice Emitted when the accounting state is updated.
-    /// @param issuanceRate_ The updated issuance rate.
-    /// @param accountedInterest_ The updated accounted interest.
-    event AccountingStateUpdated(uint256 issuanceRate_, uint112 accountedInterest_);
 
     /// @notice Emitted when unrealized losses is updated.
     /// @param unrealizedLosses_ The updated unrealized losses.

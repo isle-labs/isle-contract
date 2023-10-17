@@ -30,7 +30,7 @@ contract Init is BaseScript {
         deposit(pool_);
 
         uint256[] memory tokenIds_ = initReceivables(receivable_);
-        uint16[] memory loanIds_ = approveLoans(loanManager_, receivable_, tokenIds_, tokenIds_.length - 1);
+        uint16[] memory loanIds_ = requestLoans(loanManager_, receivable_, tokenIds_, tokenIds_.length - 1);
 
         fundLoans(loanManager_, loanIds_, loanIds_.length - 1);
         withdrawFunds(loanManager_, loanIds_, loanIds_.length - 2);
@@ -89,7 +89,7 @@ contract Init is BaseScript {
         }
     }
 
-    function approveLoans(
+    function requestLoans(
         ILoanManager loanManager_,
         IReceivable receivable_,
         uint256[] memory tokenIds_,
@@ -103,7 +103,7 @@ contract Init is BaseScript {
 
         for (uint256 i = 0; i < length_; i++) {
             Receivable.Info memory info_ = receivable_.getReceivableInfoById(tokenIds_[i]);
-            uint16 loanId_ = loanManager_.approveLoan({
+            uint16 loanId_ = loanManager_.requestLoan({
                 collateralAsset_: address(receivable_),
                 receivablesTokenId_: tokenIds_[i],
                 gracePeriod_: 3 days,

@@ -33,7 +33,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
                                 Storage
     //////////////////////////////////////////////////////////////////////////*/
 
-    uint24 public override protocolFee; // 100.0000%
+    uint24 public override protocolFee; // 100.0000% = 1e6 (6 decimal precision)
     address public override isleVault;
 
     bool public override protocolPaused;

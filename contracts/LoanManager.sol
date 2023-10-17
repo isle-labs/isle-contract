@@ -20,7 +20,6 @@ import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IReceivable } from "./interfaces/IReceivable.sol";
 
 import { LoanManagerStorage } from "./LoanManagerStorage.sol";
-import { ReceivableStorage } from "./ReceivableStorage.sol";
 
 contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
     uint256 public constant LOAN_MANAGER_REVISION = 0x1;
@@ -59,6 +58,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             });
         }
         fundsAsset = IPoolConfigurator(ADDRESSES_PROVIDER.getPoolConfigurator()).asset();
+        emit Initialized({ poolAddressesProvider_: address(provider_) });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -90,6 +90,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     /// @inheritdoc VersionedInitializable
     function getRevision() internal pure virtual override returns (uint256 revision_) {
         revision_ = LOAN_MANAGER_REVISION;
+    }
+
+    /// @inheritdoc IERC721Receiver
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 
     /// @inheritdoc ILoanManager
@@ -151,11 +156,6 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
-    /// @inheritdoc IERC721Receiver
-    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
-        return IERC721Receiver.onERC721Received.selector;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                             EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -167,7 +167,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function approveLoan(
+    function requestLoan(
         address collateralAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
@@ -179,7 +179,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         whenNotPaused
         returns (uint16 loanId_)
     {
-        // Check if the collateral asset is in the allowed list in IsleGlobals
+        // Check if the collateral asset is allowed
         if (!IIsleGlobals(_globals()).isCollateralAsset(collateralAsset_)) {
             revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
         }
@@ -187,8 +187,10 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         Receivable.Info memory receivableInfo_ =
             IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
 
+        // Check caller
         _revertIfCallerNotReceivableBuyer(receivableInfo_.buyer);
 
+        // Check receivable
         _revertIfInvalidReceivable(
             receivablesTokenId_, receivableInfo_.buyer, receivableInfo_.seller, receivableInfo_.repaymentTimestamp
         );
@@ -220,7 +222,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             isImpaired: false
         });
 
-        emit LoanApproved({ loanId_: loanId_ });
+        emit LoanRequested({ loanId_: loanId_ });
     }
 
     /// @inheritdoc ILoanManager

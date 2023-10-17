@@ -1,4 +1,4 @@
-approveLoan.t.sol
+requestLoan.t.sol
 ├── when the function is paused
 │  └── it should revert
 └── when the function is not paused
@@ -15,5 +15,5 @@ approveLoan.t.sol
             │  └── it should revert
             └── when the requested principal is less than the face amount of receivable
                ├── it should approve the loan correctly
-               └── it should emit a {LoanApproved} event
+               └── it should emit a {LoanRequested} event
 

@@ -4,12 +4,12 @@ pragma solidity 0.8.19;
 interface IIsleGlobalsEvents {
     event Initialized();
 
-    /// @dev   The address for the Isle vault has been set.
+    /// @dev The address for the Isle vault has been set.
     /// @param previousIsleVault_ The previous vault.
     /// @param currentIsleVault_  The new vault.
     event IsleVaultSet(address indexed previousIsleVault_, address indexed currentIsleVault_);
 
-    /// @dev   The protocol pause was set to a new state.
+    /// @dev The protocol pause was set to a new state.
     /// @param caller_         The address of the security admin or governor that performed the action.
     /// @param protocolPaused_ The protocol paused state.
     event ProtocolPausedSet(address indexed caller_, bool protocolPaused_);
