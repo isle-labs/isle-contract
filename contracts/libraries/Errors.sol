@@ -79,7 +79,7 @@ library Errors {
     error PoolConfigurator_Paused();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                LOPO GLOBALS
+                                ISLE GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
 
     error Globals_CallerNotPoolConfigurator(address poolConfigurator, address caller);

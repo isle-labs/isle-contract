@@ -6,7 +6,10 @@ import {
     TransparentUpgradeableProxy
 } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
+import { Errors } from "./libraries/Errors.sol";
+
 import { Governable } from "./abstracts/Governable.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
@@ -19,11 +22,32 @@ contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
 
     bytes32 private constant POOL = "POOL";
     bytes32 private constant POOL_CONFIGURATOR = "POOL_CONFIGURATOR";
-    bytes32 private constant LOPO_GLOBALS = "LOPO_GLOBALS";
+    bytes32 private constant ISLE_GLOBALS = "ISLE_GLOBALS";
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    modifier onlyGovernor() override {
+        address globals_ = getAddress(ISLE_GLOBALS);
+        // check if globals_ is set
+        if (globals_ != address(0)) {
+            address governor_ = IIsleGlobals(globals_).governor();
+            if (msg.sender != governor_) {
+                revert Errors.CallerNotGovernor({ governor_: governor_, caller_: msg.sender });
+            }
+        } else {
+            if (msg.sender != governor) {
+                revert Errors.CallerNotGovernor({ governor_: governor, caller_: msg.sender });
+            }
+        }
+        _;
+    }
+
     constructor(string memory marketId_, address initialGovernor_) {
+        // initialGovernor_ is for getting governor before setIsleGlobals()
         governor = initialGovernor_;
         _marketId = marketId_;
     }
@@ -112,13 +136,13 @@ contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
 
     /// @inheritdoc IPoolAddressesProvider
     function getIsleGlobals() external view override returns (address) {
-        return getAddress(LOPO_GLOBALS);
+        return getAddress(ISLE_GLOBALS);
     }
 
     /// @inheritdoc IPoolAddressesProvider
     function setIsleGlobals(address newIsleGlobals) external override onlyGovernor {
-        address oldIsleGlobals = _addresses[LOPO_GLOBALS];
-        _addresses[LOPO_GLOBALS] = newIsleGlobals;
+        address oldIsleGlobals = _addresses[ISLE_GLOBALS];
+        _addresses[ISLE_GLOBALS] = newIsleGlobals;
         emit IsleGlobalsUpdated(oldIsleGlobals, newIsleGlobals);
     }
 

@@ -19,8 +19,8 @@ abstract contract Governable is IGovernable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Reverts if called by any account other than the governor.
-    modifier onlyGovernor() {
-        if (governor != msg.sender) {
+    modifier onlyGovernor() virtual {
+        if (msg.sender != governor) {
             revert Errors.CallerNotGovernor({ governor_: governor, caller_: msg.sender });
         }
         _;

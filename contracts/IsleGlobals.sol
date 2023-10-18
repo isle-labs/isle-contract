@@ -11,7 +11,7 @@ import { Governable } from "./abstracts/Governable.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 
 contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUpgradeable {
-    uint256 public constant LOPO_GLOBALS_REVISION = 0x1;
+    uint256 public constant ISLE_GLOBALS_REVISION = 0x1;
     uint256 public constant HUNDRED_ = 1_000_000; // 100.0000%
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
 
     /// @inheritdoc VersionedInitializable
     function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = LOPO_GLOBALS_REVISION;
+        revision_ = ISLE_GLOBALS_REVISION;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
