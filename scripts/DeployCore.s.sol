@@ -66,8 +66,8 @@ contract DeployCore is BaseScript {
 
         globals_.setValidPoolAdmin(poolAdmin, true);
         globals_.setValidPoolAsset(asset_, true);
-        globals_.setValidCollateralAsset(receivable_, true);
-        globals_.setValidCollateralAsset(address(receivable_), true);
+        globals_.setValidReceivableAsset(receivable_, true);
+        globals_.setValidReceivableAsset(address(receivable_), true);
         globals_.setProtocolFee(0.1e6);
     }
 

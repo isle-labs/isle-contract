@@ -104,7 +104,7 @@ contract Init is BaseScript {
         for (uint256 i = 0; i < length_; i++) {
             Receivable.Info memory info_ = receivable_.getReceivableInfoById(tokenIds_[i]);
             uint16 loanId_ = loanManager_.requestLoan({
-                collateralAsset_: address(receivable_),
+                receivableAsset_: address(receivable_),
                 receivablesTokenId_: tokenIds_[i],
                 gracePeriod_: 3 days,
                 principalRequested_: info_.faceAmount * 9 / 10,
@@ -138,7 +138,7 @@ contract Init is BaseScript {
         for (uint256 i = 0; i < length_; i++) {
             Loan.Info memory info_ = loanManager_.getLoanInfo(loanIds_[i]);
 
-            IERC721(info_.collateralAsset).approve(address(loanManager_), info_.collateralTokenId);
+            IERC721(info_.receivableAsset).approve(address(loanManager_), info_.receivableTokenId);
 
             loanManager_.withdrawFunds({ loanId_: loanIds_[i], destination_: seller, amount_: info_.drawableFunds });
         }

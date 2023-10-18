@@ -40,7 +40,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
     mapping(address => bool) public override isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public override isFunctionUnpaused;
     mapping(address => bool) public override isPoolAdmin;
-    mapping(address => bool) public override isCollateralAsset;
+    mapping(address => bool) public override isReceivableAsset;
     mapping(address => bool) public override isPoolAsset;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -95,9 +95,9 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
     }
 
     /// @inheritdoc IIsleGlobals
-    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external override onlyGovernor {
-        isCollateralAsset[collateralAsset_] = isValid_;
-        emit ValidCollateralAssetSet(collateralAsset_, isValid_);
+    function setValidReceivableAsset(address receivableAsset_, bool isValid_) external override onlyGovernor {
+        isReceivableAsset[receivableAsset_] = isValid_;
+        emit ValidReceivableAssetSet(receivableAsset_, isValid_);
     }
 
     /// @inheritdoc IIsleGlobals

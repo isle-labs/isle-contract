@@ -85,7 +85,7 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     ///                                     [1]: lateInterestPremiumRate,
     /// @return loanId_                 Id of the loan that is created
     function requestLoan(
-        address collateralAsset_,
+        address receivableAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,

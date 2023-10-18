@@ -62,8 +62,8 @@ library Loan {
     struct Info {
         address buyer;
         address seller;
-        address collateralAsset;
-        uint256 collateralTokenId;
+        address receivableAsset;
+        uint256 receivableTokenId;
         uint256 principal;
         uint256 drawableFunds;
         uint256 interestRate;

@@ -15,7 +15,7 @@ abstract contract Events {
 
     event ProtocolFeeSet(uint24 protocolFee_);
 
-    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
+    event ValidReceivableAssetSet(address indexed receivableAsset_, bool isValid_);
 
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 

@@ -19,7 +19,7 @@ contract requestLoan_Integration_Concrete_Test is
         _;
     }
 
-    modifier whenCollateralAssetAllowed() {
+    modifier whenReceivableAssetAllowed() {
         _;
     }
 
@@ -44,17 +44,17 @@ contract requestLoan_Integration_Concrete_Test is
         loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CollateralAssetNotAllowed() external whenNotPaused {
+    function test_RevertWhen_ReceivableAssetNotAllowed() external whenNotPaused {
         changePrank(users.governor);
-        isleGlobals.setValidCollateralAsset(address(receivable), false);
+        isleGlobals.setValidReceivableAsset(address(receivable), false);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.LoanManager_CollateralAssetNotAllowed.selector, address(receivable))
+            abi.encodeWithSelector(Errors.LoanManager_ReceivableAssetNotAllowed.selector, address(receivable))
         );
         loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenCollateralAssetAllowed {
+    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenReceivableAssetAllowed {
         createDefaultReceivable();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CallerNotReceivableBuyer.selector, address(users.buyer))
@@ -65,7 +65,7 @@ contract requestLoan_Integration_Concrete_Test is
     function test_RevertWhen_ReceivableInvalid()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
     {
         createDefaultReceivable();
@@ -84,7 +84,7 @@ contract requestLoan_Integration_Concrete_Test is
     function test_RevertWhen_PrincipalRequestedGreaterThanFaceAmount()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
         whenReceivableValid
     {
@@ -103,7 +103,7 @@ contract requestLoan_Integration_Concrete_Test is
     function test_requestLoan()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
         whenReceivableValid
         whenPrincipalRequestedLessThanFaceAmount

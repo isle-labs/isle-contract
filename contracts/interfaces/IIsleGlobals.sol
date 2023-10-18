@@ -44,10 +44,10 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @param protocolFee_ A uint24 indicating the protocol fee (100.0000% = 1e6 (6 decimal precision))
     function setProtocolFee(uint24 protocolFee_) external;
 
-    /// @notice Sets the validity of a collateral asset (should match ERC-721).
-    /// @param collateralAsset_ The address of the collateral asset to set the validity for.
-    /// @param isValid_         A boolean indicating the validity of the collateral asset.
-    function setValidCollateralAsset(address collateralAsset_, bool isValid_) external;
+    /// @notice Sets the validity of a receivable asset (should match ERC-721).
+    /// @param receivableAsset_ The address of the receivable asset to set the validity for.
+    /// @param isValid_         A boolean indicating the validity of the receivable asset.
+    function setValidReceivableAsset(address receivableAsset_, bool isValid_) external;
 
     /// @notice Sets the validity of the pool asset (should match ERC-20).
     /// @param poolAsset_ The address of the pool asset to set the validity for.
@@ -91,10 +91,10 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
     function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
 
-    /// @notice Gets the validity of a collateral asset.
-    /// @param  collateralAsset_   The address of the collateralAsset to query.
-    /// @return isCollateralAsset_ A boolean indicating the validity of the collateral asset.
-    function isCollateralAsset(address collateralAsset_) external view returns (bool isCollateralAsset_);
+    /// @notice Gets the validity of a receivable asset.
+    /// @param  receivableAsset_   The address of the receivableAsset to query.
+    /// @return isReceivableAsset_ A boolean indicating the validity of the receivable asset.
+    function isReceivableAsset(address receivableAsset_) external view returns (bool isReceivableAsset_);
 
     /// @notice Gets the validity of a pool asset.
     /// @param  poolAsset_   The address of the poolAsset to query.

@@ -168,7 +168,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     /// @inheritdoc ILoanManager
     function requestLoan(
-        address collateralAsset_,
+        address receivableAsset_,
         uint256 receivablesTokenId_,
         uint256 gracePeriod_,
         uint256 principalRequested_,
@@ -179,13 +179,13 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         whenNotPaused
         returns (uint16 loanId_)
     {
-        // Check if the collateral asset is allowed
-        if (!IIsleGlobals(_globals()).isCollateralAsset(collateralAsset_)) {
-            revert Errors.LoanManager_CollateralAssetNotAllowed({ collateralAsset_: collateralAsset_ });
+        // Check if the receivable asset is allowed
+        if (!IIsleGlobals(_globals()).isReceivableAsset(receivableAsset_)) {
+            revert Errors.LoanManager_ReceivableAssetNotAllowed({ receivableAsset_: receivableAsset_ });
         }
 
         Receivable.Info memory receivableInfo_ =
-            IReceivable(collateralAsset_).getReceivableInfoById(receivablesTokenId_);
+            IReceivable(receivableAsset_).getReceivableInfoById(receivablesTokenId_);
 
         // Check caller
         _revertIfCallerNotReceivableBuyer(receivableInfo_.buyer);
@@ -209,8 +209,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         _loans[loanId_] = Loan.Info({
             buyer: receivableInfo_.buyer,
             seller: receivableInfo_.seller,
-            collateralAsset: collateralAsset_,
-            collateralTokenId: receivablesTokenId_,
+            receivableAsset: receivableAsset_,
+            receivableTokenId: receivablesTokenId_,
             principal: principalRequested_,
             drawableFunds: uint256(0),
             interestRate: rates_[0],
@@ -284,8 +284,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
         // 8. burn the receivable
         Loan.Info memory loan_ = _loans[loanId_];
-        if (IERC721(loan_.collateralAsset).ownerOf(loan_.collateralTokenId) == address(this)) {
-            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+        if (IERC721(loan_.receivableAsset).ownerOf(loan_.receivableTokenId) == address(this)) {
+            IReceivable(loan_.receivableAsset).burnReceivable(loan_.receivableTokenId);
         }
 
         _updateIssuanceParams(issuanceRate - paymentIssuanceRate_, accountedInterest);
@@ -310,11 +310,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
         loan_.drawableFunds -= amount_;
 
-        IERC721(loan_.collateralAsset).safeTransferFrom(msg.sender, address(this), loan_.collateralTokenId);
+        IERC721(loan_.receivableAsset).safeTransferFrom(msg.sender, address(this), loan_.receivableTokenId);
 
         // check if the loan is already be repaid
         if (paymentIdOf[loanId_] == 0) {
-            IReceivable(loan_.collateralAsset).burnReceivable(loan_.collateralTokenId);
+            IReceivable(loan_.receivableAsset).burnReceivable(loan_.receivableTokenId);
         }
 
         IERC20(fundsAsset).safeTransfer(destination_, amount_);

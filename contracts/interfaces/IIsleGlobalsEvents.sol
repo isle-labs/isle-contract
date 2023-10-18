@@ -34,9 +34,9 @@ interface IIsleGlobalsEvents {
     event ProtocolFeeSet(uint24 protocolFee_);
 
     /// @dev   A valid asset was set.
-    /// @param collateralAsset_ The address of the collateral asset.
-    /// @param isValid_         The validity of the collateral asset.
-    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
+    /// @param receivableAsset_ The address of the receivable asset.
+    /// @param isValid_         The validity of the receivable asset.
+    event ValidReceivableAssetSet(address indexed receivableAsset_, bool isValid_);
 
     /// @dev   A valid asset was set.
     /// @param poolAsset_ The address of the asset.

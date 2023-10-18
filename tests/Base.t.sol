@@ -211,7 +211,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     function setDefaultGlobals(IPoolAddressesProvider poolAddressesProvider_) internal {
         isleGlobals.setValidPoolAdmin(users.poolAdmin, true);
         isleGlobals.setValidPoolAsset(address(usdc), true);
-        isleGlobals.setValidCollateralAsset(address(receivable), true);
+        isleGlobals.setValidReceivableAsset(address(receivable), true);
 
         poolAddressesProvider_.setIsleGlobals(address(isleGlobals));
     }

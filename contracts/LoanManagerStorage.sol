@@ -16,7 +16,7 @@ abstract contract LoanManagerStorage is ILoanManagerStorage {
     uint256 public override issuanceRate;
 
     address public override fundsAsset;
-    address public override collateralAsset;
+    address public override receivableAsset;
 
     mapping(uint16 => uint24) public override paymentIdOf;
     mapping(uint16 => Loan.Impairment) public impairmentFor;

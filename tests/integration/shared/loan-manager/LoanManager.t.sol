@@ -17,12 +17,12 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_U
     }
 
     function requestLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
-        address collateralAsset_ = address(receivable);
+        address receivableAsset_ = address(receivable);
         uint256 gracePeriod_ = defaults.GRACE_PERIOD();
         uint256[2] memory rates_ = [defaults.INTEREST_RATE(), defaults.LATE_INTEREST_PREMIUM_RATE()];
 
         loanId_ =
-            loanManager.requestLoan(collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_);
+            loanManager.requestLoan(receivableAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_);
     }
 
     function fundLoan(uint16 loanId_) internal {
