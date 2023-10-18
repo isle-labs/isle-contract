@@ -6,25 +6,54 @@
     bytecode_hash = "none"
     cbor_metadata = false
     evm_version = "paris"
-    fuzz = { runs = 1_000 }
-    gas_reports = ["*"]
-    libs = ["modules"]
+    gas_reports = [
+        "PoolConfigurator",
+        "Pool",
+        "LoanManager",
+        "WithdrawalManager",
+        "PoolAddressesProvider",
+        "Receivable",
+        "IsleGlobals"
+    ]
+    fs_permissions = [{ access = "read", path = "out-optimized" }]
     optimizer = true
     optimizer_runs = 1_000
     out = "out"
     script = "scripts"
-    solc_version = "0.8.19"
     src = "contracts"
+    libs = ["modules"]
     test = "tests"
+    sender = "0xBbC9928618b05356841a8565C72E4493D12ad163"
+    solc_version = "0.8.19"
     verbosity = 2
+
+[profile.default.fuzz]
+    max_test_rejects = 1_000_000 # Number of times `vm.assume` can fail
+    runs = 50
+
+# Speed up compilation and tests during development
+[profile.lite]
+    optimizer = false
+
+# Test the optimized contracts without re-compiling them
+[profile.test-optimized]
+    src = "tests"
+
+# Compile only the production code and the test mocks with via IR
+[profile.optimized]
+    out = "out-optimized"
+    test = "tests/mocks"
+    via_ir = true
 
 [profile.ci]
     fuzz = { runs = 10_000 }
     verbosity = 4
 
-# Speed up compilation and tests during development
-[profile.lite]
-  optimizer = false
+[doc]
+    ignore = ["**/*.t.sol"]
+    out = "docs"
+    repository = "https://github.com/bsostech/isle"
+
 
 [etherscan]
 # arbitrum_one = { key = "${API_KEY_ARBISCAN}" }
