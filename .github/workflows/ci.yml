@@ -63,11 +63,31 @@ jobs:
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
+            - name: "Install Pnpm"
+              uses: "pnpm/action-setup@v2"
+              with:
+                  version: "8"
+
+            - name: "Install Node.js"
+              uses: "actions/setup-node@v3"
+              with:
+                  cache: "pnpm"
+                  node-version: "lts/*"
+
+            - name: "Install the Node.js dependencies"
+              run: "pnpm install"
+
             - name: "Show the Foundry config"
               run: "forge config"
 
-            - name: "Build the test contracts and print their size"
-              run: "FOUNDRY_PROFILE=test-optimized forge build --sizes"
+            - name: "Build contracts"
+              run: "forge build --sizes"
+
+            - name: "Cache the build so that it can be re-used by the other jobs"
+              uses: "actions/cache/save@v3"
+              with:
+                  path: "out"
+                  key: "foundry-build-${{ github.sha }}"
 
             - name: "Add build summary"
               run: |
@@ -88,6 +108,13 @@ jobs:
 
             - name: "Show the Foundry config"
               run: "forge config"
+
+            - name: "Restore the cached build"
+              uses: "actions/cache/restore@v3"
+              with:
+                  fail-on-cache-miss: true
+                  key: "foundry-build-${{ github.sha }}"
+                  path: "out"
 
             - name: "Generate a fuzz seed that changes weekly to avoid burning through RPC allowance"
               run: >
@@ -114,6 +141,13 @@ jobs:
 
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
+
+            - name: "Restore the cached build"
+              uses: "actions/cache/restore@v3"
+              with:
+                  fail-on-cache-miss: true
+                  key: "foundry-build-${{ github.sha }}"
+                  path: "out"
 
             - name: "Generate the coverage report using the unit and the integration tests"
               run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov'
