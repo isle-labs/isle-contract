@@ -67,6 +67,7 @@ mainnet = { key = "${API_KEY_ETHERSCAN}" }
 sepolia = { key = "${API_KEY_ETHERSCAN}" }
 linea-mainnet = { key = "${API_KEY_LINEASCAN}", url = "https://api.lineascan.build/api" }
 linea-testnet = { key = "${API_KEY_LINEASCAN}", url = "https://api-testnet.lineascan.build/api" }
+base-goerli = { key = "${API_KEY_BASESCAN}", url = "https://api-goerli.basescan.org/api" }
 
 [fmt]
 bracket_spacing = true
@@ -91,3 +92,4 @@ sepolia = "https://eth-sepolia.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 mainnet = "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}"
 linea-mainnet = "https://linea.infura.io/v3/${API_KEY_INFURA}"
 linea-testnet = "https://linea-goerli.infura.io/v3/${API_KEY_INFURA}"
+base-goerli = "https://base-goerli.infura.io/v3/${API_KEY_INFURA}"

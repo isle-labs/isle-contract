@@ -5,6 +5,7 @@ import { console2 } from "@forge-std/console2.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
+// Usage: forge script --broadcast scripts/GetBalance.s.sol --rpc-url "$RPC_URL"
 contract GetBalance is BaseScript {
     function run() public broadcast(deployer) {
         uint256 deployerBalance = deployer.balance;
