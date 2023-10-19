@@ -22,7 +22,7 @@
   "private": true,
   "scripts": {
     "clean": "rm -rf cache out",
-    "gas-report": "./gas-report.sh",
+    "gas-report": "./shell/gas-report.sh",
     "lint": "pnpm lint:sol && pnpm prettier:check",
     "lint:sol": "forge fmt --check && pnpm solhint \"{script,src,test}/**/*.sol\"",
     "prettier:check": "prettier --check \"**/*.{json,md,yml}\"",

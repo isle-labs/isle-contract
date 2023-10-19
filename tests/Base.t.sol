@@ -116,7 +116,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         isleGlobals = deployGlobals();
 
         // Deploy pool side contracts
-        poolAddressesProvider = deployPoolAddressesProvider();
+        poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
         setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
         withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
@@ -146,8 +146,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool addresses provider
-    function deployPoolAddressesProvider() internal returns (IPoolAddressesProvider poolAddressesProvider_) {
-        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID(), users.governor);
+    function deployPoolAddressesProvider(IIsleGlobals isleGlobals_)
+        internal
+        returns (IPoolAddressesProvider poolAddressesProvider_)
+    {
+        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID(), isleGlobals_);
     }
 
     /// @dev Deploy pool configurator
@@ -168,8 +171,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
         poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
 
-        isleGlobals.setPoolLimit(address(poolConfigurator_), defaults.POOL_LIMIT());
-        isleGlobals.setMinCover(address(poolConfigurator_), defaults.MIN_COVER_AMOUNT());
+        poolConfigurator_.setPoolLimit(defaults.POOL_LIMIT());
+        poolConfigurator_.setMinCover(defaults.MIN_COVER_AMOUNT());
 
         changePrank(users.poolAdmin);
         poolConfigurator_.setOpenToPublic(true);
@@ -211,7 +214,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     function setDefaultGlobals(IPoolAddressesProvider poolAddressesProvider_) internal {
         isleGlobals.setValidPoolAdmin(users.poolAdmin, true);
         isleGlobals.setValidPoolAsset(address(usdc), true);
-        isleGlobals.setValidCollateralAsset(address(receivable), true);
+        isleGlobals.setValidReceivableAsset(address(receivable), true);
 
         poolAddressesProvider_.setIsleGlobals(address(isleGlobals));
     }

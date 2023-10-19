@@ -18,7 +18,7 @@ contract SetAddressAsProxy_PoolAddressesProvider_Unit_Concrete_Test is PoolAddre
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotGovernor.selector, users.governor, users.eve));
 
         setDefaultAddressAsProxy();
     }

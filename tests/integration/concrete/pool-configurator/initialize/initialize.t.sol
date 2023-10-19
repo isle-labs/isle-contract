@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
+import { IGovernable } from "contracts/interfaces/IGovernable.sol";
 import { IPoolConfigurator } from "contracts/interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 

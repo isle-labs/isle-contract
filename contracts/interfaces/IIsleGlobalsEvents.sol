@@ -4,12 +4,12 @@ pragma solidity 0.8.19;
 interface IIsleGlobalsEvents {
     event Initialized();
 
-    /// @dev   The address for the Isle vault has been set.
+    /// @dev The address for the Isle vault has been set.
     /// @param previousIsleVault_ The previous vault.
     /// @param currentIsleVault_  The new vault.
     event IsleVaultSet(address indexed previousIsleVault_, address indexed currentIsleVault_);
 
-    /// @dev   The protocol pause was set to a new state.
+    /// @dev The protocol pause was set to a new state.
     /// @param caller_         The address of the security admin or governor that performed the action.
     /// @param protocolPaused_ The protocol paused state.
     event ProtocolPausedSet(address indexed caller_, bool protocolPaused_);
@@ -34,9 +34,9 @@ interface IIsleGlobalsEvents {
     event ProtocolFeeSet(uint24 protocolFee_);
 
     /// @dev   A valid asset was set.
-    /// @param collateralAsset_ The address of the collateral asset.
-    /// @param isValid_         The validity of the collateral asset.
-    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
+    /// @param receivableAsset_ The address of the receivable asset.
+    /// @param isValid_         The validity of the receivable asset.
+    event ValidReceivableAssetSet(address indexed receivableAsset_, bool isValid_);
 
     /// @dev   A valid asset was set.
     /// @param poolAsset_ The address of the asset.
@@ -47,19 +47,4 @@ interface IIsleGlobalsEvents {
     /// @param poolAdmin_ The address of the pool admin.
     /// @param isValid_ The validity of the pool admin.
     event ValidPoolAdminSet(address indexed poolAdmin_, bool isValid_);
-
-    /// @dev   The max liquidation percent for the given pool manager has been set.
-    /// @param poolManager_                The address of the pool manager.
-    /// @param maxCoverLiquidation_ The new value for the cover liquidation percent.
-    event MaxCoverLiquidationSet(address indexed poolManager_, uint24 maxCoverLiquidation_);
-
-    /// @dev Emitted when the min cover value is set.
-    /// @param poolConfigurator_ The address of the pool configurator.
-    /// @param minCover_ The new min cover value.
-    event MinCoverSet(address indexed poolConfigurator_, uint104 indexed minCover_);
-
-    /// @dev Emitted when the pool limit is set.
-    /// @param poolConfigurator_ The address of the pool configurator.
-    /// @param poolLimit_ The new pool limit value.
-    event PoolLimitSet(address indexed poolConfigurator_, uint104 poolLimit_);
 }

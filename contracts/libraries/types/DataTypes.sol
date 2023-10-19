@@ -1,6 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19;
 
+/// @notice Namespace for the structs used in {PoolConfigurator}
+library PoolConfigurator {
+    struct Config {
+        // Config that is managed by the pool admin
+        bool openToPublic; // Slot 1: bool - 1 byte
+        uint24 adminFee; // uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6 / 1e6 = 1 = 100%
+        uint96 baseRate; // uint96 - 12 byte: max = 7.922816251426434e28 / precision: 10e18
+        // Config that is managed by the governor
+        uint24 maxCoverLiquidation;
+        uint104 minCover;
+        uint104 poolLimit;
+    }
+}
+
+/// @notice Namespace for the structs used in {WithdrawalManager}
 library WithdrawalManager {
     struct CycleConfig {
         uint64 initialCycleId; // Identifier of the first withdrawal cycle using this config
@@ -47,8 +62,8 @@ library Loan {
     struct Info {
         address buyer;
         address seller;
-        address collateralAsset;
-        uint256 collateralTokenId;
+        address receivableAsset;
+        uint256 receivableTokenId;
         uint256 principal;
         uint256 drawableFunds;
         uint256 interestRate;
@@ -86,14 +101,5 @@ library Loan {
     struct Impairment {
         uint40 impairedDate; // Slot1: uint40 - Until year 36,812
         bool impariedByGovernor;
-    }
-}
-
-library Globals {
-    /// @notice Struct representing a pool configurator
-    struct PoolConfigurator {
-        uint24 maxCoverLiquidation; // Slot 1: uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6
-        uint104 minCover; //         uint104 - 13 byte: max = 2e31 / precision: 10e18
-        uint104 poolLimit; //         uint128 - 16 byte: max = 3.4e38 / precision: 10e18
     }
 }

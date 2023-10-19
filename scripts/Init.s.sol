@@ -21,23 +21,22 @@ import { BaseScript } from "./Base.s.sol";
 contract Init is BaseScript {
     function run(IReceivable receivable_, IPoolAddressesProvider poolAddressesProvider_) public {
         IPoolConfigurator poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
-        IIsleGlobals globals_ = IIsleGlobals(poolAddressesProvider_.getIsleGlobals());
         IPool pool_ = IPool(poolConfigurator_.pool());
         ILoanManager loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
 
-        initGlobals(poolConfigurator_, globals_);
-        initPool(poolConfigurator_);
+        initPoolWithGovernor(poolConfigurator_);
+        initPoolWithPoolAdmin(poolConfigurator_);
 
         deposit(pool_);
 
         uint256[] memory tokenIds_ = initReceivables(receivable_);
-        uint16[] memory loanIds_ = approveLoans(loanManager_, receivable_, tokenIds_, tokenIds_.length - 1);
+        uint16[] memory loanIds_ = requestLoans(loanManager_, receivable_, tokenIds_, tokenIds_.length - 1);
 
         fundLoans(loanManager_, loanIds_, loanIds_.length - 1);
         withdrawFunds(loanManager_, loanIds_, loanIds_.length - 2);
     }
 
-    function initPool(IPoolConfigurator poolConfigurator_) internal broadcast(poolAdmin) {
+    function initPoolWithPoolAdmin(IPoolConfigurator poolConfigurator_) internal broadcast(poolAdmin) {
         poolConfigurator_.setAdminFee(0.1e6);
         poolConfigurator_.setBuyer(buyer);
         poolConfigurator_.setValidSeller(seller, true);
@@ -49,9 +48,9 @@ contract Init is BaseScript {
         poolConfigurator_.depositCover(100e18);
     }
 
-    function initGlobals(IPoolConfigurator poolConfigurator_, IIsleGlobals globals_) internal broadcast(governor) {
-        globals_.setPoolLimit(address(poolConfigurator_), 100_000_000e18);
-        globals_.setMinCover(address(poolConfigurator_), 10e18);
+    function initPoolWithGovernor(IPoolConfigurator poolConfigurator_) internal broadcast(governor) {
+        poolConfigurator_.setPoolLimit(100_000_000e18);
+        poolConfigurator_.setMinCover(10e18);
     }
 
     function deposit(IPool pool_) internal broadcast(lender) {
@@ -90,7 +89,7 @@ contract Init is BaseScript {
         }
     }
 
-    function approveLoans(
+    function requestLoans(
         ILoanManager loanManager_,
         IReceivable receivable_,
         uint256[] memory tokenIds_,
@@ -104,8 +103,8 @@ contract Init is BaseScript {
 
         for (uint256 i = 0; i < length_; i++) {
             Receivable.Info memory info_ = receivable_.getReceivableInfoById(tokenIds_[i]);
-            uint16 loanId_ = loanManager_.approveLoan({
-                collateralAsset_: address(receivable_),
+            uint16 loanId_ = loanManager_.requestLoan({
+                receivableAsset_: address(receivable_),
                 receivablesTokenId_: tokenIds_[i],
                 gracePeriod_: 3 days,
                 principalRequested_: info_.faceAmount * 9 / 10,
@@ -139,7 +138,7 @@ contract Init is BaseScript {
         for (uint256 i = 0; i < length_; i++) {
             Loan.Info memory info_ = loanManager_.getLoanInfo(loanIds_[i]);
 
-            IERC721(info_.collateralAsset).approve(address(loanManager_), info_.collateralTokenId);
+            IERC721(info_.receivableAsset).approve(address(loanManager_), info_.receivableTokenId);
 
             loanManager_.withdrawFunds({ loanId_: loanIds_[i], destination_: seller, amount_: info_.drawableFunds });
         }

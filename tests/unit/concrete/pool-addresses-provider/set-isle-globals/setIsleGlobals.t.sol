@@ -16,14 +16,14 @@ contract SetIsleGlobals_PoolAddressesProvider_Unit_Concrete_Test is PoolAddresse
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotGovernor.selector, users.governor, users.eve));
 
         setDefaultIsleGlobals();
     }
 
-    function test_SetLoanManagerImpl() external whenCallerGovernor {
+    function test_SetIsleGlobals() external whenCallerGovernor {
         vm.expectEmit(address(poolAddressesProvider));
-        emit IsleGlobalsUpdated(address(0), _params.newIsleGlobals);
+        emit IsleGlobalsUpdated(address(isleGlobals), _params.newIsleGlobals);
         setDefaultIsleGlobals();
     }
 }

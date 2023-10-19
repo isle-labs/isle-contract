@@ -3,11 +3,12 @@ pragma solidity ^0.8.19;
 
 import { ERC20, IERC20, IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Permit, IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-
+import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
 
 import { Errors } from "./libraries/Errors.sol";
+
 import { IPool } from "./interfaces/IPool.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 
@@ -142,44 +143,37 @@ contract Pool is IPool, ERC20Permit {
                                 IERC4626
     //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @dev See {IERC4626-deposit}.
-     */
-    function deposit(uint256 assets, address receiver) public override returns (uint256) {
+    /// @inheritdoc IERC4626
+    function deposit(uint256 assets, address receiver) public override returns (uint256 shares) {
         // Checks: receiver is not the zero address.
         if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
 
         // Checks: deposit amount is less than or equal to the max deposit.
         if (assets > maxDeposit(receiver)) revert Errors.Pool_DepositGreaterThanMax(assets, maxDeposit(receiver));
 
-        uint256 shares = previewDeposit(assets);
+        shares = previewDeposit(assets);
         _deposit(_msgSender(), receiver, assets, shares);
 
         return shares;
     }
 
-    /**
-     * @dev See {IERC4626-mint}.
-     *
-     * As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share is zero.
-     * In this case, the shares will be minted without requiring any assets to be deposited.
-     */
-    function mint(uint256 shares, address receiver) public override returns (uint256) {
+    /// @inheritdoc IERC4626
+    /// @notice As opposed to {deposit}, minting is allowed even if the vault is in a state where the price of a share
+    /// is zero.
+    /// In this case, the shares will be minted without requiring any assets to be deposited.
+    function mint(uint256 shares, address receiver) public override returns (uint256 assets) {
         // Checks: receiver is not the zero address.
         if (receiver == address(0)) revert Errors.Pool_RecipientZeroAddress();
 
         // Checks: mint amount is less than or equal to the max mint.
         if (shares > maxMint(receiver)) revert Errors.Pool_MintGreaterThanMax(shares, maxMint(receiver));
 
-        uint256 assets = previewMint(shares);
+        assets = previewMint(shares);
         _deposit(_msgSender(), receiver, assets, shares);
-
-        return assets;
     }
 
-    /**
-     * @dev See {IERC4626-withdraw}.
-     */
+    /// @inheritdoc IERC4626
+    /// @notice Withdraw functions not implemented
     function withdraw(
         uint256 assets_,
         address receiver_,
@@ -198,9 +192,7 @@ contract Pool is IPool, ERC20Permit {
         revert Errors.Pool_WithdrawalNotImplemented();
     }
 
-    /**
-     * @dev See {IERC4626-redeem}.
-     */
+    /// @inheritdoc IERC4626
     function redeem(uint256 shares_, address receiver_, address owner_) public override returns (uint256 assets_) {
         if (shares_ > maxRedeem(owner_)) revert Errors.Pool_RedeemMoreThanMax(shares_, maxRedeem(owner_));
 
@@ -216,76 +208,56 @@ contract Pool is IPool, ERC20Permit {
         });
     }
 
-    /**
-     * @dev See {IERC4626-maxDeposit}.
-     */
+    /// @inheritdoc IERC4626
     function maxDeposit(address receiver_) public view override returns (uint256 maxAssets_) {
         maxAssets_ = IPoolConfigurator(configurator).maxDeposit(receiver_);
     }
 
-    /**
-     * @dev See {IERC4626-maxMint}.
-     */
+    /// @inheritdoc IERC4626
     function maxMint(address receiver_) public view override returns (uint256 maxShares_) {
         maxShares_ = IPoolConfigurator(configurator).maxMint(receiver_);
     }
 
-    /**
-     * @dev See {IERC4626-maxWithdraw}.
-     */
+    /// @inheritdoc IERC4626
     function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
         owner_;
         maxAssets_; // Not implemented
         revert Errors.Pool_WithdrawalNotImplemented();
     }
 
-    /**
-     * @dev See {IERC4626-maxRedeem}.
-     */
+    /// @inheritdoc IERC4626
     function maxRedeem(address owner_) public view override returns (uint256 maxShares_) {
         maxShares_ = IPoolConfigurator(configurator).maxRedeem(owner_);
     }
 
-    /**
-     * @dev See {IERC4626-previewWithdraw}.
-     */
+    /// @inheritdoc IERC4626
     function previewWithdraw(uint256 assets_) public pure override returns (uint256 shares_) {
         shares_;
         assets_; // not implemented
         revert Errors.Pool_WithdrawalNotImplemented();
     }
 
-    /**
-     * @dev See {IERC4626-previewRedeem}.
-     */
+    /// @inheritdoc IERC4626
     function previewRedeem(uint256 shares_) public view override returns (uint256 assets_) {
         assets_ = IPoolConfigurator(configurator).previewRedeem(msg.sender, shares_);
     }
 
-    /**
-     * @dev See {IERC4626-convertToShares}.
-     */
+    /// @inheritdoc IERC4626
     function convertToShares(uint256 assets_) public view override returns (uint256 shares_) {
         shares_ = _convertToShares(assets_, Math.Rounding.Down);
     }
 
-    /**
-     * @dev See {IERC4626-convertToAssets}.
-     */
+    /// @inheritdoc IERC4626
     function convertToAssets(uint256 shares_) public view override returns (uint256 assets_) {
         assets_ = _convertToAssets(shares_, Math.Rounding.Down);
     }
 
-    /**
-     * @dev See {IERC4626-previewDeposit}.
-     */
+    /// @inheritdoc IERC4626
     function previewDeposit(uint256 assets_) public view override returns (uint256 shares_) {
         shares_ = _convertToShares(assets_, Math.Rounding.Down);
     }
 
-    /**
-     *  @dev See {IERC4626-previewMint}.
-     */
+    /// @inheritdoc IERC4626
     function previewMint(uint256 shares_) public view override returns (uint256 assets_) {
         assets_ = _convertToAssets(shares_, Math.Rounding.Up);
     }
@@ -299,16 +271,12 @@ contract Pool is IPool, ERC20Permit {
         return _underlyingDecimals + _decimalsOffset();
     }
 
-    /**
-     * @dev See {IERC4626-asset}.
-     */
+    /// @inheritdoc IERC4626
     function asset() public view override returns (address) {
         return address(_asset);
     }
 
-    /**
-     * @dev See {IERC4626-totalAssets}.
-     */
+    /// @inheritdoc IERC4626
     function totalAssets() public view override returns (uint256) {
         return _asset.balanceOf(address(this));
     }

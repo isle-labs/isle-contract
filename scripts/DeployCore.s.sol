@@ -21,7 +21,7 @@ contract DeployCore is BaseScript {
     {
         receivable_ = deployReceivable();
         globals_ = deployGlobals();
-        poolAddressesProvider_ = deployPoolAddressesProvider();
+        poolAddressesProvider_ = deployPoolAddressesProvider(globals_);
 
         initGlobals({
             poolAddressesProvider_: poolAddressesProvider_,
@@ -35,12 +35,12 @@ contract DeployCore is BaseScript {
         deployWithdrawalManager(poolAddressesProvider_);
     }
 
-    function deployPoolAddressesProvider()
+    function deployPoolAddressesProvider(IsleGlobals globals_)
         internal
         broadcast(deployer)
         returns (PoolAddressesProvider poolAddressesProvider_)
     {
-        poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", governor);
+        poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", globals_);
     }
 
     function initGlobals(
@@ -56,8 +56,8 @@ contract DeployCore is BaseScript {
 
         globals_.setValidPoolAdmin(poolAdmin, true);
         globals_.setValidPoolAsset(asset_, true);
-        globals_.setValidCollateralAsset(receivable_, true);
-        globals_.setValidCollateralAsset(address(receivable_), true);
+        globals_.setValidReceivableAsset(receivable_, true);
+        globals_.setValidReceivableAsset(address(receivable_), true);
         globals_.setProtocolFee(0.1e6);
     }
 

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-// TODO: Add other interfaces for all variables
-
 interface ILoanManagerStorage {
     /// @notice Gets the unrealized losses
     /// @return unrealizedLosses_ The unrealized losses
@@ -44,9 +42,9 @@ interface ILoanManagerStorage {
     /// @return fundsAsset_ The address of the funds asset
     function fundsAsset() external view returns (address);
 
-    /// @notice Gets the address of the collateral asset
-    /// @return collateralAsset_ The address of the collateral asset
-    function collateralAsset() external view returns (address);
+    /// @notice Gets the address of the receivable asset
+    /// @return receivableAsset_ The address of the receivable asset
+    function receivableAsset() external view returns (address);
 
     /// @notice Gets the payment ID of the given loan
     /// @param loanId_ The ID of the loan

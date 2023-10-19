@@ -9,8 +9,8 @@ library Errors {
     /// @notice Thrown when `msg.sender` is not the expected one.
     error InvalidCaller(address caller, address expectedCaller);
 
-    /// @notice Thrown when `msg.sender` is not the expected one.
-    error CallerNotAdmin(address admin_, address caller_);
+    /// @notice Thrown when `msg.sender` is not the governor.
+    error CallerNotGovernor(address governor_, address caller_);
 
     /// @notice Thrown when `msg.sender` is neither the pool admin nor the governor.
     error NotPoolAdminOrGovernor(address caller_);
@@ -29,6 +29,9 @@ library Errors {
 
     error ProtocolPaused();
 
+    /// @notice Thrown when pool addresses provider is set to 0
+    error AddressesProviderZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -44,6 +47,9 @@ library Errors {
 
     /// @notice Thrown when caller is not pool admin or governor
     error PoolConfigurator_CallerNotPoolAdminOrGovernor(address caller_);
+
+    /// @notice Thrown when caller is not pool admin
+    error PoolConfigurator_CallerNotPoolAdmin(address caller_);
 
     /// @notice Thrown when caller is not governor
     error PoolConfigurator_CallerNotGovernor(address caller_);
@@ -73,7 +79,13 @@ library Errors {
     error PoolConfigurator_Paused();
 
     /*//////////////////////////////////////////////////////////////////////////
-                                LOPO GLOBALS
+                                POOL ADDRESSES PROVIDER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    error PoolAddressesProvider_InvalidGlobals(address globals);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                ISLE GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
 
     error Globals_CallerNotPoolConfigurator(address poolConfigurator, address caller);
@@ -128,7 +140,7 @@ library Errors {
     /// @notice Thrown when the loan is past due date
     error LoanManager_PastDueDate(uint16 loanId_, uint256 dueDate_, uint256 currentTimestamp_);
 
-    error LoanManager_CollateralAssetNotAllowed(address collateralAsset_);
+    error LoanManager_ReceivableAssetNotAllowed(address receivableAsset_);
 
     error LoanManager_NotPastDueDatePlusGracePeriod(uint16 loanId_);
 

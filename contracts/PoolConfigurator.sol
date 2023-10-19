@@ -7,8 +7,6 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { PoolDeployer } from "./libraries/PoolDeployer.sol";
 
-import { Adminable, IAdminable } from "./abstracts/Adminable.sol";
-
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
@@ -20,8 +18,9 @@ import { PoolConfiguratorStorage } from "./PoolConfiguratorStorage.sol";
 
 /// @title Pool Configurator
 /// @notice See the documentation in {IPoolConfigurator}.
-contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
-    uint256 public constant HUNDRED_PERCENT = 1_000_000; // Four decimal precision.
+contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
+    uint256 public constant HUNDRED_PERCENT = 1_000_000; // e.g. 100% = 100 * HUNDRED_PERCENT, integer with 6 decimal
+        // precision
     uint256 public constant POOL_CONFIGURATOR_REVISION = 0x1;
 
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
@@ -45,6 +44,11 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         _;
     }
 
+    modifier onlyAdmin() {
+        _revertIfNotAdmin();
+        _;
+    }
+
     modifier onlyPool() {
         _revertIfNotPool();
         _;
@@ -55,6 +59,9 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     //////////////////////////////////////////////////////////////////////////*/
 
     constructor(IPoolAddressesProvider provider_) {
+        if (address(provider_) == address(0)) {
+            revert Errors.AddressesProviderZeroAddress();
+        }
         ADDRESSES_PROVIDER = provider_;
     }
 
@@ -68,8 +75,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         IPoolAddressesProvider provider_,
         address poolAdmin_,
         address asset_,
-        string memory name_,
-        string memory symbol_
+        string calldata name_,
+        string calldata symbol_
     )
         external
         override
@@ -93,26 +100,28 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         }
 
         /* Effects */
-        address pool_ = PoolDeployer.createPool(address(this), asset_, name_, symbol_);
-        admin = poolAdmin_; // Sets admin for Adminable
+        address pool_ =
+            PoolDeployer.createPool({ configurator_: address(this), asset_: asset_, name_: name_, symbol_: symbol_ });
+
+        admin = poolAdmin_; // Sets admin for Governable
         asset = asset_;
         pool = pool_;
 
-        emit Initialized(poolAdmin_, asset_, pool_);
+        emit Initialized({ poolAdmin_: poolAdmin_, asset_: asset_, pool_: pool_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function transferAdmin(address newAdmin_) external override(Adminable, IAdminable) onlyGovernor {
+    /// @inheritdoc IPoolConfigurator
+    function transferAdmin(address newAdmin_) external virtual override onlyGovernor {
         if (newAdmin_ == address(0) || !_globals().isPoolAdmin(newAdmin_)) {
             revert Errors.PoolConfigurator_InvalidPoolAdmin(newAdmin_);
         }
-
         address oldAdmin_ = admin;
         admin = newAdmin_;
-        emit TransferAdmin({ oldAdmin: oldAdmin_, newAdmin: newAdmin_ });
+        emit TransferAdmin({ oldAdmin_: oldAdmin_, newAdmin_: newAdmin_ });
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -132,25 +141,32 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     /// @inheritdoc IPoolConfigurator
     function setAdminFee(uint24 adminFee_) external override whenNotPaused onlyAdmin {
-        emit AdminFeeSet(config.adminFee = adminFee_);
+        emit AdminFeeSet(_config.adminFee = adminFee_);
     }
 
     /// @inheritdoc IPoolConfigurator
     function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdmin {
-        config.openToPublic = isOpenToPublic_;
-        emit OpenToPublicSet(isOpenToPublic_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
-    function setGracePeriod(uint32 gracePeriod_) external override whenNotPaused onlyAdmin {
-        config.gracePeriod = gracePeriod_;
-        emit GracePeriodSet(gracePeriod_);
+        emit OpenToPublicSet(_config.openToPublic = isOpenToPublic_);
     }
 
     /// @inheritdoc IPoolConfigurator
     function setBaseRate(uint96 baseRate_) external override whenNotPaused onlyAdmin {
-        config.baseRate = baseRate_;
-        emit BaseRateSet(baseRate_);
+        emit BaseRateSet(_config.baseRate = baseRate_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setMaxCoverLiquidation(uint24 maxCoverLiquidation_) external override whenNotPaused onlyGovernor {
+        emit MaxCoverLiquidationSet(_config.maxCoverLiquidation = maxCoverLiquidation_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setMinCover(uint104 minCover_) external override whenNotPaused onlyGovernor {
+        emit MinCoverSet(_config.minCover = minCover_);
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function setPoolLimit(uint104 poolLimit_) external override whenNotPaused onlyGovernor {
+        emit PoolLimitSet(_config.poolLimit = poolLimit_);
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -166,7 +182,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         if (IERC20(pool_).totalSupply() == 0) {
             revert Errors.PoolConfigurator_PoolSupplyZero();
         }
-        if (!_hasSufficientCover(_globals())) {
+        if (!_hasSufficientCover()) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
         if (!IERC20(asset_).transferFrom(pool_, msg.sender, principal_)) {
@@ -256,7 +272,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
         poolCover -= amount_;
 
-        if (!_hasSufficientCover(_globals())) {
+        if (!_hasSufficientCover()) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
 
@@ -269,22 +285,32 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     /// @inheritdoc IPoolConfigurator
     function openToPublic() external view override returns (bool openToPublic_) {
-        openToPublic_ = config.openToPublic;
+        openToPublic_ = _config.openToPublic;
     }
 
     /// @inheritdoc IPoolConfigurator
     function adminFee() external view override returns (uint24 adminFee_) {
-        adminFee_ = config.adminFee;
-    }
-
-    /// @inheritdoc IPoolConfigurator
-    function gracePeriod() external view override returns (uint32 gracePeriod_) {
-        gracePeriod_ = config.gracePeriod;
+        adminFee_ = _config.adminFee;
     }
 
     /// @inheritdoc IPoolConfigurator
     function baseRate() external view override returns (uint96 baseRate_) {
-        baseRate_ = config.baseRate;
+        baseRate_ = _config.baseRate;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function maxCoverLiquidation() external view returns (uint24 maxCoverLiquidation_) {
+        maxCoverLiquidation_ = _config.maxCoverLiquidation;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function minCover() external view returns (uint104 minCover_) {
+        minCover_ = _config.minCover;
+    }
+
+    /// @inheritdoc IPoolConfigurator
+    function poolLimit() external view returns (uint104 poolLimit_) {
+        poolLimit_ = _config.poolLimit;
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -320,7 +346,7 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
 
     /// @inheritdoc IPoolConfigurator
     function hasSufficientCover() external view override returns (bool hasSufficientCover_) {
-        hasSufficientCover_ = _hasSufficientCover(_globals());
+        hasSufficientCover_ = _hasSufficientCover();
     }
 
     /// @inheritdoc IPoolConfigurator
@@ -344,6 +370,12 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         }
     }
 
+    function _revertIfNotAdmin() internal view {
+        if (msg.sender != admin) {
+            revert Errors.PoolConfigurator_CallerNotPoolAdmin(msg.sender);
+        }
+    }
+
     function _revertIfNotAdminOrGovernor() internal view {
         if (msg.sender != admin && msg.sender != _globals().governor()) {
             revert Errors.PoolConfigurator_CallerNotPoolAdminOrGovernor(msg.sender);
@@ -362,15 +394,13 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
         }
     }
 
-    function _hasSufficientCover(IIsleGlobals globals_) internal view returns (bool hasSufficientCover_) {
-        uint256 minCover_ = globals_.minCover(address(this));
+    function _hasSufficientCover() internal view returns (bool hasSufficientCover_) {
+        uint256 minCover_ = _config.minCover;
         hasSufficientCover_ = minCover_ != 0 && poolCover >= minCover_;
     }
 
     function _handleCover(uint256 losses_) internal {
-        IIsleGlobals globals_ = IIsleGlobals(ADDRESSES_PROVIDER.getIsleGlobals());
-
-        uint256 availableCover_ = (poolCover * globals_.maxCoverLiquidation(address(this))) / HUNDRED_PERCENT;
+        uint256 availableCover_ = (poolCover * _config.maxCoverLiquidation) / HUNDRED_PERCENT;
 
         uint256 coverAmount_ = _min(availableCover_, losses_);
 
@@ -386,8 +416,8 @@ contract PoolConfigurator is Adminable, VersionedInitializable, IPoolConfigurato
     }
 
     function _getMaxAssets(address receiver_, uint256 totalAssets_) internal view returns (uint256 maxAssets_) {
-        bool depositAllowed_ = config.openToPublic || isLender[receiver_];
-        uint256 poolLimit_ = _globals().poolLimit(address(this));
+        bool depositAllowed_ = _config.openToPublic || isLender[receiver_];
+        uint256 poolLimit_ = _config.poolLimit;
         maxAssets_ = poolLimit_ > totalAssets_ && depositAllowed_ ? poolLimit_ - totalAssets_ : 0;
     }
 

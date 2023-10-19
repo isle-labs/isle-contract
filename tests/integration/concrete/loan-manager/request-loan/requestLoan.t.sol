@@ -6,7 +6,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/callable.t.sol";
 
-contract ApproveLoan_Integration_Concrete_Test is
+contract requestLoan_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     Callable_Integration_Shared_Test
 {
@@ -19,7 +19,7 @@ contract ApproveLoan_Integration_Concrete_Test is
         _;
     }
 
-    modifier whenCollateralAssetAllowed() {
+    modifier whenReceivableAssetAllowed() {
         _;
     }
 
@@ -38,34 +38,34 @@ contract ApproveLoan_Integration_Concrete_Test is
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.FunctionPaused.selector,
-                bytes4(keccak256("approveLoan(address,uint256,uint256,uint256,uint256[2])"))
+                bytes4(keccak256("requestLoan(address,uint256,uint256,uint256,uint256[2])"))
             )
         );
-        loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
+        loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CollateralAssetNotAllowed() external whenNotPaused {
+    function test_RevertWhen_ReceivableAssetNotAllowed() external whenNotPaused {
         changePrank(users.governor);
-        isleGlobals.setValidCollateralAsset(address(receivable), false);
+        isleGlobals.setValidReceivableAsset(address(receivable), false);
 
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.LoanManager_CollateralAssetNotAllowed.selector, address(receivable))
+            abi.encodeWithSelector(Errors.LoanManager_ReceivableAssetNotAllowed.selector, address(receivable))
         );
-        loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
+        loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
-    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenCollateralAssetAllowed {
+    function test_RevertWhen_CallerNotReceivableBuyer() external whenNotPaused whenReceivableAssetAllowed {
         createDefaultReceivable();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_CallerNotReceivableBuyer.selector, address(users.buyer))
         );
-        loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
+        loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
     function test_RevertWhen_ReceivableInvalid()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
     {
         createDefaultReceivable();
@@ -78,13 +78,13 @@ contract ApproveLoan_Integration_Concrete_Test is
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_InvalidReceivable.selector, 0));
 
         changePrank(users.buyer);
-        loanManager.approveLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
+        loanManager.requestLoan(address(receivable), 0, 0, 0, [uint256(0), uint256(0)]);
     }
 
     function test_RevertWhen_PrincipalRequestedGreaterThanFaceAmount()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
         whenReceivableValid
     {
@@ -97,13 +97,13 @@ contract ApproveLoan_Integration_Concrete_Test is
                 defaults.FACE_AMOUNT()
             )
         );
-        loanManager.approveLoan(address(receivable), receivablesTokenId, 7, 100_000e6 + 1, [uint256(0), uint256(0)]);
+        loanManager.requestLoan(address(receivable), receivablesTokenId, 7, 100_000e6 + 1, [uint256(0), uint256(0)]);
     }
 
-    function test_approveLoan()
+    function test_requestLoan()
         external
         whenNotPaused
-        whenCollateralAssetAllowed
+        whenReceivableAssetAllowed
         whenCallerReceivableBuyer
         whenReceivableValid
         whenPrincipalRequestedLessThanFaceAmount
@@ -111,8 +111,8 @@ contract ApproveLoan_Integration_Concrete_Test is
         uint256 receivablesTokenId = createDefaultReceivable();
         changePrank(users.buyer);
         vm.expectEmit(true, true, true, true);
-        emit LoanApproved(1);
-        loanManager.approveLoan(
+        emit LoanRequested(1);
+        loanManager.requestLoan(
             address(receivable),
             receivablesTokenId,
             defaults.GRACE_PERIOD(),

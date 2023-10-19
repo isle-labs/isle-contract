@@ -15,7 +15,7 @@ abstract contract Events {
 
     event ProtocolFeeSet(uint24 protocolFee_);
 
-    event ValidCollateralAssetSet(address indexed collateralAsset_, bool isValid_);
+    event ValidReceivableAssetSet(address indexed receivableAsset_, bool isValid_);
 
     event ValidPoolAssetSet(address indexed poolAsset_, bool isValid_);
 
@@ -23,11 +23,11 @@ abstract contract Events {
 
     event PoolConfiguratorSet(address indexed poolAdmin_, address indexed poolConfigurator_);
 
-    event MaxCoverLiquidationSet(address indexed poolManager_, uint24 maxCoverLiquidation_);
+    event MaxCoverLiquidationSet(uint24 maxCoverLiquidation_);
 
-    event MinCoverSet(address indexed poolConfigurator_, uint104 indexed minCover_);
+    event MinCoverSet(uint104 minCover_);
 
-    event PoolLimitSet(address indexed poolConfigurator_, uint104 poolLimit_);
+    event PoolLimitSet(uint104 poolLimit_);
 
     // Pool events
     event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
@@ -47,7 +47,7 @@ abstract contract Events {
     event AssetBurned(uint256 indexed tokenId_);
 
     // LoanManager events
-    event LoanApproved(uint16 indexed loanId_);
+    event LoanRequested(uint16 indexed loanId_);
     event PrincipalOutUpdated(uint128 principalOut_);
     event PaymentAdded(
         uint16 indexed loanId_,
@@ -77,8 +77,6 @@ abstract contract Events {
 
     event CoverWithdrawn(uint256 amount_);
 
-    event PoolLimitSet(uint256 poolLimit_);
-
     event AdminFeeSet(uint256 adminFee_);
 
     event BuyerSet(address indexed buyer_);
@@ -86,8 +84,6 @@ abstract contract Events {
     event ValidSellerSet(address indexed seller_, bool isValid_);
 
     event ValidLenderSet(address indexed lender_, bool isValid_);
-
-    event GracePeriodSet(uint256 gracePeriod_);
 
     event BaseRateSet(uint96 baseRate_);
 

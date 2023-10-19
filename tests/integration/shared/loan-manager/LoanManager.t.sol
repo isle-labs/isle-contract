@@ -11,18 +11,18 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_U
     function createDefaultLoan() internal {
         uint256 receivablesTokenId = createDefaultReceivable();
         changePrank(users.buyer);
-        uint16 loanId = approveLoan(receivablesTokenId, defaults.PRINCIPAL_REQUESTED());
+        uint16 loanId = requestLoan(receivablesTokenId, defaults.PRINCIPAL_REQUESTED());
         changePrank(users.poolAdmin);
         fundLoan(loanId);
     }
 
-    function approveLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
-        address collateralAsset_ = address(receivable);
+    function requestLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
+        address receivableAsset_ = address(receivable);
         uint256 gracePeriod_ = defaults.GRACE_PERIOD();
         uint256[2] memory rates_ = [defaults.INTEREST_RATE(), defaults.LATE_INTEREST_PREMIUM_RATE()];
 
         loanId_ =
-            loanManager.approveLoan(collateralAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_);
+            loanManager.requestLoan(receivableAsset_, receivablesTokenId_, gracePeriod_, principalRequested_, rates_);
     }
 
     function fundLoan(uint16 loanId_) internal {

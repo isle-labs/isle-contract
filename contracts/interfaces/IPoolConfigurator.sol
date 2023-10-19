@@ -2,22 +2,20 @@
 pragma solidity 0.8.19;
 
 import { IPoolAddressesProvider } from "./IPoolAddressesProvider.sol";
-import { IPoolConfiguratorStorage } from "./pool/IPoolConfiguratorStorage.sol";
-import { IPoolConfiguratorEvents } from "./pool/IPoolConfiguratorEvents.sol";
+import { IPoolConfiguratorStorage } from "./IPoolConfiguratorStorage.sol";
+import { IPoolConfiguratorEvents } from "./IPoolConfiguratorEvents.sol";
 
-import { IAdminable } from "./IAdminable.sol";
-
-interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents, IAdminable {
+interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents {
     /*//////////////////////////////////////////////////////////////////////////
-                                CONSTRUCTOR
+                                INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice The initializer function for the pool configurator (must be called straight after deployment)
-    /// @param provider_ The address of the pool addresses provider.
+    /// @notice The initializer function for the pool configurator (must be called directly after deployment)
+    /// @param provider_ The address of the pool addresses provider
     /// @param poolAdmin_ The address of the pool admin
-    /// @param asset_ The funds asset used in the pool (e.g. DAI, USDC)
-    /// @param name_  The name of the asset
-    /// @param symbol_ The symbol of the asset
+    /// @param asset_ The ERC20 asset used in the lending pool
+    /// @param name_  The name of the pool token
+    /// @param symbol_ The symbol of the pool token
     function initialize(
         IPoolAddressesProvider provider_,
         address poolAdmin_,
@@ -28,22 +26,28 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
         external;
 
     /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL NON-CONSTANT FUNCTIONS
+                                GOVERNOR FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice assigns a pool buyer to the pool
-    /// @param buyer_ The address of the buyer for this pool
-    function setBuyer(address buyer_) external;
+    /// @notice Sets the max cover liquidation for the pool configurator
+    /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin
+    function setMaxCoverLiquidation(uint24 maxCoverLiquidation_) external;
 
-    /// @notice Sets the status of a seller
-    /// @param seller_ The address of the seller
-    /// @param isValid_ Whether the seller is valid
-    function setValidSeller(address seller_, bool isValid_) external;
+    /// @notice Sets the min cover required for the pool configurator.
+    /// @param minCover_ The min cover required for the pool admin.
+    function setMinCover(uint104 minCover_) external;
 
-    /// @notice Sets the status of a lender (LPs)
-    /// @param lender_ The address of the lender
-    /// @param isValid_ Whether the lender is valid
-    function setValidLender(address lender_, bool isValid_) external;
+    /// @notice Sets the pool limit for the pool configurator
+    /// @param poolLimit_ The size limit of the pool
+    function setPoolLimit(uint104 poolLimit_) external;
+
+    /// @notice Transfers to a new admin
+    /// @param newAdmin_ The address of the new admin
+    function transferAdmin(address newAdmin_) external;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                            POOL ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @notice Sets whether the pool is open to the public (permissioned or permissionless)
     /// @param isOpenToPublic_ Whether the pool is open to the public
@@ -53,13 +57,23 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param adminFee_ The new admin fee
     function setAdminFee(uint24 adminFee_) external;
 
-    /// @notice Sets the grace period for the pool
-    /// @param gracePeriod_ The new grace period
-    function setGracePeriod(uint32 gracePeriod_) external;
-
     /// @notice Sets the base rate for the pool
     /// @param baseRate_ The new base rate
     function setBaseRate(uint96 baseRate_) external;
+
+    /// @notice Assigns a buyer to the pool
+    /// @param buyer_ The address of the buyer for this pool
+    function setBuyer(address buyer_) external;
+
+    /// @notice Sets the status of a seller
+    /// @param seller_ The address of the seller
+    /// @param isValid_ Whether the seller is valid
+    function setValidSeller(address seller_, bool isValid_) external;
+
+    /// @notice Sets the status of a lender (liquidity providers)
+    /// @param lender_ The address of the lender
+    /// @param isValid_ Whether the lender is valid
+    function setValidLender(address lender_, bool isValid_) external;
 
     /// @notice Request funds from the pool and fund the loan manager
     /// @param principal_ The amount of principal to request
@@ -108,6 +122,18 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
                             EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Returns the max cover liquidation of the pool
+    /// @return maxCoverLiquidation_ The max cover liquidation of the pool
+    function maxCoverLiquidation() external view returns (uint24 maxCoverLiquidation_);
+
+    /// @notice Returns the min cover required for the pool configurator.
+    /// @return minCover_ The min cover required for the pool admin.
+    function minCover() external view returns (uint104 minCover_);
+
+    /// @notice Returns the pool limit of the pool configurator
+    /// @return poolLimit_ The size limit of the pool
+    function poolLimit() external view returns (uint104 poolLimit_);
+
     /// @notice Returns whether the pool is open to public
     /// @return openToPublic_ Whether the pool is open to public
     function openToPublic() external view returns (bool openToPublic_);
@@ -115,10 +141,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @notice Returns the admin fee of the pool
     /// @return adminFee_ The admin fee of the pool
     function adminFee() external view returns (uint24 adminFee_);
-
-    /// @notice Returns the grace period of the pool
-    /// @return gracePeriod_ The grace period of the pool
-    function gracePeriod() external view returns (uint32 gracePeriod_);
 
     /// @notice Returns the base rate of the pool
     /// @return baseRate_ The base rate of the pool

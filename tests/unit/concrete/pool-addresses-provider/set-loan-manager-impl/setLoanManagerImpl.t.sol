@@ -20,7 +20,7 @@ contract SetLoanManagerImpl_PoolAddressesProvider_Unit_Concrete_Test is PoolAddr
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotAdmin.selector, users.governor, users.eve));
+        vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotGovernor.selector, users.governor, users.eve));
 
         setDefaultLoanManagerImpl();
     }
