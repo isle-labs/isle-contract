@@ -12,27 +12,30 @@ import { WithdrawalManager } from "../contracts/WithdrawalManager.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-/// @notice Deploys the core contracts of Isle Finance
-contract DeployCore is BaseScript {
-    function run(address asset_)
+/// @notice Deploys a pool
+/// @notice usage: forge script --broadcast --verify scripts/DeployPool.s.sol
+contract DeployPool is BaseScript {
+    function run(
+        address asset_,
+        address globals_,
+        address receivable_
+    )
         public
         virtual
-        returns (IsleGlobals globals_, Receivable receivable_, PoolAddressesProvider poolAddressesProvider_)
+        returns (
+            PoolAddressesProvider poolAddressesProvider_,
+            address poolConfigurator_,
+            address loanManager_,
+            address withdrawalManager_
+        )
     {
-        receivable_ = deployReceivable();
-        globals_ = deployGlobals();
-        poolAddressesProvider_ = deployPoolAddressesProvider(globals_);
+        poolAddressesProvider_ = deployPoolAddressesProvider(IsleGlobals(globals_));
 
-        initGlobals({
-            poolAddressesProvider_: poolAddressesProvider_,
-            globals_: globals_,
-            asset_: asset_,
-            receivable_: address(receivable_)
-        });
+        initGlobals({ globals_: IsleGlobals(globals_), asset_: asset_, receivable_: receivable_ });
 
-        deployPoolConfigurator(poolAddressesProvider_, asset_);
-        deployLoanManager(poolAddressesProvider_);
-        deployWithdrawalManager(poolAddressesProvider_);
+        poolConfigurator_ = deployPoolConfigurator(poolAddressesProvider_, asset_);
+        loanManager_ = deployLoanManager(poolAddressesProvider_);
+        withdrawalManager_ = deployWithdrawalManager(poolAddressesProvider_);
     }
 
     function deployPoolAddressesProvider(IsleGlobals globals_)
@@ -43,22 +46,10 @@ contract DeployCore is BaseScript {
         poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", globals_);
     }
 
-    function initGlobals(
-        PoolAddressesProvider poolAddressesProvider_,
-        IsleGlobals globals_,
-        address asset_,
-        address receivable_
-    )
-        internal
-        broadcast(governor)
-    {
-        poolAddressesProvider_.setIsleGlobals(address(globals_));
-
+    function initGlobals(IsleGlobals globals_, address asset_, address receivable_) internal broadcast(governor) {
         globals_.setValidPoolAdmin(poolAdmin, true);
         globals_.setValidPoolAsset(asset_, true);
         globals_.setValidReceivableAsset(receivable_, true);
-        globals_.setValidReceivableAsset(address(receivable_), true);
-        globals_.setProtocolFee(0.1e6);
     }
 
     function deployPoolConfigurator(
@@ -67,6 +58,7 @@ contract DeployCore is BaseScript {
     )
         internal
         broadcast(governor)
+        returns (address poolConfigurator_)
     {
         address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
 
@@ -79,14 +71,24 @@ contract DeployCore is BaseScript {
             "CHG"
         );
         poolAddressesProvider_.setPoolConfiguratorImpl(address(poolConfiguratorImpl_), params_);
+        poolConfigurator_ = poolAddressesProvider_.getPoolConfigurator();
     }
 
-    function deployLoanManager(PoolAddressesProvider poolAddressesProvider_) internal broadcast(governor) {
+    function deployLoanManager(PoolAddressesProvider poolAddressesProvider_)
+        internal
+        broadcast(governor)
+        returns (address loanManager_)
+    {
         address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
         poolAddressesProvider_.setLoanManagerImpl(address(loanManagerImpl_));
+        loanManager_ = poolAddressesProvider_.getLoanManager();
     }
 
-    function deployWithdrawalManager(PoolAddressesProvider poolAddressesProvider_) internal broadcast(governor) {
+    function deployWithdrawalManager(PoolAddressesProvider poolAddressesProvider_)
+        internal
+        broadcast(governor)
+        returns (address withdrawalManager_)
+    {
         address withdrawalManagerImpl_ = address(new WithdrawalManager(poolAddressesProvider_));
         bytes memory params_ = abi.encodeWithSelector(
             WithdrawalManager.initialize.selector,
@@ -95,5 +97,6 @@ contract DeployCore is BaseScript {
             3 days // window duration
         );
         poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManagerImpl_, params_);
+        withdrawalManager_ = poolAddressesProvider_.getWithdrawalManager();
     }
 }

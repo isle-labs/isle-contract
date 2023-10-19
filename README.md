@@ -167,18 +167,29 @@ anvil -m "$MNEMONIC"
 Get crurrent gas price in gwei
 
 ```sh
-cast to-unit $(cast gas-price --rpc-url="$RPC_URL") gwei
+cast to-unit $(cast gas-price) gwei
 ```
 
 ### Deployment Addresses
 
-#### Sepolia
+#### Sepolia (2023.10.19)
 
 - [IsleUSD](https://sepolia.etherscan.io/token/0xD7719799520b89A6b934A4402388e9EDdFD85387): `0xD7719799520b89A6b934A4402388e9EDdFD85387`
+- [Receivable](https://sepolia.etherscan.io/token/0x497918fD3227835184Af0D8fCc106E5e70BBc881): `0x497918fD3227835184Af0D8fCc106E5e70BBc881`
 - Deployer: `0xBbC9928618b05356841a8565C72E4493D12ad163`
-- Receivable: `0x5B7B3F2A2F8b306F6C8B368414A8c0f2B385cCbA`
-- IsleGlobals: `0x3e17bE3a67006497cF1d4b0791D1c4e6fEd2C2dc`
-- PoolAddressesProvider: `0x393Ed07ff75e4eD8E64fa664438EC969396081d9`
+- IsleGlobals: `0xd5175C76F5a129De4F53b0DF5c878706E31910a1`
+- PoolAddressesProvider: `0x454Bc3c86aB284F2Aa7A746733B23B46866FbeDB`
+- WithdrawalManager: `0x7F5abDad0A9ee5Fbdf0B07F4Cf007F88783f14E5`
+- LoanManager: `0x1a16F4f4805197DF48Cc898f97601CE97B13d4a4`
+- PoolConfigurator: `0x389dE947656Fd0E2C806254Ad3fD9Ae4Ef297cDE`
+
+##### Implementation
+
+- Receivable: `0x103d37376F312C0D3FA4021351dC87811E0464B2`
+- IsleGlobals: `0x359f8Cfc8EadB4acB591211B73F5968b9900dB06`
+- WithdrawalManager: `0x9EDe7Fa06de4CcF3be5e26e27120eb608D001Ed8`
+- LoanManager: `0x14C0c74483abeaA0122DE6b8dD6c51795b48314c`
+- PoolConfigurator: `0x4137b1072c18F50D8D5f883043712727efa7B038`
 
 #### Linea
 
@@ -187,3 +198,41 @@ cast to-unit $(cast gas-price --rpc-url="$RPC_URL") gwei
 - Receivable: `0x9eDC5845AcEC7D8eeb3Eb5d73E9546D760b95c10`
 - IsleGlobals: `0x8264c54eDdCEAe79f2efa9370b96b795Ea6C14B7`
 - PoolAddressesProvider: `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
+
+#### Base (2023.10.19)
+
+- [IsleUSD](): `0x4dd7af98ce4b0BCBAf664D04E8cF637d39aad52C`
+
+Note: I ran out of gas. Remember to get gas when you have time lol
+
+### Verify contracts
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    ${Address} \
+    contracts/Receivable.sol:Receivable
+
+#### With constructor
+
+See [Foundry Book](https://book.getfoundry.sh/forge/deploying?highlight=verify#verifying-a-pre-existing-contract)
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    --constructor-args $(cast abi-encode "constructor(address)" ${ARG}) \
+    ${Address} \
+    contracts/WithdrawalManager.sol:WithdrawalManager
+
+#### With library
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    --constructor-args $(cast abi-encode "constructor(address)" ${ARG}) \
+    --libraries contracts/libraries/${Library}.sol:${Library}:${Address} \
+    ${Address} \
+    contracts/PoolConfigurator.sol:PoolConfigurator
