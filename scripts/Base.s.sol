@@ -3,6 +3,11 @@ pragma solidity >=0.8.19;
 
 import { Script } from "@forge-std/Script.sol";
 
+import { UUPSProxy } from "../contracts/libraries/upgradability/UUPSProxy.sol";
+
+import { IsleGlobals } from "../contracts/IsleGlobals.sol";
+import { Receivable } from "../contracts/Receivable.sol";
+
 abstract contract BaseScript is Script {
     /// @dev included to enable the compilation of the script without a $MNEMONIC environment variable
     string internal constant TEST_MNEMONIC = "test test test test test test test test test test test junk";
@@ -86,5 +91,15 @@ abstract contract BaseScript is Script {
         vm.startBroadcast(broadcaster_);
         _;
         vm.stopBroadcast();
+    }
+
+    function deployGlobals() internal broadcast(deployer) returns (IsleGlobals globals_) {
+        globals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), "")));
+        globals_.initialize(governor);
+    }
+
+    function deployReceivable() internal broadcast(deployer) returns (Receivable receivable_) {
+        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
+        receivable_.initialize(governor);
     }
 }

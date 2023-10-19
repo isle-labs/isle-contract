@@ -1,7 +1,7 @@
-name: "Deploy Core"
+name: "Deploy Globals"
 
 env:
-    FOUNDRY_PROFILE: "lite"
+    FOUNDRY_PROFILE: "default"
     MNEMONIC: ${{ secrets.MNEMONIC }}
     API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
@@ -9,11 +9,6 @@ env:
 on:
     workflow_dispatch:
         inputs:
-            asset:
-                default: "0xD7719799520b89A6b934A4402388e9EDdFD85387"
-                description: "Base asset for the pool (Isle USD)"
-                required: false
-
             chain:
                 default: "sepolia"
                 description: "Chain name as defined in foundry.toml"
@@ -30,10 +25,10 @@ jobs:
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
-            - name: "Deploy the core contracts of Isle Finance"
+            - name: "Deploy the Globals contract of Isle Finance"
               run: >-
-                  forge script scripts/DeployCore.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig "run(address)"
-                  --verify "${{ inputs.asset }}" -vvvv
+                  forge script scripts/DeployGlobals.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig "run()"
+                  --verify -vvvv
 
             - name: "Add workflow summary"
               run: |
