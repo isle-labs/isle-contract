@@ -6,6 +6,7 @@ node_modules
 modules
 out
 .history
+.pnpm-store
 
 # files
 *.env
