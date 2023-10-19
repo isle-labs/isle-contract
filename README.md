@@ -183,6 +183,14 @@ cast to-unit $(cast gas-price) gwei
 - LoanManager: `0x1a16F4f4805197DF48Cc898f97601CE97B13d4a4`
 - PoolConfigurator: `0x389dE947656Fd0E2C806254Ad3fD9Ae4Ef297cDE`
 
+##### Implementation
+
+- Receivable: `0x103d37376F312C0D3FA4021351dC87811E0464B2`
+- IsleGlobals: `0x359f8Cfc8EadB4acB591211B73F5968b9900dB06`
+- WithdrawalManager: `0x9EDe7Fa06de4CcF3be5e26e27120eb608D001Ed8`
+- LoanManager: `0x14C0c74483abeaA0122DE6b8dD6c51795b48314c`
+- PoolConfigurator: `0x4137b1072c18F50D8D5f883043712727efa7B038`
+
 #### Linea
 
 - [IsleUSD](): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
@@ -194,3 +202,37 @@ cast to-unit $(cast gas-price) gwei
 #### Base (2023.10.19)
 
 - [IsleUSD](): `0x4dd7af98ce4b0BCBAf664D04E8cF637d39aad52C`
+
+Note: I ran out of gas. Remember to get gas when you have time lol
+
+### Verify contracts
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    ${Address} \
+    contracts/Receivable.sol:Receivable
+
+#### With constructor
+
+See [Foundry Book](https://book.getfoundry.sh/forge/deploying?highlight=verify#verifying-a-pre-existing-contract)
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    --constructor-args $(cast abi-encode "constructor(address)" ${ARG}) \
+    ${Address} \
+    contracts/WithdrawalManager.sol:WithdrawalManager
+
+#### With library
+
+forge verify-contract \
+    --chain-id 11155111 \
+    --num-of-optimizations 1000 \
+    --watch \
+    --constructor-args $(cast abi-encode "constructor(address)" ${ARG}) \
+    --libraries contracts/libraries/${Library}.sol:${Library}:${Address} \
+    ${Address} \
+    contracts/PoolConfigurator.sol:PoolConfigurator
