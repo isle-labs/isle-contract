@@ -35,16 +35,6 @@ contract DeployCore is BaseScript {
         deployWithdrawalManager(poolAddressesProvider_);
     }
 
-    function deployReceivable() internal broadcast(deployer) returns (Receivable receivable_) {
-        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(governor);
-    }
-
-    function deployGlobals() internal broadcast(deployer) returns (IsleGlobals globals_) {
-        globals_ = new IsleGlobals();
-        globals_.initialize(governor);
-    }
-
     function deployPoolAddressesProvider()
         internal
         broadcast(deployer)
