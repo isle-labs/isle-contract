@@ -61,7 +61,9 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
 
     function deployContract() internal {
         changePrank(users.governor);
-        poolAddressesProvider = deployPoolAddressesProvider();
+        isleGlobals = deployGlobals();
+
+        poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
     }
 
     modifier whenCallerGovernor() {

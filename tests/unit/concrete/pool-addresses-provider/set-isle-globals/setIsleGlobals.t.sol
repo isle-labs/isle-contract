@@ -21,9 +21,9 @@ contract SetIsleGlobals_PoolAddressesProvider_Unit_Concrete_Test is PoolAddresse
         setDefaultIsleGlobals();
     }
 
-    function test_SetLoanManagerImpl() external whenCallerGovernor {
+    function test_SetIsleGlobals() external whenCallerGovernor {
         vm.expectEmit(address(poolAddressesProvider));
-        emit IsleGlobalsUpdated(address(0), _params.newIsleGlobals);
+        emit IsleGlobalsUpdated(address(isleGlobals), _params.newIsleGlobals);
         setDefaultIsleGlobals();
     }
 }

@@ -8,14 +8,13 @@ import {
 
 import { Errors } from "./libraries/Errors.sol";
 
-import { Governable } from "./abstracts/Governable.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 
-contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
+contract PoolAddressesProvider is IPoolAddressesProvider {
     string private _marketId;
 
     mapping(bytes32 => address) private _addresses;
@@ -30,25 +29,20 @@ contract PoolAddressesProvider is Governable, IPoolAddressesProvider {
                                 MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier onlyGovernor() override {
-        address globals_ = getAddress(ISLE_GLOBALS);
-        // check if globals_ is set
-        if (globals_ != address(0)) {
-            address governor_ = IIsleGlobals(globals_).governor();
-            if (msg.sender != governor_) {
-                revert Errors.CallerNotGovernor({ governor_: governor_, caller_: msg.sender });
-            }
-        } else {
-            if (msg.sender != governor) {
-                revert Errors.CallerNotGovernor({ governor_: governor, caller_: msg.sender });
-            }
+    modifier onlyGovernor() {
+        address governor_ = IIsleGlobals(getAddress(ISLE_GLOBALS)).governor();
+        if (msg.sender != governor_) {
+            revert Errors.CallerNotGovernor({ governor_: governor_, caller_: msg.sender });
         }
         _;
     }
 
-    constructor(string memory marketId_, address initialGovernor_) {
-        // initialGovernor_ is for getting governor before setIsleGlobals()
-        governor = initialGovernor_;
+    constructor(string memory marketId_, IIsleGlobals globals_) {
+        if (globals_.governor() == address(0)) {
+            revert Errors.PoolAddressesProvider_InvalidGlobals(address(globals_));
+        }
+
+        _addresses[ISLE_GLOBALS] = address(globals_);
         _marketId = marketId_;
     }
 

@@ -116,7 +116,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         isleGlobals = deployGlobals();
 
         // Deploy pool side contracts
-        poolAddressesProvider = deployPoolAddressesProvider();
+        poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
         setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
         withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
@@ -146,8 +146,11 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool addresses provider
-    function deployPoolAddressesProvider() internal returns (IPoolAddressesProvider poolAddressesProvider_) {
-        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID(), users.governor);
+    function deployPoolAddressesProvider(IIsleGlobals isleGlobals_)
+        internal
+        returns (IPoolAddressesProvider poolAddressesProvider_)
+    {
+        poolAddressesProvider_ = new PoolAddressesProvider(defaults.MARKET_ID(), isleGlobals_);
     }
 
     /// @dev Deploy pool configurator

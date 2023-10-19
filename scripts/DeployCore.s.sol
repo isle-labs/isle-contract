@@ -21,7 +21,7 @@ contract DeployCore is BaseScript {
     {
         receivable_ = deployReceivable();
         globals_ = deployGlobals();
-        poolAddressesProvider_ = deployPoolAddressesProvider();
+        poolAddressesProvider_ = deployPoolAddressesProvider(globals_);
 
         initGlobals({
             poolAddressesProvider_: poolAddressesProvider_,
@@ -45,12 +45,12 @@ contract DeployCore is BaseScript {
         globals_.initialize(governor);
     }
 
-    function deployPoolAddressesProvider()
+    function deployPoolAddressesProvider(IsleGlobals globals_)
         internal
         broadcast(deployer)
         returns (PoolAddressesProvider poolAddressesProvider_)
     {
-        poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", governor);
+        poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", globals_);
     }
 
     function initGlobals(

@@ -14,8 +14,8 @@ abstract contract Initialize_Integration_Shared_Test is PoolConfigurator_Integra
         Integration_Test.setUp();
 
         changePrank(users.governor);
-
-        poolAddressesProvider = deployPoolAddressesProvider();
+        // deploy a new addresses provider for constructing poolConfiguratorNotInitialized
+        poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
         poolConfiguratorNotInitialized = deployPoolSideWithPoolConfiguratorNotInitialized(poolAddressesProvider);
 
         setDefaultGlobals(poolAddressesProvider);
