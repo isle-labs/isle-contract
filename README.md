@@ -207,17 +207,20 @@ Note: I ran out of gas. Remember to get gas when you have time lol
 
 ### Verify contracts
 
+```sh
 forge verify-contract \
     --chain-id 11155111 \
     --num-of-optimizations 1000 \
     --watch \
     ${Address} \
     contracts/Receivable.sol:Receivable
+```
 
 #### With constructor
 
 See [Foundry Book](https://book.getfoundry.sh/forge/deploying?highlight=verify#verifying-a-pre-existing-contract)
 
+```sh
 forge verify-contract \
     --chain-id 11155111 \
     --num-of-optimizations 1000 \
@@ -225,9 +228,11 @@ forge verify-contract \
     --constructor-args $(cast abi-encode "constructor(address)" ${ARG}) \
     ${Address} \
     contracts/WithdrawalManager.sol:WithdrawalManager
+```
 
 #### With library
 
+```sh
 forge verify-contract \
     --chain-id 11155111 \
     --num-of-optimizations 1000 \
@@ -236,3 +241,4 @@ forge verify-contract \
     --libraries contracts/libraries/${Library}.sol:${Library}:${Address} \
     ${Address} \
     contracts/PoolConfigurator.sol:PoolConfigurator
+```
