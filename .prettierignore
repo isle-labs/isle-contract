@@ -4,6 +4,7 @@ cache
 lib
 node_modules
 modules
+artifacts
 out
 .history
 .pnpm-store
