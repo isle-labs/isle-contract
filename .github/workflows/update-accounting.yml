@@ -1,0 +1,43 @@
+name: "Update Accounting"
+
+env:
+    FOUNDRY_PROFILE: "lite"
+    MNEMONIC: ${{ secrets.MNEMONIC }}
+    API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
+    API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
+
+on:
+    workflow_dispatch:
+        inputs:
+            poolAddressesProvider:
+                default: "0x454Bc3c86aB284F2Aa7A746733B23B46866FbeDB"
+                description: "Address of the Pool Addresses Provider to Update"
+                required: false
+            chain:
+                default: "sepolia"
+                description: "Chain name as defined in foundry.toml"
+                required: false
+    schedule:
+        - cron: "00 10 * * *" # Scheduled trigger at 6 PM GMT+8
+
+jobs:
+    deploy-core:
+        runs-on: "ubuntu-latest"
+        steps:
+            - name: "Check out the repo"
+              uses: "actions/checkout@v3"
+              with:
+                  submodules: "recursive"
+
+            - name: "Install Foundry"
+              uses: "foundry-rs/foundry-toolchain@v1"
+
+            - name: "Update the accounting of the specified pool"
+              run: >-
+                  forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig
+                  "run(address)" --verify "${{ inputs.poolAddressesProvider }}" -vvvv
+
+            - name: "Add workflow summary"
+              run: |
+                  echo "## Result" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Done" >> $GITHUB_STEP_SUMMARY
