@@ -7,6 +7,7 @@
     "url": "https://github.com/bsostech"
   },
   "devDependencies": {
+    "cz-conventional-changelog": "^3.3.0",
     "prettier": "^2.8.7",
     "solhint-community": "^3.5.0"
   },
@@ -31,5 +32,10 @@
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@prb/math": "^4.0.1"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
