@@ -3,6 +3,8 @@ pragma solidity ^0.8.19;
 
 abstract contract Events {
     // IsleGlobals events
+    event Initialized(address governor_);
+
     event IsleVaultSet(address indexed previousIsleVault_, address indexed currentIsleVault_);
 
     event ProtocolPausedSet(address indexed caller_, bool protocolPaused_);

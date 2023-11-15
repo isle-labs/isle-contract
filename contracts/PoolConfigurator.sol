@@ -66,7 +66,7 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     }
 
     /// @inheritdoc VersionedInitializable
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
+    function getRevision() public pure virtual override returns (uint256 revision_) {
         revision_ = POOL_CONFIGURATOR_REVISION;
     }
 

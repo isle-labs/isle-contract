@@ -24,4 +24,6 @@ struct Users {
     address payable notWhitelistedReceiver;
     // Default null user that is used
     address payable eve;
+    // Default vault
+    address payable vault;
 }

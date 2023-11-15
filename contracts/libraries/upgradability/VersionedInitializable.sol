@@ -52,7 +52,7 @@ abstract contract VersionedInitializable {
      * @dev Needs to be defined in the inherited class as a constant.
      * @return The revision number
      */
-    function getRevision() internal pure virtual returns (uint256);
+    function getRevision() public pure virtual returns (uint256);
 
     /**
      * @notice Returns true if and only if the function is running in the constructor

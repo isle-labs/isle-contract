@@ -6,7 +6,7 @@ import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 
 /// @title IIsleGlobals
 /// @notice Interface for the IsleGlobals contract
-/// @notice This interface provides functions for managing the global settings of the Isle protocol
+/// @notice This interface provides functions to manage the global configurations of the Isle Protocol
 interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /*//////////////////////////////////////////////////////////////////////////
                             INITIALIZER
@@ -104,10 +104,6 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /*//////////////////////////////////////////////////////////////////////////
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Returns the address of the implementation contract
-    /// @return implementation_ The address of the implementation contract
-    function getImplementation() external view returns (address implementation_);
 
     /// @notice Returns the pause status of a specific function in a contract
     /// @param contract_ The address of the contract

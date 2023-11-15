@@ -52,7 +52,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc VersionedInitializable
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
+    function getRevision() public pure virtual override returns (uint256 revision_) {
         revision_ = WITHDRAWAL_MANAGER_REVISION;
     }
 

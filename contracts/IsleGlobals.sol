@@ -7,12 +7,15 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { Errors } from "./libraries/Errors.sol";
 
 import { Governable } from "./abstracts/Governable.sol";
-
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 
 contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUpgradeable {
-    uint256 public constant ISLE_GLOBALS_REVISION = 0x1;
-    uint256 public constant HUNDRED_ = 1_000_000; // 100.0000%
+    uint256 private constant ISLE_GLOBALS_REVISION = 0x1;
+
+    /// @inheritdoc VersionedInitializable
+    function getRevision() public pure virtual override returns (uint256 revision_) {
+        revision_ = ISLE_GLOBALS_REVISION;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                             UUPS FUNCTIONS
@@ -20,23 +23,14 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
 
     function _authorizeUpgrade(address newImplementation_) internal override onlyGovernor { }
 
-    function getImplementation() external view override returns (address implementation_) {
-        implementation_ = _getImplementation();
-    }
-
-    /// @inheritdoc VersionedInitializable
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
-        revision_ = ISLE_GLOBALS_REVISION;
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 Storage
     //////////////////////////////////////////////////////////////////////////*/
 
     uint24 public override protocolFee; // 100.0000% = 1e6 (6 decimal precision)
     address public override isleVault;
-
     bool public override protocolPaused;
+
     mapping(address => bool) public override isContractPaused;
     mapping(address => mapping(bytes4 => bool)) public override isFunctionUnpaused;
     mapping(address => bool) public override isPoolAdmin;
@@ -50,7 +44,7 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
     /// @inheritdoc IIsleGlobals
     function initialize(address governor_) external override initializer {
         governor = governor_;
-        emit Initialized();
+        emit Initialized(governor_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -62,8 +56,8 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
         if (vault_ == address(0)) {
             revert Errors.Globals_InvalidVault(vault_);
         }
-        emit IsleVaultSet(isleVault, vault_);
-        isleVault = vault_;
+        address previousVault_ = isleVault;
+        emit IsleVaultSet({ previousVault_: previousVault_, newVault_: isleVault = vault_ });
     }
 
     /// @inheritdoc IIsleGlobals

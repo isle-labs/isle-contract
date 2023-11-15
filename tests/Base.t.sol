@@ -90,7 +90,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             notStaker: createAccount("NotStaker"),
             receiver: createUser("Receiver"),
             notWhitelistedReceiver: createUser("notWhitelistedReceiver"),
-            eve: createUser("eve")
+            eve: createUser("eve"),
+            vault: createUser("vault")
         });
 
         // Deploy the defaults contract

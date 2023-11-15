@@ -88,7 +88,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc VersionedInitializable
-    function getRevision() internal pure virtual override returns (uint256 revision_) {
+    function getRevision() public pure virtual override returns (uint256 revision_) {
         revision_ = LOAN_MANAGER_REVISION;
     }
 

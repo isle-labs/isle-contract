@@ -1,15 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import { IsleGlobals_Integration_Concrete_Test } from "../IsleGlobals.t.sol";
-import { Paused_Integration_Shared_Test } from "../../../shared/isle-globals/paused.t.sol";
+import { IsleGlobals_Unit_Concrete_Test } from "../IsleGlobals.t.sol";
 
-contract IsFunctionPaused_Integration_Concrete_Test is
-    IsleGlobals_Integration_Concrete_Test,
-    Paused_Integration_Shared_Test
-{
-    function setUp() public virtual override(IsleGlobals_Integration_Concrete_Test, Paused_Integration_Shared_Test) {
-        IsleGlobals_Integration_Concrete_Test.setUp();
+contract IsFunctionPaused_IsleGlobals_Unit_Concrete_Test is IsleGlobals_Unit_Concrete_Test {
+    function setUp() public virtual override(IsleGlobals_Unit_Concrete_Test) {
+        IsleGlobals_Unit_Concrete_Test.setUp();
     }
 
     function test_IsFunctionPaused_WhenFunctionUnpaused() external {
@@ -27,7 +23,7 @@ contract IsFunctionPaused_Integration_Concrete_Test is
         assertEq(isleGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), true);
     }
 
-    function test_IsFunctionPaused_WhenProtocolUnpaused() external whenFunctionNotUnpaused whenContractNotPaused {
+    function test_IsFunctionPaused() external whenFunctionNotUnpaused whenContractNotPaused whenProtocolNotPaused {
         assertEq(isleGlobals.isFunctionPaused(defaults.PAUSED_CONTRACT(), defaults.PAUSED_FUNCTION_SIG()), false);
     }
 }
