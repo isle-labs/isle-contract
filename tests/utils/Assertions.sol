@@ -5,7 +5,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRBMathAssertions } from "@prb/math/test/Assertions.sol";
 import { PRBTest } from "@prb/test/PRBTest.sol";
 
-import { WithdrawalManager, Receivable } from "contracts/libraries/types/DataTypes.sol";
+import { WithdrawalManager, Receivable, Loan } from "contracts/libraries/types/DataTypes.sol";
 
 abstract contract Assertions is PRBTest, PRBMathAssertions {
     /// @dev Compares two {WithdrawalManager.CycleConfig} struct entities.
@@ -24,5 +24,22 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.repaymentTimestamp, b.repaymentTimestamp, "info.repaymentTimestamp");
         assertEq(a.currencyCode, b.currencyCode, "info.currencyCode");
         assertEq(a.isValid, b.isValid, "info.isValid");
+    }
+
+    /// @dev Compares two {Loan.Info} struct entities.
+    function assertEq(Loan.Info memory a, Loan.Info memory b) internal {
+        assertEq(a.buyer, b.buyer, "info.buyer");
+        assertEq(a.seller, b.seller, "info.seller");
+        assertEq(a.receivableAsset, b.receivableAsset, "info.receivableAsset");
+        assertEq(a.receivableTokenId, b.receivableTokenId, "info.receivableTokenId");
+        assertEq(a.principal, b.principal, "info.principal");
+        assertEq(a.drawableFunds, b.drawableFunds, "info.drawableFunds");
+        assertEq(a.interestRate, b.interestRate, "info.interestRate");
+        assertEq(a.lateInterestPremiumRate, b.lateInterestPremiumRate, "info.lateInterestPremiumRate");
+        assertEq(a.startDate, b.startDate, "info.startDate");
+        assertEq(a.dueDate, b.dueDate, "info.dueDate");
+        assertEq(a.originalDueDate, b.originalDueDate, "info.originalDueDate");
+        assertEq(a.gracePeriod, b.gracePeriod, "info.gracePeriod");
+        assertEq(a.isImpaired, b.isImpaired, "info.isImpaired");
     }
 }

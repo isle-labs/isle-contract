@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.19;
 
+import { Loan } from "contracts/libraries/types/DataTypes.sol";
+
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 import { MockImplementation } from "../mocks/MockImplementation.sol";
 
@@ -22,7 +24,6 @@ contract Defaults is Constants {
 
     uint8 public constant UNDERLYING_DECIMALS = 6;
     uint8 public constant DECIMALS_OFFSET = 0;
-
     uint256 public immutable DEADLINE; // for erc20 permit
 
     uint256 public constant DEPOSIT_AMOUNT = 1000e6;
@@ -30,7 +31,6 @@ contract Defaults is Constants {
     uint256 public constant COVER_AMOUNT = 10_000e6;
     uint256 public constant WITHDRAW_COVER_AMOUNT = 100e6;
     uint256 public constant REDEEM_SHARES = 100e6;
-    uint256 public constant PRINCIPAL = 100e6;
     uint24 public constant ADMIN_FEE_RATE = 0.1e6; // 10%
     uint24 public constant PROTOCOL_FEE_RATE = 0.005e6; // 0.5%
 
@@ -52,10 +52,10 @@ contract Defaults is Constants {
     uint256 public constant RECEIVABLE_TOKEN_ID = 0;
     uint256 public constant FACE_AMOUNT = 100_000e6;
     uint256 public immutable REPAYMENT_TIMESTAMP;
+    uint256 public immutable START_DATE;
     uint16 public constant CURRENCY_CODE = 804;
-
     uint256 public constant MAY_31_2023 = MAY_1_2023 + 30 days;
-    uint256 public constant PERIOD = 30 days;
+    uint256 public immutable PERIOD;
 
     // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
     uint256 public constant ASSETS = 1_000_000;
@@ -90,6 +90,7 @@ contract Defaults is Constants {
     uint256 public constant PRINCIPAL_REQUESTED = 100_000e6;
     uint256 public constant INTEREST_RATE = 0.12e6;
     uint256 public constant LATE_INTEREST_PREMIUM_RATE = 0.2e6;
+    Loan.Info public EMPTY_LOAN_INFO;
 
     // e6 * e18 / e6 = e18
     uint256 public constant PERIODIC_INTEREST_RATE = uint256(INTEREST_RATE) * (1e18 / 1e6) * 30 days / 365 days;
@@ -130,7 +131,9 @@ contract Defaults is Constants {
         WINDOW_1 = MAY_1_2023;
         WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
         WINDOW_4 = WINDOW_1 + CYCLE_DURATION * 3;
-        REPAYMENT_TIMESTAMP = MAY_1_2023 + 30 days;
+        START_DATE = MAY_1_2023;
+        REPAYMENT_TIMESTAMP = MAY_31_2023;
+        PERIOD = REPAYMENT_TIMESTAMP - START_DATE;
         NEW_IMPLEMENTATION = address(new MockImplementation());
     }
 

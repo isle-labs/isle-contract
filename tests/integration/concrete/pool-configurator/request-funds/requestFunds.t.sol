@@ -11,7 +11,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
     function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
         PoolConfigurator_Integration_Shared_Test.setUp();
 
-        _principal = defaults.PRINCIPAL();
+        _principal = defaults.PRINCIPAL_REQUESTED();
     }
 
     function test_requestFunds() external whenCoverIsSufficient {

@@ -2,6 +2,10 @@
 pragma solidity ^0.8.19;
 
 interface ILoanManagerStorage {
+    /// @notice Gets the asset used for the protocol
+    /// @return asset_ The address of the asset
+    function asset() external view returns (address asset_);
+
     /// @notice Gets the unrealized losses
     /// @return unrealizedLosses_ The unrealized losses
     function unrealizedLosses() external view returns (uint128);
@@ -37,14 +41,6 @@ interface ILoanManagerStorage {
     /// @notice Gets the issuance rate
     /// @return issuanceRate_ The issuance rate
     function issuanceRate() external view returns (uint256);
-
-    /// @notice Gets the address of the funds asset
-    /// @return fundsAsset_ The address of the funds asset
-    function fundsAsset() external view returns (address);
-
-    /// @notice Gets the address of the receivable asset
-    /// @return receivableAsset_ The address of the receivable asset
-    function receivableAsset() external view returns (address);
 
     /// @notice Gets the payment ID of the given loan
     /// @param loanId_ The ID of the loan

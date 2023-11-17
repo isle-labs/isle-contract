@@ -13,6 +13,10 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Initializes the loan manager
+    /// @param asset_ The address of the asset used for the pool
+    function initialize(address asset_) external;
+
     /// @notice Gets the loan info
     /// @param loanId_ The id of the loan
     /// @return loan_ Struct that contains the info of the loan

@@ -7,6 +7,7 @@ import { UUPSProxy } from "contracts/libraries/upgradability/UUPSProxy.sol";
 
 import { IWithdrawalManager } from "contracts/interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "contracts/interfaces/IPoolConfigurator.sol";
+import { ILoanManager } from "contracts/interfaces/ILoanManager.sol";
 
 import { PoolAddressesProvider } from "contracts/PoolAddressesProvider.sol";
 import { LoanManager } from "contracts/LoanManager.sol";
@@ -89,7 +90,8 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
     }
 
     function setDefaultLoanManagerImpl() internal {
-        poolAddressesProvider.setLoanManagerImpl(_params.newLoanManager);
+        bytes memory params = abi.encodeWithSelector(ILoanManager.initialize.selector, address(usdc));
+        poolAddressesProvider.setLoanManagerImpl(_params.newLoanManager, params);
     }
 
     function setDefaultWithdrawalManagerImpl() internal {

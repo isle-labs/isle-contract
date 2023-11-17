@@ -146,6 +146,9 @@ library Errors {
 
     error LoanManager_CallerNotReceivableBuyer(address expectedBuyer_);
 
+    /// @notice Thrown when an asset address is set to 0 for a loan manager
+    error LoanManager_AssetZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                 Receivable
     //////////////////////////////////////////////////////////////////////////*/
