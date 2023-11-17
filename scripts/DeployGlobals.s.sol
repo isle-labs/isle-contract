@@ -14,5 +14,6 @@ contract DeployGlobals is BaseScript {
 
     function initGlobals(IsleGlobals globals_) internal broadcast(governor) {
         globals_.setProtocolFee(0.1e6);
+        globals_.setIsleVault(vault);
     }
 }

@@ -25,6 +25,7 @@ abstract contract BaseScript is Script {
     address internal seller;
     address internal governor;
     address internal lender;
+    address internal vault;
 
     /// @dev Initializes the participants like this:
     ///
@@ -32,12 +33,13 @@ abstract contract BaseScript is Script {
     /// - Otherwise, derive the participant address from $MNEMONIC.
     /// - If $MNEMONIC is not defined, default to a test mnemonic.
     constructor() {
+        mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
+
         address governor_ = vm.envOr({ name: "GOVERNOR", defaultValue: address(0) });
 
         if (governor_ != address(0)) {
             governor = governor_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (governor,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
 
@@ -46,7 +48,6 @@ abstract contract BaseScript is Script {
         if (poolAdmin_ != address(0)) {
             poolAdmin = poolAdmin_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (poolAdmin,) = deriveRememberKey({ mnemonic: mnemonic, index: 1 });
         }
 
@@ -55,7 +56,6 @@ abstract contract BaseScript is Script {
         if (deployer_ != address(0)) {
             deployer = deployer_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (deployer,) = deriveRememberKey({ mnemonic: mnemonic, index: 2 });
         }
 
@@ -64,7 +64,6 @@ abstract contract BaseScript is Script {
         if (buyer_ != address(0)) {
             buyer = buyer_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (buyer,) = deriveRememberKey({ mnemonic: mnemonic, index: 3 });
         }
 
@@ -73,7 +72,6 @@ abstract contract BaseScript is Script {
         if (seller_ != address(0)) {
             seller = seller_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (seller,) = deriveRememberKey({ mnemonic: mnemonic, index: 4 });
         }
 
@@ -82,8 +80,14 @@ abstract contract BaseScript is Script {
         if (lender_ != address(0)) {
             lender = lender_;
         } else {
-            mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
             (lender,) = deriveRememberKey({ mnemonic: mnemonic, index: 5 });
+        }
+
+        address vault_ = vm.envOr({ name: "VAULT", defaultValue: address(0) });
+        if (vault_ != address(0)) {
+            vault = vault_;
+        } else {
+            (vault,) = deriveRememberKey({ mnemonic: mnemonic, index: 6 });
         }
     }
 
