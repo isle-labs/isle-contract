@@ -557,39 +557,6 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
                             INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _updateInterestAccounting(int256 accountedInterestAdjustment_, int256 issuanceRateAdjustment_) internal {
-        accountedInterest = SignedMath.max(
-            ((accountedInterest + accruedInterest()).toInt256() + accountedInterestAdjustment_), 0
-        ).toUint256().toUint112();
-
-        domainStart = block.timestamp.toUint40();
-        issuanceRate = (SignedMath.max(issuanceRate.toInt256() + issuanceRateAdjustment_, 0)).toUint256();
-
-        emit AccountingStateUpdated(issuanceRate, accountedInterest);
-    }
-
-    function _updateUnrealizedLosses(int256 lossesAdjustment_) internal {
-        unrealizedLosses = SignedMath.max(unrealizedLosses.toInt256() + lossesAdjustment_, 0).toUint256().toUint128();
-        emit UnrealizedLossesUpdated(unrealizedLosses);
-    }
-
-    function _updatePrincipalOut(int256 principalOutAdjustment_) internal {
-        principalOut = SignedMath.max(principalOut.toInt256() + principalOutAdjustment_, 0).toUint256().toUint128();
-        emit PrincipalOutUpdated(principalOut);
-    }
-
-    // Clears all state variables to end a loan, but keep seller withdrawal functionality intact
-    function _clearLoanAccounting(uint16 loanId_) internal {
-        Loan.Info storage loan_ = _loans[loanId_];
-
-        loan_.gracePeriod = uint256(0);
-        loan_.interestRate = uint256(0);
-        loan_.lateInterestPremiumRate = uint256(0);
-
-        loan_.dueDate = uint256(0);
-        loan_.originalDueDate = uint256(0);
-    }
-
     function _advanceGlobalPaymentAccounting() internal {
         uint256 domainEnd_ = domainEnd;
 
