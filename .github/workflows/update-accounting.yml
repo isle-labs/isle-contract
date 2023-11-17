@@ -21,23 +21,35 @@ on:
         - cron: "00 10 * * *" # Scheduled trigger at 6 PM GMT+8
 
 jobs:
-    deploy-core:
-        runs-on: "ubuntu-latest"
-        steps:
-            - name: "Check out the repo"
-              uses: "actions/checkout@v3"
-              with:
-                  submodules: "recursive"
+  update_accounting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+            submodules: "recursive"
 
-            - name: "Install Foundry"
-              uses: "foundry-rs/foundry-toolchain@v1"
+      - name: Set default values for schedule
+        if: github.event_name == 'schedule'
+        run: |
+          echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider || '0x454Bc3c86aB284F2Aa7A746733B23B46866FbeDB' }}" >> $GITHUB_ENV
+          echo "CHAIN=${{ github.event.inputs.chain || 'sepolia' }}" >> $GITHUB_ENV
 
-            - name: "Update the accounting of the specified pool"
-              run: >-
-                  forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ inputs.chain }}" --sig
-                  "run(address)" --verify "${{ inputs.poolAddressesProvider }}" -vvvv
+      - name: Set default values for workflow_dispatch
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider }}" >> $GITHUB_ENV
+          echo "CHAIN=${{ github.event.inputs.chain }}" >> $GITHUB_ENV
+          
+      - name: "Install Foundry"
+        uses: "foundry-rs/foundry-toolchain@v1"
+        
+      - name: "Update the accounting of the specified pool"
+        run: >-
+            forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ env.CHAIN }}" --sig
+            "run(address)" --verify "${{ env.POOL_ADDRESSES_PROVIDER }}" -vvvv
 
-            - name: "Add workflow summary"
-              run: |
-                  echo "## Result" >> $GITHUB_STEP_SUMMARY
-                  echo "✅ Done" >> $GITHUB_STEP_SUMMARY
+      - name: "Add workflow summary"
+        run: |
+            echo "## Result" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Done" >> $GITHUB_STEP_SUMMARY
