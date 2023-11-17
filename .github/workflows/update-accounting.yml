@@ -24,8 +24,10 @@ jobs:
   update_accounting:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: "Check out the repo"
+        uses: "actions/checkout@v3"
+        with:
+            submodules: "recursive"
 
       - name: Set default values for schedule
         if: github.event_name == 'schedule'
