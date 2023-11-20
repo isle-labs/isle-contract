@@ -57,7 +57,7 @@ contract Defaults is Constants {
     uint256 public constant MAY_31_2023 = MAY_1_2023 + 30 days;
     uint256 public immutable PERIOD;
 
-    // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets is modified)
+    // Note: For convertTo.t.sol (can change if decimals offset, pool shares, pool assets are modified)
     uint256 public constant ASSETS = 1_000_000;
     uint256 public constant EXPECTED_SHARES = 666_666; // ASSETS * (POOL_SHARES + 1) / (POOL_ASSETS + 1) Round down
     uint256 public constant EXPECTED_EXIT_SHARES = 100_000e6;
