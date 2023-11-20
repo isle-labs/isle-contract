@@ -80,17 +80,26 @@ jobs:
             - name: "Show the Foundry config"
               run: "forge config"
 
+            - name: "Generate and prepare the contract artifacts"
+              run: "./shell/prepare-artifacts.sh"
+
             - name: "Build contracts"
-              run: "forge build --sizes"
+              run: "FOUNDRY_PROFILE=test-optimized forge build"
 
             - name: "Cache the build so that it can be re-used by the other jobs"
               uses: "actions/cache/save@v3"
               with:
                   path: |
                       out
+                      out-optimized
                       cache
                   key: "foundry-build-${{ github.sha }}"
 
+            - name: "Store the contract artifacts in CI"
+              uses: "actions/upload-artifact@v3"
+              with:
+                  name: "contract-artifacts"
+                  path: "artifacts"
             - name: "Add build summary"
               run: |
                   echo "## Build result" >> $GITHUB_STEP_SUMMARY
@@ -118,6 +127,7 @@ jobs:
                   key: "foundry-build-${{ github.sha }}"
                   path: |
                       out
+                      out-optimized
                       cache
 
             - name: "Generate a fuzz seed that changes weekly to avoid burning through RPC allowance"
@@ -126,8 +136,8 @@ jobs:
                     echo $(($EPOCHSECONDS - $EPOCHSECONDS % 604800))
                   )" >> $GITHUB_ENV
 
-            - name: "Run the tests"
-              run: "forge test"
+            - name: "Run the tests against teh optimized build"
+              run: "FOUNDRY_PROFILE=test-optimized forge test"
 
             - name: "Add test summary"
               run: |
