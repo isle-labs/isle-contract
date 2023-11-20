@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
 
-contract GetLoanPaymentDetailedBreakdown_Integration_Concrete_Test is
+contract GetLoanPaymentDetailedBreakdown_LoanManager_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     LoanManager_Integration_Shared_Test
 {

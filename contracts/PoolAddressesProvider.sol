@@ -83,9 +83,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setLoanManagerImpl(address newLoanManagerImpl) external override onlyGovernor {
+    function setLoanManagerImpl(address newLoanManagerImpl, bytes calldata params) external override onlyGovernor {
         address oldLoanManagerImpl = _getProxyImplementation(LOAN_MANAGER);
-        _updateImpl(LOAN_MANAGER, newLoanManagerImpl);
+        _updateImpl(LOAN_MANAGER, newLoanManagerImpl, params);
         emit LoanManagerUpdated(oldLoanManagerImpl, newLoanManagerImpl);
     }
 

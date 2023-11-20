@@ -102,7 +102,8 @@ interface IPoolAddressesProvider {
     /// @notice Updates the implementation of the LoanManager, or creates a proxy
     /// setting the new `LoanManager` implementation when the function is called for the first time.
     /// @param newLoanManagerImpl The new LoanManager implementation
-    function setLoanManagerImpl(address newLoanManagerImpl) external;
+    /// @param params The initialization parameters for loan manager
+    function setLoanManagerImpl(address newLoanManagerImpl, bytes calldata params) external;
 
     /// @notice Returns the address of the WithdrawalManager proxy.
     /// @return The WithdrawalManager proxy address
@@ -111,6 +112,7 @@ interface IPoolAddressesProvider {
     /// @notice Updates the implementation of the WithdrawalManager, or creates a proxy
     /// setting the new `WithdrawalManager` implementation when the function is called for the first time.
     /// @param newWithdrawalManagerImpl The new WithdrawalManager implementation
+    /// @param params The initialization parameters for withdrawal manager
     function setWithdrawalManagerImpl(address newWithdrawalManagerImpl, bytes calldata params) external;
 
     /// @notice Returns the address of isle globals.

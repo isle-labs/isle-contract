@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
 
-contract AssetsUnderManagement_Integration_Concrete_Test is
+contract AssetsUnderManagement_LoanManager_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     LoanManager_Integration_Shared_Test
 {
@@ -20,30 +20,29 @@ contract AssetsUnderManagement_Integration_Concrete_Test is
         assertEq(loanManager.assetsUnderManagement(), 0);
     }
 
-    function test_AssetsUnderManagement_OneLoan_AtStrartTime() external {
-        createDefaultLoan();
+    function test_AssetsUnderManagement_OneLoan_AtStartTime() external whenLoanCreated {
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED());
     }
 
-    function test_AssetsUnderManagement_OneLoan_InMiddle_NotUpdate() external {
-        createDefaultLoan();
+    function test_AssetsUnderManagement_OneLoan_InMiddle_NotUpdated() external whenLoanCreated {
         vm.warp(MAY_1_2023 + 10 days);
         uint256 accruedInterestEach = defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days / 1e27;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() + accruedInterestEach);
     }
 
-    function test_AssetsUnderManagement_OneLoan_InMiddle_Update() external {
-        createDefaultLoan();
+    function test_AssetsUnderManagement_OneLoan_InMiddle_Updated() external whenLoanCreated {
         vm.warp(MAY_1_2023 + 10 days);
         uint256 accruedInterestEach = defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days / 1e27;
 
         changePrank(users.poolAdmin);
         loanManager.updateAccounting();
+
         uint256 accountedInterest = accruedInterestEach;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() + accountedInterest);
 
         vm.warp(MAY_1_2023 + 30 days);
         accruedInterestEach = defaults.NEW_RATE_ZERO_FEE_RATE() * 20 days / 1e27;
+
         assertEq(
             loanManager.assetsUnderManagement(),
             defaults.PRINCIPAL_REQUESTED() + accountedInterest + accruedInterestEach
@@ -54,15 +53,13 @@ contract AssetsUnderManagement_Integration_Concrete_Test is
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() + accountedInterest);
     }
 
-    function test_AssetsUnderManagement_OneLoan_Defaulted_NotUpdate() external {
-        createDefaultLoan();
+    function test_AssetsUnderManagement_OneLoan_Defaulted_NotUpdate() external whenLoanCreated {
         vm.warp(MAY_1_2023 + 100 days);
         uint256 accruedInterestEach = defaults.NEW_RATE_ZERO_FEE_RATE() * 100 days / 1e27;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() + accruedInterestEach);
     }
 
-    function test_AssetsUnderManagement_OneLoan_Defaulted_Update() external {
-        createDefaultLoan();
+    function test_AssetsUnderManagement_OneLoan_Defaulted_Update() external whenLoanCreated {
         vm.warp(MAY_1_2023 + 100 days);
 
         changePrank(users.poolAdmin);
@@ -71,23 +68,17 @@ contract AssetsUnderManagement_Integration_Concrete_Test is
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() + accountedInterest);
     }
 
-    function test_AssetsUnderManagement_MultipleLoans_AtStrartTime() external {
-        createDefaultLoan();
-        createDefaultLoan();
+    function test_AssetsUnderManagement_MultipleLoans_AtStartTime() external whenTwoLoansCreated {
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() * 2);
     }
 
-    function test_AssetsUnderManagement_MultipleLoans_InMiddle_NotUpdate() external {
-        createDefaultLoan();
-        createDefaultLoan();
+    function test_AssetsUnderManagement_MultipleLoans_InMiddle_NotUpdate() external whenTwoLoansCreated {
         vm.warp(MAY_1_2023 + 10 days);
         uint256 accruedInterest = (defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days) * 2 / 1e27;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() * 2 + accruedInterest);
     }
 
-    function test_AssetsUnderManagement_MultipleLoans_InMiddle_Update() external {
-        createDefaultLoan();
-        createDefaultLoan();
+    function test_AssetsUnderManagement_MultipleLoans_InMiddle_Update() external whenTwoLoansCreated {
         vm.warp(MAY_1_2023 + 10 days);
         uint256 accruedInterest = (defaults.NEW_RATE_ZERO_FEE_RATE() * 10 days) * 2 / 1e27;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() * 2 + accruedInterest);
@@ -106,17 +97,13 @@ contract AssetsUnderManagement_Integration_Concrete_Test is
         );
     }
 
-    function test_AssetsUnderManagement_MultipleLoans_Defaulted_NotUpdate() external {
-        createDefaultLoan();
-        createDefaultLoan();
+    function test_AssetsUnderManagement_MultipleLoans_Defaulted_NotUpdate() external whenTwoLoansCreated {
         vm.warp(MAY_1_2023 + 100 days);
         uint256 accruedInterest = (defaults.NEW_RATE_ZERO_FEE_RATE() * 100 days) * 2 / 1e27;
         assertEq(loanManager.assetsUnderManagement(), defaults.PRINCIPAL_REQUESTED() * 2 + accruedInterest);
     }
 
-    function test_AssetsUnderManagement_MultipleLoans_Defaulted_Update() external {
-        createDefaultLoan();
-        createDefaultLoan();
+    function test_AssetsUnderManagement_MultipleLoans_Defaulted_Update() external whenTwoLoansCreated {
         vm.warp(MAY_1_2023 + 100 days);
 
         changePrank(users.poolAdmin);

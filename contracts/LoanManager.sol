@@ -46,19 +46,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         ADDRESSES_PROVIDER = provider_;
     }
 
-    /// @notice Initializes the Loan Manager.
-    /// @dev Function is invoked by the proxy contract when the Loan Manager Contract is added to the
-    /// PoolAddressesProvider of the market
-    /// @param provider_ The address of the PoolAddressesProvider
-    function initialize(IPoolAddressesProvider provider_) external virtual initializer {
-        if (ADDRESSES_PROVIDER != provider_) {
-            revert Errors.InvalidAddressesProvider({
-                expectedProvider: address(ADDRESSES_PROVIDER),
-                provider: address(provider_)
-            });
+    function initialize(address asset_) external override initializer {
+        if (asset_ == address(0)) {
+            revert Errors.LoanManager_AssetZeroAddress();
         }
-        fundsAsset = IPoolConfigurator(ADDRESSES_PROVIDER.getPoolConfigurator()).asset();
-        emit Initialized({ poolAddressesProvider_: address(provider_) });
+        emit LoanManagerInitialized({ poolAddressesProvider_: address(ADDRESSES_PROVIDER), asset_: asset = asset_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -263,12 +255,12 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
         uint256 principalAndInterest_ = principal_ + interest_;
 
-        // 3. Transfer the funds from the buyer to the loan manager
-        IERC20(fundsAsset).safeTransferFrom(msg.sender, address(this), principalAndInterest_);
+        // 3. Transfer funds from the buyer to the loan manager
+        IERC20(asset).safeTransferFrom(msg.sender, address(this), principalAndInterest_);
 
         emit LoanRepaid({ loanId_: loanId_, principal_: principal_, interest_: interest_ });
 
-        // 4. Transfer the funds to the pool, poolAdmin, and protocolVault
+        // 4. Transfer funds to the pool, poolAdmin, and vault
         _distributeClaimedFunds(loanId_, principal_, interest_);
 
         // 5. Decrement `principalOut`
@@ -317,7 +309,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             IReceivable(loan_.receivableAsset).burnReceivable(loan_.receivableTokenId);
         }
 
-        IERC20(fundsAsset).safeTransfer(destination_, amount_);
+        IERC20(asset).safeTransfer(destination_, amount_);
 
         emit FundsWithdrawn({ loanId_: loanId_, amount_: amount_ });
     }
@@ -564,39 +556,6 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     /*//////////////////////////////////////////////////////////////////////////
                             INTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _updateInterestAccounting(int256 accountedInterestAdjustment_, int256 issuanceRateAdjustment_) internal {
-        accountedInterest = SignedMath.max(
-            ((accountedInterest + accruedInterest()).toInt256() + accountedInterestAdjustment_), 0
-        ).toUint256().toUint112();
-
-        domainStart = block.timestamp.toUint40();
-        issuanceRate = (SignedMath.max(issuanceRate.toInt256() + issuanceRateAdjustment_, 0)).toUint256();
-
-        emit AccountingStateUpdated(issuanceRate, accountedInterest);
-    }
-
-    function _updateUnrealizedLosses(int256 lossesAdjustment_) internal {
-        unrealizedLosses = SignedMath.max(unrealizedLosses.toInt256() + lossesAdjustment_, 0).toUint256().toUint128();
-        emit UnrealizedLossesUpdated(unrealizedLosses);
-    }
-
-    function _updatePrincipalOut(int256 principalOutAdjustment_) internal {
-        principalOut = SignedMath.max(principalOut.toInt256() + principalOutAdjustment_, 0).toUint256().toUint128();
-        emit PrincipalOutUpdated(principalOut);
-    }
-
-    // Clears all state variables to end a loan, but keep seller withdrawal functionality intact
-    function _clearLoanAccounting(uint16 loanId_) internal {
-        Loan.Info storage loan_ = _loans[loanId_];
-
-        loan_.gracePeriod = uint256(0);
-        loan_.interestRate = uint256(0);
-        loan_.lateInterestPremiumRate = uint256(0);
-
-        loan_.dueDate = uint256(0);
-        loan_.originalDueDate = uint256(0);
-    }
 
     function _advanceGlobalPaymentAccounting() internal {
         uint256 domainEnd_ = domainEnd;
@@ -918,11 +877,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         emit FeesPaid(loanId_, adminFee_, protocolFee_);
         emit FundsDistributed(loanId_, principal_, netInterest_);
 
-        address fundsAsset_ = fundsAsset;
+        address asset_ = asset;
 
-        IERC20(fundsAsset_).safeTransfer(_pool(), principal_ + netInterest_);
-        IERC20(fundsAsset_).safeTransfer(_poolAdmin(), adminFee_);
-        IERC20(fundsAsset_).safeTransfer(_vault(), protocolFee_);
+        IERC20(asset_).safeTransfer(_pool(), principal_ + netInterest_);
+        IERC20(asset_).safeTransfer(_poolAdmin(), adminFee_);
+        IERC20(asset_).safeTransfer(_vault(), protocolFee_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

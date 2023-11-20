@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { LoanManager_Integration_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
 
-contract AccruedInterest_Integration_Concrete_Test is
+contract AccruedInterest_LoanManager_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     LoanManager_Integration_Shared_Test
 {
@@ -16,12 +16,11 @@ contract AccruedInterest_Integration_Concrete_Test is
         LoanManager_Integration_Concrete_Test.setUp();
     }
 
-    function test_AccruedInterest_NoLoan() external {
+    function test_AccruedInterest_LoanNotCreated() external {
         assertEq(loanManager.accruedInterest(), 0);
     }
 
-    function test_AccruedInterest_ExistLoan_NotUpdateAccounting() external {
-        createDefaultLoan();
+    function test_AccruedInterest_AccountingNotUpdated() external whenLoanCreated {
         // not matured
         vm.warp(MAY_1_2023 + 15 days);
         uint256 accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 15 days / 1e27;
@@ -35,20 +34,25 @@ contract AccruedInterest_Integration_Concrete_Test is
         assertEq(loanManager.accruedInterest(), accruedInterest);
     }
 
-    function test_AccruedInterest_ExistLoan_UpdateAccounting() external {
-        createDefaultLoan();
-        changePrank(users.poolAdmin);
-
+    function test_AccruedInterest() external whenLoanCreated whenAccountingUpdated {
         // not matured
-        vm.warp(MAY_1_2023 + 15 days);
+        vm.warp(defaults.REPAYMENT_TIMESTAMP() - 1 days);
+
+        changePrank(users.poolAdmin);
         loanManager.updateAccounting();
 
         assertEq(loanManager.accruedInterest(), 0);
 
         // matured
-        vm.warp(defaults.MAY_31_2023() + 70 days);
+        vm.warp(defaults.REPAYMENT_TIMESTAMP() + 1 days);
+
+        changePrank(users.poolAdmin);
         loanManager.updateAccounting();
 
         assertEq(loanManager.accruedInterest(), 0);
+    }
+
+    modifier whenAccountingUpdated() {
+        _;
     }
 }

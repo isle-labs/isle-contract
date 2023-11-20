@@ -28,4 +28,15 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_U
     function fundLoan(uint16 loanId_) internal {
         loanManager.fundLoan(loanId_);
     }
+
+    modifier whenLoanCreated() {
+        createDefaultLoan();
+        _;
+    }
+
+    modifier whenTwoLoansCreated() {
+        createDefaultLoan();
+        createDefaultLoan();
+        _;
+    }
 }

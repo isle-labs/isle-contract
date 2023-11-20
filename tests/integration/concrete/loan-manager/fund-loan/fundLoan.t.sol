@@ -6,7 +6,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/callable.t.sol";
 
-contract FundLoan_Integration_Concrete_Test is
+contract FundLoan_LoanManager_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     Callable_Integration_Shared_Test
 {

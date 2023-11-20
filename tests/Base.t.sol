@@ -121,7 +121,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
         withdrawalManager = deployWithdrawalManager(poolAddressesProvider);
-        loanManager = deployLoanManager(poolAddressesProvider);
+        loanManager = deployLoanManager(poolAddressesProvider, address(usdc));
         pool = Pool(poolConfigurator.pool());
 
         vm.label(address(receivable), "Receivable");
@@ -203,12 +203,18 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy loan manager
-    function deployLoanManager(IPoolAddressesProvider poolAddressesProvider_)
+    function deployLoanManager(
+        IPoolAddressesProvider poolAddressesProvider_,
+        address asset_
+    )
         internal
         returns (ILoanManager loanManager_)
     {
         address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
-        poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_);
+
+        bytes memory params = abi.encodeWithSelector(ILoanManager.initialize.selector, asset_);
+
+        poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_, params);
         loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
     }
 

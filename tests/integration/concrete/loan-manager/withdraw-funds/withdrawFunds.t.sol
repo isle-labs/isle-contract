@@ -8,7 +8,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { LoanManager_Integration_Concrete_Test } from "../LoanManager.t.sol";
 import { Callable_Integration_Shared_Test } from "../../../shared/loan-manager/callable.t.sol";
 
-contract WithdrawFunds_Integration_Concrete_Test is
+contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
     LoanManager_Integration_Concrete_Test,
     Callable_Integration_Shared_Test
 {
@@ -17,18 +17,6 @@ contract WithdrawFunds_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
 
         createDefaultLoan();
-    }
-
-    modifier whenCallerLoanSeller() {
-        _;
-    }
-
-    modifier whenWithdrawAmountLessThanOrEqualToDrawableAmount() {
-        _;
-    }
-
-    modifier whenBuyerRepayLoan() {
-        _;
     }
 
     function test_RevertWhen_FunctionPaused() external {
@@ -44,13 +32,12 @@ contract WithdrawFunds_Integration_Concrete_Test is
     }
 
     function test_RevertWhen_CallerNotLoanSeller() external whenNotPaused {
-        changePrank(users.caller);
+        changePrank(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_CallerNotSeller.selector, users.seller));
         loanManager.withdrawFunds(1, address(0), 0);
     }
 
-    function test_RevertWhen_WithdrawAmountGreaterThanDrawableAmount() external whenNotPaused whenCallerLoanSeller {
-        changePrank(users.seller);
+    function test_RevertWhen_WithdrawAmountGreaterThanDrawableAmount() external whenNotPaused whenCallerSeller {
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         vm.expectRevert(
             abi.encodeWithSelector(Errors.LoanManager_Overdraw.selector, 1, principalRequested + 1, principalRequested)
@@ -58,13 +45,12 @@ contract WithdrawFunds_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(users.seller), principalRequested + 1);
     }
 
-    function test_WithdrawFunds_WhenBuyerNotRepayLoan()
+    function test_WithdrawFunds_WhenLoanNotRepaid()
         external
         whenNotPaused
-        whenCallerLoanSeller
+        whenCallerSeller
         whenWithdrawAmountLessThanOrEqualToDrawableAmount
     {
-        changePrank(users.seller);
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
 
@@ -79,17 +65,16 @@ contract WithdrawFunds_Integration_Concrete_Test is
 
         uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
 
-        assertEq(receivable.balanceOf(address(users.seller)), 0);
-        assertEq(receivable.balanceOf(address(loanManager)), 1);
+        assertEq(receivable.ownerOf(defaults.RECEIVABLE_TOKEN_ID()), address(loanManager));
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
     }
 
     function test_WithdrawFunds()
         external
         whenNotPaused
-        whenCallerLoanSeller
+        whenCallerSeller
         whenWithdrawAmountLessThanOrEqualToDrawableAmount
-        whenBuyerRepayLoan
+        whenLoanRepaid
     {
         changePrank(users.buyer);
         loanManager.repayLoan(1);
@@ -97,10 +82,10 @@ contract WithdrawFunds_Integration_Concrete_Test is
         changePrank(users.seller);
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
+        uint256 receivableTokenId = defaults.RECEIVABLE_TOKEN_ID();
 
         IERC721 receivable = IERC721(address(receivable));
-
-        receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
+        receivable.approve(address(loanManager), receivableTokenId);
 
         vm.expectEmit(true, true, true, true);
         emit AssetBurned(defaults.RECEIVABLE_TOKEN_ID());
@@ -112,9 +97,24 @@ contract WithdrawFunds_Integration_Concrete_Test is
 
         uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
 
-        // check the receivable token is transferred and burned in the same transaction
-        assertEq(receivable.balanceOf(address(users.seller)), 0);
-        assertEq(receivable.balanceOf(address(loanManager)), 0);
+        // check loan manager usdc balance
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
+
+        // check if receivable is burned
+        vm.expectRevert("ERC721: invalid token ID");
+        receivable.ownerOf(receivableTokenId);
+    }
+
+    modifier whenCallerSeller() {
+        changePrank(users.seller);
+        _;
+    }
+
+    modifier whenWithdrawAmountLessThanOrEqualToDrawableAmount() {
+        _;
+    }
+
+    modifier whenLoanRepaid() {
+        _;
     }
 }
