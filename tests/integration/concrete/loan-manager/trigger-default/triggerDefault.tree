@@ -11,6 +11,13 @@ triggerDefault.t.sol
          ├── when the payment id of the loan is 0
          │  └── it should revert
          └── when the payment id of the loan is not 0
-            ├── it should trigger the default
-            ├── it should emit a {PrincipalOutUpdated} event
-            └── it should emit a {IssuanceParamsUpdated} event
+            ├── when the the loan is not impaired
+            │  ├── it should trigger the default
+            │  ├── it should emit a {PrincipalOutUpdated} event
+            │  ├── it should emit a {IssuanceParamsUpdated} event
+            └── when the the loan is impaired
+               ├── it should trigger the default
+               ├── it should emit a {PrincipalOutUpdated} event
+               ├── it should emit a {UnrealizedLossesUpdated} event
+               └── it should emit a {IssuanceParamsUpdated} event
+               

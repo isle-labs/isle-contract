@@ -19,7 +19,6 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
 
     mapping(bytes32 => address) private _addresses;
 
-    bytes32 private constant POOL = "POOL";
     bytes32 private constant POOL_CONFIGURATOR = "POOL_CONFIGURATOR";
     bytes32 private constant ISLE_GLOBALS = "ISLE_GLOBALS";
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
