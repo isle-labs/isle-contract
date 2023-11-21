@@ -162,7 +162,7 @@ jobs:
                   fail-on-cache-miss: true
                   key: "foundry-build-${{ github.sha }}"
                   path: |
-                      out
+                      out-optimized
                       cache
 
             - name: "Generate the coverage report using the unit and the integration tests"
