@@ -5,7 +5,7 @@ concurrency:
     group: ${{github.workflow}}-${{github.ref}}
 
 env:
-    FOUNDRY_PROFILE: "default"
+    # FOUNDRY_PROFILE: "default"
     # API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
     # API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     # API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
@@ -83,7 +83,7 @@ jobs:
             - name: "Generate and prepare the contract artifacts"
               run: "./shell/prepare-artifacts.sh"
 
-            - name: "Build contracts"
+            - name: "Build the test contracts"
               run: "FOUNDRY_PROFILE=test-optimized forge build"
 
             - name: "Cache the build so that it can be re-used by the other jobs"
@@ -136,7 +136,7 @@ jobs:
                     echo $(($EPOCHSECONDS - $EPOCHSECONDS % 604800))
                   )" >> $GITHUB_ENV
 
-            - name: "Run the tests against teh optimized build"
+            - name: "Run the tests against the optimized build"
               run: "FOUNDRY_PROFILE=test-optimized forge test"
 
             - name: "Add test summary"
@@ -155,15 +155,6 @@ jobs:
 
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
-
-            - name: "Restore the cached build"
-              uses: "actions/cache/restore@v3"
-              with:
-                  fail-on-cache-miss: true
-                  key: "foundry-build-${{ github.sha }}"
-                  path: |
-                      out-optimized
-                      cache
 
             - name: "Generate the coverage report using the unit and the integration tests"
               run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov'
