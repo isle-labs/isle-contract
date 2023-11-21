@@ -1,7 +1,7 @@
 name: "Update Accounting"
 
 env:
-    FOUNDRY_PROFILE: "lite"
+    FOUNDRY_PROFILE: "optimized"
     MNEMONIC: ${{ secrets.MNEMONIC }}
     API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
