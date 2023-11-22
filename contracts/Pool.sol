@@ -278,7 +278,7 @@ contract Pool is IPool, ERC20Permit {
 
     /// @inheritdoc IERC4626
     function totalAssets() public view override returns (uint256) {
-        return _asset.balanceOf(address(this));
+        return IPoolConfigurator(configurator).totalAssets();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
