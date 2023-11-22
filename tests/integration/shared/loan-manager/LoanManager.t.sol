@@ -3,18 +3,8 @@ pragma solidity ^0.8.19;
 
 import { Base_Test } from "../../../Base.t.sol";
 
-import { Receivable_Unit_Shared_Test } from "../../../unit/shared/receivable/Receivable.t.sol";
-
-abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_Unit_Shared_Test {
-    function setUp() public virtual override(Base_Test, Receivable_Unit_Shared_Test) { }
-
-    function createDefaultLoan() internal {
-        uint256 receivablesTokenId = createDefaultReceivable();
-        changePrank(users.buyer);
-        uint16 loanId = requestLoan(receivablesTokenId, defaults.PRINCIPAL_REQUESTED());
-        changePrank(users.poolAdmin);
-        fundLoan(loanId);
-    }
+abstract contract LoanManager_Integration_Shared_Test is Base_Test {
+    function setUp() public virtual override(Base_Test) { }
 
     function requestLoan(uint256 receivablesTokenId_, uint256 principalRequested_) internal returns (uint16 loanId_) {
         address receivableAsset_ = address(receivable);
@@ -37,6 +27,12 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test, Receivable_U
     modifier whenTwoLoansCreated() {
         createDefaultLoan();
         createDefaultLoan();
+        _;
+    }
+
+    modifier whenCallerPoolAdmin() {
+        // Make the Admin the caller in the rest of this test suite.
+        changePrank({ msgSender: users.poolAdmin });
         _;
     }
 }

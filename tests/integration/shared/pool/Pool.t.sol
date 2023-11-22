@@ -18,6 +18,9 @@ abstract contract Pool_Integration_Shared_Test is Integration_Test {
         _params.removeShares = defaults.REMOVE_SHARES();
 
         initializePool(); // initialized pool state for testing
+
+        changePrank(users.poolAdmin);
+        poolConfigurator.depositCover(defaults.COVER_AMOUNT());
     }
 
     function defaultRedeem() internal returns (uint256 assets_) {

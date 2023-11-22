@@ -29,10 +29,6 @@ abstract contract Receivable_Unit_Shared_Test is Base_Test {
         _;
     }
 
-    function createDefaultReceivable() internal returns (uint256 tokenId_) {
-        tokenId_ = receivable.createReceivable(defaults.createReceivable());
-    }
-
     function createDefaultReceivableWithFaceAmount(uint256 faceAmount_) internal returns (uint256 tokenId_) {
         Receivable.Create memory params_ = defaults.createReceivable();
         params_.faceAmount = faceAmount_;

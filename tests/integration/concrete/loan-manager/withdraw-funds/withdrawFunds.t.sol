@@ -54,9 +54,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
 
-        IERC721 receivable = IERC721(address(receivable));
-
-        receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
+        IERC721(address(receivable)).approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
 
         vm.expectEmit(true, true, true, true);
         emit FundsWithdrawn(1, principalRequested);
@@ -65,7 +63,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
 
         uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
 
-        assertEq(receivable.ownerOf(defaults.RECEIVABLE_TOKEN_ID()), address(loanManager));
+        assertEq(IERC721(address(receivable)).ownerOf(defaults.RECEIVABLE_TOKEN_ID()), address(loanManager));
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
     }
 
@@ -84,8 +82,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
         uint256 receivableTokenId = defaults.RECEIVABLE_TOKEN_ID();
 
-        IERC721 receivable = IERC721(address(receivable));
-        receivable.approve(address(loanManager), receivableTokenId);
+        IERC721(address(receivable)).approve(address(loanManager), receivableTokenId);
 
         vm.expectEmit(true, true, true, true);
         emit AssetBurned(defaults.RECEIVABLE_TOKEN_ID());
@@ -102,7 +99,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
 
         // check if receivable is burned
         vm.expectRevert("ERC721: invalid token ID");
-        receivable.ownerOf(receivableTokenId);
+        IERC721(address(receivable)).ownerOf(receivableTokenId);
     }
 
     modifier whenCallerSeller() {
