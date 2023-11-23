@@ -261,9 +261,30 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     function initializePool() internal {
         changePrank(users.caller);
         // Caller is the singler depositor initially
-        pool.deposit({ assets: defaults.POOL_SHARES(), receiver: users.receiver });
+        pool.mint({ shares: defaults.POOL_SHARES(), receiver: users.receiver });
         // Now the total assets in the pool would be POOL_ASSETS
         airdropTo(address(pool), defaults.POOL_ASSETS() - usdc.balanceOf(address(pool)));
+    }
+
+    function createDefaultReceivable() internal returns (uint256 tokenId_) {
+        tokenId_ = receivable.createReceivable(defaults.createReceivable());
+    }
+
+    function createDefaultLoan() internal {
+        uint256 receivablesTokenId_ = createDefaultReceivable();
+        changePrank(users.buyer);
+
+        // request loan
+        uint16 loanId_ = loanManager.requestLoan(
+            address(receivable),
+            receivablesTokenId_,
+            defaults.GRACE_PERIOD(),
+            defaults.PRINCIPAL_REQUESTED(),
+            [defaults.INTEREST_RATE(), defaults.LATE_INTEREST_PREMIUM_RATE()]
+        );
+
+        changePrank(users.poolAdmin);
+        loanManager.fundLoan(loanId_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
