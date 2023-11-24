@@ -53,11 +53,12 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         // Deploy with create2 so we can precompute the deployment address
         changePrank(users.governor);
 
-        _params.newWithdrawalManager = address(new WithdrawalManager{salt: "WithdrawalManager"}(poolAddressesProvider));
-        _params.newLoanManager = address(new LoanManager{salt: "LoanManager"}(poolAddressesProvider));
-        _params.newPoolConfigurator = address(new PoolConfigurator{salt: "PoolConfigurator"}(poolAddressesProvider));
+        _params.newWithdrawalManager =
+            address(new WithdrawalManager{ salt: "WithdrawalManager" }(poolAddressesProvider));
+        _params.newLoanManager = address(new LoanManager{ salt: "LoanManager" }(poolAddressesProvider));
+        _params.newPoolConfigurator = address(new PoolConfigurator{ salt: "PoolConfigurator" }(poolAddressesProvider));
         _params.newIsleGlobals =
-            address(new UUPSProxy{salt: "IsleGlobals"}(address(new IsleGlobals{salt: "IsleGlobals"}()), ""));
+            address(new UUPSProxy{ salt: "IsleGlobals" }(address(new IsleGlobals{ salt: "IsleGlobals" }()), ""));
     }
 
     function deployContract() internal {
