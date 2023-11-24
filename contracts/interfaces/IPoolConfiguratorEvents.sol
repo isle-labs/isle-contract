@@ -47,10 +47,6 @@ interface IPoolConfiguratorEvents {
     /// @param isOpenToPublic_ Whether the pool is open to the public
     event OpenToPublicSet(bool isOpenToPublic_);
 
-    /// @notice Emitted when the base rate (the minimum interest rate for buyers) of the pool is set
-    /// @param baseRate_ The new base rate
-    event BaseRateSet(uint96 baseRate_);
-
     /// @notice Emitted when a redeem is processed
     /// @param owner_ The address of the owner
     /// @param redeemableShares_ The amount of redeemable shares

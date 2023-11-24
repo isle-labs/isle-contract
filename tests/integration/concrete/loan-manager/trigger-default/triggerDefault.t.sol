@@ -80,6 +80,9 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         vm.expectEmit(true, true, true, true);
         emit IssuanceParamsUpdated(uint48(block.timestamp), 0, 0);
 
+        vm.expectEmit(true, true, true, true);
+        emit DefaultTriggered(1);
+
         (uint256 remainingLosses, uint256 protocolFees) = loanManager.triggerDefault(1);
 
         (uint256 principal, uint256[2] memory interests) = loanManager.getLoanPaymentDetailedBreakdown(1);

@@ -19,5 +19,6 @@ triggerDefault.t.sol
                ├── it should trigger the default
                ├── it should emit a {PrincipalOutUpdated} event
                ├── it should emit a {UnrealizedLossesUpdated} event
-               └── it should emit a {IssuanceParamsUpdated} event
+               ├── it should emit a {IssuanceParamsUpdated} event
+               └── it should emit a {DefaultTriggered} event
                

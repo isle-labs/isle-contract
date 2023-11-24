@@ -57,10 +57,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param adminFee_ The new admin fee
     function setAdminFee(uint24 adminFee_) external;
 
-    /// @notice Sets the base rate for the pool
-    /// @param baseRate_ The new base rate
-    function setBaseRate(uint96 baseRate_) external;
-
     /// @notice Assigns a buyer to the pool
     /// @param buyer_ The address of the buyer for this pool
     function setBuyer(address buyer_) external;
@@ -141,10 +137,6 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @notice Returns the admin fee of the pool
     /// @return adminFee_ The admin fee of the pool
     function adminFee() external view returns (uint24 adminFee_);
-
-    /// @notice Returns the base rate of the pool
-    /// @return baseRate_ The base rate of the pool
-    function baseRate() external view returns (uint96 baseRate_);
 
     /// @notice Returns the max deposit amount of a receiver
     /// @param receiver_ The address of the receiver
