@@ -51,8 +51,11 @@ abstract contract Events {
 
     // LoanManager events
     event LoanManagerInitialized(address poolAddressesProvider_, address asset_);
+
     event LoanRequested(uint16 indexed loanId_);
+
     event PrincipalOutUpdated(uint128 principalOut_);
+
     event PaymentAdded(
         uint16 indexed loanId_,
         uint256 indexed paymentId_,
@@ -62,17 +65,28 @@ abstract contract Events {
         uint256 dueDate_,
         uint256 newRate_
     );
+
     event IssuanceParamsUpdated(uint48 indexed domainEnd_, uint256 issuanceRate_, uint112 accountedInterest_);
+
     event LoanRepaid(uint16 indexed loanId_, uint256 principal_, uint256 interest_);
+
     event FeesPaid(uint16 indexed loanId_, uint256 adminFee_, uint256 protocolFee_);
+
     event FundsDistributed(uint16 indexed loanId_, uint256 principal_, uint256 netInterest_);
+
     event PaymentRemoved(uint16 indexed loanId_, uint256 indexed paymentId_);
+
     event FundsWithdrawn(uint16 indexed loanId_, uint256 amount_);
+
     event UnrealizedLossesUpdated(uint128 unrealizedLosses_);
+
     event LoanImpaired(uint16 indexed loanId_, uint256 newDueDate_);
+
     event ImpairmentRemoved(uint16 indexed loanId_, uint256 originalPaymentDueDate_);
 
     event IsleGlobalsSet(address indexed previousIsleGlobals_, address indexed currentIsleGlobals_);
+
+    event DefaultTriggered(uint16 indexed loanId_);
 
     // Pool configurator events
     event Initialized(address indexed poolAdmin_, address indexed asset_, address pool_);

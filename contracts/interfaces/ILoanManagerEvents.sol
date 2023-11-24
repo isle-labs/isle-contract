@@ -89,4 +89,8 @@ interface ILoanManagerEvents {
     /// @param loanId_ The id of the loan
     /// @param originalPaymentDueDate_ The original payment due date of the loan
     event ImpairmentRemoved(uint16 indexed loanId_, uint256 originalPaymentDueDate_);
+
+    /// @notice Emitted when the loan is defaulted
+    /// @param loanId_ The id of the loan
+    event DefaultTriggered(uint16 indexed loanId_);
 }

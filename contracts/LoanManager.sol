@@ -459,6 +459,8 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
         // Losses of the pool
         remainingLosses_ = _handleDefault(loanId_, netInterest_, netLateInterest_);
+
+        emit DefaultTriggered({ loanId_: loanId_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////
