@@ -89,8 +89,6 @@ abstract contract Events {
 
     event ValidLenderSet(address indexed lender_, bool isValid_);
 
-    event BaseRateSet(uint96 baseRate_);
-
     event RedeemProcessed(address indexed owner_, uint256 redeemableShares_, uint256 resultingAssets_);
 
     event SharesRemoved(address indexed owner_, uint256 shares_);

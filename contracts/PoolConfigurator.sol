@@ -150,11 +150,6 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setBaseRate(uint96 baseRate_) external override whenNotPaused onlyAdmin {
-        emit BaseRateSet(_config.baseRate = baseRate_);
-    }
-
-    /// @inheritdoc IPoolConfigurator
     function setMaxCoverLiquidation(uint24 maxCoverLiquidation_) external override whenNotPaused onlyGovernor {
         emit MaxCoverLiquidationSet(_config.maxCoverLiquidation = maxCoverLiquidation_);
     }
@@ -291,11 +286,6 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     /// @inheritdoc IPoolConfigurator
     function adminFee() external view override returns (uint24 adminFee_) {
         adminFee_ = _config.adminFee;
-    }
-
-    /// @inheritdoc IPoolConfigurator
-    function baseRate() external view override returns (uint96 baseRate_) {
-        baseRate_ = _config.baseRate;
     }
 
     /// @inheritdoc IPoolConfigurator

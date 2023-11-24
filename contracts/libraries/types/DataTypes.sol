@@ -7,7 +7,6 @@ library PoolConfigurator {
         // Config that is managed by the pool admin
         bool openToPublic; // Slot 1: bool - 1 byte
         uint24 adminFee; // uint24 - 3 byte: max = 1.6e7 (1600%) / precision: 10e6 / 1e6 = 1 = 100%
-        uint96 baseRate; // uint96 - 12 byte: max = 7.922816251426434e28 / precision: 10e18
         // Config that is managed by the governor
         uint24 maxCoverLiquidation;
         uint104 minCover;

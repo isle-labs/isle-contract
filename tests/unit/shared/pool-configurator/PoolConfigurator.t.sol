@@ -7,7 +7,6 @@ import { PoolConfigurator } from "contracts/PoolConfigurator.sol";
 
 abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
     struct Params {
-        uint96 baseRate;
         uint24 adminFee;
         uint32 gracePeriod;
         bool openToPublic;
@@ -18,7 +17,6 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
     function setUp() public virtual override {
         Base_Test.setUp();
 
-        _params.baseRate = defaults.BASE_RATE();
         _params.adminFee = defaults.ADMIN_FEE_RATE();
         _params.gracePeriod = defaults.GRACE_PERIOD();
         _params.openToPublic = defaults.OPEN_TO_PUBLIC();
@@ -34,10 +32,6 @@ abstract contract PoolConfigurator_Unit_Shared_Test is Base_Test {
         poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
         setDefaultGlobals(poolAddressesProvider);
         poolConfigurator = deployPoolConfigurator(poolAddressesProvider);
-    }
-
-    function setDefaultBaseRate() internal {
-        poolConfigurator.setBaseRate(_params.baseRate);
     }
 
     function setDefaultAdminFee() internal {
