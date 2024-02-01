@@ -157,7 +157,7 @@ jobs:
               uses: "foundry-rs/foundry-toolchain@v1"
 
             - name: "Generate the coverage report using the unit and the integration tests"
-              run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov'
+              run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov --ir-minimum'
 
             - name: "Upload coverage report to Codecov"
               uses: "codecov/codecov-action@v3"
