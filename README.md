@@ -188,7 +188,7 @@ cast to-unit $(cast gas-price) gwei
 - Receivable: `0x103d37376F312C0D3FA4021351dC87811E0464B2`
 - IsleGlobals: `0x359f8Cfc8EadB4acB591211B73F5968b9900dB06`
 - WithdrawalManager: `0x9EDe7Fa06de4CcF3be5e26e27120eb608D001Ed8`
-- LoanManager: `0x14C0c74483abeaA0122DE6b8dD6c51795b48314c`
+- LoanManager: `0x5a0a72f2c0a28161d33e7bd56191ab2ed1a629e3`
 - PoolConfigurator: `0x4137b1072c18F50D8D5f883043712727efa7B038`
 
 #### Linea
