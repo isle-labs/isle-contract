@@ -191,19 +191,25 @@ cast to-unit $(cast gas-price) gwei
 - LoanManager: `0x5a0a72f2c0a28161d33e7bd56191ab2ed1a629e3`
 - PoolConfigurator: `0x4137b1072c18F50D8D5f883043712727efa7B038`
 
-#### Linea
+#### Plume
 
-- [IsleUSD](): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
 - Deployer: `0xBbC9928618b05356841a8565C72E4493D12ad163`
-- Receivable: `0x9eDC5845AcEC7D8eeb3Eb5d73E9546D760b95c10`
-- IsleGlobals: `0x8264c54eDdCEAe79f2efa9370b96b795Ea6C14B7`
-- PoolAddressesProvider: `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
+- [Receivable](https://testnet-explorer.plumenetwork.xyz/address/0x44dad751B53a250504E2D10EAeB52125Ba49669F?tab=read_proxy):
+`0x44dad751B53a250504E2D10EAeB52125Ba49669F`
+- [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c):
+`0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c`
+- [PoolAddressesProvider](https://testnet-explorer.plumenetwork.xyz/address/0x51b235a5511e7c25A3F610081f096101CCA72F99): `0x51b235a5511e7c25A3F610081f096101CCA72F99`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE): `0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x533522565fA7A37ddc6Df54458648FFeeDb01066): `0x533522565fA7A37ddc6Df54458648FFeeDb01066`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x196F865A118971fBb38E97798Edb2C7cF2938d2B): `0x196F865A118971fBb38E97798Edb2C7cF2938d2B`
 
-#### Base (2023.10.19)
+##### Implementation
 
-- [IsleUSD](): `0x4dd7af98ce4b0BCBAf664D04E8cF637d39aad52C`
-
-Note: I ran out of gas. Remember to get gas when you have time lol
+- [Receivable](https://testnet-explorer.plumenetwork.xyz/address/0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13): `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
+- [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x402bBecEeac2109Cff1fB358470bC2aa4f90578A): `0x402bbeceeac2109cff1fb358470bc2aa4f90578a`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x3e8824538a005e5a42fa9bc0e88eaec9862cae17): `0x3e8824538a005e5a42fa9bc0e88eaec9862cae17`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x89b2e004e30f0b41e527c23c3e39cd086a639750): `0x89b2e004e30f0b41e527c23c3e39cd086a639750`
 
 ### Verify contracts
 
