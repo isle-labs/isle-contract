@@ -107,8 +107,6 @@ SetAddress_PoolAddressesProvider_Unit_Concrete_Test:test_RevertWhen_CallerNotGov
 SetAddress_PoolAddressesProvider_Unit_Concrete_Test:test_SetAddress() (gas: 52672)
 SetAdminFee_Unit_Concrete_Test:test_RevertWhen_CallerNotPoolAdmin() (gas: 43699)
 SetAdminFee_Unit_Concrete_Test:test_setAdminFee() (gas: 55666)
-SetBaseRate_Unit_Concrete_Test:test_RevertWhen_CallerNotPoolAdmin() (gas: 43693)
-SetBaseRate_Unit_Concrete_Test:test_setBaseRate() (gas: 55727)
 SetContractPaused_Integration_Concrete_Test:test_RevertWhen_CallerNotGovernor() (gas: 23519)
 SetContractPaused_Integration_Concrete_Test:test_SetContractPaused() (gas: 46629)
 SetFunctionUnpaused_Integration_Concrete_Test:test_RevertWhen_CallerNotGovernor() (gas: 27764)

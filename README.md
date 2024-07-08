@@ -199,17 +199,17 @@ cast to-unit $(cast gas-price) gwei
 - [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c):
 `0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c`
 - [PoolAddressesProvider](https://testnet-explorer.plumenetwork.xyz/address/0x51b235a5511e7c25A3F610081f096101CCA72F99): `0x51b235a5511e7c25A3F610081f096101CCA72F99`
-- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE): `0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE`
-- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x533522565fA7A37ddc6Df54458648FFeeDb01066): `0x533522565fA7A37ddc6Df54458648FFeeDb01066`
-- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x196F865A118971fBb38E97798Edb2C7cF2938d2B): `0x196F865A118971fBb38E97798Edb2C7cF2938d2B`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x402bBecEeac2109Cff1fB358470bC2aa4f90578A): `0x402bbeceeac2109cff1fb358470bc2aa4f90578a`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x3e8824538a005e5a42fa9bc0e88eaec9862cae17): `0x3e8824538a005e5a42fa9bc0e88eaec9862cae17`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x89b2e004e30f0b41e527c23c3e39cd086a639750): `0x89b2e004e30f0b41e527c23c3e39cd086a639750`
 
 ##### Implementation
 
 - [Receivable](https://testnet-explorer.plumenetwork.xyz/address/0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13): `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
 - [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
-- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x402bBecEeac2109Cff1fB358470bC2aa4f90578A): `0x402bbeceeac2109cff1fb358470bc2aa4f90578a`
-- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x3e8824538a005e5a42fa9bc0e88eaec9862cae17): `0x3e8824538a005e5a42fa9bc0e88eaec9862cae17`
-- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x89b2e004e30f0b41e527c23c3e39cd086a639750): `0x89b2e004e30f0b41e527c23c3e39cd086a639750`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE): `0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x533522565fA7A37ddc6Df54458648FFeeDb01066): `0x533522565fA7A37ddc6Df54458648FFeeDb01066`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x196F865A118971fBb38E97798Edb2C7cF2938d2B): `0x196F865A118971fBb38E97798Edb2C7cF2938d2B`
 
 ### Verify contracts
 
