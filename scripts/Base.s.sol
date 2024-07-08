@@ -36,55 +36,77 @@ abstract contract BaseScript is Script {
         mnemonic = vm.envOr({ name: "MNEMONIC", defaultValue: TEST_MNEMONIC });
 
         address governor_ = vm.envOr({ name: "GOVERNOR", defaultValue: address(0) });
+        uint256 governorKey_ = vm.envOr({ name: "GOVERNOR_KEY", defaultValue: uint256(0) });
 
-        if (governor_ != address(0)) {
+        if (governorKey_ != 0) {
+            governor = vm.rememberKey({ privateKey: governorKey_ });
+        } else if (governor_ != address(0)) {
             governor = governor_;
         } else {
             (governor,) = deriveRememberKey({ mnemonic: mnemonic, index: 0 });
         }
 
         address poolAdmin_ = vm.envOr({ name: "POOL_ADMIN", defaultValue: address(0) });
+        uint256 poolAdminKey_ = vm.envOr({ name: "POOL_ADMIN_KEY", defaultValue: uint256(0) });
 
-        if (poolAdmin_ != address(0)) {
+        if (poolAdminKey_ != 0) {
+            poolAdmin = vm.rememberKey({ privateKey: poolAdminKey_ });
+        } else if (poolAdmin_ != address(0)) {
             poolAdmin = poolAdmin_;
         } else {
             (poolAdmin,) = deriveRememberKey({ mnemonic: mnemonic, index: 1 });
         }
 
         address deployer_ = vm.envOr({ name: "DEPLOYER", defaultValue: address(0) });
+        uint256 deployerKey_ = vm.envOr({ name: "DEPLOYER_KEY", defaultValue: uint256(0) });
 
-        if (deployer_ != address(0)) {
+        if (deployerKey_ != 0) {
+            deployer = vm.rememberKey({ privateKey: deployerKey_ });
+        } else if (deployer_ != address(0)) {
             deployer = deployer_;
         } else {
             (deployer,) = deriveRememberKey({ mnemonic: mnemonic, index: 2 });
         }
 
         address buyer_ = vm.envOr({ name: "BUYER", defaultValue: address(0) });
+        uint256 buyerKey_ = vm.envOr({ name: "BUYER_KEY", defaultValue: uint256(0) });
 
-        if (buyer_ != address(0)) {
+        if (buyerKey_ != 0) {
+            buyer = vm.rememberKey({ privateKey: buyerKey_ });
+        } else if (buyer_ != address(0)) {
             buyer = buyer_;
         } else {
             (buyer,) = deriveRememberKey({ mnemonic: mnemonic, index: 3 });
         }
 
         address seller_ = vm.envOr({ name: "SELLER", defaultValue: address(0) });
+        uint256 sellerKey_ = vm.envOr({ name: "SELLER_KEY", defaultValue: uint256(0) });
 
-        if (seller_ != address(0)) {
+        if (sellerKey_ != 0) {
+            seller = vm.rememberKey({ privateKey: sellerKey_ });
+        } else if (seller_ != address(0)) {
             seller = seller_;
         } else {
             (seller,) = deriveRememberKey({ mnemonic: mnemonic, index: 4 });
         }
 
         address lender_ = vm.envOr({ name: "LENDER", defaultValue: address(0) });
+        uint256 lenderKey_ = vm.envOr({ name: "LENDER_KEY", defaultValue: uint256(0) });
 
-        if (lender_ != address(0)) {
+        if (lenderKey_ != 0) {
+            lender = vm.rememberKey({ privateKey: lenderKey_ });
+        } else if (lender_ != address(0)) {
             lender = lender_;
         } else {
             (lender,) = deriveRememberKey({ mnemonic: mnemonic, index: 5 });
         }
 
         address vault_ = vm.envOr({ name: "VAULT", defaultValue: address(0) });
-        if (vault_ != address(0)) {
+        uint256 vaultKey_ = vm.envOr({ name: "VAULT_KEY", defaultValue: uint256(0) });
+
+        if (vaultKey_ != 0) {
+            vault = vm.rememberKey({ privateKey: vaultKey_ });
+        } else if (vault_ != address(0)) {
             vault = vault_;
         } else {
             (vault,) = deriveRememberKey({ mnemonic: mnemonic, index: 6 });
