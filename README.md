@@ -198,18 +198,18 @@ cast to-unit $(cast gas-price) gwei
 `0x44dad751B53a250504E2D10EAeB52125Ba49669F`
 - [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c):
 `0x0e7349cbcbA4d5394E51ae8B227a0f7D5ae3333c`
-- [PoolAddressesProvider](https://testnet-explorer.plumenetwork.xyz/address/0x51b235a5511e7c25A3F610081f096101CCA72F99): `0x51b235a5511e7c25A3F610081f096101CCA72F99`
-- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x402bBecEeac2109Cff1fB358470bC2aa4f90578A): `0x402bbeceeac2109cff1fb358470bc2aa4f90578a`
-- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x3e8824538a005e5a42fa9bc0e88eaec9862cae17): `0x3e8824538a005e5a42fa9bc0e88eaec9862cae17`
-- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x89b2e004e30f0b41e527c23c3e39cd086a639750): `0x89b2e004e30f0b41e527c23c3e39cd086a639750`
+- [PoolAddressesProvider](https://testnet-explorer.plumenetwork.xyz/address/0xA3619929d8938f575EA68C7C70B7cAee435D84C9): `0xA3619929d8938f575EA68C7C70B7cAee435D84C9`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x51AE66d95dD7795F733136aD6A922c918C48d84D): `0x51AE66d95dD7795F733136aD6A922c918C48d84D`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0xfc69FbC4087Bc9d0F13E323E2Fa2C19cb03D4473): `0xfc69FbC4087Bc9d0F13E323E2Fa2C19cb03D4473`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x46bEF0D0cb6FB24F535161Aa4dB4d023E3776009): `0x46bEF0D0cb6FB24F535161Aa4dB4d023E3776009`
 
 ##### Implementation
 
 - [Receivable](https://testnet-explorer.plumenetwork.xyz/address/0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13): `0x2ce499A1e349a0471ec7d99F64B4F6b8F7834e13`
 - [IsleGlobals](https://testnet-explorer.plumenetwork.xyz/address/0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00): `0x0b2BdD04D12f4Fc7d4a45100cE3dC10605b44B00`
-- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE): `0x5Fe7D1D15Ca56183481D93F36c0467BFAaec48AE`
-- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0x533522565fA7A37ddc6Df54458648FFeeDb01066): `0x533522565fA7A37ddc6Df54458648FFeeDb01066`
-- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0x196F865A118971fBb38E97798Edb2C7cF2938d2B): `0x196F865A118971fBb38E97798Edb2C7cF2938d2B`
+- [WithdrawalManager](https://testnet-explorer.plumenetwork.xyz/address/0xAB547866E27EE06A6Cd038DFb1b2c26eD4bE27C4): `0xAB547866E27EE06A6Cd038DFb1b2c26eD4bE27C4`
+- [LoanManager](https://testnet-explorer.plumenetwork.xyz/address/0xc30cbf90EB98091387681bC7B3438aEF08DfA3CE): `0xc30cbf90EB98091387681bC7B3438aEF08DfA3CE`
+- [PoolConfigurator](https://testnet-explorer.plumenetwork.xyz/address/0xf9EF7D9f9cE186b99499b3b8BBB0391042406AC4): `0xf9EF7D9f9cE186b99499b3b8BBB0391042406AC4`
 
 ### Verify contracts
 
