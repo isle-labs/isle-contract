@@ -50,7 +50,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         if (asset_ == address(0)) {
             revert Errors.LoanManager_AssetZeroAddress();
         }
-        emit LoanManagerInitialized({ poolAddressesProvider_: address(ADDRESSES_PROVIDER), asset_: asset = asset_ });
+        emit Initialized({ poolAddressesProvider_: address(ADDRESSES_PROVIDER), asset_: asset = asset_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

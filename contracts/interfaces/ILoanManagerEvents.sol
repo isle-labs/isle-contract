@@ -5,7 +5,7 @@ interface ILoanManagerEvents {
     /// @notice Emitted when the loan manager is initialized.
     /// @param poolAddressesProvider_ The address of the pool addresses provider
     /// @param asset_ The address of the asset set
-    event LoanManagerInitialized(address poolAddressesProvider_, address asset_);
+    event Initialized(address poolAddressesProvider_, address asset_);
 
     /// @notice Emitted when the accounting state is updated.
     /// @param issuanceRate_ The updated issuance rate.

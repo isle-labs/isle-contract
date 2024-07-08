@@ -50,7 +50,7 @@ abstract contract Events {
     event AssetBurned(uint256 indexed tokenId_);
 
     // LoanManager events
-    event LoanManagerInitialized(address poolAddressesProvider_, address asset_);
+    event Initialized(address poolAddressesProvider_, address asset_);
 
     event LoanRequested(uint16 indexed loanId_);
 
