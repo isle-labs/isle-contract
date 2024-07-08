@@ -40,7 +40,7 @@ contract DeployPool is BaseScript {
 
     function deployPoolAddressesProvider(IsleGlobals globals_)
         internal
-        broadcast(deployer)
+        broadcast(governor)
         returns (PoolAddressesProvider poolAddressesProvider_)
     {
         poolAddressesProvider_ = new PoolAddressesProvider("ChargeSmith", globals_);
@@ -84,8 +84,7 @@ contract DeployPool is BaseScript {
     {
         address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
 
-        bytes memory params_ =
-            abi.encodeWithSelector(LoanManager.initialize.selector, address(poolAddressesProvider_), asset_);
+        bytes memory params_ = abi.encodeWithSelector(LoanManager.initialize.selector, asset_);
 
         poolAddressesProvider_.setLoanManagerImpl(address(loanManagerImpl_), params_);
         loanManager_ = poolAddressesProvider_.getLoanManager();
