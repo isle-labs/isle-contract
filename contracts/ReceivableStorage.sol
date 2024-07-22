@@ -4,7 +4,6 @@ pragma solidity 0.8.19;
 import { Receivable } from "./libraries/types/DataTypes.sol";
 
 contract ReceivableStorage {
-    address public isleGlobals;
     uint256 internal _tokenIdCounter;
 
     // The mapping of the token id to the receivable info

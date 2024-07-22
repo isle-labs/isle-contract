@@ -31,7 +31,7 @@ contract Initialize_LoanManager_Unit_Concrete_Test is LoanManager_Unit_Shared_Te
 
     function test_initialize() external whenAssetNotZeroAddress {
         vm.expectEmit(true, true, true, true);
-        emit LoanManagerInitialized({ poolAddressesProvider_: address(poolAddressesProvider), asset_: address(usdc) });
+        emit Initialized({ poolAddressesProvider_: address(poolAddressesProvider), asset_: address(usdc) });
         deployLoanManager(poolAddressesProvider, address(usdc));
     }
 
