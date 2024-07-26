@@ -4,7 +4,7 @@
 
 [gha]: https://github.com/bsostech/isle/actions
 [gha-badge]: https://github.com/bsostech/isle/actions/workflows/ci.yml/badge.svg
-[codecov]: https://codecov.io/gh/bsostech/isle
+[codecov]: https://app.codecov.io/github/isle-labs/isle-contract
 [codecov-badge]: https://codecov.io/gh/bsostech/isle/graph/badge.svg?token=MZCPLVNMTH
 [foundry]: https://getfoundry.sh/
 [foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFDB1C.svg
