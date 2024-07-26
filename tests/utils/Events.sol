@@ -125,7 +125,6 @@ abstract contract Events {
     );
 
     // PoolAddressesProvider Events
-
     event AddressSet(bytes32 indexed id, address indexed oldAddress, address indexed newAddress);
 
     event AddressSetAsProxy(
@@ -142,4 +141,7 @@ abstract contract Events {
     event WithdrawalManagerUpdated(address indexed oldAddress, address indexed newAddress);
 
     event IsleGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
+
+    // Governable Events
+    event TransferGovernor(address indexed oldGovernor, address indexed newGovernor);
 }
