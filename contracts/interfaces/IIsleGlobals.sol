@@ -5,15 +5,15 @@ import { IGovernable } from "./IGovernable.sol";
 import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 
 /// @title IIsleGlobals
-/// @notice Interface for the IsleGlobals contract
-/// @notice This interface provides functions to manage the global configurations of the Isle Protocol
+/// @notice Interface for the IsleGlobals contract.
+/// @notice This interface provides functions to manage the global configurations of the Isle Protocol.
 interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /*//////////////////////////////////////////////////////////////////////////
                             INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Initializes the contract
-    /// @param governor_ The address of the governor
+    /// @notice Initializes the contract.
+    /// @param governor_ The address of the governor.
     function initialize(address governor_) external;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -28,20 +28,20 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @param protocolPaused_ A boolean indicating the status of the protocol pause.
     function setProtocolPaused(bool protocolPaused_) external;
 
-    /// @notice Pause or unpause a specific contract
-    /// @param contract_ The address of the contract to set the pause status for
-    /// @param contractPaused_ A boolean indicating the pause status of the contract
+    /// @notice Pause or unpause a specific contract.
+    /// @param contract_ The address of the contract to set the pause status for.
+    /// @param contractPaused_ A boolean indicating the pause status of the contract.
     function setContractPaused(address contract_, bool contractPaused_) external;
 
-    /// @notice Unpause or ununpause (xD) a specific function in a contract
-    /// @notice Normally used to unpause specific functions when a contract is paused
-    /// @param contract_ The address of the contract
-    /// @param sig_ The function signature
-    /// @param functionUnpaused_ A boolean indicating whether the function is unpaused
+    /// @notice Unpause or ununpause (xD) a specific function in a contract.
+    /// @notice Normally used to unpause specific functions when a contract is paused.
+    /// @param contract_ The address of the contract.
+    /// @param sig_ The function signature.
+    /// @param functionUnpaused_ A boolean indicating whether the function is unpaused.
     function setFunctionUnpaused(address contract_, bytes4 sig_, bool functionUnpaused_) external;
 
-    /// @notice Sets the protocol fee
-    /// @param protocolFee_ A uint24 indicating the protocol fee (100.0000% = 1e6 (6 decimal precision))
+    /// @notice Sets the protocol fee.
+    /// @param protocolFee_ A uint24 indicating the protocol fee (100.0000% = 1e6 (6 decimal precision)).
     function setProtocolFee(uint24 protocolFee_) external;
 
     /// @notice Sets the validity of a receivable asset (should match ERC-721).
@@ -63,8 +63,8 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
                         EXTERNAL STORAGE FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Returns the protocol fee
-    /// @return protocolFee_ A uint24 indicating the protocol fee
+    /// @notice Returns the protocol fee.
+    /// @return protocolFee_ A uint24 indicating the protocol fee.
     function protocolFee() external view returns (uint24 protocolFee_);
 
     /// @notice Gets isle vault address.
@@ -75,20 +75,20 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @return protocolPaused_ A boolean indicating whether the protocol is paused.
     function protocolPaused() external view returns (bool protocolPaused_);
 
-    /// @notice Returns the pause status of a specific contract
-    /// @param contract_ The address of the contract to check
-    /// @return contractPaused_ A boolean indicating whether a contract is paused
+    /// @notice Returns the pause status of a specific contract.
+    /// @param contract_ The address of the contract to check.
+    /// @return contractPaused_ A boolean indicating whether a contract is paused.
     function isContractPaused(address contract_) external view returns (bool contractPaused_);
 
-    /// @notice Returns the unpause status of a specific function in a contract
-    /// @param contract_ The address of the contract
-    /// @param sig_ The function signature
-    /// @return functionUnpaused_ A boolean indicating whether the function is unpaused
+    /// @notice Returns the unpause status of a specific function in a contract.
+    /// @param contract_ The address of the contract.
+    /// @param sig_ The function signature.
+    /// @return functionUnpaused_ A boolean indicating whether the function is unpaused.
     function isFunctionUnpaused(address contract_, bytes4 sig_) external view returns (bool functionUnpaused_);
 
-    /// @notice Returns if the account is a valid poolAdmin
-    /// @param account_ The address of the account to check
-    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin
+    /// @notice Returns if the account is a valid poolAdmin.
+    /// @param account_ The address of the account to check.
+    /// @return isPoolAdmin_ Whether the account is a valid poolAdmin.
     function isPoolAdmin(address account_) external view returns (bool isPoolAdmin_);
 
     /// @notice Gets the validity of a receivable asset.
@@ -105,14 +105,14 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
                         EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice Returns the pause status of a specific function in a contract
-    /// @param contract_ The address of the contract
-    /// @param sig_ The function signature
-    /// @return isFunctionPaused_ A boolean indicating the pause status of the function
+    /// @notice Returns the pause status of a specific function in a contract.
+    /// @param contract_ The address of the contract.
+    /// @param sig_ The function signature.
+    /// @return isFunctionPaused_ A boolean indicating the pause status of the function.
     function isFunctionPaused(address contract_, bytes4 sig_) external view returns (bool isFunctionPaused_);
 
-    /// @notice Returns the pause status of a specific function in the caller contract
-    /// @param sig_ The function signature
-    /// @return isFunctionPaused_ A boolean indicating the pause status of the function
+    /// @notice Returns the pause status of a specific function in the caller contract.
+    /// @param sig_ The function signature.
+    /// @return isFunctionPaused_ A boolean indicating the pause status of the function.
     function isFunctionPaused(bytes4 sig_) external view returns (bool isFunctionPaused_);
 }
