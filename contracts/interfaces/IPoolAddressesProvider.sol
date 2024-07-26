@@ -53,22 +53,21 @@ interface IPoolAddressesProvider {
         address indexed newImplementationAddress
     );
 
-    // TODO: Remove Aave description
-    /// @notice Returns the id of the Aave market to which this contract points to.
+    /// @notice Returns the id of the Isle market to which this contract points to.
     /// @return The market id
     function getMarketId() external view returns (string memory);
 
-    // TODO: Remove Aave description
     /// @notice Associates an id with a specific PoolAddressesProvider.
     /// @dev This can be used to create an onchain registry of PoolAddressesProviders to
-    /// identify and validate multiple Aave markets.
+    /// identify and validate multiple Isle markets.
     /// @param newMarketId The market id
     function setMarketId(string calldata newMarketId) external;
 
     /// @notice Returns an address by its identifier.
-    /// @dev The returned address is either the global contract or the pool-side contract, potentially proxied
+    /// @dev The returned address should be the proxy of POOL_CONFIGURATOR, LOAN_MANAGER, WITHDRAWAL_MANAGER, or
+    /// ISLE_GLOBALS
     /// @dev It returns ZERO if there is no registered address with the given id
-    /// @param id The id
+    /// @param id The id of the contract to return
     /// @return The address of the registered for the specified id
     function getAddress(bytes32 id) external view returns (address);
 
@@ -77,8 +76,8 @@ interface IPoolAddressesProvider {
     /// set as implementation the `newImplementationAddress`.
     /// @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit
     /// setter function, in order to avoid unexpected consequences
-    /// @dev The id can only be POOL_CONFIGURATOR, LOAN_MANAGER, WITHDRAWAL_MANAGER, or ISLE_GLOBALS.
-    /// @param id The id
+    /// @dev The id should only be POOL_CONFIGURATOR, LOAN_MANAGER, WITHDRAWAL_MANAGER, or ISLE_GLOBALS.
+    /// @param id The id of the contract to update
     /// @param newImplementationAddress The address of the new implementation
     /// @param params The intialization parameters for the proxied contract
     function setAddressAsProxy(bytes32 id, address newImplementationAddress, bytes calldata params) external;
