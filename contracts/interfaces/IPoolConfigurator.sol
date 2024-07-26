@@ -122,7 +122,7 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     function maxCoverLiquidation() external view returns (uint24 maxCoverLiquidation_);
 
     /// @notice Returns the min cover required for the pool configurator.
-    /// @return minCover_ The min cover required for the pool admin.
+    /// @return minCover_ The min cover required for the pool configurator.
     function minCover() external view returns (uint104 minCover_);
 
     /// @notice Returns the pool limit of the pool configurator

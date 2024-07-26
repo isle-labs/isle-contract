@@ -13,11 +13,11 @@ interface IReceivable is IGovernable, IReceivableEvent {
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @param initialAdmin_ The address of the admin
-    function initialize(address initialAdmin_) external;
+    /// @dev Initializes the Receivable
+    /// @param initialGovernor_ The address of the governor
+    function initialize(address initialGovernor_) external;
 
     /// @dev Mint a new receivable
-    /// @notice Only the buyer can call this function
     /// @notice The event faceAmount is converted to decimal with 6 decimals
     /// @param create_ The struct containing the information of the receivable to be created
     /// @return tokenId_ The id of the newly created receivable
@@ -28,5 +28,7 @@ interface IReceivable is IGovernable, IReceivableEvent {
     /// @return info_ The struct containing the information of the receivable
     function getReceivableInfoById(uint256 tokenId_) external view returns (Receivable.Info memory info_);
 
+    /// @dev Burn a receivable
+    /// @param tokenId_ The id of the receivable
     function burnReceivable(uint256 tokenId_) external;
 }

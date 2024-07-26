@@ -74,6 +74,7 @@ contract Receivable is
         info_ = idToReceivableInfo[tokenId_];
     }
 
+    /// @inheritdoc IReceivable
     function burnReceivable(uint256 tokenId_) external {
         ERC721BurnableUpgradeable.burn(tokenId_);
         emit AssetBurned(tokenId_);

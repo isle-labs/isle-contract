@@ -7,6 +7,7 @@ pragma solidity ^0.8.19;
 
 interface IWithdrawalManagerStorage {
     /// @notice Gets the id of the latest config
+    /// @return configId_ The id of the latest config
     function latestConfigId() external view returns (uint256 configId_);
 
     /// @notice Gets the exit cycle id of an account

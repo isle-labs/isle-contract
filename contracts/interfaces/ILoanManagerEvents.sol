@@ -7,11 +7,6 @@ interface ILoanManagerEvents {
     /// @param asset_ The address of the asset set
     event Initialized(address poolAddressesProvider_, address asset_);
 
-    /// @notice Emitted when the accounting state is updated.
-    /// @param issuanceRate_ The updated issuance rate.
-    /// @param accountedInterest_ The updated accounted interest.
-    event AccountingStateUpdated(uint256 issuanceRate_, uint112 accountedInterest_);
-
     /*//////////////////////////////////////////////////////////////////////////
                                 POOL ADMIN
     //////////////////////////////////////////////////////////////////////////*/

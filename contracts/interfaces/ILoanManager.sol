@@ -22,7 +22,7 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @return loan_ Struct that contains the info of the loan
     function getLoanInfo(uint16 loanId_) external view returns (Loan.Info memory loan_);
 
-    /// @notice Gets the amounf of interest up until this point in time
+    /// @notice Gets the amount of interest up until this point in time
     /// @return accruedInterest_ The amount of accrued interest up until this point in time
     function accruedInterest() external view returns (uint256 accruedInterest_);
 

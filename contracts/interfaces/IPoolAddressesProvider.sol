@@ -53,10 +53,12 @@ interface IPoolAddressesProvider {
         address indexed newImplementationAddress
     );
 
+    // TODO: Remove Aave description
     /// @notice Returns the id of the Aave market to which this contract points to.
     /// @return The market id
     function getMarketId() external view returns (string memory);
 
+    // TODO: Remove Aave description
     /// @notice Associates an id with a specific PoolAddressesProvider.
     /// @dev This can be used to create an onchain registry of PoolAddressesProviders to
     /// identify and validate multiple Aave markets.
@@ -64,7 +66,7 @@ interface IPoolAddressesProvider {
     function setMarketId(string calldata newMarketId) external;
 
     /// @notice Returns an address by its identifier.
-    /// @dev The returned address might be an EOA or a contract, potentially proxied
+    /// @dev The returned address is either the global contract or the pool-side contract, potentially proxied
     /// @dev It returns ZERO if there is no registered address with the given id
     /// @param id The id
     /// @return The address of the registered for the specified id
@@ -75,6 +77,7 @@ interface IPoolAddressesProvider {
     /// set as implementation the `newImplementationAddress`.
     /// @dev IMPORTANT Use this function carefully, only for ids that don't have an explicit
     /// setter function, in order to avoid unexpected consequences
+    /// @dev The id can only be POOL_CONFIGURATOR, LOAN_MANAGER, WITHDRAWAL_MANAGER, or ISLE_GLOBALS.
     /// @param id The id
     /// @param newImplementationAddress The address of the new implementation
     /// @param params The intialization parameters for the proxied contract
@@ -82,6 +85,7 @@ interface IPoolAddressesProvider {
 
     /// @notice Sets an address for an id replacing the address saved in the addresses map.
     /// @dev IMPORTANT Use this function carefully, as it will do a hard replacement
+    /// @dev The id can only be POOL_CONFIGURATOR, LOAN_MANAGER, WITHDRAWAL_MANAGER, or ISLE_GLOBALS.
     /// @param id The id
     /// @param newAddress The address to set
     function setAddress(bytes32 id, address newAddress) external;
@@ -93,6 +97,7 @@ interface IPoolAddressesProvider {
     /// @notice Updates the implementation of the PoolConfigurator, or creates a proxy
     /// setting the new `PoolConfigurator` implementation when the function is called for the first time.
     /// @param newPoolConfiguratorImpl The new PoolConfigurator implementation
+    /// @param params The initialization parameters for pool configurator
     function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, bytes calldata params) external;
 
     /// @notice Returns the address of the LoanManager proxy.

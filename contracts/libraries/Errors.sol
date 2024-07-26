@@ -74,38 +74,19 @@ library Errors {
                                 POOL ADDRESSES PROVIDER
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when IsleGlobals is set to 0
     error PoolAddressesProvider_InvalidGlobals(address globals);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 ISLE GLOBALS
     //////////////////////////////////////////////////////////////////////////*/
 
-    error Globals_CallerNotPoolConfigurator(address poolConfigurator, address caller);
-
-    error Globals_ToInvalidPoolAdmin(address poolAdmin);
-
-    error Globals_ToInvalidPoolConfigurator(address poolConfigurator);
-
-    error Globals_AdminZeroAddress();
-
-    error Globals_CallerNotPendingGovernor(address pendingGovernor, address caller);
-
+    /// @notice Thrown when vault is set to 0
     error Globals_InvalidVault(address vault);
-
-    error Globals_InvalidReceivable(address receivable);
-
-    error Globals_RiskFreeRateGreaterThanOne(uint256 riskFreeRate);
-
-    error Globals_MinPoolLiquidityRatioGreaterThanOne(uint256 minPoolLiquidityRatio);
-
-    error Globals_protocolFeeGreaterThanOne(uint256 protocolFee);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 LOAN MANAGER
     //////////////////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when `msg.sender` is not the buyer.
-    error LoanManager_CallerNotBuyer(address expectedBuyer_);
 
     /// @notice Thrown when `msg.sender` is not the seller.
     error LoanManager_CallerNotSeller(address expectedSeller_);
@@ -132,24 +113,17 @@ library Errors {
     /// @notice Thrown when the loan is past due date
     error LoanManager_PastDueDate(uint16 loanId_, uint256 dueDate_, uint256 currentTimestamp_);
 
+    /// @notice Thrown when the receivable asset is not allowed
     error LoanManager_ReceivableAssetNotAllowed(address receivableAsset_);
 
+    /// @notice Thrown when current time is not past due date plus grace period
     error LoanManager_NotPastDueDatePlusGracePeriod(uint16 loanId_);
 
+    /// @notice Thrown when `msg.sender` is not the buyer.
     error LoanManager_CallerNotReceivableBuyer(address expectedBuyer_);
 
     /// @notice Thrown when an asset address is set to 0 for a loan manager
     error LoanManager_AssetZeroAddress();
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                Receivable
-    //////////////////////////////////////////////////////////////////////////*/
-
-    error Receivable_CallerNotBuyer(address caller);
-
-    error Receivable_CallerNotGovernor(address governor, address caller);
-
-    error Receivable_InvalidGlobals(address globals);
 
     /*//////////////////////////////////////////////////////////////////////////
                                 Withdrawal Manager
@@ -183,21 +157,30 @@ library Errors {
                                     Pool
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @notice Thrown when an asset address is 0
     error Pool_ZeroAsset();
 
+    /// @notice Thrown when pool configurator address is set to 0
     error Pool_ZeroConfigurator();
 
+    /// @notice Thrown when the asset fails to approve the pool configurator with max amount
     error Pool_FailedApprove();
 
+    /// @notice Thrown when the receiver address is 0
     error Pool_RecipientZeroAddress();
 
+    /// @notice Thrown when the deposit amount is greater than the max deposit
     error Pool_DepositGreaterThanMax(uint256 assets, uint256 maxDeposit);
 
+    /// @notice Thrown when the mint amount is greater than the max mint
     error Pool_MintGreaterThanMax(uint256 shares, uint256 maxMint);
 
+    /// @notice Thrown when the assets is greater than the max amount to deposit
     error Pool_InsufficientPermit(uint256 assets, uint256 permits);
 
+    /// @notice Thrown when the redeem shares is greater than the max redeem amount
     error Pool_RedeemMoreThanMax(uint256 shares, uint256 maxRedeem);
 
+    /// @notice Thrown when anyone calls the `previewWithdraw` function
     error Pool_WithdrawalNotImplemented();
 }

@@ -6,7 +6,7 @@ interface IPoolConfiguratorStorage {
     /// @return admin_ The address of the pool admin
     function admin() external view returns (address admin_);
 
-    /// @notice Retrieves the ERC20 asset used for the poo
+    /// @notice Retrieves the ERC20 asset used for the pool
     /// @return asset_ The address of the asset
     function asset() external view returns (address asset_);
 

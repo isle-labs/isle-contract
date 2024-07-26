@@ -5,6 +5,7 @@ out
 docs
 .history
 artifacts
+.vscode/**/*
 
 # files
 *.tmp

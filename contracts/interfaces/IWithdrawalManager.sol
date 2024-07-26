@@ -80,6 +80,10 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     function removeShares(uint256 shares_, address owner_) external returns (uint256 sharesReturned_);
 
     /// @notice Process the exit of requested shares of a owner
+    /// @param requestedShares_  The amount of shares to redeem
+    /// @param owner_  The owner of the shares
+    /// @return redeemableShares_ The amount of redeemable shares
+    /// @return resultingAssets_ The corresponding amount of assets with the redeemable shares
     function processExit(
         uint256 requestedShares_,
         address owner_

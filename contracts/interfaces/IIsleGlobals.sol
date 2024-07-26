@@ -20,7 +20,7 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
                         EXTERNAL NON-CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @notice   Sets the address of the Isle vault.
+    /// @notice Sets the address of the Isle vault.
     /// @param isleVault_ The address of the Isle vault.
     function setIsleVault(address isleVault_) external;
 
