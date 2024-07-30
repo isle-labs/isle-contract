@@ -14,10 +14,47 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         _principal = defaults.PRINCIPAL_REQUESTED();
     }
 
-    function test_requestFunds() external whenCoverIsSufficient {
-        changePrank(address(loanManager));
+    function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
+        changePrank(users.governor);
+        isleGlobals.setProtocolPaused(true);
+        expectPoolConfiguratorPauseRevert();
+    }
 
+    function test_RevertWhen__PoolConfiguratorPaused_ContractPaused() external {
+        changePrank(users.governor);
+        isleGlobals.setContractPaused(address(poolConfigurator), true);
+        expectPoolConfiguratorPauseRevert();
+    }
+
+    function test_RevertWhen__PoolConfiguratorPaused_FunctionPaused() external {
+        changePrank(users.governor);
+        isleGlobals.setContractPaused(address(poolConfigurator), true);
+        isleGlobals.setFunctionUnpaused(address(poolConfigurator), bytes4(keccak256("requestFunds(uint256)")), false);
+        expectPoolConfiguratorPauseRevert();
+    }
+
+    function test_RevertWhen_CallerNotLoanManager() external whenFunctionNotPause {
+        changePrank(users.eve);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.PoolConfigurator_CallerNotLoanManager.selector, address(loanManager), users.eve
+            )
+        );
+        poolConfigurator.requestFunds({ principal_: _principal });
+    }
+
+    function test_RevertWhen_InsufficientCover() external whenFunctionNotPause whenCallerLoanManager {
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InsufficientCover.selector));
+        poolConfigurator.requestFunds({ principal_: _principal });
+    }
+
+    function test_requestFunds() external whenCoverIsSufficient whenFunctionNotPause whenCallerLoanManager {
         expectCallToTransferFrom({ from: address(pool), to: address(loanManager), amount: _principal });
+        poolConfigurator.requestFunds({ principal_: _principal });
+    }
+
+    function expectPoolConfiguratorPauseRevert() private {
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
