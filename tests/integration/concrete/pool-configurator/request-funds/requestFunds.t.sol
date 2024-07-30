@@ -20,13 +20,13 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         expectPoolConfiguratorPauseRevert();
     }
 
-    function test_RevertWhen__PoolConfiguratorPaused_ContractPaused() external {
+    function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
         changePrank(users.governor);
         isleGlobals.setContractPaused(address(poolConfigurator), true);
         expectPoolConfiguratorPauseRevert();
     }
 
-    function test_RevertWhen__PoolConfiguratorPaused_FunctionPaused() external {
+    function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         changePrank(users.governor);
         isleGlobals.setContractPaused(address(poolConfigurator), true);
         isleGlobals.setFunctionUnpaused(address(poolConfigurator), bytes4(keccak256("requestFunds(uint256)")), false);
