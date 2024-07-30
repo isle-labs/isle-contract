@@ -55,8 +55,4 @@ contract RequestRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
         poolConfigurator.requestRedeem(_redeemShares, users.receiver, users.receiver);
     }
-
-    modifier whenAllowance() {
-        _;
-    }
 }

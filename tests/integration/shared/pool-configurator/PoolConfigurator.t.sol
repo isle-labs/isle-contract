@@ -52,6 +52,10 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         _;
     }
 
+    modifier whenAllowance() {
+        _;
+    }
+
     function requestDefaultRedeem() internal {
         changePrank({ msgSender: users.receiver });
         pool.transfer({ to: address(poolConfigurator), amount: _params.redeemShares });
