@@ -62,4 +62,20 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
     function removeDefaultShares() internal returns (uint256 sharesRemoved_) {
         sharesRemoved_ = poolConfigurator.removeShares({ shares_: _params.removeShares, owner_: users.receiver });
     }
+
+    function pauseProtoco() internal {
+        changePrank(users.governor);
+        isleGlobals.setProtocolPaused(true);
+    }
+
+    function pauseContract() internal {
+        changePrank(users.governor);
+        isleGlobals.setContractPaused(address(poolConfigurator), true);
+    }
+
+    function pauseFunction(bytes4 sig_) internal {
+        changePrank(users.governor);
+        isleGlobals.setContractPaused(address(poolConfigurator), true);
+        isleGlobals.setFunctionUnpaused(address(poolConfigurator), sig_, false);
+    }
 }
