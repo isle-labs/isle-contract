@@ -8,6 +8,10 @@ contract isInExitWindow_Integration_Concrete_Test is WithdrawalManager_Integrati
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
+    function test_NoExitCycleId() external {
+        assertFalse(withdrawalManager.isInExitWindow(users.receiver));
+    }
+
     function test_isInExitWindow() public {
         uint256 addShares_ = defaults.ADD_SHARES();
         withdrawalManager.addShares({ shares_: addShares_, owner_: users.receiver });
