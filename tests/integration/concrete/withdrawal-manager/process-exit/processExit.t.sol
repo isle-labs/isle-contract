@@ -10,14 +10,6 @@ contract processExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         _;
     }
 
-    modifier validRequestShares() {
-        _;
-    }
-
-    modifier inTheWindow() {
-        _;
-    }
-
     function setUp() public virtual override(WithdrawalManager_Integration_Shared_Test) {
         WithdrawalManager_Integration_Shared_Test.setUp();
     }

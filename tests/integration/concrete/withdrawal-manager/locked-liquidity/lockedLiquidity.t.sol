@@ -11,7 +11,7 @@ contract lockedLiquidity_Integration_Concrete_Test is WithdrawalManager_Integrat
     function test_LockedLiquidity_NotInTheWindow() public {
         uint256 expectedLockedLiquidity_ = 0;
         uint256 actualLockedLiquidity_ = withdrawalManager.lockedLiquidity();
-        
+
         assertEq(actualLockedLiquidity_, expectedLockedLiquidity_);
     }
 
