@@ -1,0 +1,20 @@
+processExit.t.sol
+├── when caller is not PoolConfigurator
+│  └── it should revert
+└── when the caller is PoolConfigurator
+   ├── when the locked shares of the owner is 0
+   │  └── it should revert
+   └── when the locked shares of the owner is not 0
+      ├── when the owner's requested shares is not equal to the locked shares
+      │  └── it should revert
+      └── when the owner's requested shares is equal to the locked shares
+         ├── when the current timestamp is not in the window
+         │  └── it should revert
+         └── when the current timestamp is in the window
+            ├── it should transfer redeemable shares to owner
+            ├── when the remaining shares is not 0
+            │  └── it should increase owner's exit cycle id
+            ├── when the remaining shares is 0
+            │  └── it should set owner's exit cycle id as 0
+            ├── it should emit {WithdrawalProcessed} event
+            └── it should emit {WithdrawalCancelled} event
