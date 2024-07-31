@@ -7,8 +7,8 @@ addShares.t.sol
    └── when the lockedShares is not 0 or the window is started
       ├── it should remove all existing shares from the current cycle
       ├── it should add shares to the lockedShares
-      └── when the lockedShares is 0
-         ├── it should revert
-         └── when the lockedShares is not 0
-            ├── it should transfer shares from PoolConfigurator to WithdrawalManager
-            └── it should emit {WithdrawalUpdated} event
+      ├── when the lockedShares is 0
+      │   └── it should revert
+      └── when the lockedShares is not 0
+         ├── it should transfer shares from PoolConfigurator to WithdrawalManager
+         └── it should emit {WithdrawalUpdated} event

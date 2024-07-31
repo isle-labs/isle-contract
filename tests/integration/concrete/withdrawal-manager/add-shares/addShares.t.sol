@@ -9,10 +9,6 @@ contract addShares_Integration_Concrete_Test is WithdrawalManager_Integration_Sh
     uint256 private _currentCycleId = 1;
     uint256 private _expectedExitCycleId = 3;
 
-    modifier notWithdrawalPending() {
-        _;
-    }
-
     modifier lockSharesNotZero() {
         _;
     }

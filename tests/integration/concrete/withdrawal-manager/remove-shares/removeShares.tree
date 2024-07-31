@@ -1,0 +1,11 @@
+removeShares.t.sol
+├── when the caller is not PoolConfigurator
+│  └── it should revert
+└── when the caller is PoolConfigurator
+   ├── when the window not started
+   │  └── it should revert
+   └── when the window is started
+      ├── when the request remove shares is greater than locked shares
+      │  └── it should revert
+      └── when the request remove shares is less than locked shares
+         └── it should emit {WithdrawalUpdated} event

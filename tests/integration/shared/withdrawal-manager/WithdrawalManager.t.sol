@@ -50,6 +50,10 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
         _;
     }
 
+    modifier notWithdrawalPending() {
+        _;
+    }
+
     function addDefaultShares() internal {
         withdrawalManager.addShares({ shares_: _params.addShares, owner_: users.receiver });
     }
