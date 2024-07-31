@@ -8,6 +8,13 @@ contract lockedLiquidity_Integration_Concrete_Test is WithdrawalManager_Integrat
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
+    function test_LockedLiquidity_NotInTheWindow() public {
+        uint256 expectedLockedLiquidity_ = 0;
+        uint256 actualLockedLiquidity_ = withdrawalManager.lockedLiquidity();
+        
+        assertEq(actualLockedLiquidity_, expectedLockedLiquidity_);
+    }
+
     function test_lockedLiquidity() public {
         addDefaultShares();
 
