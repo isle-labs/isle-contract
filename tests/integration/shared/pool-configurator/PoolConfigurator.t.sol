@@ -60,7 +60,7 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         changePrank({ msgSender: users.receiver });
         pool.transfer({ to: address(poolConfigurator), amount: _params.redeemShares });
         changePrank({ msgSender: address(pool) });
-        poolConfigurator.requestRedeem({ shares_: _params.redeemShares, owner_: users.receiver, sender_: users.receiver });
+        poolConfigurator.requestRedeem({ shares_: _params.redeemShares, owner_: users.receiver });
     }
 
     function removeDefaultShares() internal returns (uint256 sharesRemoved_) {

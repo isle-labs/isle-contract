@@ -82,8 +82,7 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @notice Requests to redeem shares
     /// @param shares_ The amount of shares to redeem
     /// @param owner_ The owner of the shares
-    /// @param sender_ The sender of the request
-    function requestRedeem(uint256 shares_, address owner_, address sender_) external;
+    function requestRedeem(uint256 shares_, address owner_) external;
 
     /// @notice Processes the redemption of shares for a specific owner
     /// @param shares_ The amount of shares to redeem

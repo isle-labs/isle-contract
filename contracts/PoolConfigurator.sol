@@ -198,7 +198,7 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     }
 
     /// @inheritdoc IPoolConfigurator
-    function requestRedeem(uint256 shares_, address owner_, address sender_) external override whenNotPaused onlyPool {
+    function requestRedeem(uint256 shares_, address owner_) external override whenNotPaused onlyPool {
         address pool_ = pool;
         IWithdrawalManager withdrawalManager_ = _withdrawalManager();
 

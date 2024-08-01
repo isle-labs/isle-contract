@@ -24,14 +24,14 @@ contract RequestRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
-        pauseFunction(bytes4(keccak256("requestRedeem(uint256,address,address)")));
+        pauseFunction(bytes4(keccak256("requestRedeem(uint256,address)")));
         expectPoolConfiguratorPauseRevert();
     }
 
     function test_RevertWhen_InvalidCaller() external whenFunctionNotPause {
         changePrank(users.receiver);
         vm.expectRevert(abi.encodeWithSelector(Errors.InvalidCaller.selector, users.receiver, pool));
-        poolConfigurator.requestRedeem(_redeemShares, users.receiver, users.receiver);
+        poolConfigurator.requestRedeem(_redeemShares, users.receiver);
     }
 
     function test_RequestRedeem() external whenFunctionNotPause whenCallerPool {
@@ -41,11 +41,11 @@ contract RequestRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         changePrank({ msgSender: address(pool) });
         vm.expectEmit(true, true, true, true);
         emit RedeemRequested(users.receiver, _redeemShares);
-        poolConfigurator.requestRedeem({ shares_: _redeemShares, owner_: users.receiver, sender_: users.receiver });
+        poolConfigurator.requestRedeem({ shares_: _redeemShares, owner_: users.receiver });
     }
 
     function expectPoolConfiguratorPauseRevert() private {
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
-        poolConfigurator.requestRedeem(_redeemShares, users.receiver, users.receiver);
+        poolConfigurator.requestRedeem(_redeemShares, users.receiver);
     }
 }
