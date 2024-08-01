@@ -7,7 +7,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract processExit_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
     modifier hasRequest() {
         _;
     }
