@@ -75,6 +75,12 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         _;
     }
 
+    /// @dev Can only be called by the PoolConfigurator
+    modifier onlyPoolConfigurator() {
+        _revertIfNotPoolConfigurator();
+        _;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL CONSTANT FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -429,7 +435,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         external
         override
         whenNotPaused
-        onlyPoolAdmin
+        onlyPoolConfigurator
         returns (uint256 remainingLosses_, uint256 protocolFees_)
     {
         // check if current time is past the due date plus grace period
@@ -940,6 +946,12 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     function _revertIfNotPoolAdmin() internal view {
         if (msg.sender != _poolAdmin()) {
             revert Errors.NotPoolAdmin(msg.sender);
+        }
+    }
+
+    function _revertIfNotPoolConfigurator() internal view {
+        if (msg.sender != _poolConfigurator()) {
+            revert Errors.NotPoolConfigurator(msg.sender);
         }
     }
 

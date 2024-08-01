@@ -22,7 +22,7 @@ contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         pauseContract();
         expectPoolConfiguratorPauseRevert();
     }
-    
+
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         pauseFunction(bytes4(keccak256("processRedeem(uint256,address,address)")));
         expectPoolConfiguratorPauseRevert();
