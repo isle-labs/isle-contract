@@ -15,17 +15,17 @@ contract TriggerDefault_Integration_Concrete_Test is PoolConfigurator_Integratio
 
     function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
         pauseProtoco();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.triggerDefault(1);
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
         pauseContract();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.triggerDefault(1);
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         pauseFunction(bytes4(keccak256("triggerDefault(uint16)")));
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.triggerDefault(1);
     }
 
     function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenFunctionNotPause {
@@ -49,10 +49,5 @@ contract TriggerDefault_Integration_Concrete_Test is PoolConfigurator_Integratio
         poolConfigurator.triggerDefault(1);
 
         assertEq(poolConfigurator.poolCover(), defaults.COVER_AMOUNT());
-    }
-
-    function expectPoolConfiguratorPauseRevert() private {
-        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
-        poolConfigurator.triggerDefault(1);
     }
 }

@@ -28,17 +28,17 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
 
     function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
         pauseProtoco();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.requestFunds({ principal_: _principal });
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
         pauseContract();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.requestFunds({ principal_: _principal });
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         pauseFunction(bytes4(keccak256("requestFunds(uint256)")));
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.requestFunds({ principal_: _principal });
     }
 
     function test_RevertWhen_CallerNotLoanManager() external whenFunctionNotPause {
@@ -93,12 +93,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function expectPoolConfiguratorPauseRevert() private {
-        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
-        poolConfigurator.requestFunds({ principal_: _principal });
-    }
-
-    function _drainThePool() internal {
+    function _drainThePool() private {
         changePrank(users.receiver);
         pool.requestRedeem(defaults.POOL_SHARES(), users.receiver);
         vm.warp(defaults.WINDOW_3());
@@ -110,7 +105,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
     ///      2: Create loan, the default face amount is same as default principal
     ///      3: Seller withdraw fund
     ///      4: Receiver request redeem to increase locked shares
-    function _createInsufficientLiquidityPool() internal {
+    function _createInsufficientLiquidityPool() private {
         uint256 amount_ = defaults.POOL_SHARES() - _principal;
 
         // down size the pool

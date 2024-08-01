@@ -15,17 +15,17 @@ contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
 
     function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
         pauseProtoco();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
         pauseContract();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         pauseFunction(bytes4(keccak256("processRedeem(uint256,address,address)")));
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
     function test_RevertWhen_InvalidCaller() external whenFunctionNotPause {
@@ -63,10 +63,5 @@ contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
 
         assertEq(actualResultingAssets_, expectedResultingAssets_);
         assertEq(actualRedeemableShares_, expectedRedeemableShares_);
-    }
-
-    function expectPoolConfiguratorPauseRevert() private {
-        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
-        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 }

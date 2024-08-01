@@ -21,17 +21,17 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
 
     function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
         pauseProtoco();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
         pauseContract();
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
         pauseFunction(bytes4(keccak256("withdrawCover(uint256,address)")));
-        expectPoolConfiguratorPauseRevert();
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
     function test_RevertWhen_CallerNotPoolAdmin() external whenFunctionNotPause {
@@ -56,10 +56,5 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
 
         assertEq(poolConfigurator.poolCover(), _coverAmount - _withdrawAmount);
-    }
-
-    function expectPoolConfiguratorPauseRevert() private {
-        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
-        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 }

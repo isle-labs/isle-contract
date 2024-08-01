@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { Errors } from "contracts/libraries/Errors.sol";
+
 import { Integration_Test } from "../../Integration.t.sol";
 
 abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
@@ -56,6 +58,11 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         _;
     }
 
+    modifier expectPoolConfiguratorPauseRevert() {
+        _;
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
+    }
+
     function requestDefaultRedeem() internal {
         changePrank({ msgSender: users.receiver });
         pool.transfer({ to: address(poolConfigurator), amount: _params.redeemShares });
@@ -67,17 +74,17 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         sharesRemoved_ = poolConfigurator.removeShares({ shares_: _params.removeShares, owner_: users.receiver });
     }
 
-    function pauseProtoco() internal {
+    function pauseProtoco() internal expectPoolConfiguratorPauseRevert {
         changePrank(users.governor);
         isleGlobals.setProtocolPaused(true);
     }
 
-    function pauseContract() internal {
+    function pauseContract() internal expectPoolConfiguratorPauseRevert {
         changePrank(users.governor);
         isleGlobals.setContractPaused(address(poolConfigurator), true);
     }
 
-    function pauseFunction(bytes4 sig_) internal {
+    function pauseFunction(bytes4 sig_) internal expectPoolConfiguratorPauseRevert {
         changePrank(users.governor);
         isleGlobals.setContractPaused(address(poolConfigurator), true);
         isleGlobals.setFunctionUnpaused(address(poolConfigurator), sig_, false);
