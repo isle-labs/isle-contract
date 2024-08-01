@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
+import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
 import { Errors } from "contracts/libraries/Errors.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
@@ -79,5 +81,53 @@ contract processExit_Integration_Concrete_Test is WithdrawalManager_Integration_
 
         assertEq(actualRedeemableShares_, expectedRedeemableShares_);
         assertEq(actualResultingAssets_, expectedResultingAssets_);
+    }
+
+    function test_processExit_PartialLiquidity()
+        public
+        whenCallerPoolConfigurator
+        hasRequest
+        validRequestShares
+        inTheWindow
+    {
+        uint256 principal_ = defaults.PRINCIPAL_REQUESTED();
+        _createPartialLiquidityPool(principal_);
+
+        // process exit
+        changePrank({ msgSender: address(poolConfigurator) });
+        (uint256 actualRedeemableShares_,) =
+            withdrawalManager.processExit({ requestedShares_: principal_, owner_: users.receiver });
+
+        assertEq(withdrawalManager.exitCycleId(users.receiver), withdrawalManager.getCurrentCycleId() + 1);
+        assertEq(withdrawalManager.lockedShares(users.receiver), principal_ - actualRedeemableShares_);
+    }
+
+    function _createPartialLiquidityPool(uint256 principal_) private {
+        uint256 drainAmount_ = defaults.POOL_SHARES() - defaults.ADD_SHARES() - principal_;
+
+        // down size the pool
+        changePrank(users.receiver);
+        pool.requestRedeem(drainAmount_, users.receiver);
+        vm.warp(defaults.WINDOW_3());
+        pool.redeem(drainAmount_, users.receiver, users.receiver);
+
+        // deposit cover
+        changePrank(users.poolAdmin);
+        poolConfigurator.depositCover(defaults.COVER_AMOUNT());
+
+        // create loan
+        createDefaultLoan();
+
+        // seller withdraw fund
+        changePrank(users.seller);
+        IERC721(address(receivable)).approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
+        loanManager.withdrawFunds(1, address(users.seller), principal_);
+
+        // receiver request redeem
+        changePrank(users.receiver);
+        pool.requestRedeem(principal_, users.receiver);
+
+        // move to the next redeemable window
+        vm.warp(defaults.WINDOW_5());
     }
 }
