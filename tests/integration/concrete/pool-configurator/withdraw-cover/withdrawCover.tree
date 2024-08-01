@@ -1,0 +1,11 @@
+withdrawCover.t.sol
+├── when the function is paused
+│  └── it should revert
+└── when the function is not paused
+   ├── when the sender is not pool admin
+   │  └── it should revert
+   └── when the sender is pool admin
+      ├── when has no sufficient cover
+      │  └── it should revert
+      └── when has sufficient cover
+         └── it should emit {CoverWithdrawn} event

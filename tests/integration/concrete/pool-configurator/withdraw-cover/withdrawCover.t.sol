@@ -19,6 +19,36 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.depositCover(_coverAmount);
     }
 
+    function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
+        pauseProtoco();
+        expectPoolConfiguratorPauseRevert();
+    }
+
+    function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
+        pauseContract();
+        expectPoolConfiguratorPauseRevert();
+    }
+
+    function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
+        pauseFunction(bytes4(keccak256("withdrawCover(uint256,address)")));
+        expectPoolConfiguratorPauseRevert();
+    }
+
+    function test_RevertWhen_CallerNotPoolAdmin() external whenFunctionNotPause {
+        changePrank(users.eve);
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_CallerNotPoolAdmin.selector, users.eve));
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
+    }
+
+    function test_RevertWhen_InsufficientCover() external whenFunctionNotPause {
+        changePrank(users.governor);
+        poolConfigurator.setMinCover(0);
+
+        changePrank(users.poolAdmin);
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InsufficientCover.selector));
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
+    }
+
     function test_withdrawCover() external {
         expectCallToTransfer({ to: users.poolAdmin, amount: _withdrawAmount });
         vm.expectEmit({ emitter: address(poolConfigurator) });
@@ -26,5 +56,10 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
 
         assertEq(poolConfigurator.poolCover(), _coverAmount - _withdrawAmount);
+    }
+
+    function expectPoolConfiguratorPauseRevert() private {
+        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
+        poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 }
