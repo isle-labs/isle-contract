@@ -34,14 +34,7 @@ contract RequestRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.requestRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
-    function test_RevertWhen_NoAllowance() external whenFunctionNotPause whenCallerPool {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.PoolConfigurator_NoAllowance.selector, users.receiver, users.caller)
-        );
-        poolConfigurator.requestRedeem(0, users.receiver, users.caller);
-    }
-
-    function test_RequestRedeem() external whenFunctionNotPause whenCallerPool whenAllowance {
+    function test_RequestRedeem() external whenFunctionNotPause whenCallerPool {
         changePrank({ msgSender: users.receiver });
         pool.transfer({ to: address(poolConfigurator), amount: _redeemShares });
 

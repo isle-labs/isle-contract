@@ -5,11 +5,6 @@ requestRedeem.t.sol
    ├── when the sender is not pool
    │  └── it should revert
    └── when the sender is pool
-      ├── when approve shares for WithdrawalManager failed
-      │  └── it should revert
-      └── when approve shares for WithdrawalManager success
-         ├── when the sender is not owner and shares is 0
-         │  └── it should revert
-         └── when the sender is owner or shares is not 0
-            ├── it should addShares
-            └── it should emit {RedeemRequested} event
+      ├── it should addShares
+      └── it should emit {RedeemRequested} event
+            
