@@ -36,4 +36,25 @@ contract SetAddressAsProxy_PoolAddressesProvider_Unit_Concrete_Test is PoolAddre
 
         assertFalse(MockImplementation(poolAddressesProvider.getAddress(defaults.ID())).initialized());
     }
+
+    function test_SetAddressAsProxy_Upgrade() external whenCallerGovernor {
+        bytes32 id_ = defaults.ID();
+        address initialImplementation_ = address(new MockImplementation());
+
+        // Do first time setting implementation
+        poolAddressesProvider.setAddressAsProxy({ id: id_, newImplementationAddress: initialImplementation_, params: "" });
+
+        address proxy_ = poolAddressesProvider.getAddress(id_);
+        address upgradeImplementation_ = address(new MockImplementation());
+
+        vm.expectEmit({ emitter: address(poolAddressesProvider) });
+        emit AddressSetAsProxy({
+            id: id_,
+            proxyAddress: proxy_,
+            oldImplementationAddress: initialImplementation_,
+            newImplementationAddress: upgradeImplementation_
+        });
+        // Upgrade implementation
+        poolAddressesProvider.setAddressAsProxy({ id: id_, newImplementationAddress: upgradeImplementation_, params: "" });
+    }
 }

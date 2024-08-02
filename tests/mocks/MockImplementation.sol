@@ -7,4 +7,6 @@ contract MockImplementation {
     function initialize() external {
         initialized = true;
     }
+
+    fallback() external { }
 }
