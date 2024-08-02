@@ -35,7 +35,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(0);
     }
 
-    function test_RepayLoan_WhenLoanImpaired() external {
+    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused {
         createDefaultLoan();
 
         changePrank(users.poolAdmin);
@@ -48,7 +48,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenAfterDueDate() external {
+    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused {
         uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
 
         createDefaultLoan();
