@@ -50,7 +50,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
 
     function test_RepayLoan_WhenAfterDueDate() external {
         uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
-        
+
         createDefaultLoan();
 
         vm.warp(dueDate_ + 1);
