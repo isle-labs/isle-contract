@@ -5,8 +5,12 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { PoolConfigurator_Integration_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
-contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration_Shared_Test {
-    uint256 _redeemShares;
+contract ProcessRedeem_Integration_Concrete_Test is PoolConfigurator_Integration_Shared_Test {
+    uint256 private _redeemShares;
+
+    modifier whenCallerHasAllowance() {
+        _;
+    }
 
     function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
         PoolConfigurator_Integration_Shared_Test.setUp();
@@ -28,20 +32,20 @@ contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
-    function test_RevertWhen_InvalidCaller() external whenFunctionNotPause {
+    function test_RevertWhen_CallerNotPool() external whenFunctionNotPause {
         changePrank(users.receiver);
         vm.expectRevert(abi.encodeWithSelector(Errors.InvalidCaller.selector, users.receiver, pool));
         poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
     }
 
-    function test_RevertWhen_NoAllowance() external whenFunctionNotPause whenCallerPool {
+    function test_RevertWhen_CallerNoAllowance() external whenFunctionNotPause whenCallerPool {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.PoolConfigurator_NoAllowance.selector, users.receiver, users.caller)
         );
         poolConfigurator.processRedeem(_redeemShares, users.receiver, users.caller);
     }
 
-    function test_processRedeem() external whenFunctionNotPause whenCallerPool whenAllowance {
+    function test_processRedeem() external whenFunctionNotPause whenCallerPool whenCallerHasAllowance {
         uint256 expectedResultingAssets_ = defaults.REDEEM_SHARES() * defaults.POOL_ASSETS() / defaults.POOL_SHARES();
         uint256 expectedRedeemableShares_ = defaults.REDEEM_SHARES();
 

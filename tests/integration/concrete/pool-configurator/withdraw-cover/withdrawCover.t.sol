@@ -9,6 +9,10 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
     uint256 private _withdrawAmount;
     uint256 private _coverAmount;
 
+    modifier whenPoolCoverIsSufficient() {
+        _;
+    }
+
     function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
         PoolConfigurator_Integration_Shared_Test.setUp();
 
@@ -40,7 +44,7 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
-    function test_RevertWhen_InsufficientCover() external whenFunctionNotPause {
+    function test_RevertWhen_PoolCoverInsufficient() external whenFunctionNotPause whenCallerPoolAdmin {
         changePrank(users.governor);
         poolConfigurator.setMinCover(0);
 
@@ -49,7 +53,7 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
-    function test_withdrawCover() external {
+    function test_withdrawCover() external whenFunctionNotPause whenCallerPoolAdmin whenPoolCoverIsSufficient {
         expectCallToTransfer({ to: users.poolAdmin, amount: _withdrawAmount });
         vm.expectEmit({ emitter: address(poolConfigurator) });
         emit CoverWithdrawn(_withdrawAmount);

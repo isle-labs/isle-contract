@@ -20,6 +20,10 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         _;
     }
 
+    modifier whenLockedLiquidityIsSufficient() {
+        _;
+    }
+
     function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
         PoolConfigurator_Integration_Shared_Test.setUp();
 
@@ -51,15 +55,15 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function test_RevertWhen_PoolSupplyZero() external whenFunctionNotPause {
-        _drainThePool();
+    function test_RevertWhen_PoolSupplyIsZero() external whenFunctionNotPause {
+        _drainThePool(defaults.POOL_SHARES());
 
         changePrank({ msgSender: address(loanManager) });
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_PoolSupplyZero.selector));
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function test_RevertWhen_InsufficientCover()
+    function test_RevertWhen_PoolCoverInsufficient()
         external
         whenFunctionNotPause
         whenCallerLoanManager
@@ -69,13 +73,13 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function test_RevertWhen_InsufficientLiquidity()
+    function test_RevertWhen_LockedLiquidityInsufficient()
         external
         whenFunctionNotPause
         whenCoverIsSufficient
         whenPoolSupplyIsSufficient
     {
-        _createInsufficientLiquidityPool();
+        _createInsufficientLockedLiquidity();
 
         changePrank({ msgSender: address(loanManager) });
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_InsufficientLiquidity.selector));
@@ -88,31 +92,29 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         whenFunctionNotPause
         whenCallerLoanManager
         whenPoolSupplyIsSufficient
+        whenLockedLiquidityIsSufficient
     {
         expectCallToTransferFrom({ from: address(pool), to: address(loanManager), amount: _principal });
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function _drainThePool() private {
+    function _drainThePool(uint256 withdrawAmount_) private {
         changePrank(users.receiver);
-        pool.requestRedeem(defaults.POOL_SHARES(), users.receiver);
+        pool.requestRedeem(withdrawAmount_, users.receiver);
         vm.warp(defaults.WINDOW_3());
-        pool.redeem(defaults.POOL_SHARES(), users.receiver, users.receiver);
+        pool.redeem(withdrawAmount_, users.receiver, users.receiver);
     }
 
-    /// @dev To create a insufficient liquidity pool
+    /// @dev To create an insufficient locked liquidity
     /// step 1: Down size the pool, make the pool supply as default principal
     ///      2: Create loan, the default face amount is same as default principal
     ///      3: Seller withdraw fund
     ///      4: Receiver request redeem to increase locked shares
-    function _createInsufficientLiquidityPool() private {
-        uint256 amount_ = defaults.POOL_SHARES() - _principal;
+    function _createInsufficientLockedLiquidity() private {
+        uint256 withdrawAmount_ = defaults.POOL_SHARES() - _principal;
 
         // down size the pool
-        changePrank(users.receiver);
-        pool.requestRedeem(amount_, users.receiver);
-        vm.warp(defaults.WINDOW_3());
-        pool.redeem(amount_, users.receiver, users.receiver);
+        _drainThePool(withdrawAmount_);
 
         // create loan
         createDefaultLoan();

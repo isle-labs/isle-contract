@@ -54,10 +54,6 @@ abstract contract PoolConfigurator_Integration_Shared_Test is Integration_Test {
         _;
     }
 
-    modifier whenAllowance() {
-        _;
-    }
-
     modifier expectPoolConfiguratorPauseRevert() {
         _;
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_Paused.selector));
