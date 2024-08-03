@@ -7,16 +7,16 @@ import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract setExitConfig_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+contract SetExitConfig_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
     modifier whenProtocolNotPaused() {
         _;
     }
 
-    modifier whenNewWindowlNotZero() {
+    modifier whenWindowlNotZero() {
         _;
     }
 
-    modifier whenNewWindowlNotGreaterThanNewCycle() {
+    modifier whenWindowlNotGreaterThanCycle() {
         _;
     }
 
@@ -31,24 +31,25 @@ contract setExitConfig_Integration_Concrete_Test is WithdrawalManager_Integratio
         setDefaultNewExitConfig();
     }
 
-    function test_RevertWhen_NotPoolAdmin() external whenProtocolNotPaused {
+    function test_RevertWhen_CallerNotPoolAdmin() external whenProtocolNotPaused {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdmin.selector, users.caller));
         setDefaultNewExitConfig();
     }
 
-    function test_RevertWhen_ZeroWindow() external whenProtocolNotPaused whenCallerPoolAdmin {
+    function test_RevertWhen_NewWindowDurationIsZero() external whenProtocolNotPaused whenCallerPoolAdmin {
         uint256 newCycleDuration_ = defaults.NEW_CYCLE_DURATION();
+        uint256 newWindowDuration_ = 0;
 
         vm.expectRevert(abi.encodeWithSelector(Errors.WithdrawalManager_ZeroWindow.selector));
-        withdrawalManager.setExitConfig({ cycleDuration_: newCycleDuration_, windowDuration_: 0 });
+        withdrawalManager.setExitConfig({ cycleDuration_: newCycleDuration_, windowDuration_: newWindowDuration_ });
     }
 
     function test_RevertWhen_WindowGreaterThanCycle()
         external
         whenProtocolNotPaused
         whenCallerPoolAdmin
-        whenNewWindowlNotZero
+        whenWindowlNotZero
     {
         uint256 newCycleDuration_ = defaults.NEW_CYCLE_DURATION();
         uint256 newWindowDuration_ = defaults.NEW_WINDOW_DURATION() + 15 days;
@@ -61,8 +62,8 @@ contract setExitConfig_Integration_Concrete_Test is WithdrawalManager_Integratio
         public
         whenProtocolNotPaused
         whenCallerPoolAdmin
-        whenNewWindowlNotZero
-        whenNewWindowlNotGreaterThanNewCycle
+        whenWindowlNotZero
+        whenWindowlNotGreaterThanCycle
     {
         WithdrawalManager.CycleConfig memory expectedLatestConfig_ = WithdrawalManager.CycleConfig({
             initialCycleId: 4,

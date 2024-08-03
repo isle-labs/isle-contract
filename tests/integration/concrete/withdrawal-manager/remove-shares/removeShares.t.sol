@@ -5,8 +5,8 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract removeShares_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
-    modifier notOverRemove() {
+contract RemoveShares_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+    modifier whenEnoughShares() {
         _;
     }
 
@@ -16,7 +16,7 @@ contract removeShares_Integration_Concrete_Test is WithdrawalManager_Integration
         addDefaultShares();
     }
 
-    function test_RevertWhen_NotPoolConfigurator() external {
+    function test_RevertWhen_CallerNotPoolConfigurator() external {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolConfigurator.selector, users.caller));
 
@@ -28,7 +28,7 @@ contract removeShares_Integration_Concrete_Test is WithdrawalManager_Integration
         removeDefaultShares();
     }
 
-    function test_RevertWhen_Overremove() external whenCallerPoolConfigurator notWithdrawalPending {
+    function test_RevertWhen_NotEnoughShares() external whenCallerPoolConfigurator whenWithdrawalNotPending {
         uint256 lockedShares_ = defaults.ADD_SHARES();
         uint256 removeShares_ = lockedShares_ + 1;
 
@@ -41,7 +41,7 @@ contract removeShares_Integration_Concrete_Test is WithdrawalManager_Integration
         withdrawalManager.removeShares({ shares_: removeShares_, owner_: users.receiver });
     }
 
-    function test_removeShares() public whenCallerPoolConfigurator notWithdrawalPending notOverRemove {
+    function test_removeShares() public whenCallerPoolConfigurator whenWithdrawalNotPending whenEnoughShares {
         uint256 addShares_ = defaults.ADD_SHARES();
         uint256 removeShares_ = defaults.REMOVE_SHARES();
 

@@ -9,7 +9,7 @@ contract addShares_Integration_Concrete_Test is WithdrawalManager_Integration_Sh
     uint256 private _currentCycleId = 1;
     uint256 private _expectedExitCycleId = 3;
 
-    modifier lockSharesNotZero() {
+    modifier whenLockedSharesNotZero() {
         _;
     }
 
@@ -19,7 +19,7 @@ contract addShares_Integration_Concrete_Test is WithdrawalManager_Integration_Sh
         changePrank(address(poolConfigurator));
     }
 
-    function test_RevertWhen_NotPoolConfigurator() external {
+    function test_RevertWhen_CallerNotPoolConfigurator() external {
         changePrank(users.caller);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolConfigurator.selector, users.caller));
         addDefaultShares();
@@ -32,12 +32,12 @@ contract addShares_Integration_Concrete_Test is WithdrawalManager_Integration_Sh
         addDefaultShares();
     }
 
-    function test_RevertWhen_NoOp() external whenCallerPoolConfigurator notWithdrawalPending {
+    function test_RevertWhen_LockedSharesIsZero() external whenCallerPoolConfigurator whenWithdrawalNotPending {
         vm.expectRevert(abi.encodeWithSelector(Errors.WithdrawalManager_NoOp.selector, users.receiver));
         withdrawalManager.addShares({ shares_: 0, owner_: users.receiver });
     }
 
-    function test_addShares() public whenCallerPoolConfigurator notWithdrawalPending lockSharesNotZero {
+    function test_addShares() public whenCallerPoolConfigurator whenWithdrawalNotPending whenLockedSharesNotZero {
         uint256 addShares_ = defaults.ADD_SHARES();
         (uint64 windowStart_, uint64 windowEnd_) = withdrawalManager.getWindowAtId(_expectedExitCycleId);
 

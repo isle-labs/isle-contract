@@ -3,19 +3,22 @@ pragma solidity ^0.8.19;
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract isInExitWindow_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+contract IsInExitWindow_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+    modifier whenHasWithdrawalRequest() {
+        uint256 addShares_ = defaults.ADD_SHARES();
+        withdrawalManager.addShares({ shares_: addShares_, owner_: users.receiver });
+        _;
+    }
+
     function setUp() public virtual override(WithdrawalManager_Integration_Shared_Test) {
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_NoExitCycleId() external {
+    function test_WhenNoWithdrawalRequest() external {
         assertFalse(withdrawalManager.isInExitWindow(users.receiver));
     }
 
-    function test_isInExitWindow() public {
-        uint256 addShares_ = defaults.ADD_SHARES();
-        withdrawalManager.addShares({ shares_: addShares_, owner_: users.receiver });
-
+    function test_isInExitWindow() public whenHasWithdrawalRequest {
         vm.warp(defaults.WINDOW_3());
         assertTrue(withdrawalManager.isInExitWindow(users.receiver));
     }

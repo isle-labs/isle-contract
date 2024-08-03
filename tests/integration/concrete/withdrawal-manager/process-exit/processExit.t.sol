@@ -8,7 +8,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
 contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
-    modifier hasRequest() {
+    modifier whenRequestedSharesNotZero() {
         _;
     }
 
@@ -16,44 +16,59 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_NotPoolConfigurator() external {
+    function test_RevertWhen_CallerNotPoolConfigurator() external {
         changePrank(users.receiver);
         vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolConfigurator.selector, users.receiver));
         withdrawalManager.processExit({ requestedShares_: 0, owner_: users.receiver });
     }
 
-    function test_RevertWhen_NoRequest() external whenCallerPoolConfigurator {
+    function test_RevertWhen_RequestedSharesIsZero() external whenCallerPoolConfigurator {
+        uint256 requestedShares_ = 0;
+
         vm.expectRevert(abi.encodeWithSelector(Errors.WithdrawalManager_NoRequest.selector, users.receiver));
-        withdrawalManager.processExit({ requestedShares_: 0, owner_: users.receiver });
+        withdrawalManager.processExit({ requestedShares_: requestedShares_, owner_: users.receiver });
     }
 
-    function test_RevertWhen_InvalidShares() external whenCallerPoolConfigurator hasRequest {
+    function test_RevertWhen_InvalidRequestedShares() external whenCallerPoolConfigurator whenRequestedSharesNotZero {
+        uint256 requestedShares_ = defaults.ADD_SHARES() + 1;
+
         addDefaultShares();
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.WithdrawalManager_InvalidShares.selector, users.receiver, 0, defaults.ADD_SHARES()
+                Errors.WithdrawalManager_InvalidShares.selector, users.receiver, requestedShares_, defaults.ADD_SHARES()
             )
         );
-        withdrawalManager.processExit({ requestedShares_: 0, owner_: users.receiver });
+        withdrawalManager.processExit({ requestedShares_: requestedShares_, owner_: users.receiver });
     }
 
-    function test_RevertWhen_NotInWindow() external whenCallerPoolConfigurator hasRequest validRequestShares {
+    function test_RevertWhen_NotInTheWindow()
+        external
+        whenCallerPoolConfigurator
+        whenRequestedSharesNotZero
+        whenValidRequestShares
+    {
         uint256 addShares_ = defaults.ADD_SHARES();
-        uint64 startWindow = defaults.WINDOW_3();
-        uint64 endWindow = defaults.WINDOW_3() + defaults.WINDOW_DURATION();
+        uint64 startWindow_ = defaults.WINDOW_3();
+        uint64 endWindow_ = defaults.WINDOW_3() + defaults.WINDOW_DURATION();
 
         addDefaultShares();
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.WithdrawalManager_NotInWindow.selector, block.timestamp, startWindow, endWindow
+                Errors.WithdrawalManager_NotInWindow.selector, block.timestamp, startWindow_, endWindow_
             )
         );
         withdrawalManager.processExit({ requestedShares_: addShares_, owner_: users.receiver });
     }
 
-    function test_processExit() public whenCallerPoolConfigurator hasRequest validRequestShares inTheWindow {
+    function test_processExit()
+        public
+        whenCallerPoolConfigurator
+        whenRequestedSharesNotZero
+        whenValidRequestShares
+        whenInTheWindow
+    {
         uint256 addShares_ = defaults.ADD_SHARES();
 
         uint256 expectedRedeemableShares_ = addShares_;
@@ -86,9 +101,9 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
     function test_processExit_PartialLiquidity()
         public
         whenCallerPoolConfigurator
-        hasRequest
-        validRequestShares
-        inTheWindow
+        whenRequestedSharesNotZero
+        whenValidRequestShares
+        whenInTheWindow
     {
         uint256 principal_ = defaults.PRINCIPAL_REQUESTED();
         _createPartialLiquidityPool(principal_);
@@ -103,13 +118,13 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
     }
 
     function _createPartialLiquidityPool(uint256 principal_) private {
-        uint256 drainAmount_ = defaults.POOL_SHARES() - defaults.ADD_SHARES() - principal_;
+        uint256 withdrawAmount_ = defaults.POOL_SHARES() - defaults.ADD_SHARES() - principal_;
 
         // down size the pool
         changePrank(users.receiver);
-        pool.requestRedeem(drainAmount_, users.receiver);
+        pool.requestRedeem(withdrawAmount_, users.receiver);
         vm.warp(defaults.WINDOW_3());
-        pool.redeem(drainAmount_, users.receiver, users.receiver);
+        pool.redeem(withdrawAmount_, users.receiver, users.receiver);
 
         // deposit cover
         changePrank(users.poolAdmin);

@@ -50,15 +50,15 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
         _;
     }
 
-    modifier notWithdrawalPending() {
+    modifier whenWithdrawalNotPending() {
         _;
     }
 
-    modifier validRequestShares() {
+    modifier whenValidRequestShares() {
         _;
     }
 
-    modifier inTheWindow() {
+    modifier whenInTheWindow() {
         _;
     }
 
