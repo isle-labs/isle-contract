@@ -17,7 +17,19 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
     }
 
+    modifier whenHasRequestLoan() {
+        _;
+    }
+
     modifier whenSellerWithdrawFunds() {
+        _;
+    }
+
+    modifier whenLoanNotImpaired() {
+        _;
+    }
+
+    modifier whenBeforeDueDate() {
         _;
     }
 
@@ -30,12 +42,19 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RevertWhen_NotLoan() external whenNotPaused {
+    function test_RevertWhen_NoRequestLoan() external whenNotPaused {
+        uint256 expectPaymentId_ = 0;
+        uint256 actualPaymentId_ = loanManager.paymentIdOf(0);
+
+        assertEq(expectPaymentId_, actualPaymentId_);
+
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
+
+        changePrank(users.buyer);
         loanManager.repayLoan(0);
     }
 
-    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused {
+    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused whenHasRequestLoan {
         createDefaultLoan();
 
         changePrank(users.poolAdmin);
@@ -48,7 +67,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused {
+    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused whenHasRequestLoan whenLoanNotImpaired {
         uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
 
         createDefaultLoan();
@@ -61,7 +80,13 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         assertEq(loanManager.accountedInterest(), 0);
     }
 
-    function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused {
+    function test_RepayLoan_WhenSellerNotWithdrawFunds()
+        external
+        whenNotPaused
+        whenHasRequestLoan
+        whenLoanNotImpaired
+        whenBeforeDueDate
+    {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
@@ -104,7 +129,14 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         assertEq(poolBalanceAfter - poolBalanceBefore, defaults.NET_INTEREST());
     }
 
-    function test_RepayLoan() external whenNotPaused whenSellerWithdrawFunds {
+    function test_RepayLoan()
+        external
+        whenNotPaused
+        whenSellerWithdrawFunds
+        whenHasRequestLoan
+        whenLoanNotImpaired
+        whenBeforeDueDate
+    {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
