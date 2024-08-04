@@ -22,13 +22,13 @@ contract SetMarketId_PoolAddressesProvider_Unit_Concrete_Test is PoolAddressesPr
     }
 
     function test_SetMarketId() external whenCallerGovernor {
-        string memory oldMarketId = poolAddressesProvider.getMarketId();
-        string memory newMarketId = defaults.NEW_MARKET_ID();
+        string memory oldMarketId_ = poolAddressesProvider.getMarketId();
+        string memory newMarketId_ = defaults.NEW_MARKET_ID();
 
         vm.expectEmit(true, true, true, true);
-        emit MarketIdSet(oldMarketId, newMarketId);
+        emit MarketIdSet(oldMarketId_, newMarketId_);
 
         setDefaultMarketId();
-        assertEq(poolAddressesProvider.getMarketId(), newMarketId);
+        assertEq(poolAddressesProvider.getMarketId(), newMarketId_);
     }
 }
