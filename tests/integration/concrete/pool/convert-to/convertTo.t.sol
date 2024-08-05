@@ -17,12 +17,18 @@ contract ConvertTo_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Tes
     }
 
     function test_convertToExitAssets() external {
-        // TODO: Add test case with unrealized losses
-        // assertEq(pool.convertToExitAssets(SHARES), EXPECTED_EXIT_ASSETS);
+        _createUnrealizedLosses();
+        assertEq(pool.convertToExitAssets(defaults.SHARES()), defaults.EXPECTED_EXIT_ASSETS());
     }
 
     function test_convertToExitShares() external {
-        // TODO: Add test case with unrealized losses
-        // assertEq(pool.convertToExitShares(ASSETS), EXPECTED_EXIT_SHARES);
+         _createUnrealizedLosses();
+        assertEq(pool.convertToExitShares(defaults.ASSETS()), defaults.EXPECTED_EXIT_SHARES());
+    }
+
+    function _createUnrealizedLosses() internal {
+        // Unrealized losses is FACE_AMOUNT
+        createDefaultLoan();
+        loanManager.impairLoan(1);
     }
 }
