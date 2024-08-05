@@ -22,7 +22,7 @@ contract ConvertTo_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Tes
     }
 
     function test_convertToExitShares() external {
-         _createUnrealizedLosses();
+        _createUnrealizedLosses();
         assertEq(pool.convertToExitShares(defaults.ASSETS()), defaults.EXPECTED_EXIT_SHARES());
     }
 

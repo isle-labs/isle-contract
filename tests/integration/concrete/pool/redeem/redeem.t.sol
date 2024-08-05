@@ -59,7 +59,8 @@ contract Redeem_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test {
         assertEq(pool.allowance(users.receiver, users.caller), redeemShares_);
 
         changePrank(users.caller);
-        uint256 actualAssetsRedeemed_ = pool.redeem({ shares: redeemShares_, receiver: users.receiver, owner: users.receiver });
+        uint256 actualAssetsRedeemed_ =
+            pool.redeem({ shares: redeemShares_, receiver: users.receiver, owner: users.receiver });
 
         assertEq(actualAssetsRedeemed_, expectedAssetsRedeemed_, "assets redeemed");
         assertEq(pool.allowance(users.receiver, users.caller), 0);
