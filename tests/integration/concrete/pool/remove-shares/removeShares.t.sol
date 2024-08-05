@@ -19,4 +19,22 @@ contract RemoveShares_Pool_Integration_Concrete_Test is Pool_Integration_Shared_
 
         assertEq(actualSharesRemoved_, defaults.REMOVE_SHARES());
     }
+
+    function test_RemoveShares_WhenCallerNotOwner() external {
+        uint256 removeShares_ = defaults.REMOVE_SHARES();
+
+        requestDefaultRedeem();
+
+        vm.warp({ timestamp: defaults.WINDOW_3() });
+
+        changePrank(users.receiver);
+        pool.approve(users.caller, removeShares_);
+        assertEq(pool.allowance(users.receiver, users.caller), removeShares_);
+
+        changePrank(users.caller);
+        uint256 actualSharesRemoved_ = pool.removeShares({ owner_: users.receiver, shares_: removeShares_ });
+
+        assertEq(actualSharesRemoved_, removeShares_);
+        assertEq(pool.allowance(users.receiver, users.caller), 0);
+    }
 }

@@ -21,4 +21,21 @@ contract RequestRedeem_Pool_Integration_Concrete_Test is Pool_Integration_Shared
             pool.balanceOf(address(withdrawalManager)), originalWithdrawalManagerBalance_ + defaults.REDEEM_SHARES()
         );
     }
+
+    function test_RequestRedeem_WhenCallerNotOwner() external {
+        uint256 redeemShares_ = defaults.REDEEM_SHARES();
+        uint256 originalReceiverBalance_ = pool.balanceOf(users.receiver);
+        uint256 originalWithdrawalManagerBalance_ = pool.balanceOf(address(withdrawalManager));
+
+        changePrank(users.receiver);
+        pool.approve(users.caller, redeemShares_);
+        assertEq(pool.allowance(users.receiver, users.caller), redeemShares_);
+
+        changePrank(users.caller);
+        pool.requestRedeem({ owner_: users.receiver, shares_: redeemShares_ });
+
+        assertEq(pool.balanceOf(users.receiver), originalReceiverBalance_ - redeemShares_);
+        assertEq(pool.balanceOf(address(withdrawalManager)), originalWithdrawalManagerBalance_ + redeemShares_);
+        assertEq(pool.allowance(users.receiver, users.caller), 0);
+    }
 }
