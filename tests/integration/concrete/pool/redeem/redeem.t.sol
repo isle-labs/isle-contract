@@ -45,4 +45,23 @@ contract Redeem_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test {
 
         assertEq(actualAssetsRedeemed_, expectedAssetsRedeemed_, "assets redeemed");
     }
+
+    function test_Redeem_CallerNotOwner() external whenEnoughLockedShares {
+        uint256 redeemShares_ = defaults.REDEEM_SHARES();
+        uint256 expectedAssetsRedeemed_ = redeemShares_ * defaults.POOL_ASSETS() / defaults.POOL_SHARES();
+
+        requestDefaultRedeem();
+
+        vm.warp({ timestamp: defaults.WINDOW_3() });
+
+        changePrank(users.receiver);
+        pool.approve(users.caller, redeemShares_);
+        assertEq(pool.allowance(users.receiver, users.caller), redeemShares_);
+
+        changePrank(users.caller);
+        uint256 actualAssetsRedeemed_ = pool.redeem({ shares: redeemShares_, receiver: users.receiver, owner: users.receiver });
+
+        assertEq(actualAssetsRedeemed_, expectedAssetsRedeemed_, "assets redeemed");
+        assertEq(pool.allowance(users.receiver, users.caller), 0);
+    }
 }
