@@ -58,7 +58,7 @@ contract SetExitConfig_Integration_Concrete_Test is WithdrawalManager_Integratio
         withdrawalManager.setExitConfig({ cycleDuration_: newCycleDuration_, windowDuration_: newWindowDuration_ });
     }
 
-    function test_setExitConfig()
+    function test_SetExitConfig()
         public
         whenProtocolNotPaused
         whenCallerPoolAdmin

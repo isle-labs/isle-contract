@@ -62,7 +62,7 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         withdrawalManager.processExit({ requestedShares_: addShares_, owner_: users.receiver });
     }
 
-    function test_processExit()
+    function test_ProcessExit()
         public
         whenCallerPoolConfigurator
         whenRequestedSharesNotZero
@@ -98,7 +98,7 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         assertEq(actualResultingAssets_, expectedResultingAssets_);
     }
 
-    function test_processExit_PartialLiquidity()
+    function test_ProcessExit_WhenPartialLiquidity()
         public
         whenCallerPoolConfigurator
         whenRequestedSharesNotZero
@@ -136,7 +136,7 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         // seller withdraw fund
         changePrank(users.seller);
         IERC721(address(receivable)).approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
-        loanManager.withdrawFunds(1, address(users.seller), principal_);
+        loanManager.withdrawFunds(1, address(users.seller));
 
         // receiver request redeem
         changePrank(users.receiver);

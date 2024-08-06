@@ -14,11 +14,11 @@ contract IsInExitWindow_Integration_Concrete_Test is WithdrawalManager_Integrati
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_WhenNoWithdrawalRequest() external {
+    function test_IsInExitWindow_WhenNoWithdrawalRequest() external {
         assertFalse(withdrawalManager.isInExitWindow(users.receiver));
     }
 
-    function test_isInExitWindow() public whenHasWithdrawalRequest {
+    function test_IsInExitWindow() public whenHasWithdrawalRequest {
         vm.warp(defaults.WINDOW_3());
         assertTrue(withdrawalManager.isInExitWindow(users.receiver));
     }

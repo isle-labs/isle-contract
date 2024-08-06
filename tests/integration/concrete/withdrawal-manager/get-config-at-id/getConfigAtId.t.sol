@@ -12,7 +12,7 @@ contract GetConfigAtId_Integration_Concrete_Test is WithdrawalManager_Integratio
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_getConfigAtId() public {
+    function test_GetConfigAtId() public {
         WithdrawalManager.CycleConfig memory actualConfig_ = withdrawalManager.getConfigAtId(_initCycleId);
         WithdrawalManager.CycleConfig memory expectedConfig_ = WithdrawalManager.CycleConfig({
             initialCycleId: 1,
@@ -24,7 +24,7 @@ contract GetConfigAtId_Integration_Concrete_Test is WithdrawalManager_Integratio
         assertEq(actualConfig_, expectedConfig_);
     }
 
-    function test_AgetConfigAtId_HasNewConfigs() public {
+    function test_GetConfigAtId_WhenHasNewConfigs() public {
         uint256 newCycleId_ = 5;
 
         setNewExitConfig();

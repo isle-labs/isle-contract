@@ -10,7 +10,7 @@ contract GetCurrentConfig_Integration_Concrete_Test is WithdrawalManager_Integra
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_getCurrentConfig() public {
+    function test_GetCurrentConfig() public {
         WithdrawalManager.CycleConfig memory actualConfig_ = withdrawalManager.getCurrentConfig();
         WithdrawalManager.CycleConfig memory expectedConfig_ = WithdrawalManager.CycleConfig({
             initialCycleId: 1,
@@ -22,7 +22,7 @@ contract GetCurrentConfig_Integration_Concrete_Test is WithdrawalManager_Integra
         assertEq(actualConfig_, expectedConfig_);
     }
 
-    function test_getCurrentConfig_HasNewConfigs() external {
+    function test_GetCurrentConfig_WhenHasNewConfigs() external {
         setNewExitConfig();
 
         WithdrawalManager.CycleConfig memory actualInitConfig_ = withdrawalManager.getCurrentConfig();

@@ -41,7 +41,7 @@ contract RemoveShares_Integration_Concrete_Test is WithdrawalManager_Integration
         withdrawalManager.removeShares({ shares_: removeShares_, owner_: users.receiver });
     }
 
-    function test_removeShares() public whenCallerPoolConfigurator whenWithdrawalNotPending whenEnoughShares {
+    function test_RemoveShares() public whenCallerPoolConfigurator whenWithdrawalNotPending whenEnoughShares {
         uint256 addShares_ = defaults.ADD_SHARES();
         uint256 removeShares_ = defaults.REMOVE_SHARES();
 

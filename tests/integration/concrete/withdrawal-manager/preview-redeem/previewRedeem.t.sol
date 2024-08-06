@@ -9,7 +9,7 @@ contract PreviewRedeem_Integration_Concrete_Test is WithdrawalManager_Integratio
         addDefaultShares();
     }
 
-    function test_WhenRedeemSharesIsNotEqualToLockedShares() external {
+    function test_PreviewRedeem_WhenRedeemSharesIsNotEqualToLockedShares() external {
         uint256 redeemShares_ = defaults.ADD_SHARES() + 1;
 
         (uint256 actualRedeemableShares_, uint256 actualResultingAssets_) =
@@ -19,7 +19,7 @@ contract PreviewRedeem_Integration_Concrete_Test is WithdrawalManager_Integratio
         assertEq(actualResultingAssets_, 0);
     }
 
-    function test_WhenRedeemSharesIsZero() external {
+    function test_PreviewRedeem_WhenRedeemSharesIsZero() external {
         uint256 redeemShares_ = 0;
 
         (uint256 actualRedeemableShares_, uint256 actualResultingAssets_) =
@@ -29,7 +29,7 @@ contract PreviewRedeem_Integration_Concrete_Test is WithdrawalManager_Integratio
         assertEq(actualResultingAssets_, 0);
     }
 
-    function test_WhenNotInTheWindow_BeforeWindowStart() external whenValidRequestShares {
+    function test_PreviewRedeem_WhenNotInTheWindow_BeforeWindowStart() external whenValidRequestShares {
         uint256 addShares_ = defaults.ADD_SHARES();
 
         vm.warp(defaults.WINDOW_1());
@@ -40,7 +40,7 @@ contract PreviewRedeem_Integration_Concrete_Test is WithdrawalManager_Integratio
         assertEq(actualResultingAssets_, 0);
     }
 
-    function test_WhenNotInTheWindow_AfterWindowEnd() external whenValidRequestShares {
+    function test_PreviewRedeem_WhenNotInTheWindow_AfterWindowEnd() external whenValidRequestShares {
         uint256 addShares_ = defaults.ADD_SHARES();
 
         vm.warp(defaults.WINDOW_4());
@@ -51,7 +51,7 @@ contract PreviewRedeem_Integration_Concrete_Test is WithdrawalManager_Integratio
         assertEq(actualResultingAssets_, 0);
     }
 
-    function test_previewRedeem() public whenValidRequestShares whenInTheWindow {
+    function test_PreviewRedeem() public whenValidRequestShares whenInTheWindow {
         uint256 addShares_ = defaults.ADD_SHARES();
 
         vm.warp(defaults.WINDOW_3());
