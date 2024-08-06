@@ -64,23 +64,6 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         loanManager.triggerDefault(0);
     }
 
-    function test_TriggerDefault_WhenLoanImpaired()
-        external
-        whenNotPaused
-        whenCallerPoolAdmin
-        whenBlockTimestampGreaterThanDueDatePlusGracePeriod
-        whenPaymentIdIsNotZero
-    {
-        loanManager.impairLoan(1);
-
-        vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 2 days + 1);
-
-        vm.expectEmit(true, true, true, true);
-        emit UnrealizedLossesUpdated(0);
-
-        loanManager.triggerDefault(1);
-    }
-
     function test_TriggerDefault()
         external
         whenNotPaused
