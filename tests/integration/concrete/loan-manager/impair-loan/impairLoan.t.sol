@@ -57,7 +57,7 @@ contract ImpairLoan_LoanManager_Integration_Concrete_Test is
         loanManager.impairLoan(0);
     }
 
-    function test_impairLoan()
+    function test_ImpairLoan()
         external
         whenNotPaused
         whenCallerPoolAdminOrGovernor
