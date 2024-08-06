@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.19;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
@@ -19,6 +19,8 @@ import { PoolConfiguratorStorage } from "./PoolConfiguratorStorage.sol";
 /// @title Pool Configurator
 /// @notice See the documentation in {IPoolConfigurator}.
 contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConfiguratorStorage {
+    using SafeERC20 for IERC20;
+
     uint256 public constant HUNDRED_PERCENT = 1_000_000; // e.g. 100% = 100 * HUNDRED_PERCENT, integer with 6 decimal
         // precision
     uint256 public constant POOL_CONFIGURATOR_REVISION = 0x1;
@@ -180,9 +182,8 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         if (!_hasSufficientCover()) {
             revert Errors.PoolConfigurator_InsufficientCover();
         }
-        if (!IERC20(asset_).transferFrom(pool_, msg.sender, principal_)) {
-            revert Errors.ERC20TransferFailed(asset_, pool_, msg.sender, principal_);
-        }
+
+        IERC20(asset_).safeTransferFrom(pool_, msg.sender, principal_);
 
         uint256 lockedLiquidity_ = _withdrawalManager().lockedLiquidity();
 
@@ -250,9 +251,7 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
 
     /// @inheritdoc IPoolConfigurator
     function depositCover(uint256 amount_) external override whenNotPaused {
-        if (!IERC20(asset).transferFrom(msg.sender, address(this), amount_)) {
-            revert Errors.PoolConfigurator_DepositCoverFailed({ caller_: msg.sender, amount_: amount_ });
-        }
+        IERC20(asset).safeTransferFrom(msg.sender, address(this), amount_);
         poolCover += amount_;
         emit CoverDeposited(amount_);
     }
@@ -261,9 +260,7 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     function withdrawCover(uint256 amount_, address recipient_) external override whenNotPaused onlyAdmin {
         recipient_ = recipient_ == address(0) ? msg.sender : recipient_;
 
-        if (!IERC20(asset).transfer(recipient_, amount_)) {
-            revert Errors.PoolConfigurator_WithdrawCoverFailed({ recipient_: recipient_, amount_: amount_ });
-        }
+        IERC20(asset).safeTransfer(recipient_, amount_);
 
         poolCover -= amount_;
 

@@ -23,8 +23,6 @@ library Errors {
 
     error InvalidAddressesProvider(address provider, address expectedProvider);
 
-    error ERC20TransferFailed(address asset, address from, address to, uint256 amount);
-
     error FunctionPaused(bytes4 sig);
 
     error ProtocolPaused();
@@ -68,12 +66,6 @@ library Errors {
 
     /// @notice Thrown when the pool fails to approve the withdrawal manager with the amount of shares
     error PoolConfigurator_PoolApproveWithdrawalManagerFailed(uint256 amount_);
-
-    /// @notice Thrown when the pool admin fails to deposit cover
-    error PoolConfigurator_DepositCoverFailed(address caller_, uint256 amount_);
-
-    /// @notice Thrown when the pool admin fails to withdraw cover
-    error PoolConfigurator_WithdrawCoverFailed(address recipient_, uint256 amount_);
 
     /// @notice Thrown when the pool configurator is paused
     error PoolConfigurator_Paused();
