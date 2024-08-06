@@ -28,7 +28,7 @@ contract Constructor_PoolAddressesProvider_Unit_Concrete_Test is PoolAddressesPr
         new PoolAddressesProvider(marketId_, isleGlobals);
     }
 
-    function test_constructor() external whenGovernorNotZeroAddress {
+    function test_Constructor() external whenGovernorNotZeroAddress {
         changePrank(users.governor);
         PoolAddressesProvider poolAddressesProvider = new PoolAddressesProvider(defaults.MARKET_ID(), isleGlobals);
 

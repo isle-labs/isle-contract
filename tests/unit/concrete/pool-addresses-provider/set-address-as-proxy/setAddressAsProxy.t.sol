@@ -37,7 +37,7 @@ contract SetAddressAsProxy_PoolAddressesProvider_Unit_Concrete_Test is PoolAddre
         assertFalse(MockImplementation(poolAddressesProvider.getAddress(defaults.ID())).initialized());
     }
 
-    function test_SetAddressAsProxy_Upgrade() external whenCallerGovernor {
+    function test_SetAddressAsProxy_WhenUpgrade() external whenCallerGovernor {
         bytes32 id_ = defaults.ID();
         address initialImplementation_ = address(new MockImplementation());
 
