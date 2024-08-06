@@ -76,4 +76,12 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
             windowDuration_: _params.newWindowDuration
         });
     }
+
+    function setNewExitConfig() internal {
+        uint64 newCycleDuration_ = defaults.NEW_CYCLE_DURATION();
+        uint64 newWindowDuration_ = defaults.NEW_WINDOW_DURATION();
+
+        changePrank(users.poolAdmin);
+        withdrawalManager.setExitConfig(newCycleDuration_, newWindowDuration_);
+    }
 }
