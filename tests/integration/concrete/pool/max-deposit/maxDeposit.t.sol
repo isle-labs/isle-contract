@@ -12,7 +12,7 @@ contract MaxDeposit_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Te
         _expectedMaxDeposit = defaults.POOL_LIMIT() - defaults.POOL_ASSETS();
     }
 
-    function test_maxDeposit() external {
+    function test_MaxDeposit() external {
         assertEq(pool.maxDeposit(users.notWhitelistedReceiver), _expectedMaxDeposit);
         assertEq(pool.maxDeposit(users.receiver), _expectedMaxDeposit);
 

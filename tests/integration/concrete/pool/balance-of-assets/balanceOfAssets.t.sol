@@ -8,7 +8,7 @@ contract BalanceOfAssets_Integration_Concrete_Test is Pool_Integration_Shared_Te
         Pool_Integration_Shared_Test.setUp();
     }
 
-    function test_balanceOfAssets() external {
+    function test_BalanceOfAssets() external {
         uint256 expectedBalance_ = defaults.POOL_ASSETS();
         assertAlmostEq(pool.balanceOfAssets(users.receiver), expectedBalance_, defaults.DELTA());
     }

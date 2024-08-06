@@ -46,7 +46,7 @@ contract Redeem_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test {
         assertEq(actualAssetsRedeemed_, expectedAssetsRedeemed_, "assets redeemed");
     }
 
-    function test_Redeem_CallerNotOwner() external whenEnoughLockedShares {
+    function test_Redeem_WhenCallerNotOwner() external whenEnoughLockedShares {
         uint256 redeemShares_ = defaults.REDEEM_SHARES();
         uint256 expectedAssetsRedeemed_ = redeemShares_ * defaults.POOL_ASSETS() / defaults.POOL_SHARES();
 

@@ -12,7 +12,7 @@ contract MaxMint_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Test 
         _expectedMaxMint = pool.previewDeposit(defaults.POOL_LIMIT() - defaults.POOL_ASSETS());
     }
 
-    function test_maxMint() external {
+    function test_MaxMint() external {
         assertEq(pool.maxMint(users.notWhitelistedReceiver), _expectedMaxMint);
         assertEq(pool.maxMint(users.receiver), _expectedMaxMint);
 
