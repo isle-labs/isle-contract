@@ -15,7 +15,7 @@ contract HasSufficientCover_Integration_Concrete_Test is PoolConfigurator_Integr
         changePrank(users.poolAdmin);
     }
 
-    function test_hasSufficientCover() external {
+    function test_HasSufficientCover() external {
         poolConfigurator.depositCover(defaults.COVER_AMOUNT());
         assertTrue(poolConfigurator.hasSufficientCover());
     }

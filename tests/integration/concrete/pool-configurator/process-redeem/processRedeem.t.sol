@@ -45,7 +45,7 @@ contract ProcessRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.processRedeem(_redeemShares, users.receiver, users.caller);
     }
 
-    function test_processRedeem() external whenFunctionNotPause whenCallerPool whenCallerHasAllowance {
+    function test_ProcessRedeem() external whenFunctionNotPause whenCallerPool whenCallerHasAllowance {
         uint256 expectedResultingAssets_ = defaults.REDEEM_SHARES() * defaults.POOL_ASSETS() / defaults.POOL_SHARES();
         uint256 expectedRedeemableShares_ = defaults.REDEEM_SHARES();
 

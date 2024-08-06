@@ -12,7 +12,7 @@ contract DepositCover_Integration_Concrete_Test is PoolConfigurator_Integration_
         changePrank(users.poolAdmin);
     }
 
-    function test_depositCover() external {
+    function test_DepositCover() external {
         uint256 coverAmount_ = defaults.COVER_AMOUNT();
 
         expectCallToTransferFrom({ from: users.poolAdmin, to: address(poolConfigurator), amount: coverAmount_ });

@@ -10,7 +10,7 @@ contract previewRedeem_Integration_Concrete_Test is PoolConfigurator_Integration
         PoolConfigurator_Integration_Shared_Test.setUp();
     }
 
-    function test_previewRedeem() external {
+    function test_PreviewRedeem() external {
         changePrank({ msgSender: address(pool) });
         requestDefaultRedeem();
 

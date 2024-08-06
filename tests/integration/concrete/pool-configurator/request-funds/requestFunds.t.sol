@@ -56,7 +56,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
     }
 
     function test_RevertWhen_PoolSupplyIsZero() external whenFunctionNotPause {
-        _drainThePool(defaults.POOL_SHARES());
+        _defaultWithdraw(defaults.POOL_SHARES());
 
         changePrank({ msgSender: address(loanManager) });
         vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_PoolSupplyZero.selector));
@@ -86,7 +86,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         poolConfigurator.requestFunds({ principal_: 1 });
     }
 
-    function test_requestFunds()
+    function test_RequestFunds()
         external
         whenCoverIsSufficient
         whenFunctionNotPause
@@ -98,7 +98,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         poolConfigurator.requestFunds({ principal_: _principal });
     }
 
-    function _drainThePool(uint256 withdrawAmount_) private {
+    function _defaultWithdraw(uint256 withdrawAmount_) private {
         changePrank(users.receiver);
         pool.requestRedeem(withdrawAmount_, users.receiver);
         vm.warp(defaults.WINDOW_3());
@@ -114,7 +114,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         uint256 withdrawAmount_ = defaults.POOL_SHARES() - _principal;
 
         // down size the pool
-        _drainThePool(withdrawAmount_);
+        _defaultWithdraw(withdrawAmount_);
 
         // create loan
         createDefaultLoan();

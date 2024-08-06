@@ -14,7 +14,7 @@ contract TotalAssets_Integration_Concrete_Test is PoolConfigurator_Integration_S
         _expectedTotalAssets = defaults.POOL_ASSETS();
     }
 
-    function test_totalAssets() external {
+    function test_TotalAssets() external {
         assertEq(poolConfigurator.totalAssets(), _expectedTotalAssets);
     }
 }

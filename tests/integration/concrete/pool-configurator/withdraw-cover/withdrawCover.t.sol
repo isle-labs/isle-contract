@@ -53,7 +53,7 @@ contract WithdrawCover_Integration_Concrete_Test is PoolConfigurator_Integration
         poolConfigurator.withdrawCover({ amount_: _withdrawAmount, recipient_: users.poolAdmin });
     }
 
-    function test_withdrawCover() external whenFunctionNotPause whenCallerPoolAdmin whenPoolCoverIsSufficient {
+    function test_WithdrawCover() external whenFunctionNotPause whenCallerPoolAdmin whenPoolCoverIsSufficient {
         expectCallToTransfer({ to: users.poolAdmin, amount: _withdrawAmount });
         vm.expectEmit({ emitter: address(poolConfigurator) });
         emit CoverWithdrawn(_withdrawAmount);

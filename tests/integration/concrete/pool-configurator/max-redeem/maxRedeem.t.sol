@@ -10,7 +10,7 @@ contract MaxRedeem_Integration_Concrete_Test is PoolConfigurator_Integration_Sha
         PoolConfigurator_Integration_Shared_Test.setUp();
     }
 
-    function test_maxRedeem() external {
+    function test_MaxRedeem() external {
         requestDefaultRedeem();
         vm.warp({ timestamp: defaults.WINDOW_3() });
         uint256 expectedMaxRedeem_ = defaults.REDEEM_SHARES();
