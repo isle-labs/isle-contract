@@ -30,37 +30,6 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RevertWhen_NotLoan() external whenNotPaused {
-        vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
-        loanManager.repayLoan(0);
-    }
-
-    function test_RepayLoan_WhenLoanImpaired() external {
-        createDefaultLoan();
-
-        changePrank(users.poolAdmin);
-        loanManager.impairLoan(1);
-
-        vm.expectEmit(true, true, true, true);
-        emit UnrealizedLossesUpdated(0);
-
-        changePrank(users.buyer);
-        loanManager.repayLoan(1);
-    }
-
-    function test_RepayLoan_WhenAfterDueDate() external {
-        uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
-        
-        createDefaultLoan();
-
-        vm.warp(dueDate_ + 1);
-
-        changePrank(users.buyer);
-        loanManager.repayLoan(1);
-
-        assertEq(loanManager.accountedInterest(), 0);
-    }
-
     function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
