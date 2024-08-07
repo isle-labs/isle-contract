@@ -294,7 +294,6 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
         uint256 drawableFunds_ = loan_.drawableFunds;
 
-
         loan_.drawableFunds = 0;
 
         IERC721(loan_.receivableAsset).safeTransferFrom(msg.sender, address(this), loan_.receivableTokenId);
