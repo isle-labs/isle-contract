@@ -5,32 +5,13 @@ import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 
 import { Loan } from "contracts/libraries/types/DataTypes.sol";
 
-import { Base_Test } from "../../../../Base.t.sol";
-import { LoanManager_Unit_Shared_Test } from "../../../shared/loan-manager/LoanManager.t.sol";
+import { PaymentList_Unit_Shared_Test } from "../../../shared/loan-manager/payment-list.t.sol";
 
-import { LoanManagerHarness } from "tests/mocks/LoanManagerHarness.sol";
-
-contract AddPaymentToList_LoanManager_Unit_Concrete_Test is LoanManager_Unit_Shared_Test {
+contract AddPaymentToList_LoanManager_Unit_Concrete_Test is PaymentList_Unit_Shared_Test {
     using SafeCast for uint256;
 
-    LoanManagerHarness private loanManagerHarness;
-    uint256 private _paymentDueDateDefault;
-
-    function setUp() public virtual override {
-        Base_Test.setUp();
-
-        // Setup pool addresses provider
-        changePrank(users.governor);
-        isleGlobals = deployGlobals();
-        poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
-        setDefaultGlobals(poolAddressesProvider);
-
-        loanManagerHarness = new LoanManagerHarness(poolAddressesProvider);
-        _paymentDueDateDefault = defaults.REPAYMENT_TIMESTAMP();
-    }
-
     function test_AddPaymentToList() external {
-        uint24 paymentId_ = _addDefaultPayment(_paymentDueDateDefault);
+        uint24 paymentId_ = addDefaultPayment(_paymentDueDateDefault);
 
         Loan.SortedPayment memory actualSortedPayment_ = loanManagerHarness.getSortedPayment(paymentId_);
         Loan.SortedPayment memory expectedSortedPayment_ =
@@ -39,43 +20,43 @@ contract AddPaymentToList_LoanManager_Unit_Concrete_Test is LoanManager_Unit_Sha
         assertEq(actualSortedPayment_, expectedSortedPayment_);
     }
 
-    function test_AddPaymentToList_WhenAddPaymentAtHead() external {
-        uint24 paymentId1_ = _addDefaultPayment(_paymentDueDateDefault);
+    function test_AddPaymentToList_WhenAddEarliestPayment() external {
+        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
 
-        uint256 paymentDueDateHead_ = defaults.REPAYMENT_TIMESTAMP() - 1 days;
-        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateHead_));
+        uint256 paymentDueDateEarliest_ = defaults.REPAYMENT_TIMESTAMP() - 1 days;
+        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateEarliest_));
 
-        Loan.SortedPayment memory actualSortedPaymentHead_ = loanManagerHarness.getSortedPayment(paymentId2_);
-        Loan.SortedPayment memory expectedSortedPaymentHead_ = Loan.SortedPayment({
+        Loan.SortedPayment memory actualSortedPaymentEarliest_ = loanManagerHarness.getSortedPayment(paymentId2_);
+        Loan.SortedPayment memory expectedSortedPaymentEarliest_ = Loan.SortedPayment({
             previous: 0,
             next: paymentId1_,
-            paymentDueDate: SafeCast.toUint48(paymentDueDateHead_)
+            paymentDueDate: SafeCast.toUint48(paymentDueDateEarliest_)
         });
 
-        assertEq(actualSortedPaymentHead_, expectedSortedPaymentHead_);
+        assertEq(actualSortedPaymentEarliest_, expectedSortedPaymentEarliest_);
     }
 
-    function test_AddPaymentToList_WhenAddPaymentAtTail() external {
-        uint24 paymentId1_ = _addDefaultPayment(_paymentDueDateDefault);
+    function test_AddPaymentToList_WhenAddLatestPayment() external {
+        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
 
-        uint256 paymentDueDateTail_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
-        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateTail_));
+        uint256 paymentDueDateLatest_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
+        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateLatest_));
 
-        Loan.SortedPayment memory actualSortedPaymentTail_ = loanManagerHarness.getSortedPayment(paymentId2_);
-        Loan.SortedPayment memory expectedSortedPaymentTail_ = Loan.SortedPayment({
+        Loan.SortedPayment memory actualSortedPaymentLatest_ = loanManagerHarness.getSortedPayment(paymentId2_);
+        Loan.SortedPayment memory expectedSortedPaymentLatest_ = Loan.SortedPayment({
             previous: paymentId1_,
             next: 0,
-            paymentDueDate: SafeCast.toUint48(paymentDueDateTail_)
+            paymentDueDate: SafeCast.toUint48(paymentDueDateLatest_)
         });
 
-        assertEq(actualSortedPaymentTail_, expectedSortedPaymentTail_);
+        assertEq(actualSortedPaymentLatest_, expectedSortedPaymentLatest_);
     }
 
-    function test_AddPaymentToList_WhenAddPaymentAtMiddle() external {
-        uint24 paymentId1_ = _addDefaultPayment(_paymentDueDateDefault);
+    function test_AddPaymentToList_WhenAddMidPayment() external {
+        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
 
-        uint256 paymentDueDateTail_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
-        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateTail_));
+        uint256 paymentDueDateLatest_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
+        uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateLatest_));
 
         // To test add payment in the middle of the list
         uint256 paymentDueDateMid_ = defaults.REPAYMENT_TIMESTAMP() + 5 days;
@@ -89,9 +70,5 @@ contract AddPaymentToList_LoanManager_Unit_Concrete_Test is LoanManager_Unit_Sha
         });
 
         assertEq(actualSortedPaymentMid_, expectedSortedPaymentMid_);
-    }
-
-    function _addDefaultPayment(uint256 paymentDueDate_) private returns (uint24 paymentId_) {
-        paymentId_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDate_));
     }
 }
