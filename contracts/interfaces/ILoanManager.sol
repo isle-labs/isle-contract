@@ -111,6 +111,5 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @notice Used by sellers to withdraw funds from a loan.
     /// @param loanId_ Id of the loan to withdraw funds from
     /// @param destination_ The destination address for the funds
-    /// @param amount_ The amount to withdraw
-    function withdrawFunds(uint16 loanId_, address destination_, uint256 amount_) external;
+    function withdrawFunds(uint16 loanId_, address destination_) external;
 }

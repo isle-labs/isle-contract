@@ -25,31 +25,23 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.FunctionPaused.selector, bytes4(keccak256("withdrawFunds(uint16,address,uint256)"))
+                Errors.FunctionPaused.selector, bytes4(keccak256("withdrawFunds(uint16,address)"))
             )
         );
-        loanManager.withdrawFunds(1, address(0), 0);
+        loanManager.withdrawFunds(1, address(0));
     }
 
     function test_RevertWhen_CallerNotLoanSeller() external whenNotPaused {
         changePrank(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_CallerNotSeller.selector, users.seller));
-        loanManager.withdrawFunds(1, address(0), 0);
+        loanManager.withdrawFunds(1, address(0));
     }
 
-    function test_RevertWhen_WithdrawAmountGreaterThanDrawableAmount() external whenNotPaused whenCallerSeller {
-        uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.LoanManager_Overdraw.selector, 1, principalRequested + 1, principalRequested)
-        );
-        loanManager.withdrawFunds(1, address(users.seller), principalRequested + 1);
-    }
 
     function test_WithdrawFunds_WhenLoanNotRepaid()
         external
         whenNotPaused
         whenCallerSeller
-        whenWithdrawAmountLessThanOrEqualToDrawableAmount
     {
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
@@ -59,7 +51,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         vm.expectEmit(true, true, true, true);
         emit FundsWithdrawn(1, principalRequested);
 
-        loanManager.withdrawFunds(1, address(users.seller), principalRequested);
+        loanManager.withdrawFunds(1, address(users.seller));
 
         uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
 
@@ -71,7 +63,6 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         external
         whenNotPaused
         whenCallerSeller
-        whenWithdrawAmountLessThanOrEqualToDrawableAmount
         whenLoanRepaid
     {
         changePrank(users.buyer);
@@ -90,7 +81,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         vm.expectEmit(true, true, true, true);
         emit FundsWithdrawn(1, principalRequested);
 
-        loanManager.withdrawFunds(1, address(users.seller), principalRequested);
+        loanManager.withdrawFunds(1, address(users.seller));
 
         uint256 loanManagerBalanceAfter = usdc.balanceOf(address(loanManager));
 
@@ -107,9 +98,6 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         _;
     }
 
-    modifier whenWithdrawAmountLessThanOrEqualToDrawableAmount() {
-        _;
-    }
 
     modifier whenLoanRepaid() {
         _;

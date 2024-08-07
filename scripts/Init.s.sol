@@ -140,7 +140,7 @@ contract Init is BaseScript {
 
             IERC721(info_.receivableAsset).approve(address(loanManager_), info_.receivableTokenId);
 
-            loanManager_.withdrawFunds({ loanId_: loanIds_[i], destination_: seller, amount_: info_.drawableFunds });
+            loanManager_.withdrawFunds({ loanId_: loanIds_[i], destination_: seller });
         }
     }
 }

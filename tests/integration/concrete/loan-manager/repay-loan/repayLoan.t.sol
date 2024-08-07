@@ -84,7 +84,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
 
         changePrank(users.seller);
         receivable.approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
-        loanManager.withdrawFunds(1, address(users.seller), defaults.PRINCIPAL_REQUESTED());
+        loanManager.withdrawFunds(1, address(users.seller));
 
         vm.warp(defaults.MAY_31_2023());
 

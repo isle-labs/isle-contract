@@ -284,7 +284,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function withdrawFunds(uint16 loanId_, address destination_, uint256 amount_) external override whenNotPaused {
+    function withdrawFunds(uint16 loanId_, address destination_) external override whenNotPaused {
         Loan.Info memory loan_ = _loans[loanId_];
 
         // Only the seller can drawdown funds
@@ -292,15 +292,10 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             revert Errors.LoanManager_CallerNotSeller({ expectedSeller_: loan_.seller });
         }
 
-        if (amount_ > loan_.drawableFunds) {
-            revert Errors.LoanManager_Overdraw({
-                loanId_: loanId_,
-                amount_: amount_,
-                withdrawableAmount_: loan_.drawableFunds
-            });
-        }
+        uint256 drawableFunds_ = loan_.drawableFunds;
 
-        loan_.drawableFunds -= amount_;
+
+        loan_.drawableFunds = 0;
 
         IERC721(loan_.receivableAsset).safeTransferFrom(msg.sender, address(this), loan_.receivableTokenId);
 
@@ -309,9 +304,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
             IReceivable(loan_.receivableAsset).burnReceivable(loan_.receivableTokenId);
         }
 
-        IERC20(asset).safeTransfer(destination_, amount_);
+        IERC20(asset).safeTransfer(destination_, drawableFunds_);
 
-        emit FundsWithdrawn({ loanId_: loanId_, amount_: amount_ });
+        emit FundsWithdrawn({ loanId_: loanId_, amount_: drawableFunds_ });
     }
 
     /// @inheritdoc ILoanManager
