@@ -26,12 +26,12 @@ contract Constructor_Pool_Integration_Concrete_Test is Pool_Integration_Shared_T
         _symbol = defaults.POOL_SYMBOL();
     }
 
-    function test_RevetWhen_AssetIsZeroAddress() external {
+    function test_RevertWhen_AssetIsZeroAddress() external {
         vm.expectRevert(Errors.Pool_ZeroAsset.selector);
         new Pool({ configurator_: address(poolConfigurator), asset_: address(0), name_: _name, symbol_: _symbol });
     }
 
-    function test_RevetWhen_PoolConfiguratorIsZeroAddress() external whenAssetNotZeroAddress {
+    function test_RevertWhen_PoolConfiguratorIsZeroAddress() external whenAssetNotZeroAddress {
         vm.expectRevert(Errors.Pool_ZeroConfigurator.selector);
         new Pool({ configurator_: address(0), asset_: address(usdc), name_: _name, symbol_: _symbol });
     }
