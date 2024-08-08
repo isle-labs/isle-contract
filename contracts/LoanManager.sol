@@ -285,7 +285,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
 
     /// @inheritdoc ILoanManager
     function withdrawFunds(uint16 loanId_, address destination_) external override whenNotPaused {
-        Loan.Info memory loan_ = _loans[loanId_];
+        Loan.Info storage loan_ = _loans[loanId_];
 
         // Only the seller can drawdown funds
         if (msg.sender != loan_.seller) {
