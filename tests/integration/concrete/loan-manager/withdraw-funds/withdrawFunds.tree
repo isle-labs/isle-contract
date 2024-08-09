@@ -5,16 +5,13 @@ withdrawFunds.t.sol
    ├── when the caller is not the seller
    │  └── it should revert
    └── when the caller is the seller
-      ├── when the withdraw amount is greater than the drawable amount
-      │  └── it should revert
-      └── when the withdraw amount is less than or equal to the drawable amount
-         ├── when the buyer is not repay the loan
-         │  ├── it should transfer the collateral receivable from the seller to the loanManager
-         │  ├── it should transfer the drawable amount from loanManager to the seller
-         │  └── it should emit a {FundsWithdrawn} event
-         └── when the buyer is repay the loan
-            ├── it should transfer the collateral receivable from the seller to the loanManager
-            ├── it should burn the receivable token
-            ├── it should emit a {AssetBurned} event
-            ├── it should transfer the drawable amount from loanManager to the seller
-            └── it should emit a {FundsWithdrawn} event
+      ├── when the buyer is not repay the loan
+      │  ├── it should transfer the collateral receivable from the seller to the loanManager
+      │  ├── it should transfer the drawable amount from loanManager to the seller
+      │  └── it should emit a {FundsWithdrawn} event
+      └── when the buyer is repay the loan
+         ├── it should transfer the collateral receivable from the seller to the loanManager
+         ├── it should burn the receivable token
+         ├── it should emit a {AssetBurned} event
+         ├── it should transfer the drawable amount from loanManager to the seller
+         └── it should emit a {FundsWithdrawn} event
