@@ -10,7 +10,7 @@ contract MaxWithdraw_Pool_Integration_Concrete_Test is Pool_Integration_Shared_T
         Pool_Integration_Shared_Test.setUp();
     }
 
-    function test_maxWithdraw() external {
+    function test_MaxWithdraw() external {
         vm.expectRevert(Errors.Pool_WithdrawalNotImplemented.selector);
         pool.maxWithdraw({ owner: users.receiver });
     }
