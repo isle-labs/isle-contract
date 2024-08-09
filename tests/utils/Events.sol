@@ -146,6 +146,8 @@ abstract contract Events {
 
     event IsleGlobalsUpdated(address indexed oldAddress, address indexed newAddress);
 
+    event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);
+
     // Governable Events
     event TransferGovernor(address indexed oldGovernor, address indexed newGovernor);
 }

@@ -50,7 +50,7 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     }
 
     function setMarketId(string memory newMarketId_) external override onlyGovernor {
-        _marketId = newMarketId_;
+        _setMarketId(newMarketId_);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
