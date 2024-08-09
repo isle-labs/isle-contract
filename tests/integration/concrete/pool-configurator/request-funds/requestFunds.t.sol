@@ -122,7 +122,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         // seller withdraw fund
         changePrank(users.seller);
         IERC721(address(receivable)).approve(address(loanManager), defaults.RECEIVABLE_TOKEN_ID());
-        loanManager.withdrawFunds(1, address(users.seller), _principal);
+        loanManager.withdrawFunds(1, address(users.seller));
 
         // receiver request redeem
         changePrank(users.receiver);
