@@ -35,4 +35,9 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test {
         changePrank({ msgSender: users.poolAdmin });
         _;
     }
+
+    modifier whenCallerPoolConfigurator() {
+        changePrank({ msgSender: address(poolConfigurator) });
+        _;
+    }
 }

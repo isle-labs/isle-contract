@@ -10,7 +10,7 @@ contract removeShares_Integration_Concrete_Test is PoolConfigurator_Integration_
         PoolConfigurator_Integration_Shared_Test.setUp();
     }
 
-    function test_removeShares() external whenCallerPool {
+    function test_RemoveShares() external whenCallerPool {
         requestDefaultRedeem();
 
         vm.warp({ timestamp: defaults.WINDOW_3() });

@@ -109,6 +109,10 @@ abstract contract Events {
 
     event OpenToPublicSet(bool isOpenToPublic_);
 
+    event RedeemRequested(address indexed owner_, uint256 shares_);
+
+    event CoverLiquidated(uint256 toPool_);
+
     // WithdrawalManager Events
     event WithdrawalUpdated(address indexed account_, uint256 lockedShares_, uint64 windowStart_, uint64 windowEnd_);
 

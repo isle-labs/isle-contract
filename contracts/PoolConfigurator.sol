@@ -199,17 +199,11 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     }
 
     /// @inheritdoc IPoolConfigurator
-    function requestRedeem(uint256 shares_, address owner_, address sender_) external override whenNotPaused onlyPool {
+    function requestRedeem(uint256 shares_, address owner_) external override whenNotPaused onlyPool {
         address pool_ = pool;
         IWithdrawalManager withdrawalManager_ = _withdrawalManager();
 
-        if (!IPool(pool_).approve(address(withdrawalManager_), shares_)) {
-            revert Errors.PoolConfigurator_PoolApproveWithdrawalManagerFailed({ amount_: shares_ });
-        }
-
-        if (sender_ != owner_ && shares_ == 0) {
-            revert Errors.PoolConfigurator_NoAllowance({ owner_: owner_, spender_: sender_ });
-        }
+        IPool(pool_).approve(address(withdrawalManager_), shares_);
 
         withdrawalManager_.addShares(shares_, owner_);
 

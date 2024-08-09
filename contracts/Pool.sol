@@ -112,7 +112,7 @@ contract Pool is IPool, ERC20Permit {
             _transfer(owner_, destination_, shares_);
         }
 
-        IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_, sender_: _msgSender() });
+        IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_ });
     }
 
     /*//////////////////////////////////////////////////////////////////////////

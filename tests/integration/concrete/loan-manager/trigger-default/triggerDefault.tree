@@ -2,9 +2,9 @@ triggerDefault.t.sol
 ├── when the function is paused
 │  └── it should revert
 └── when the function is not paused
-   ├── when the caller is not the pool admin
+   ├── when the caller is not the PoolConfigurator
    │  └── it should revert
-   └── when the caller is the pool admin
+   └── when the caller is the PoolConfigurator
       ├── when the block timestamp is less than or equal to the sum of the due date plus grace period
       │  └── it should revert
       └── when the block timestamp is greater than the sum of the due date plus grace period

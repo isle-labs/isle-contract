@@ -36,16 +36,16 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         loanManager.triggerDefault(1);
     }
 
-    function test_RevertWhen_CallerNotPoolAdmin() external whenNotPaused {
+    function test_RevertWhen_CallerNotPoolConfigurator() external whenNotPaused {
         changePrank(users.governor);
-        vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdmin.selector, address(users.governor)));
+        vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolConfigurator.selector, address(users.governor)));
         loanManager.triggerDefault(1);
     }
 
     function test_RevertWhen_BlockTimestampLessThanOrEqualToDueDatePlusGracePeriod()
         external
         whenNotPaused
-        whenCallerPoolAdmin
+        whenCallerPoolConfigurator
     {
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD());
 
@@ -56,7 +56,7 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
     function test_RevertWhen_PaymentIdIsZero()
         external
         whenNotPaused
-        whenCallerPoolAdmin
+        whenCallerPoolConfigurator
         whenBlockTimestampGreaterThanDueDatePlusGracePeriod
     {
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 1);
@@ -67,7 +67,7 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
     function test_TriggerDefault()
         external
         whenNotPaused
-        whenCallerPoolAdmin
+        whenCallerPoolConfigurator
         whenBlockTimestampGreaterThanDueDatePlusGracePeriod
         whenPaymentIdIsNotZero
     {

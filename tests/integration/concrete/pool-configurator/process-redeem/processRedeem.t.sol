@@ -5,12 +5,47 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { PoolConfigurator_Integration_Shared_Test } from "../../../shared/pool-configurator/PoolConfigurator.t.sol";
 
-contract processRedeem_Integration_Concrete_Test is PoolConfigurator_Integration_Shared_Test {
-    function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
-        PoolConfigurator_Integration_Shared_Test.setUp();
+contract ProcessRedeem_Integration_Concrete_Test is PoolConfigurator_Integration_Shared_Test {
+    uint256 private _redeemShares;
+
+    modifier whenCallerHasAllowance() {
+        _;
     }
 
-    function test_processRedeem() external whenCallerPool {
+    function setUp() public virtual override(PoolConfigurator_Integration_Shared_Test) {
+        PoolConfigurator_Integration_Shared_Test.setUp();
+        _redeemShares = defaults.REDEEM_SHARES();
+    }
+
+    function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {
+        pauseProtoco();
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
+    }
+
+    function test_RevertWhen_PoolConfiguratorPaused_ContractPaused() external {
+        pauseContract();
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
+    }
+
+    function test_RevertWhen_PoolConfiguratorPaused_FunctionPaused() external {
+        pauseFunction(bytes4(keccak256("processRedeem(uint256,address,address)")));
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
+    }
+
+    function test_RevertWhen_CallerNotPool() external whenFunctionNotPause {
+        changePrank(users.receiver);
+        vm.expectRevert(abi.encodeWithSelector(Errors.InvalidCaller.selector, users.receiver, pool));
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.receiver);
+    }
+
+    function test_RevertWhen_CallerNoAllowance() external whenFunctionNotPause whenCallerPool {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.PoolConfigurator_NoAllowance.selector, users.receiver, users.caller)
+        );
+        poolConfigurator.processRedeem(_redeemShares, users.receiver, users.caller);
+    }
+
+    function test_ProcessRedeem() external whenFunctionNotPause whenCallerPool whenCallerHasAllowance {
         uint256 expectedResultingAssets_ = defaults.REDEEM_SHARES() * defaults.POOL_ASSETS() / defaults.POOL_SHARES();
         uint256 expectedRedeemableShares_ = defaults.REDEEM_SHARES();
 
