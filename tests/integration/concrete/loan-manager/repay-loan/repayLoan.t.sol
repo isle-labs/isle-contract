@@ -17,7 +17,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
     }
 
-    modifier whenHasRequestLoan() {
+    modifier whenHasLoanRequested() {
         _;
     }
 
@@ -42,19 +42,14 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RevertWhen_NoRequestLoan() external whenNotPaused {
-        uint256 expectPaymentId_ = 0;
-        uint256 actualPaymentId_ = loanManager.paymentIdOf(0);
-
-        assertEq(expectPaymentId_, actualPaymentId_);
-
+    function test_RevertWhen_NoLoanRequested() external whenNotPaused {
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
 
         changePrank(users.buyer);
         loanManager.repayLoan(0);
     }
 
-    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused whenHasRequestLoan {
+    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused whenHasLoanRequested {
         createDefaultLoan();
 
         changePrank(users.poolAdmin);
@@ -67,7 +62,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused whenHasRequestLoan whenLoanNotImpaired {
+    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused whenHasLoanRequested whenLoanNotImpaired {
         uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
 
         createDefaultLoan();
@@ -83,7 +78,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
     function test_RepayLoan_WhenSellerNotWithdrawFunds()
         external
         whenNotPaused
-        whenHasRequestLoan
+        whenHasLoanRequested
         whenLoanNotImpaired
         whenBeforeDueDate
     {
@@ -133,7 +128,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         external
         whenNotPaused
         whenSellerWithdrawFunds
-        whenHasRequestLoan
+        whenHasLoanRequested
         whenLoanNotImpaired
         whenBeforeDueDate
     {

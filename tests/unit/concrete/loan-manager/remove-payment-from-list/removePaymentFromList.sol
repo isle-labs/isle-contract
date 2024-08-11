@@ -51,7 +51,7 @@ contract RemovePaymentFromList_LoanManager_Unit_Concrete_Test is PaymentList_Uni
         Loan.SortedPayment memory expectedSortedPaymentEarliest_ = Loan.SortedPayment({
             previous: 0,
             next: _paymentId3,
-            paymentDueDate: SafeCast.toUint48(_paymentDueDateDefault)
+            paymentDueDate: SafeCast.toUint48(defaults.REPAYMENT_TIMESTAMP())
         });
 
         assertEq(actualSortedPaymentEarliest_, expectedSortedPaymentEarliest_);
@@ -80,9 +80,9 @@ contract RemovePaymentFromList_LoanManager_Unit_Concrete_Test is PaymentList_Uni
     }
 
     function _createDefaultPaymentList() private {
-        _paymentDueDateMid = _paymentDueDateDefault + 5 days;
-        _paymentDueDateLast = _paymentDueDateDefault + 10 days;
-        _paymentId1 = addDefaultPayment(_paymentDueDateDefault);
+        _paymentDueDateMid = defaults.REPAYMENT_TIMESTAMP() + 5 days;
+        _paymentDueDateLast = defaults.REPAYMENT_TIMESTAMP() + 10 days;
+        _paymentId1 = addDefaultPayment(defaults.REPAYMENT_TIMESTAMP());
         _paymentId2 = addDefaultPayment(_paymentDueDateMid);
         _paymentId3 = addDefaultPayment(_paymentDueDateLast);
     }

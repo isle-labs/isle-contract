@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
-
-import { LoanManager } from "contracts/LoanManager.sol";
+pragma solidity ^0.8.19;
 
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";
 
 import { Loan } from "contracts/libraries/types/DataTypes.sol";
+
+import { LoanManager } from "contracts/LoanManager.sol";
 
 contract LoanManagerHarness is LoanManager {
     constructor(IPoolAddressesProvider provider_) LoanManager(provider_) { }

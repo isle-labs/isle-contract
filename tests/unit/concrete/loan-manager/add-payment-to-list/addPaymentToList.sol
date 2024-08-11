@@ -11,17 +11,20 @@ contract AddPaymentToList_LoanManager_Unit_Concrete_Test is PaymentList_Unit_Sha
     using SafeCast for uint256;
 
     function test_AddPaymentToList() external {
-        uint24 paymentId_ = addDefaultPayment(_paymentDueDateDefault);
+        uint24 paymentId_ = addDefaultPayment(defaults.REPAYMENT_TIMESTAMP());
 
         Loan.SortedPayment memory actualSortedPayment_ = loanManagerHarness.getSortedPayment(paymentId_);
-        Loan.SortedPayment memory expectedSortedPayment_ =
-            Loan.SortedPayment({ previous: 0, next: 0, paymentDueDate: SafeCast.toUint48(_paymentDueDateDefault) });
+        Loan.SortedPayment memory expectedSortedPayment_ = Loan.SortedPayment({
+            previous: 0,
+            next: 0,
+            paymentDueDate: SafeCast.toUint48(defaults.REPAYMENT_TIMESTAMP())
+        });
 
         assertEq(actualSortedPayment_, expectedSortedPayment_);
     }
 
     function test_AddPaymentToList_WhenAddEarliestPayment() external {
-        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
+        uint24 paymentId1_ = addDefaultPayment(defaults.REPAYMENT_TIMESTAMP());
 
         uint256 paymentDueDateEarliest_ = defaults.REPAYMENT_TIMESTAMP() - 1 days;
         uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateEarliest_));
@@ -37,7 +40,7 @@ contract AddPaymentToList_LoanManager_Unit_Concrete_Test is PaymentList_Unit_Sha
     }
 
     function test_AddPaymentToList_WhenAddLatestPayment() external {
-        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
+        uint24 paymentId1_ = addDefaultPayment(defaults.REPAYMENT_TIMESTAMP());
 
         uint256 paymentDueDateLatest_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
         uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateLatest_));
@@ -53,7 +56,7 @@ contract AddPaymentToList_LoanManager_Unit_Concrete_Test is PaymentList_Unit_Sha
     }
 
     function test_AddPaymentToList_WhenAddMidPayment() external {
-        uint24 paymentId1_ = addDefaultPayment(_paymentDueDateDefault);
+        uint24 paymentId1_ = addDefaultPayment(defaults.REPAYMENT_TIMESTAMP());
 
         uint256 paymentDueDateLatest_ = defaults.REPAYMENT_TIMESTAMP() + 10 days;
         uint24 paymentId2_ = loanManagerHarness.exposed_addPaymentToList(SafeCast.toUint48(paymentDueDateLatest_));
