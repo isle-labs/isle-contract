@@ -67,7 +67,6 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
     function test_TriggerDefault_WhenLoanImpaired()
         external
         whenNotPaused
-        whenCallerPoolAdmin
         whenBlockTimestampGreaterThanDueDatePlusGracePeriod
         whenPaymentIdIsNotZero
     {
@@ -78,6 +77,7 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         vm.expectEmit(true, true, true, true);
         emit UnrealizedLossesUpdated(0);
 
+        changePrank({ msgSender: address(poolConfigurator) });
         loanManager.triggerDefault(1);
     }
 
