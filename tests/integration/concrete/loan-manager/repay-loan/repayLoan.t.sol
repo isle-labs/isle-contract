@@ -21,6 +21,10 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         _;
     }
 
+    modifier whenHasLoanRequested() {
+        _;
+    }
+
     function test_RevertWhen_FunctionPaused() external {
         changePrank(users.governor);
         isleGlobals.setContractPaused(address(loanManager), true);
@@ -30,7 +34,14 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused {
+    function test_RevertWhen_NoLoanRequested() external whenNotPaused {
+        vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
+
+        changePrank(users.buyer);
+        loanManager.repayLoan(0);
+    }
+
+    function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused whenHasLoanRequested {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
@@ -73,7 +84,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         assertEq(poolBalanceAfter - poolBalanceBefore, defaults.NET_INTEREST());
     }
 
-    function test_RepayLoan() external whenNotPaused whenSellerWithdrawFunds {
+    function test_RepayLoan() external whenNotPaused whenHasLoanRequested whenSellerWithdrawFunds {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
