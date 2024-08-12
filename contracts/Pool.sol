@@ -327,7 +327,7 @@ contract Pool is IPool, ERC20Permit {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _decimalsOffset() internal pure returns (uint8) {
-        return 0;
+        return 4;
     }
 
     function _convertToShares(
