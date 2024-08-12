@@ -13,22 +13,22 @@ interface IReceivable is IGovernable, IReceivableEvent {
                             UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Initializes the Receivable
-    /// @param initialGovernor_ The address of the governor
+    /// @dev Initializes the Receivable.
+    /// @param initialGovernor_ The address of the governor.
     function initialize(address initialGovernor_) external;
 
-    /// @dev Mint a new receivable
-    /// @notice The event faceAmount is converted to decimal with 6 decimals
-    /// @param create_ The struct containing the information of the receivable to be created
-    /// @return tokenId_ The id of the newly created receivable
+    /// @notice Mint a new receivable.
+    /// @dev The event faceAmount is converted to decimal with 6 decimals.
+    /// @param create_ The struct containing the information of the receivable to be created.
+    /// @return tokenId_ The id of the newly created receivable.
     function createReceivable(Receivable.Create memory create_) external returns (uint256 tokenId_);
 
-    /// @dev Get the information of a receivable
-    /// @param tokenId_ The id of the receivable
-    /// @return info_ The struct containing the information of the receivable
+    /// @dev Get the information of a receivable.
+    /// @param tokenId_ The id of the receivable.
+    /// @return info_ The struct containing the information of the receivable.
     function getReceivableInfoById(uint256 tokenId_) external view returns (Receivable.Info memory info_);
 
-    /// @dev Burn a receivable
-    /// @param tokenId_ The id of the receivable
+    /// @dev Burn a receivable.
+    /// @param tokenId_ The id of the receivable.
     function burnReceivable(uint256 tokenId_) external;
 }

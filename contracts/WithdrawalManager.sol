@@ -8,7 +8,6 @@ import { VersionedInitializable } from "./libraries/upgradability/VersionedIniti
 import { Errors } from "./libraries/Errors.sol";
 import { WithdrawalManager as WM } from "./libraries/types/DataTypes.sol";
 
-import { IGovernable } from "./interfaces/IGovernable.sol";
 import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";

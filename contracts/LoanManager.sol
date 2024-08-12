@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import { SignedMath } from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -12,7 +11,6 @@ import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
 import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
-import { IGovernable } from "./interfaces/IGovernable.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 import { ILoanManager } from "./interfaces/ILoanManager.sol";
@@ -112,7 +110,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function getLoanPaymentDetailedBreakdown(uint16 loanId_)
+    function getLoanPaymentDetailedBreakdown(
+        uint16 loanId_
+    )
         public
         view
         override
@@ -132,7 +132,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function getLoanPaymentBreakdown(uint16 loanId_)
+    function getLoanPaymentBreakdown(
+        uint16 loanId_
+    )
         public
         view
         override
@@ -245,7 +247,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function repayLoan(uint16 loanId_)
+    function repayLoan(
+        uint16 loanId_
+    )
         external
         override
         whenNotPaused
@@ -367,7 +371,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function removeLoanImpairment(uint16 loanId_)
+    function removeLoanImpairment(
+        uint16 loanId_
+    )
         external
         override
         nonReentrant
@@ -425,7 +431,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function triggerDefault(uint16 loanId_)
+    function triggerDefault(
+        uint16 loanId_
+    )
         external
         override
         whenNotPaused
@@ -673,7 +681,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
     }
 
-    function _getInterestAndFeesFromLiquidationInfo(uint16 loanId_)
+    function _getInterestAndFeesFromLiquidationInfo(
+        uint16 loanId_
+    )
         internal
         view
         returns (uint256 netInterest_, uint256 netLateInterest_, uint256 protocolFees_)

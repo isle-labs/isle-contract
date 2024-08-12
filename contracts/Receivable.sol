@@ -9,7 +9,6 @@ import { ERC721BurnableUpgradeable } from
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
-import { Errors } from "./libraries/Errors.sol";
 import { Receivable as RCV } from "./libraries/types/DataTypes.sol";
 
 import { IReceivable } from "./interfaces/IReceivable.sol";
@@ -97,7 +96,9 @@ contract Receivable is
     }
 
     /// @inheritdoc ERC721Upgradeable
-    function supportsInterface(bytes4 interfaceId_)
+    function supportsInterface(
+        bytes4 interfaceId_
+    )
         public
         view
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)

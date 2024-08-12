@@ -10,9 +10,6 @@ import { Errors } from "./libraries/Errors.sol";
 
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
-import { IPoolConfigurator } from "./interfaces/IPoolConfigurator.sol";
-import { ILoanManager } from "./interfaces/ILoanManager.sol";
-import { IWithdrawalManager } from "./interfaces/IWithdrawalManager.sol";
 
 contract PoolAddressesProvider is IPoolAddressesProvider {
     string private _marketId;

@@ -26,12 +26,12 @@ library WithdrawalManager {
 
 /// @notice Namespace for the structs used in {Receivable}
 library Receivable {
-    /// @param buyer The address of the buyer that's expected to pay for this receivable
-    /// @param seller The address of the seller that's expected to receive payment for this receivable
-    /// @param faceAmount The amount of the receivable
-    /// @param repaymentTimestamp The timestamp when the receivable is expected to be repaid
+    /// @param buyer The address of the buyer that's expected to pay for this receivable.
+    /// @param seller The address of the seller that's expected to receive payment for this receivable.
+    /// @param faceAmount The amount of the receivable.
+    /// @param repaymentTimestamp The timestamp when the receivable is expected to be repaid.
     /// @param currencyCode The currency code specified by ISO 4217 in which the receivable is expressed, e.g. 840 for
-    /// USD
+    /// USD.
     struct Create {
         address buyer;
         address seller;
