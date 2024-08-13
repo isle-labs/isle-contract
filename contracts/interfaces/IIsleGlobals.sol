@@ -8,17 +8,17 @@ import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
 /// @notice Interface for the IsleGlobals contract.
 /// @notice This interface provides functions to manage the global configurations of the Isle Protocol.
 interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
-    /*//////////////////////////////////////////////////////////////////////////
-                            INITIALIZER
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              INITIALIZER
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Initializes the contract.
     /// @param governor_ The address of the governor.
     function initialize(address governor_) external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Sets the address of the Isle vault.
     /// @param isleVault_ The address of the Isle vault.
@@ -59,9 +59,9 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @param isValid_   A boolean indicating the validity of the pool admin.
     function setValidPoolAdmin(address poolAdmin_, bool isValid_) external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL STORAGE FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                       EXTERNAL STORAGE FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the protocol fee.
     /// @return protocolFee_ A uint24 indicating the protocol fee.
@@ -101,9 +101,9 @@ interface IIsleGlobals is IIsleGlobalsEvents, IGovernable {
     /// @return isPoolAsset_ A boolean indicating the validity of the pool asset.
     function isPoolAsset(address poolAsset_) external view returns (bool isPoolAsset_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the pause status of a specific function in a contract.
     /// @param contract_ The address of the contract.

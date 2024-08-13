@@ -21,9 +21,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     bytes32 private constant LOAN_MANAGER = "LOAN_MANAGER";
     bytes32 private constant WITHDRAWAL_MANAGER = "WITHDRAWAL_MANAGER";
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     modifier onlyGovernor() {
         address governor_ = IIsleGlobals(getAddress(ISLE_GLOBALS)).governor();
@@ -50,9 +50,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
         _setMarketId(newMarketId_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                    Proxied
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                            PROXY FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolAddressesProvider
     function getPoolConfigurator() external view override returns (address) {
@@ -120,9 +120,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
         emit AddressSetAsProxy(id, proxyAddress, oldImplementationAddress, newImplementationAddress);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                Not Proxied
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                          NON-PROXY FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolAddressesProvider
     function getIsleGlobals() external view override returns (address) {
@@ -147,6 +147,10 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
         _addresses[id] = newAddress;
         emit AddressSet(id, oldAddress, newAddress);
     }
+
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Internal function to update the implementation of a specific proxied component of the protocol.
     /// @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`

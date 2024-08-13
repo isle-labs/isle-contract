@@ -25,9 +25,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
 
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     modifier onlyPoolAdmin() {
         _revertIfNotPoolAdmin();
@@ -46,9 +46,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc VersionedInitializable
     function getRevision() public pure virtual override returns (uint256 revision_) {
@@ -98,9 +98,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         });
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IWithdrawalManager
     function setExitConfig(uint256 cycleDuration_, uint256 windowDuration_) external override whenProtocolNotPaused {
@@ -283,9 +283,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         _emitUpdate(owner_, lockedShares_, exitCycleId_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IWithdrawalManager
     function isInExitWindow(address owner_) external view override returns (bool isInExitWindow_) {
@@ -341,9 +341,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         (redeemableShares_, resultingAssets_,) = getRedeemableAmounts(lockedShares_, owner_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                       PUBLIC CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IWithdrawalManager
     function getCycleConfig(uint256 configId_) public view override returns (WM.CycleConfig memory config_) {
@@ -424,9 +424,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         resultingAssets_ = redeemableShares_ * totalAssetsWithLosses_ / totalSupply_;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _poolConfigurator() internal view returns (address poolConfigurator_) {
         poolConfigurator_ = ADDRESSES_PROVIDER.getPoolConfigurator();

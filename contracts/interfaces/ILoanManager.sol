@@ -9,9 +9,9 @@ import { ILoanManagerStorage } from "./ILoanManagerStorage.sol";
 /// @title ILoanManager
 /// @notice Creates and manages loans.
 interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Initializes the loan manager.
     /// @param asset_ The address of the asset used for the pool.
@@ -49,16 +49,16 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @return interest_ The total interest due for the loan.
     function getLoanPaymentBreakdown(uint16 loanId_) external view returns (uint256 principal_, uint256 interest_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Manually updates the accounting state of the pool.
     function updateAccounting() external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                POOL ADMIN
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                          POOL ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Used by the pool admin to fund the loan requested by the buyer.
     /// @param loanId_ The id of the loan.
@@ -78,9 +78,9 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @return protocolFees_ The amount of protocol fees.
     function triggerDefault(uint16 loanId_) external returns (uint256 remainingLosses_, uint256 protocolFees_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                BUYER
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                            BUYER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Used by buyer to request a loan from the pool with the following terms.
     /// @param receivablesTokenId_ Token ID of the receivable that would be used as collateral.
@@ -106,9 +106,9 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @return interest_ Interest amount repaid.
     function repayLoan(uint16 loanId_) external returns (uint256 principal_, uint256 interest_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                SELLER
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                            SELLER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Used by sellers to withdraw funds from a loan.
     /// @param loanId_ Id of the loan to withdraw funds from.

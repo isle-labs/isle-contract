@@ -6,9 +6,9 @@ import { IPoolConfiguratorStorage } from "./IPoolConfiguratorStorage.sol";
 import { IPoolConfiguratorEvents } from "./IPoolConfiguratorEvents.sol";
 
 interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents {
-    /*//////////////////////////////////////////////////////////////////////////
-                                INITIALIZER
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              INITIALIZER
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice The initializer function for the pool configurator (must be called directly after deployment).
     /// @param provider_ The address of the pool addresses provider.
@@ -25,9 +25,9 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     )
         external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                GOVERNOR FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                           GOVERNOR FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Sets the max cover liquidation for the pool configurator.
     /// @param maxCoverLiquidation_ The max cover liquidation as a percentage for the pool admin.
@@ -45,9 +45,9 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param newAdmin_ The address of the new admin.
     function transferAdmin(address newAdmin_) external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            POOL ADMIN FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                          POOL ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Sets whether the pool is open to the public (permissioned or permissionless).
     /// @param isOpenToPublic_ Whether the pool is open to the public.
@@ -113,9 +113,9 @@ interface IPoolConfigurator is IPoolConfiguratorStorage, IPoolConfiguratorEvents
     /// @param recipient_ The address of the recipient.
     function withdrawCover(uint256 amount_, address recipient_) external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Returns the max cover liquidation of the pool.
     /// @return maxCoverLiquidation_ The max cover liquidation of the pool.

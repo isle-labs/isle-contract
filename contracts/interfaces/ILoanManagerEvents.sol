@@ -7,10 +7,6 @@ interface ILoanManagerEvents {
     /// @param asset_ The address of the asset set.
     event Initialized(address poolAddressesProvider_, address asset_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                POOL ADMIN
-    //////////////////////////////////////////////////////////////////////////*/
-
     /// @notice Emitted when a loan is requested.
     /// @param loanId_ The id of the loan.
     event LoanRequested(uint16 indexed loanId_);

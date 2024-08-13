@@ -7,9 +7,9 @@ import { IPoolAddressesProvider } from "./IPoolAddressesProvider.sol";
 import { IWithdrawalManagerStorage } from "./IWithdrawalManagerStorage.sol";
 
 interface IWithdrawalManager is IWithdrawalManagerStorage {
-    /*//////////////////////////////////////////////////////////////////////////
-                            EVENTS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                                 EVENTS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Emitted when a withdrawal manager is initialized.
     /// @param poolAddressesProvider_ The address of the PoolAddressesProvider.
@@ -48,9 +48,9 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     /// @param windowEnd_ The new ending time of the withdrawal window.
     event WithdrawalUpdated(address indexed account_, uint256 lockedShares_, uint64 windowStart_, uint64 windowEnd_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Initializes the Withdrawal Manager.
     /// @dev Function is invoked by the proxy contract when the Withdrawal Manager Contract is added to the
@@ -60,9 +60,9 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     /// @param windowDuration_ The duration of the withdrawal window.
     function initialize(IPoolAddressesProvider provider_, uint256 cycleDuration_, uint256 windowDuration_) external;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Pool admin sets a new configuration for the withdrawal manager.
     /// @param cycleDuration_ The total duration of a withdrawal cycle.
@@ -91,9 +91,9 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
         external
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Checks if the owner has a withdrawal request in the exit window.
     /// @param owner_ The owner address to check.
@@ -117,9 +117,9 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
         view
         returns (uint256 redeemableShares_, uint256 resultingAssets_);
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            PUBLIC CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                       PUBLIC CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @notice Gets the configuration of a config id.
     /// @param configId_ The id of the config.

@@ -33,9 +33,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     using SafeCast for int256;
     using SafeERC20 for IERC20;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                CONSTRUCTOR
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              CONSTRUCTOR
+    //////////////////////////////////////////////////////////////*/
 
     constructor(IPoolAddressesProvider provider_) {
         if (address(provider_) == address(0)) {
@@ -51,9 +51,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         emit Initialized({ poolAddressesProvider_: address(ADDRESSES_PROVIDER), asset_: asset = asset_ });
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Can only be called when the function is not paused
     modifier whenNotPaused() {
@@ -79,9 +79,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc VersionedInitializable
     function getRevision() public pure virtual override returns (uint256 revision_) {
@@ -156,9 +156,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         interest_ = interestArray_[0] + interestArray_[1];
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ILoanManager
     function updateAccounting() external whenNotPaused onlyPoolAdminOrGovernor {
@@ -471,9 +471,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         emit DefaultTriggered({ loanId_: loanId_ });
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _getIssuance(uint256 issuanceRate_, uint256 interval_) internal pure returns (uint256 issuance_) {
         issuance_ = (issuanceRate_ * interval_) / PRECISION;
@@ -563,9 +563,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         vault_ = IIsleGlobals(_globals()).isleVault();
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _advanceGlobalPaymentAccounting() internal {
         uint256 domainEnd_ = domainEnd;
@@ -622,9 +622,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         );
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                    INTERNAL LOAN ACCOUNTING HELPER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+               INTERNAL LOAN ACCOUNTING HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _compareAndSubtractAccountedInterest(uint256 amount_) internal {
         // Rounding errors accrue in `accountedInterest` when _loans are late and the issuance rate is used to calculate
@@ -711,9 +711,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         accruedInterest_ = (endTime_ - startTime_) * paymentIssuanceRate_ / PRECISION;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                    INTERNAL PAYMENT ACCOUNTING FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                 INTERNAL PAYMENT ACCOUNTING FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _accountToEndOfPayment(
         uint256 paymentId_,
@@ -815,9 +815,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         emit UnrealizedLossesUpdated(unrealizedLosses);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        INTERNAL PAYMENT SORTING FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                   INTERNAL PAYMENT SORTING FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _addPaymentToList(uint48 paymentDueDate_) internal returns (uint24 paymentId_) {
         paymentId_ = ++paymentCounter;
@@ -867,9 +867,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         delete sortedPayments[paymentId_];
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        INTERNAL FUNDS DISTRIBUTION FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                 INTERNAL FUNDS DISTRIBUTION FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _distributeClaimedFunds(uint16 loanId_, uint256 principal_, uint256 interest_) internal {
         uint256 paymentId_ = paymentIdOf[loanId_];
@@ -896,9 +896,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         IERC20(asset_).safeTransfer(_vault(), protocolFee_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                     INTERNAL LOAN DEFAULT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    //////////////////////////////////////////////////////////////*/
 
     function _handleDefault(
         uint16 loanId_,
@@ -931,9 +931,9 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         _deletePayment(loanId_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
+    /*//////////////////////////////////////////////////////////////
                             REVERT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    //////////////////////////////////////////////////////////////*/
 
     function _revertIfPaused() internal view {
         if (IIsleGlobals(_globals()).isFunctionPaused(msg.sig)) {
