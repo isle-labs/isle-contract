@@ -43,15 +43,15 @@ import { Pool } from "../contracts/Pool.sol";
 abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     using SafeCast for uint256;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                    VARIABLES
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                               VARIABLES
+    //////////////////////////////////////////////////////////////*/
 
     Users internal users;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                TEST CONTRACTS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                             TEST CONTRACTS
+    //////////////////////////////////////////////////////////////*/
 
     MintableERC20WithPermit internal usdc;
     Defaults internal defaults;
@@ -69,9 +69,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     ILoanManager internal loanManager;
     IWithdrawalManager internal withdrawalManager;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                SET-UP FUNCTION
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                            SET-UP FUNCTION
+    //////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
         usdc = new MintableERC20WithPermit("Circle USD", "USDC", ASSET_DECIMALS);
@@ -104,9 +104,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         vm.startPrank(users.governor);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                    HELPER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                            HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Deploy all related isle contracts
     function deployAndLabelCore() internal {
@@ -147,7 +147,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool addresses provider
-    function deployPoolAddressesProvider(IIsleGlobals isleGlobals_)
+    function deployPoolAddressesProvider(
+        IIsleGlobals isleGlobals_
+    )
         internal
         returns (IPoolAddressesProvider poolAddressesProvider_)
     {
@@ -155,7 +157,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool configurator
-    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_)
+    function deployPoolConfigurator(
+        IPoolAddressesProvider poolAddressesProvider_
+    )
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {
@@ -186,7 +190,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy withdrawal manager
-    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_)
+    function deployWithdrawalManager(
+        IPoolAddressesProvider poolAddressesProvider_
+    )
         internal
         returns (IWithdrawalManager withdrawalManager_)
     {
@@ -287,9 +293,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         loanManager.fundLoan(loanId_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CALL EXPECTS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              CALL EXPECTS
+    //////////////////////////////////////////////////////////////*/
 
     /// @dev Expects a call to {IERC20.transfer}.
     function expectCallToTransfer(address to, uint256 amount) internal {
