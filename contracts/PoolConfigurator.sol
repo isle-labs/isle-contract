@@ -27,9 +27,9 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
 
     IPoolAddressesProvider public immutable ADDRESSES_PROVIDER;
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     modifier whenNotPaused() {
         _revertIfPaused();
@@ -56,9 +56,9 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         _;
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                INITIALIZERS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                              INITIALIZERS
+    //////////////////////////////////////////////////////////////*/
 
     constructor(IPoolAddressesProvider provider_) {
         if (address(provider_) == address(0)) {
@@ -112,9 +112,9 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         emit Initialized({ poolAdmin_: poolAdmin_, asset_: asset_, pool_: pool_ });
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolConfigurator
     function transferAdmin(address newAdmin_) external virtual override onlyGovernor {
@@ -265,9 +265,9 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         emit CoverWithdrawn(amount_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            EXTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      EXTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPoolConfigurator
     function openToPublic() external view override returns (bool openToPublic_) {
@@ -337,9 +337,9 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
         unrealizedLosses_ = _min(_loanManager().unrealizedLosses(), _totalAssets());
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                           INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _totalAssets() internal view returns (uint256 totalAssets_) {
         totalAssets_ = IERC20(asset).balanceOf(address(pool)) + _loanManager().assetsUnderManagement();

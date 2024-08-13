@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { ERC20, IERC20, IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { ERC20Permit, IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Math } from "@openzeppelin/contracts/utils/math/Math.sol";
@@ -39,9 +39,9 @@ contract Pool is IPool, ERC20Permit {
         _asset = ERC20Permit(asset_);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        EXTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    EXTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPool
     function depositWithPermit(
@@ -115,9 +115,9 @@ contract Pool is IPool, ERC20Permit {
         IPoolConfigurator(configurator).requestRedeem({ shares_: shares_, owner_: owner_ });
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        PUBLIC CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                       PUBLIC CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IPool
     function balanceOfAssets(address account_) public view override returns (uint256 balanceOfAssets_) {
@@ -139,9 +139,9 @@ contract Pool is IPool, ERC20Permit {
         unrealizedLosses_ = IPoolConfigurator(configurator).unrealizedLosses();
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                                IERC4626
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                                IERC462
+    //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IERC4626
     function deposit(uint256 assets, address receiver) public override returns (uint256 shares) {
@@ -281,9 +281,9 @@ contract Pool is IPool, ERC20Permit {
         return IPoolConfigurator(configurator).totalAssets();
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                        INTERNAL NON-CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                    INTERNAL NON-CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Deposit/mint common workflow.
@@ -322,9 +322,9 @@ contract Pool is IPool, ERC20Permit {
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
-                            INTERNAL CONSTANT FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
+    /*//////////////////////////////////////////////////////////////
+                      INTERNAL CONSTANT FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
     function _decimalsOffset() internal pure returns (uint8) {
         return 0;
