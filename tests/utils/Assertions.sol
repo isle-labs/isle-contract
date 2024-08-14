@@ -42,4 +42,11 @@ abstract contract Assertions is PRBTest, PRBMathAssertions {
         assertEq(a.gracePeriod, b.gracePeriod, "info.gracePeriod");
         assertEq(a.isImpaired, b.isImpaired, "info.isImpaired");
     }
+
+    /// @dev Compares two {Loan.SortedPayment} struct entities.
+    function assertEq(Loan.SortedPayment memory a, Loan.SortedPayment memory b) internal {
+        assertEq(a.previous, b.previous, "sortedPayment.previous");
+        assertEq(a.next, b.next, "sortedPayment.next");
+        assertEq(a.paymentDueDate, b.paymentDueDate, "sortedPayment.paymentDueDate");
+    }
 }

@@ -100,7 +100,7 @@ contract requestLoan_LoanManager_Integration_Concrete_Test is
         loanManager.requestLoan(address(receivable), receivablesTokenId, 7, 100_000e6 + 1, [uint256(0), uint256(0)]);
     }
 
-    function test_requestLoan()
+    function test_RequestLoan()
         external
         whenNotPaused
         whenReceivableAssetAllowed

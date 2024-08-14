@@ -17,7 +17,19 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         Callable_Integration_Shared_Test.setUp();
     }
 
+    modifier whenHasLoanRequested() {
+        _;
+    }
+
     modifier whenSellerWithdrawFunds() {
+        _;
+    }
+
+    modifier whenLoanNotImpaired() {
+        _;
+    }
+
+    modifier whenBeforeDueDate() {
         _;
     }
 
@@ -30,7 +42,46 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         loanManager.repayLoan(1);
     }
 
-    function test_RepayLoan_WhenSellerNotWithdrawFunds() external whenNotPaused {
+    function test_RevertWhen_NoLoanRequested() external whenNotPaused {
+        vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_NotLoan.selector, 0));
+
+        changePrank(users.buyer);
+        loanManager.repayLoan(0);
+    }
+
+    function test_RepayLoan_WhenLoanImpaired() external whenNotPaused whenHasLoanRequested {
+        createDefaultLoan();
+
+        changePrank(users.poolAdmin);
+        loanManager.impairLoan(1);
+
+        vm.expectEmit(true, true, true, true);
+        emit UnrealizedLossesUpdated(0);
+
+        changePrank(users.buyer);
+        loanManager.repayLoan(1);
+    }
+
+    function test_RepayLoan_WhenAfterDueDate() external whenNotPaused whenHasLoanRequested whenLoanNotImpaired {
+        uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
+
+        createDefaultLoan();
+
+        vm.warp(dueDate_ + 1);
+
+        changePrank(users.buyer);
+        loanManager.repayLoan(1);
+
+        assertEq(loanManager.accountedInterest(), 0);
+    }
+
+    function test_RepayLoan_WhenSellerNotWithdrawFunds()
+        external
+        whenNotPaused
+        whenHasLoanRequested
+        whenLoanNotImpaired
+        whenBeforeDueDate
+    {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
@@ -73,7 +124,14 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
         assertEq(poolBalanceAfter - poolBalanceBefore, defaults.NET_INTEREST());
     }
 
-    function test_RepayLoan() external whenNotPaused whenSellerWithdrawFunds {
+    function test_RepayLoan()
+        external
+        whenNotPaused
+        whenSellerWithdrawFunds
+        whenHasLoanRequested
+        whenLoanNotImpaired
+        whenBeforeDueDate
+    {
         // set the admin and protocol fee rate to 10% and 0.5% respectively
         _setAdminAndProtocolFee();
 
