@@ -5,13 +5,13 @@ import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract getRedeemableAmounts_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+contract GetRedeemableAmounts_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
     function setUp() public virtual override(WithdrawalManager_Integration_Shared_Test) {
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
     // Currently, this only tests the case where loans are not involved.
-    function test_getRedeemableAmounts() public {
+    function test_GetRedeemableAmounts() public {
         uint256 addShares_ = defaults.ADD_SHARES();
 
         addDefaultShares();

@@ -74,6 +74,7 @@ contract Defaults is Constants {
     uint64 public immutable WINDOW_1;
     uint64 public immutable WINDOW_3;
     uint64 public immutable WINDOW_4;
+    uint64 public immutable WINDOW_5;
 
     uint64 public constant NEW_WINDOW_DURATION = 4 days;
     uint64 public constant NEW_CYCLE_DURATION = 14 days;
@@ -133,6 +134,7 @@ contract Defaults is Constants {
         WINDOW_1 = MAY_1_2023;
         WINDOW_3 = WINDOW_1 + CYCLE_DURATION * 2;
         WINDOW_4 = WINDOW_1 + CYCLE_DURATION * 3;
+        WINDOW_5 = WINDOW_1 + CYCLE_DURATION * 4;
         START_DATE = MAY_1_2023;
         REPAYMENT_TIMESTAMP = MAY_31_2023;
         PERIOD = REPAYMENT_TIMESTAMP - START_DATE;

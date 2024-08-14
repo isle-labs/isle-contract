@@ -50,6 +50,18 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
         _;
     }
 
+    modifier whenWithdrawalNotPending() {
+        _;
+    }
+
+    modifier whenValidRequestShares() {
+        _;
+    }
+
+    modifier whenInTheWindow() {
+        _;
+    }
+
     function addDefaultShares() internal {
         withdrawalManager.addShares({ shares_: _params.addShares, owner_: users.receiver });
     }
@@ -63,5 +75,13 @@ abstract contract WithdrawalManager_Integration_Shared_Test is Integration_Test 
             cycleDuration_: _params.newCycleDuration,
             windowDuration_: _params.newWindowDuration
         });
+    }
+
+    function setNewExitConfig() internal {
+        uint64 newCycleDuration_ = defaults.NEW_CYCLE_DURATION();
+        uint64 newWindowDuration_ = defaults.NEW_WINDOW_DURATION();
+
+        changePrank(users.poolAdmin);
+        withdrawalManager.setExitConfig(newCycleDuration_, newWindowDuration_);
     }
 }

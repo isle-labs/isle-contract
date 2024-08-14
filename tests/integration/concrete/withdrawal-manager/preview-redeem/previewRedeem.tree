@@ -1,0 +1,9 @@
+previewRedeem.t.sol
+├── when the redeem share is not equal to locked share
+│  └── it should return redeemableShares and resultingAssets both 0
+└── when the redeem share is equal to locked share
+   ├── when the current timestamp is not in the window
+   │  └── it should return redeemableShares and resultingAssets both 0
+   └── when the current timestamp is in the window
+      └── it should return redeemable amounts
+         

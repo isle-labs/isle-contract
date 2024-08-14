@@ -1,0 +1,14 @@
+setExitConfig.t.sol
+├── when protocol paused
+│  └── it should revert
+└── when protocol not paused
+   ├── when the caller is not pool admin
+   │  └── it should revert
+   └── when the caller is pool admin
+      ├── when the window duration is 0
+      │  └── it should revert
+      └── when the window duration is not 0
+         ├── when the window duration is greater than cycle duration
+         │  └── it should revert
+         └── when the window duration is less than cycle duration
+            └── it should emit {ConfigurationUpdated} event

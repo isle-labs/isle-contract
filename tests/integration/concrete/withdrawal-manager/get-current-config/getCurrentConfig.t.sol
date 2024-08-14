@@ -5,12 +5,12 @@ import { WithdrawalManager } from "contracts/libraries/types/DataTypes.sol";
 
 import { WithdrawalManager_Integration_Shared_Test } from "../../../shared/withdrawal-manager/WithdrawalManager.t.sol";
 
-contract getCurrentConfig_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
+contract GetCurrentConfig_Integration_Concrete_Test is WithdrawalManager_Integration_Shared_Test {
     function setUp() public virtual override(WithdrawalManager_Integration_Shared_Test) {
         WithdrawalManager_Integration_Shared_Test.setUp();
     }
 
-    function test_getCurrentConfig() public {
+    function test_GetCurrentConfig() public {
         WithdrawalManager.CycleConfig memory actualConfig_ = withdrawalManager.getCurrentConfig();
         WithdrawalManager.CycleConfig memory expectedConfig_ = WithdrawalManager.CycleConfig({
             initialCycleId: 1,
@@ -20,5 +20,31 @@ contract getCurrentConfig_Integration_Concrete_Test is WithdrawalManager_Integra
         });
 
         assertEq(actualConfig_, expectedConfig_);
+    }
+
+    function test_GetCurrentConfig_WhenHasNewConfigs() external {
+        setNewExitConfig();
+
+        WithdrawalManager.CycleConfig memory actualInitConfig_ = withdrawalManager.getCurrentConfig();
+        WithdrawalManager.CycleConfig memory expectedInitConfig_ = WithdrawalManager.CycleConfig({
+            initialCycleId: 1,
+            initialCycleTime: defaults.WINDOW_1(),
+            cycleDuration: defaults.CYCLE_DURATION(),
+            windowDuration: defaults.WINDOW_DURATION()
+        });
+
+        assertEq(actualInitConfig_, expectedInitConfig_);
+
+        vm.warp(defaults.WINDOW_4());
+
+        WithdrawalManager.CycleConfig memory actualNewConfig_ = withdrawalManager.getCurrentConfig();
+        WithdrawalManager.CycleConfig memory expectedNewConfig_ = WithdrawalManager.CycleConfig({
+            initialCycleId: 4,
+            initialCycleTime: defaults.WINDOW_4(),
+            cycleDuration: defaults.NEW_CYCLE_DURATION(),
+            windowDuration: defaults.NEW_WINDOW_DURATION()
+        });
+
+        assertEq(actualNewConfig_, expectedNewConfig_);
     }
 }
