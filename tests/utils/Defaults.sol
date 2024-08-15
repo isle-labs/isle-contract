@@ -23,7 +23,7 @@ contract Defaults is Constants {
     uint256 public constant POOL_ASSETS = 1_500_000e6; // note: must be larger than POOL_SHARES, see initializePool()
 
     uint8 public constant UNDERLYING_DECIMALS = 6;
-    uint8 public constant DECIMALS_OFFSET = 0;
+    uint8 public constant DECIMALS_OFFSET = 4;
     uint256 public immutable DEADLINE; // for erc20 permit
 
     uint256 public constant DEPOSIT_AMOUNT = 1000e6;
