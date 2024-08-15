@@ -103,11 +103,15 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IWithdrawalManager
-    function setExitConfig(uint256 cycleDuration_, uint256 windowDuration_) external override whenProtocolNotPaused {
-        if (msg.sender != _poolAdmin()) {
-            revert Errors.NotPoolAdmin({ caller_: msg.sender });
-        }
-
+    function setExitConfig(
+        uint256 cycleDuration_,
+        uint256 windowDuration_
+    )
+        external
+        override
+        whenProtocolNotPaused
+        onlyPoolAdmin
+    {
         if (windowDuration_ == 0) {
             revert Errors.WithdrawalManager_ZeroWindow();
         }
