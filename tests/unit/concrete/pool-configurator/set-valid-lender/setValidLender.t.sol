@@ -10,12 +10,14 @@ contract SetValidLender_Unit_Concrete_Test is PoolConfigurator_Unit_Shared_Test 
         PoolConfigurator_Unit_Shared_Test.setUp();
     }
 
-    function test_RevertWhen_CallerNotPoolAdmin() external {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external {
         // Make Eve the caller in this test.
         changePrank({ msgSender: users.eve });
 
         // Run the test.
-        vm.expectRevert(abi.encodeWithSelector(Errors.PoolConfigurator_CallerNotPoolAdmin.selector, users.eve));
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.PoolConfigurator_CallerNotPoolAdminOrGovernor.selector, users.eve)
+        );
 
         poolConfigurator.setValidLender(users.receiver, true);
     }

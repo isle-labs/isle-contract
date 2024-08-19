@@ -29,8 +29,8 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
                                MODIFIERS
     //////////////////////////////////////////////////////////////*/
 
-    modifier onlyPoolAdmin() {
-        _revertIfNotPoolAdmin();
+    modifier onlyAdminOrGovernor() {
+        _revertIfNotAdminOrGovernor();
         _;
     }
 
@@ -110,7 +110,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         external
         override
         whenProtocolNotPaused
-        onlyPoolAdmin
+        onlyAdminOrGovernor
     {
         if (windowDuration_ == 0) {
             revert Errors.WithdrawalManager_ZeroWindow();
@@ -471,10 +471,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         emit WithdrawalProcessed(account_, sharesToRedeem_, assetsToWithdraw_);
     }
 
-    function _revertIfNotPoolAdmin() internal view {
-        address poolAdmin_ = _poolAdmin();
-        if (msg.sender != poolAdmin_) {
-            revert Errors.NotPoolAdmin(msg.sender);
+    function _revertIfNotAdminOrGovernor() internal view {
+        if (msg.sender != _poolAdmin() && msg.sender != IIsleGlobals(_globals()).governor()) {
+            revert Errors.NotPoolAdminOrGovernor(msg.sender);
         }
     }
 

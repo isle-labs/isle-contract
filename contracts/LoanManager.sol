@@ -161,7 +161,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ILoanManager
-    function updateAccounting() external whenNotPaused onlyPoolAdminOrGovernor {
+    function updateAccounting() external whenNotPaused {
         _advanceGlobalPaymentAccounting();
         _updateIssuanceParams(issuanceRate, accountedInterest);
     }

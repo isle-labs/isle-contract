@@ -31,9 +31,9 @@ contract SetExitConfig_Integration_Concrete_Test is WithdrawalManager_Integratio
         setDefaultNewExitConfig();
     }
 
-    function test_RevertWhen_CallerNotPoolAdmin() external whenProtocolNotPaused {
+    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenProtocolNotPaused {
         changePrank(users.caller);
-        vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdmin.selector, users.caller));
+        vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, users.caller));
         setDefaultNewExitConfig();
     }
 

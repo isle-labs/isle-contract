@@ -2,9 +2,9 @@ setExitConfig.t.sol
 ├── when protocol paused
 │  └── it should revert
 └── when protocol not paused
-   ├── when the caller is not pool admin
+   ├── when the caller is not pool admin or governor
    │  └── it should revert
-   └── when the caller is pool admin
+   └── when the caller is pool admin or governor
       ├── when the window duration is 0
       │  └── it should revert
       └── when the window duration is not 0
