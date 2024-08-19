@@ -127,27 +127,27 @@ contract PoolConfigurator is VersionedInitializable, IPoolConfigurator, PoolConf
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setBuyer(address buyer_) external override whenNotPaused onlyAdmin {
+    function setBuyer(address buyer_) external override whenNotPaused onlyAdminOrGovernor {
         emit BuyerSet(buyer = buyer_);
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyAdmin {
+    function setValidSeller(address seller_, bool isValid_) external override whenNotPaused onlyAdminOrGovernor {
         emit ValidSellerSet(seller_, isSeller[seller_] = isValid_);
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyAdmin {
+    function setValidLender(address lender_, bool isValid_) external override whenNotPaused onlyAdminOrGovernor {
         emit ValidLenderSet(lender_, isLender[lender_] = isValid_);
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setAdminFee(uint24 adminFee_) external override whenNotPaused onlyAdmin {
+    function setAdminFee(uint24 adminFee_) external override whenNotPaused onlyAdminOrGovernor {
         emit AdminFeeSet(_config.adminFee = adminFee_);
     }
 
     /// @inheritdoc IPoolConfigurator
-    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdmin {
+    function setOpenToPublic(bool isOpenToPublic_) external override whenNotPaused onlyAdminOrGovernor {
         emit OpenToPublicSet(_config.openToPublic = isOpenToPublic_);
     }
 

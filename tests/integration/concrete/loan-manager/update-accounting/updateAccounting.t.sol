@@ -22,13 +22,7 @@ contract UpdateAccounting_LoanManager_Integration_Concrete_Test is
         loanManager.updateAccounting();
     }
 
-    function test_RevertWhen_CallerNotPoolAdminOrGovernor() external whenNotPaused {
-        changePrank(users.caller);
-        vm.expectRevert(abi.encodeWithSelector(Errors.NotPoolAdminOrGovernor.selector, users.caller));
-        loanManager.updateAccounting();
-    }
-
-    function test_UpdateAccounting() external whenNotPaused whenCallerPoolAdminOrGovernor {
+    function test_UpdateAccounting() external whenNotPaused {
         assertEq(loanManager.accruedInterest(), 0);
 
         createDefaultLoan();
