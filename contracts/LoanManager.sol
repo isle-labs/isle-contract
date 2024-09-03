@@ -417,6 +417,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
 
         _loans[loanId_].dueDate = originalDueDate_;
+        _loans[loanId_].isImpaired = false;
         delete _loans[loanId_].originalDueDate;
 
         emit ImpairmentRemoved(loanId_, originalDueDate_);
