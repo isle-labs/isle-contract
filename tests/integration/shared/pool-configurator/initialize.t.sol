@@ -21,9 +21,7 @@ abstract contract Initialize_Integration_Shared_Test is PoolConfigurator_Integra
         setDefaultGlobals(poolAddressesProvider);
     }
 
-    function deployPoolSideWithPoolConfiguratorNotInitialized(
-        IPoolAddressesProvider poolAddressesProvider_
-    )
+    function deployPoolSideWithPoolConfiguratorNotInitialized(IPoolAddressesProvider poolAddressesProvider_)
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {

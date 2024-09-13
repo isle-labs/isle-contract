@@ -38,9 +38,7 @@ contract DeployPool is BaseScript {
         withdrawalManager_ = deployWithdrawalManager(poolAddressesProvider_);
     }
 
-    function deployPoolAddressesProvider(
-        IsleGlobals globals_
-    )
+    function deployPoolAddressesProvider(IsleGlobals globals_)
         internal
         broadcast(governor)
         returns (PoolAddressesProvider poolAddressesProvider_)
@@ -92,9 +90,7 @@ contract DeployPool is BaseScript {
         loanManager_ = poolAddressesProvider_.getLoanManager();
     }
 
-    function deployWithdrawalManager(
-        PoolAddressesProvider poolAddressesProvider_
-    )
+    function deployWithdrawalManager(PoolAddressesProvider poolAddressesProvider_)
         internal
         broadcast(governor)
         returns (address withdrawalManager_)

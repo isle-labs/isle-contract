@@ -147,9 +147,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool addresses provider
-    function deployPoolAddressesProvider(
-        IIsleGlobals isleGlobals_
-    )
+    function deployPoolAddressesProvider(IIsleGlobals isleGlobals_)
         internal
         returns (IPoolAddressesProvider poolAddressesProvider_)
     {
@@ -157,9 +155,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy pool configurator
-    function deployPoolConfigurator(
-        IPoolAddressesProvider poolAddressesProvider_
-    )
+    function deployPoolConfigurator(IPoolAddressesProvider poolAddressesProvider_)
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {
@@ -190,9 +186,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy withdrawal manager
-    function deployWithdrawalManager(
-        IPoolAddressesProvider poolAddressesProvider_
-    )
+    function deployWithdrawalManager(IPoolAddressesProvider poolAddressesProvider_)
         internal
         returns (IWithdrawalManager withdrawalManager_)
     {
