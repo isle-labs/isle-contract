@@ -110,9 +110,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function getLoanPaymentDetailedBreakdown(
-        uint16 loanId_
-    )
+    function getLoanPaymentDetailedBreakdown(uint16 loanId_)
         public
         view
         override
@@ -132,9 +130,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function getLoanPaymentBreakdown(
-        uint16 loanId_
-    )
+    function getLoanPaymentBreakdown(uint16 loanId_)
         public
         view
         override
@@ -247,9 +243,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function repayLoan(
-        uint16 loanId_
-    )
+    function repayLoan(uint16 loanId_)
         external
         override
         whenNotPaused
@@ -371,9 +365,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function removeLoanImpairment(
-        uint16 loanId_
-    )
+    function removeLoanImpairment(uint16 loanId_)
         external
         override
         nonReentrant
@@ -431,9 +423,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     }
 
     /// @inheritdoc ILoanManager
-    function triggerDefault(
-        uint16 loanId_
-    )
+    function triggerDefault(uint16 loanId_)
         external
         override
         whenNotPaused
@@ -681,9 +671,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
     }
 
-    function _getInterestAndFeesFromLiquidationInfo(
-        uint16 loanId_
-    )
+    function _getInterestAndFeesFromLiquidationInfo(uint16 loanId_)
         internal
         view
         returns (uint256 netInterest_, uint256 netLateInterest_, uint256 protocolFees_)

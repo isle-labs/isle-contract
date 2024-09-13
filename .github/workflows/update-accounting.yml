@@ -5,16 +5,17 @@ env:
     MNEMONIC: ${{ secrets.MNEMONIC }}
     API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
     API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
+    API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
 
 on:
     workflow_dispatch:
         inputs:
             poolAddressesProvider:
-                default: "0x454Bc3c86aB284F2Aa7A746733B23B46866FbeDB"
+                default: "0x5A68817b5F94e93089aFB7771A8aB208aE1388d6"
                 description: "Address of the Pool Addresses Provider to Update"
                 required: false
             chain:
-                default: "sepolia"
+                default: "bsc-testnet"
                 description: "Chain name as defined in foundry.toml"
                 required: false
     schedule:
@@ -32,8 +33,8 @@ jobs:
             - name: Set default values for schedule
               if: github.event_name == 'schedule'
               run: |
-                  echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider || '0x454Bc3c86aB284F2Aa7A746733B23B46866FbeDB' }}" >> $GITHUB_ENV
-                  echo "CHAIN=${{ github.event.inputs.chain || 'sepolia' }}" >> $GITHUB_ENV
+                  echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider || '0x5A68817b5F94e93089aFB7771A8aB208aE1388d6' }}" >> $GITHUB_ENV
+                  echo "CHAIN=${{ github.event.inputs.chain || 'bsc-testnet' }}" >> $GITHUB_ENV
 
             - name: Set default values for workflow_dispatch
               if: github.event_name == 'workflow_dispatch'

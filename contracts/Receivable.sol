@@ -96,9 +96,7 @@ contract Receivable is
     }
 
     /// @inheritdoc ERC721Upgradeable
-    function supportsInterface(
-        bytes4 interfaceId_
-    )
+    function supportsInterface(bytes4 interfaceId_)
         public
         view
         override(ERC721Upgradeable, ERC721EnumerableUpgradeable)

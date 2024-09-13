@@ -36,9 +36,7 @@ interface ILoanManager is ILoanManagerEvents, ILoanManagerStorage {
     /// @return interest_ Interest Parameter.
     ///                   [0]: The interest due for the loan.
     ///                   [1]: The late interest due for the loan.
-    function getLoanPaymentDetailedBreakdown(
-        uint16 loanId_
-    )
+    function getLoanPaymentDetailedBreakdown(uint16 loanId_)
         external
         view
         returns (uint256 principal_, uint256[2] memory interest_);
