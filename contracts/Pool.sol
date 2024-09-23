@@ -221,8 +221,7 @@ contract Pool is IPool, ERC20Permit {
     /// @inheritdoc IERC4626
     function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
         owner_;
-        maxAssets_; // Not implemented
-        revert Errors.Pool_WithdrawalNotImplemented();
+        maxAssets_ = 0;
     }
 
     /// @inheritdoc IERC4626
