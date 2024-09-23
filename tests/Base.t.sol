@@ -270,18 +270,20 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         tokenId_ = receivable.createReceivable(defaults.createReceivable());
     }
 
-    function createDefaultLoan() internal {
-        uint256 receivablesTokenId_ = createDefaultReceivable();
+    function requestDefaultLoan(uint256 tokenId_) internal returns (uint16 loanId_) {
         changePrank(users.buyer);
-
-        // request loan
-        uint16 loanId_ = loanManager.requestLoan(
+        loanId_ = loanManager.requestLoan(
             address(receivable),
-            receivablesTokenId_,
+            tokenId_,
             defaults.GRACE_PERIOD(),
             defaults.PRINCIPAL_REQUESTED(),
             [defaults.INTEREST_RATE(), defaults.LATE_INTEREST_PREMIUM_RATE()]
         );
+    }
+
+    function createDefaultLoan() internal {
+        uint256 receivablesTokenId_ = createDefaultReceivable();
+        uint16 loanId_ = requestDefaultLoan(receivablesTokenId_);
 
         changePrank(users.poolAdmin);
         loanManager.fundLoan(loanId_);

@@ -15,8 +15,6 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
     function setUp() public virtual override(LoanManager_Integration_Concrete_Test, Callable_Integration_Shared_Test) {
         LoanManager_Integration_Concrete_Test.setUp();
         Callable_Integration_Shared_Test.setUp();
-
-        createDefaultLoan();
     }
 
     function test_RevertWhen_FunctionPaused() external {
@@ -29,13 +27,18 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(0));
     }
 
-    function test_RevertWhen_CallerNotLoanSeller() external whenNotPaused {
+    function test_RevertWhen_CallerNotLoanSeller() external whenDefaultLoanCreated whenNotPaused {
         changePrank(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_CallerNotSeller.selector, users.seller));
         loanManager.withdrawFunds(1, address(0));
     }
 
-    function test_WithdrawFunds_WhenLoanNotRepaid() external whenNotPaused whenCallerSeller {
+    function test_RevertWhen_LoanNotFunded() external whenLoanRequested whenNotPaused whenCallerSeller {
+        vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_LoanNotFunded.selector));
+        loanManager.withdrawFunds(1, address(0));
+    }
+
+    function test_WithdrawFunds_WhenLoanNotRepaid() external whenDefaultLoanCreated whenNotPaused whenCallerSeller {
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
 
@@ -52,7 +55,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
     }
 
-    function test_WithdrawFunds() external whenNotPaused whenCallerSeller whenLoanRepaid {
+    function test_WithdrawFunds() external whenDefaultLoanCreated whenNotPaused whenCallerSeller whenLoanRepaid {
         changePrank(users.buyer);
         loanManager.repayLoan(1);
 
@@ -79,6 +82,17 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         // check if receivable is burned
         vm.expectRevert("ERC721: invalid token ID");
         IERC721(address(receivable)).ownerOf(receivableTokenId);
+    }
+
+    modifier whenLoanRequested() {
+        uint256 tokenId_ = createDefaultReceivable();
+        requestDefaultLoan(tokenId_);
+        _;
+    }
+
+    modifier whenDefaultLoanCreated() {
+        createDefaultLoan();
+        _;
     }
 
     modifier whenCallerSeller() {

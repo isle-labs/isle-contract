@@ -125,6 +125,9 @@ library Errors {
     /// @notice Thrown when an asset address is set to 0 for a loan manager.
     error LoanManager_AssetZeroAddress();
 
+    /// @notice Thrown when the seller withraw fund before the loan be funded.
+    error LoanManager_LoanNotFunded();
+
     /*//////////////////////////////////////////////////////////////
                            WITHDRAWAL MANAGER
     //////////////////////////////////////////////////////////////*/
