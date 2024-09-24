@@ -63,7 +63,8 @@ contract Pool is IPool, ERC20Permit {
 
         _asset.permit(_msgSender(), address(this), assets_, deadline_, v_, r_, s_);
 
-        shares_ = deposit(assets_, receiver_);
+        shares_ = previewDeposit(assets_);
+        _deposit(_msgSender(), receiver_, assets_, shares_);
     }
 
     /// @inheritdoc IPool
