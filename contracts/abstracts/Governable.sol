@@ -38,4 +38,7 @@ abstract contract Governable is IGovernable {
         // Log the transfer of the governor.
         emit IGovernable.TransferGovernor({ oldGovernor: msg.sender, newGovernor: newGovernor });
     }
+
+    // Reserved storage space to allow for layout changes in the future.
+    uint256[50] private ______gap;
 }
