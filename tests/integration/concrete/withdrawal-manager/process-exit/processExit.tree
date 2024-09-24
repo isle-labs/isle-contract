@@ -5,9 +5,9 @@ processExit.t.sol
    ├── when the locked shares of the owner is 0
    │  └── it should revert
    └── when the locked shares of the owner is not 0
-      ├── when the owner's requested shares is not equal to the locked shares
+      ├── when the owner's requested shares is greater then locked shares
       │  └── it should revert
-      └── when the owner's requested shares is equal to the locked shares
+      └── when the owner's requested shares not greater then locked shares
          ├── when the current timestamp is not in the window
          │  └── it should revert
          └── when the current timestamp is in the window
