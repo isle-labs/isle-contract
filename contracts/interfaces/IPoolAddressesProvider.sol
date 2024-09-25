@@ -89,27 +89,24 @@ interface IPoolAddressesProvider {
     function getPoolConfigurator() external view returns (address);
 
     /// @notice Sets or initializes the PoolConfigurator proxy with a new implementation.
-    /// @param newPoolConfiguratorImpl The address of the new PoolConfigurator implementation.
     /// @param params The initialization parameters for the PoolConfigurator.
-    function setPoolConfiguratorImpl(address newPoolConfiguratorImpl, bytes calldata params) external;
+    function setPoolConfiguratorImpl(bytes calldata params) external;
 
     /// @notice Retrieves the address of the LoanManager proxy.
     /// @return The address of the LoanManager proxy.
     function getLoanManager() external view returns (address);
 
     /// @notice Sets or initializes the LoanManager proxy with a new implementation.
-    /// @param newLoanManagerImpl The address of the new LoanManager implementation.
     /// @param params The initialization parameters for the LoanManager.
-    function setLoanManagerImpl(address newLoanManagerImpl, bytes calldata params) external;
+    function setLoanManagerImpl(bytes calldata params) external;
 
     /// @notice Retrieves the address of the WithdrawalManager proxy.
     /// @return The address of the WithdrawalManager proxy.
     function getWithdrawalManager() external view returns (address);
 
     /// @notice Sets or initializes the WithdrawalManager proxy with a new implementation.
-    /// @param newWithdrawalManagerImpl The address of the new WithdrawalManager implementation.
     /// @param params The initialization parameters for the WithdrawalManager.
-    function setWithdrawalManagerImpl(address newWithdrawalManagerImpl, bytes calldata params) external;
+    function setWithdrawalManagerImpl(bytes calldata params) external;
 
     /// @notice Retrieves the address of IsleGlobals.
     /// @return The address of IsleGlobals.

@@ -159,7 +159,6 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {
-        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
         bytes memory params_ = abi.encodeWithSelector(
             IPoolConfigurator.initialize.selector,
             address(poolAddressesProvider_),
@@ -169,7 +168,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
             defaults.POOL_SYMBOL()
         );
 
-        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, params_);
+        poolAddressesProvider_.setPoolConfiguratorImpl(params_);
+
         poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
 
         poolConfigurator_.setPoolLimit(defaults.POOL_LIMIT());
@@ -190,15 +190,13 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         internal
         returns (IWithdrawalManager withdrawalManager_)
     {
-        address withdrawalManagerImpl_ = address(new WithdrawalManager(poolAddressesProvider_));
-
         bytes memory params = abi.encodeWithSelector(
             IWithdrawalManager.initialize.selector,
             address(poolAddressesProvider_),
             defaults.CYCLE_DURATION(),
             defaults.WINDOW_DURATION()
         );
-        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManagerImpl_, params);
+        poolAddressesProvider_.setWithdrawalManagerImpl(params);
         withdrawalManager_ = IWithdrawalManager(poolAddressesProvider_.getWithdrawalManager());
     }
 
@@ -210,11 +208,9 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         internal
         returns (ILoanManager loanManager_)
     {
-        address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
-
         bytes memory params = abi.encodeWithSelector(ILoanManager.initialize.selector, asset_);
 
-        poolAddressesProvider_.setLoanManagerImpl(loanManagerImpl_, params);
+        poolAddressesProvider_.setLoanManagerImpl(params);
         loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
     }
 

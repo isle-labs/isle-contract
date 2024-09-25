@@ -25,8 +25,7 @@ abstract contract Initialize_Integration_Shared_Test is PoolConfigurator_Integra
         internal
         returns (IPoolConfigurator poolConfigurator_)
     {
-        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
-        poolAddressesProvider_.setPoolConfiguratorImpl(poolConfiguratorImpl_, bytes(""));
+        poolAddressesProvider_.setPoolConfiguratorImpl(bytes(""));
         poolConfigurator_ = IPoolConfigurator(poolAddressesProvider_.getPoolConfigurator());
     }
 }

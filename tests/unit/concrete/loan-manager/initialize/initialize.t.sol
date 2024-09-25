@@ -23,10 +23,9 @@ contract Initialize_LoanManager_Unit_Concrete_Test is LoanManager_Unit_Shared_Te
     }
 
     function test_initialize_RevertWhen_AssetZeroAddress() external {
-        address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider));
         bytes memory params = abi.encodeWithSelector(ILoanManager.initialize.selector, address(0));
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_AssetZeroAddress.selector));
-        poolAddressesProvider.setLoanManagerImpl(loanManagerImpl_, params);
+        poolAddressesProvider.setLoanManagerImpl(params);
     }
 
     function test_initialize() external whenAssetNotZeroAddress {

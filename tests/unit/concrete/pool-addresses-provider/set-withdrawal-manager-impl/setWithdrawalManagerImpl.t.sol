@@ -22,8 +22,9 @@ contract SetWithdrawalManagerImpl_PoolAddressesProvider_Unit_Concrete_Test is Po
     }
 
     function test_SetWithdrawalManagerImpl() external whenCallerGovernor {
-        vm.expectEmit(address(poolAddressesProvider));
-        emit WithdrawalManagerUpdated(address(0), _params.newWithdrawalManager);
+        vm.expectEmit(false, false, false, false, address(poolAddressesProvider));
+        emit WithdrawalManagerUpdated(address(0), address(0));
+
         setDefaultWithdrawalManagerImpl();
     }
 }

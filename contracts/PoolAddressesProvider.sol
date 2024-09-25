@@ -11,6 +11,10 @@ import { Errors } from "./libraries/Errors.sol";
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 import { IPoolAddressesProvider } from "./interfaces/IPoolAddressesProvider.sol";
 
+import { PoolConfigurator } from "./PoolConfigurator.sol";
+import { LoanManager } from "./LoanManager.sol";
+import { WithdrawalManager } from "./WithdrawalManager.sol";
+
 contract PoolAddressesProvider is IPoolAddressesProvider {
     string private _marketId;
 
@@ -60,15 +64,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setPoolConfiguratorImpl(
-        address newPoolConfiguratorImpl,
-        bytes calldata params
-    )
-        external
-        override
-        onlyGovernor
-    {
+    function setPoolConfiguratorImpl(bytes calldata params) external override onlyGovernor {
         address oldPoolConfiguratorImpl = _getProxyImplementation(POOL_CONFIGURATOR);
+        address newPoolConfiguratorImpl = address(new PoolConfigurator(this));
         _updateImpl(POOL_CONFIGURATOR, newPoolConfiguratorImpl, params);
         emit PoolConfiguratorUpdated(oldPoolConfiguratorImpl, newPoolConfiguratorImpl);
     }
@@ -79,8 +77,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setLoanManagerImpl(address newLoanManagerImpl, bytes calldata params) external override onlyGovernor {
+    function setLoanManagerImpl(bytes calldata params) external override onlyGovernor {
         address oldLoanManagerImpl = _getProxyImplementation(LOAN_MANAGER);
+        address newLoanManagerImpl = address(new LoanManager(this));
         _updateImpl(LOAN_MANAGER, newLoanManagerImpl, params);
         emit LoanManagerUpdated(oldLoanManagerImpl, newLoanManagerImpl);
     }
@@ -91,15 +90,9 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     }
 
     /// @inheritdoc IPoolAddressesProvider
-    function setWithdrawalManagerImpl(
-        address newWithdrawalManagerImpl,
-        bytes calldata params
-    )
-        external
-        override
-        onlyGovernor
-    {
+    function setWithdrawalManagerImpl(bytes calldata params) external override onlyGovernor {
         address oldWithdrawalManagerImpl = _getProxyImplementation(WITHDRAWAL_MANAGER);
+        address newWithdrawalManagerImpl = address(new WithdrawalManager(this));
         _updateImpl(WITHDRAWAL_MANAGER, newWithdrawalManagerImpl, params);
         emit WithdrawalManagerUpdated(oldWithdrawalManagerImpl, newWithdrawalManagerImpl);
     }
@@ -153,28 +146,23 @@ contract PoolAddressesProvider is IPoolAddressesProvider {
     //////////////////////////////////////////////////////////////*/
 
     /// @notice Internal function to update the implementation of a specific proxied component of the protocol.
-    /// @dev If there is no proxy registered with the given identifier, it creates the proxy setting `newAddress`
-    ///   as implementation and calls the initialize() function on the proxy
-    /// @dev If there is already a proxy registered, it just updates the implementation to `newAddress` and
-    ///   calls the initialize() function via upgradeToAndCall() in the proxy
     /// @param id The id of the proxy to be updated
     /// @param newAddress The address of the new implementation
-    function _updateImpl(bytes32 id, address newAddress) internal {
-        _updateImpl(id, newAddress, abi.encodeWithSignature("initialize(address)", address(this)));
-    }
-
+    /// @param params The params is used as data in a delegate call to `newAddress`
     function _updateImpl(bytes32 id, address newAddress, bytes memory params) internal {
         address proxyAddress = _addresses[id];
-        TransparentUpgradeableProxy proxy;
-        ITransparentUpgradeableProxy Iproxy;
 
         if (proxyAddress == address(0)) {
-            proxy = new TransparentUpgradeableProxy(newAddress, address(this), params);
+            TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(newAddress, address(this), params);
             _addresses[id] = proxyAddress = address(proxy);
             emit ProxyCreated(id, proxyAddress, newAddress);
         } else {
-            Iproxy = ITransparentUpgradeableProxy(payable(proxyAddress));
-            Iproxy.upgradeToAndCall(newAddress, params);
+            ITransparentUpgradeableProxy Iproxy = ITransparentUpgradeableProxy(payable(proxyAddress));
+            if (params.length > 0) {
+                Iproxy.upgradeToAndCall(newAddress, params);
+            } else {
+                Iproxy.upgradeTo(newAddress);
+            }
         }
     }
 

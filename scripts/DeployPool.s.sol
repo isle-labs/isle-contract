@@ -60,8 +60,6 @@ contract DeployPool is BaseScript {
         broadcast(governor)
         returns (address poolConfigurator_)
     {
-        address poolConfiguratorImpl_ = address(new PoolConfigurator(poolAddressesProvider_));
-
         bytes memory params_ = abi.encodeWithSelector(
             PoolConfigurator.initialize.selector,
             address(poolAddressesProvider_),
@@ -70,7 +68,7 @@ contract DeployPool is BaseScript {
             "ChargeSmith Pool",
             "CHG"
         );
-        poolAddressesProvider_.setPoolConfiguratorImpl(address(poolConfiguratorImpl_), params_);
+        poolAddressesProvider_.setPoolConfiguratorImpl(params_);
         poolConfigurator_ = poolAddressesProvider_.getPoolConfigurator();
     }
 
@@ -82,11 +80,8 @@ contract DeployPool is BaseScript {
         broadcast(governor)
         returns (address loanManager_)
     {
-        address loanManagerImpl_ = address(new LoanManager(poolAddressesProvider_));
-
         bytes memory params_ = abi.encodeWithSelector(LoanManager.initialize.selector, asset_);
-
-        poolAddressesProvider_.setLoanManagerImpl(address(loanManagerImpl_), params_);
+        poolAddressesProvider_.setLoanManagerImpl(params_);
         loanManager_ = poolAddressesProvider_.getLoanManager();
     }
 
@@ -95,14 +90,13 @@ contract DeployPool is BaseScript {
         broadcast(governor)
         returns (address withdrawalManager_)
     {
-        address withdrawalManagerImpl_ = address(new WithdrawalManager(poolAddressesProvider_));
         bytes memory params_ = abi.encodeWithSelector(
             WithdrawalManager.initialize.selector,
             address(poolAddressesProvider_),
             7 days, // cycle duration
             3 days // window duration
         );
-        poolAddressesProvider_.setWithdrawalManagerImpl(withdrawalManagerImpl_, params_);
+        poolAddressesProvider_.setWithdrawalManagerImpl(params_);
         withdrawalManager_ = poolAddressesProvider_.getWithdrawalManager();
     }
 }

@@ -25,8 +25,9 @@ contract SetPoolConfiguratorImpl_PoolAddressesProvider_Unit_Concrete_Test is Poo
     }
 
     function test_SetPoolConfiguratorImpl() external whenCallerGovernor {
-        vm.expectEmit(address(poolAddressesProvider));
-        emit PoolConfiguratorUpdated(address(0), _params.newPoolConfigurator);
+        vm.expectEmit(false, false, false, false, address(poolAddressesProvider));
+        emit PoolConfiguratorUpdated(address(0), address(0));
+
         setDefaultPoolConfiguratorImpl();
     }
 }

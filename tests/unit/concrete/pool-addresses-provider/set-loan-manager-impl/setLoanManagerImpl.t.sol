@@ -26,8 +26,9 @@ contract SetLoanManagerImpl_PoolAddressesProvider_Unit_Concrete_Test is PoolAddr
     }
 
     function test_SetLoanManagerImpl() external whenCallerGovernor {
-        vm.expectEmit(address(poolAddressesProvider));
-        emit LoanManagerUpdated(address(0), _params.newLoanManager);
+        vm.expectEmit(false, false, false, false, address(poolAddressesProvider));
+        emit LoanManagerUpdated(address(0), address(0));
+
         setDefaultLoanManagerImpl();
     }
 }

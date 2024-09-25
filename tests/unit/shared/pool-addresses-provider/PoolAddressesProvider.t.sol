@@ -22,9 +22,6 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         address newImplementationAddress;
         string poolName;
         string poolSymbol;
-        address newWithdrawalManager;
-        address newLoanManager;
-        address newPoolConfigurator;
         address newIsleGlobals;
         uint64 windowDuration;
         uint64 cycleDuration;
@@ -53,10 +50,6 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
         // Deploy with create2 so we can precompute the deployment address
         changePrank(users.governor);
 
-        _params.newWithdrawalManager =
-            address(new WithdrawalManager{ salt: "WithdrawalManager" }(poolAddressesProvider));
-        _params.newLoanManager = address(new LoanManager{ salt: "LoanManager" }(poolAddressesProvider));
-        _params.newPoolConfigurator = address(new PoolConfigurator{ salt: "PoolConfigurator" }(poolAddressesProvider));
         _params.newIsleGlobals =
             address(new UUPSProxy{ salt: "IsleGlobals" }(address(new IsleGlobals{ salt: "IsleGlobals" }()), ""));
     }
@@ -92,7 +85,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
 
     function setDefaultLoanManagerImpl() internal {
         bytes memory params = abi.encodeWithSelector(ILoanManager.initialize.selector, address(usdc));
-        poolAddressesProvider.setLoanManagerImpl(_params.newLoanManager, params);
+        poolAddressesProvider.setLoanManagerImpl(params);
     }
 
     function setDefaultWithdrawalManagerImpl() internal {
@@ -102,8 +95,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
             _params.cycleDuration,
             _params.windowDuration
         );
-
-        poolAddressesProvider.setWithdrawalManagerImpl(_params.newWithdrawalManager, params);
+        poolAddressesProvider.setWithdrawalManagerImpl(params);
     }
 
     function setDefaultPoolConfiguratorImpl() internal {
@@ -115,8 +107,7 @@ abstract contract PoolAddressesProvider_Unit_Shared_Test is Base_Test {
             _params.poolSymbol,
             _params.poolName
         );
-
-        poolAddressesProvider.setPoolConfiguratorImpl(_params.newPoolConfigurator, params_);
+        poolAddressesProvider.setPoolConfiguratorImpl(params_);
     }
 
     function setDefaultIsleGlobals() internal {
