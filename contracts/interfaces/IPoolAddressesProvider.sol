@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 /// @title IPoolAddressesProvider
 /// @notice Defines the basic interface for a Pool Addresses Provider.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity 0.8.19;
 
 import { MintableERC20WithPermit } from "../mocks/MintableERC20WithPermit.sol";
 import { Assertions } from "./Assertions.sol";
