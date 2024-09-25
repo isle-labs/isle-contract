@@ -16,11 +16,10 @@ contract GetRedeemableAmounts_Integration_Concrete_Test is WithdrawalManager_Int
 
         addDefaultShares();
 
-        (uint256 redeemableShares_, uint256 resultingAssets_, bool partialLiquidity_) =
+        (uint256 redeemableShares_, uint256 resultingAssets_) =
             withdrawalManager.getRedeemableAmounts({ lockedShares_: addShares_, owner_: users.receiver });
 
         assertEq(redeemableShares_, addShares_);
         assertEq(resultingAssets_, addShares_ * defaults.POOL_ASSETS() / defaults.POOL_SHARES());
-        assertFalse(partialLiquidity_);
     }
 }
