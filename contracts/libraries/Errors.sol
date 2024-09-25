@@ -88,9 +88,6 @@ library Errors {
                               LOAN MANAGER
     //////////////////////////////////////////////////////////////*/
 
-    /// @notice Thrown when `msg.sender` is not the seller.
-    error LoanManager_CallerNotSeller(address expectedSeller_);
-
     /// @notice Thrown when buyer approves an invalid receivable (either buyer or seller is not whitelisted or repayment
     /// timestamp is in the past).
     error LoanManager_InvalidReceivable(uint256 receivablesTokenId_);
