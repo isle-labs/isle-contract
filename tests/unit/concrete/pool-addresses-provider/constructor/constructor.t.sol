@@ -20,11 +20,8 @@ contract Constructor_PoolAddressesProvider_Unit_Concrete_Test is PoolAddressesPr
     function test_RevertWhen_GovernorIsZeroAddress() external {
         string memory marketId_ = defaults.MARKET_ID();
 
+        vm.expectRevert(abi.encodeWithSelector(Errors.GovernorZeroAddress.selector));
         isleGlobals.transferGovernor(address(0));
-
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.PoolAddressesProvider_InvalidGlobals.selector, address(isleGlobals))
-        );
         new PoolAddressesProvider(marketId_, isleGlobals);
     }
 

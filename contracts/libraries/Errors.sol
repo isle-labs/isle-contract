@@ -30,8 +30,8 @@ library Errors {
     /// @notice Thrown when pool addresses provider is set to 0.
     error AddressesProviderZeroAddress();
 
-    /// @notice Thrown when the address is zero address.
-    error ZeroAddress();
+    /// @notice Thrown when the new governor is zero address.
+    error GovernorZeroAddress();
 
     /*//////////////////////////////////////////////////////////////
                            POOL CONFIGURATOR

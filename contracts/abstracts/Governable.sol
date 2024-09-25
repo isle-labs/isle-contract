@@ -32,6 +32,9 @@ abstract contract Governable is IGovernable {
 
     /// @inheritdoc IGovernable
     function transferGovernor(address newGovernor) external virtual override onlyGovernor {
+        if (newGovernor == address(0)) {
+            revert Errors.GovernorZeroAddress();
+        }
         // Effects: update the governor.
         governor = newGovernor;
 

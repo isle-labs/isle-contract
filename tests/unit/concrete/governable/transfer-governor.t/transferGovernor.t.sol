@@ -16,11 +16,20 @@ contract TransferGovernor_Governable_Unit_Concrete_Test is Governable_Test {
         mockGovernable.transferGovernor(users.eve);
     }
 
-    function test_TransferGovernor() external whenCallerGovernor {
+    function test_RevertWhen_NewGovernorIsZeroAddress() external whenCallerGovernor {
+        vm.expectRevert(Errors.GovernorZeroAddress.selector);
+        mockGovernable.transferGovernor(address(0));
+    }
+
+    function test_TransferGovernor() external whenGovernorNotZeroAddress whenCallerGovernor {
         vm.expectEmit(true, true, false, false);
         emit TransferGovernor(users.governor, users.eve);
 
         mockGovernable.transferGovernor(users.eve);
         assertEq(mockGovernable.governor(), users.eve);
+    }
+
+    modifier whenGovernorNotZeroAddress() {
+        _;
     }
 }
