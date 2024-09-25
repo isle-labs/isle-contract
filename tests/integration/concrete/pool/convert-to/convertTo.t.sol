@@ -28,7 +28,7 @@ contract ConvertTo_Pool_Integration_Concrete_Test is Pool_Integration_Shared_Tes
 
     function _createUnrealizedLosses() internal {
         // Unrealized losses is FACE_AMOUNT
-        createDefaultLoan();
+        fundDefaultLoan();
         loanManager.impairLoan(1);
     }
 }

@@ -117,7 +117,7 @@ contract RequestFunds_Integration_Concrete_Test is PoolConfigurator_Integration_
         _defaultWithdraw(withdrawAmount_);
 
         // create loan
-        createDefaultLoan();
+        fundDefaultLoan();
 
         // seller withdraw fund
         changePrank(users.seller);

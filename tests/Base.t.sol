@@ -281,7 +281,7 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         );
     }
 
-    function createDefaultLoan() internal {
+    function fundDefaultLoan() internal {
         uint256 receivablesTokenId_ = createDefaultReceivable();
         uint16 loanId_ = requestDefaultLoan(receivablesTokenId_);
 

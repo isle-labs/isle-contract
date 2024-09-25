@@ -130,8 +130,8 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         changePrank(users.poolAdmin);
         poolConfigurator.depositCover(defaults.COVER_AMOUNT());
 
-        // create loan
-        createDefaultLoan();
+        // create and fund loan
+        fundDefaultLoan();
 
         // seller withdraw fund
         changePrank(users.seller);

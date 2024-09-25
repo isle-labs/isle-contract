@@ -25,7 +25,7 @@ contract UpdateAccounting_LoanManager_Integration_Concrete_Test is
     function test_UpdateAccounting() external whenNotPaused {
         assertEq(loanManager.accruedInterest(), 0);
 
-        createDefaultLoan();
+        fundDefaultLoan();
         vm.warp(defaults.MAY_31_2023() + 70 days);
 
         assertEq(loanManager.accruedInterest(), defaults.NEW_RATE_ZERO_FEE_RATE() * 100 days / 1e27);

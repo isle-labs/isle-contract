@@ -27,7 +27,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(0));
     }
 
-    function test_RevertWhen_CallerNotLoanSeller() external whenDefaultLoanCreated whenNotPaused {
+    function test_RevertWhen_CallerNotLoanSeller() external whenDefaultLoanFunded whenNotPaused {
         changePrank(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.LoanManager_CallerNotSeller.selector, users.seller));
         loanManager.withdrawFunds(1, address(0));
@@ -38,7 +38,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         loanManager.withdrawFunds(1, address(0));
     }
 
-    function test_WithdrawFunds_WhenLoanNotRepaid() external whenDefaultLoanCreated whenNotPaused whenCallerSeller {
+    function test_WithdrawFunds_WhenLoanNotRepaid() external whenDefaultLoanFunded whenNotPaused whenCallerSeller {
         uint256 principalRequested = defaults.PRINCIPAL_REQUESTED();
         uint256 loanManagerBalanceBefore = usdc.balanceOf(address(loanManager));
 
@@ -55,7 +55,7 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         assertEq(loanManagerBalanceAfter, loanManagerBalanceBefore - principalRequested);
     }
 
-    function test_WithdrawFunds() external whenDefaultLoanCreated whenNotPaused whenCallerSeller whenLoanRepaid {
+    function test_WithdrawFunds() external whenDefaultLoanFunded whenNotPaused whenCallerSeller whenLoanRepaid {
         changePrank(users.buyer);
         loanManager.repayLoan(1);
 
@@ -90,8 +90,8 @@ contract WithdrawFunds_LoanManager_Integration_Concrete_Test is
         _;
     }
 
-    modifier whenDefaultLoanCreated() {
-        createDefaultLoan();
+    modifier whenDefaultLoanFunded() {
+        fundDefaultLoan();
         _;
     }
 

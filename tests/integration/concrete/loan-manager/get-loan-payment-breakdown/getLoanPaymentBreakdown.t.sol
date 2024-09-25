@@ -23,7 +23,7 @@ contract GetLoanPaymentBreakdown_LoanManager_Integration_Concrete_Test is
     }
 
     function test_GetLoanPaymentBreakdown_ExistLoanId_NotDefaulted() external {
-        createDefaultLoan();
+        fundDefaultLoan();
         vm.warp(MAY_1_2023 + 10 days);
         (uint256 principal_, uint256 interest_) = loanManager.getLoanPaymentBreakdown(1);
         assertEq(principal_, defaults.PRINCIPAL_REQUESTED());
@@ -31,7 +31,7 @@ contract GetLoanPaymentBreakdown_LoanManager_Integration_Concrete_Test is
     }
 
     function test_GetLoanPaymentBreakdown_ExistLoanId_Defaulted() external {
-        createDefaultLoan();
+        fundDefaultLoan();
         // 9 days + 1s -> 10 full days late
         vm.warp(defaults.MAY_31_2023() + 9 days + 1);
 
