@@ -13,7 +13,7 @@ contract Initialize_Receivable_Unit_Concrete_Test is Receivable_Unit_Shared_Test
     }
 
     function test_Initialize() public {
-        IReceivable receivable_ = deployReceivable();
+        IReceivable receivable_ = deployReceivable(isleGlobals);
         assertEq(receivable_.governor(), users.governor);
     }
 }

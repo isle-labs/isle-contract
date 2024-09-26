@@ -10,11 +10,11 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import { Receivable as RCV } from "./libraries/types/DataTypes.sol";
+import { Errors } from "./libraries/Errors.sol";
 
 import { IReceivable } from "./interfaces/IReceivable.sol";
-import { IGovernable } from "./interfaces/IGovernable.sol";
+import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
 
-import { Governable } from "./abstracts/Governable.sol";
 import { ReceivableStorage } from "./ReceivableStorage.sol";
 
 contract Receivable is
@@ -24,28 +24,34 @@ contract Receivable is
     ERC721EnumerableUpgradeable,
     ERC721BurnableUpgradeable,
     UUPSUpgradeable,
-    Governable,
     IReceivable
 {
+    address public governor;
+
+    /*//////////////////////////////////////////////////////////////
+                               MODIFIERS
+    //////////////////////////////////////////////////////////////*/
+
+    modifier onlyGovernor() virtual {
+        if (msg.sender != governor) {
+            revert Errors.CallerNotGovernor({ governor_: governor, caller_: msg.sender });
+        }
+        _;
+    }
     /*//////////////////////////////////////////////////////////////
                              UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////*/
 
     function _authorizeUpgrade(address newImplementation) internal override onlyGovernor { }
 
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    // constructor() {
-    // _disableInitializers();
-    // }
-
     /// @inheritdoc IReceivable
-    function initialize(address initialGovernor_) external override initializer {
+    function initialize(address isleGlobal_) external override initializer {
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
 
-        governor = initialGovernor_;
-        emit IGovernable.TransferGovernor({ oldGovernor: address(0), newGovernor: initialGovernor_ });
+        governor = IIsleGlobals(isleGlobal_).governor();
+        emit TransferGovernor({ oldGovernor: address(0), newGovernor: governor });
     }
 
     /// @inheritdoc IReceivable

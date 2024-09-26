@@ -113,8 +113,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         changePrank(users.governor);
 
         // Deploy globals and receivable
-        receivable = deployReceivable();
         isleGlobals = deployGlobals();
+        receivable = deployReceivable(isleGlobals);
 
         // Deploy pool side contracts
         poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
@@ -140,10 +140,10 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
     }
 
     /// @dev Deploy receivable as an UUPS proxy
-    function deployReceivable() internal returns (IReceivable receivable_) {
+    function deployReceivable(IIsleGlobals isleGlobals_) internal returns (IReceivable receivable_) {
         // notice here we use Receivable instead of its interface IReceivable, since we want to call function
         receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(users.governor);
+        receivable_.initialize(address(isleGlobals_));
     }
 
     /// @dev Deploy pool addresses provider
