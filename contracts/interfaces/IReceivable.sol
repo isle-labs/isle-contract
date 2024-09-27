@@ -8,9 +8,6 @@ import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
 import { ReceivableStorage } from "../ReceivableStorage.sol";
 
 interface IReceivable is IReceivableEvent {
-    /// @notice The address of the governor account or contract.
-    function governor() external view returns (address governor_);
-
     /*//////////////////////////////////////////////////////////////
                              UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -33,4 +30,8 @@ interface IReceivable is IReceivableEvent {
     /// @dev Burn a receivable.
     /// @param tokenId_ The id of the receivable.
     function burnReceivable(uint256 tokenId_) external;
+
+    /// @notice Returns the addres of the governor.
+    /// @return governor_ The address of the governor.
+    function governor() external view returns (address governor_);
 }
