@@ -26,6 +26,8 @@ contract Receivable is
     UUPSUpgradeable,
     IReceivable
 {
+    address public governor;
+
     /*//////////////////////////////////////////////////////////////
                                MODIFIERS
     //////////////////////////////////////////////////////////////*/
@@ -44,13 +46,12 @@ contract Receivable is
 
     /// @inheritdoc IReceivable
     function initialize(address isleGlobal_) external override initializer {
-        if (isleGlobal_ == address(0)) revert Errors.ZeroAddress();
-        governor = IIsleGlobals(isleGlobal_).governor();
-        emit TransferGovernor({ oldGovernor: address(0), newGovernor: governor });
-
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
         __ERC721Burnable_init();
+
+        governor = IIsleGlobals(isleGlobal_).governor();
+        emit TransferGovernor({ oldGovernor: address(0), newGovernor: governor });
     }
 
     /// @inheritdoc IReceivable

@@ -4,11 +4,13 @@ pragma solidity 0.8.19;
 import { Receivable } from "../libraries/types/DataTypes.sol";
 
 import { IReceivableEvent } from "../interfaces/IReceivableEvent.sol";
-import { IReceivableStorage } from "../interfaces/IReceivableStorage.sol";
 
 import { ReceivableStorage } from "../ReceivableStorage.sol";
 
-interface IReceivable is IReceivableEvent, IReceivableStorage {
+interface IReceivable is IReceivableEvent {
+    /// @notice The address of the governor account or contract.
+    function governor() external view returns (address governor_);
+
     /*//////////////////////////////////////////////////////////////
                              UUPS FUNCTIONS
     //////////////////////////////////////////////////////////////*/
