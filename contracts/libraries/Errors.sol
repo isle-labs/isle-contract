@@ -33,6 +33,9 @@ library Errors {
     /// @notice Thrown when the new governor is zero address.
     error GovernorZeroAddress();
 
+    /// @notice Thrown when the address is zero address.
+    error ZeroAddress();
+
     /*//////////////////////////////////////////////////////////////
                            POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////*/
