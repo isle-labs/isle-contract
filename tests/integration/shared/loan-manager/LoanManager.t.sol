@@ -19,14 +19,14 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test {
         loanManager.fundLoan(loanId_);
     }
 
-    modifier whenLoanCreated() {
-        createDefaultLoan();
+    modifier whenLoanFunded() {
+        fundDefaultLoan();
         _;
     }
 
-    modifier whenTwoLoansCreated() {
-        createDefaultLoan();
-        createDefaultLoan();
+    modifier whenTwoLoansFunded() {
+        fundDefaultLoan();
+        fundDefaultLoan();
         _;
     }
 

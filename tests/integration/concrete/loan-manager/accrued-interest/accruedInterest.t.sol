@@ -20,7 +20,7 @@ contract AccruedInterest_LoanManager_Integration_Concrete_Test is
         assertEq(loanManager.accruedInterest(), 0);
     }
 
-    function test_AccruedInterest_AccountingNotUpdated() external whenLoanCreated {
+    function test_AccruedInterest_AccountingNotUpdated() external whenLoanFunded {
         // not matured
         vm.warp(MAY_1_2023 + 15 days);
         uint256 accruedInterest = defaults.NEW_RATE_ZERO_FEE_RATE() * 15 days / 1e27;
@@ -34,7 +34,7 @@ contract AccruedInterest_LoanManager_Integration_Concrete_Test is
         assertEq(loanManager.accruedInterest(), accruedInterest);
     }
 
-    function test_AccruedInterest() external whenLoanCreated whenAccountingUpdated {
+    function test_AccruedInterest() external whenLoanFunded whenAccountingUpdated {
         // not matured
         vm.warp(defaults.REPAYMENT_TIMESTAMP() - 1 days);
 
