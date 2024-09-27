@@ -81,6 +81,22 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         loanManager.triggerDefault(1);
     }
 
+    function test_TriggerDefault_WhenLoanRemoveImpair()
+        external
+        whenNotPaused
+        whenBlockTimestampGreaterThanDueDatePlusGracePeriod
+        whenPaymentIdIsNotZero
+    {
+        // Remove an impaired loan and make sure interests and remainingLosses are
+        // correct after the `isImpaired` flag set back to false
+        changePrank(users.governor);
+        loanManager.impairLoan(1);
+        loanManager.removeLoanImpairment(1);
+
+        changePrank(address(poolConfigurator));
+        triggerDefault();
+    }
+
     function test_TriggerDefault()
         external
         whenNotPaused
@@ -88,6 +104,10 @@ contract TriggerDefault_LoanManager_Integration_Concrete_Test is
         whenBlockTimestampGreaterThanDueDatePlusGracePeriod
         whenPaymentIdIsNotZero
     {
+        triggerDefault();
+    }
+
+    function triggerDefault() internal {
         // 10 days late = 30 days + (7 days grace period + 2 days + 1s)
         vm.warp(defaults.MAY_31_2023() + defaults.GRACE_PERIOD() + 2 days + 1);
 
