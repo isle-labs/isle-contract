@@ -2,6 +2,9 @@ transferGovernor.t.sol
 ├── when the caller is not governor
 │  └── it should revert
 └── when the caller is governor
-   ├── it should transfer to newGovernor
-   └── it should emit a {TransferGovernor} event
+   ├── when the new governor is zero address
+   │  └── it should revert
+   └── when the new governor is not zero address
+      ├── it should transfer to newGovernor
+      └── it should emit a {TransferGovernor} event
       
