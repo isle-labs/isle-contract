@@ -124,8 +124,8 @@ abstract contract BaseScript is Script {
         globals_.initialize(governor);
     }
 
-    function deployReceivable() internal broadcast(deployer) returns (Receivable receivable_) {
+    function deployReceivable(address isleGlobal_) internal broadcast(deployer) returns (Receivable receivable_) {
         receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(governor);
+        receivable_.initialize(isleGlobal_);
     }
 }
