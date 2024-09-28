@@ -3,10 +3,8 @@ pragma solidity 0.8.19;
 
 import { Receivable } from "./libraries/types/DataTypes.sol";
 
-import { IReceivableStorage } from "./interfaces/IReceivableStorage.sol";
-
-contract ReceivableStorage is IReceivableStorage {
-    address public override governor;
+contract ReceivableStorage {
+    address public isleGlobal;
 
     uint256 internal _tokenIdCounter;
 

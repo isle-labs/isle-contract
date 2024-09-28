@@ -31,8 +31,9 @@ contract Receivable is
     //////////////////////////////////////////////////////////////*/
 
     modifier onlyGovernor() virtual {
-        if (msg.sender != governor) {
-            revert Errors.CallerNotGovernor({ governor_: governor, caller_: msg.sender });
+        address governor_ = governor();
+        if (msg.sender != governor_) {
+            revert Errors.CallerNotGovernor({ governor_: governor_, caller_: msg.sender });
         }
         _;
     }
@@ -45,8 +46,7 @@ contract Receivable is
     /// @inheritdoc IReceivable
     function initialize(address isleGlobal_) external override initializer {
         if (isleGlobal_ == address(0)) revert Errors.ZeroAddress();
-        governor = IIsleGlobals(isleGlobal_).governor();
-        emit TransferGovernor({ oldGovernor: address(0), newGovernor: governor });
+        isleGlobal = isleGlobal_;
 
         __ERC721_init("Receivable", "RECV");
         __ERC721Enumerable_init();
@@ -82,6 +82,11 @@ contract Receivable is
     function burnReceivable(uint256 tokenId_) external {
         ERC721BurnableUpgradeable.burn(tokenId_);
         emit AssetBurned(tokenId_);
+    }
+
+    /// @inheritdoc IReceivable
+    function governor() public view returns (address governor_) {
+        governor_ = IIsleGlobals(isleGlobal).governor();
     }
 
     // The following functions are overrides required by Solidity.
