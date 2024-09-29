@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+pragma solidity 0.8.25;
 
 import { Loan } from "./libraries/types/DataTypes.sol";
 import { ILoanManagerStorage } from "./interfaces/ILoanManagerStorage.sol";

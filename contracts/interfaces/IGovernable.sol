@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+pragma solidity 0.8.25;
 
 /// @title IGovernable
 /// @notice Contract module that provides a basic access control mechanism, with a governor that can be

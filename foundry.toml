@@ -24,7 +24,7 @@
     libs = ["modules"]
     test = "tests"
     sender = "0xBbC9928618b05356841a8565C72E4493D12ad163"
-    solc_version = "0.8.19"
+    solc_version = "0.8.25"
     verbosity = 2
 
 [profile.default.fuzz]

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity 0.8.19;
+pragma solidity 0.8.25;
 
 import { IGovernable } from "./IGovernable.sol";
 import { IIsleGlobalsEvents } from "./IIsleGlobalsEvents.sol";
