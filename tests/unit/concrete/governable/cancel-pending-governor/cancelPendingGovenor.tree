@@ -1,0 +1,7 @@
+cancelPendingGovenor.t.sol
+├── when the caller is not governor
+│  └── it should revert
+└── when the caller is governor
+   ├── pendingGovernor should change to address(0)
+   └── it should emit a {CancelPendingGovernor} event
+      

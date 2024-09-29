@@ -1,10 +1,10 @@
-transferGovernor.t.sol
+nominateGovernor.t.sol
 ├── when the caller is not governor
 │  └── it should revert
 └── when the caller is governor
    ├── when the new governor is zero address
    │  └── it should revert
    └── when the new governor is not zero address
-      ├── it should transfer to newGovernor
-      └── it should emit a {TransferGovernor} event
+      ├── pendingGovernor should change to governor
+      └── it should emit a {NominateGovernor} event
       

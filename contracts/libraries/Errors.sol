@@ -90,6 +90,9 @@ library Errors {
     /// @notice Thrown when vault is set to 0.
     error Globals_InvalidVault(address vault);
 
+    /// @notice Thrown when the caller is not penging governor
+    error Globals_CallerNotPendingGovernor(address pendingGovernor_);
+
     /*//////////////////////////////////////////////////////////////
                               LOAN MANAGER
     //////////////////////////////////////////////////////////////*/

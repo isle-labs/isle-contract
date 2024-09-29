@@ -1,0 +1,7 @@
+acceptGovernor.t.sol
+├── when the caller is not pendingGovernor
+│  └── it should revert
+└── when the caller is pendingGovernor
+    ├── it should transfer to newGovernor
+    └── it should emit a {AcceptGovernor} event
+      

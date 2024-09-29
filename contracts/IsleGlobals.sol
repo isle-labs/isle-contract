@@ -43,6 +43,9 @@ contract IsleGlobals is IIsleGlobals, VersionedInitializable, Governable, UUPSUp
 
     /// @inheritdoc IIsleGlobals
     function initialize(address governor_) external override initializer {
+        if (governor_ == address(0)) {
+            revert Errors.GovernorZeroAddress();
+        }
         governor = governor_;
         emit Initialized(governor_);
     }
