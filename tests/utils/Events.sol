@@ -149,5 +149,9 @@ abstract contract Events {
     event MarketIdSet(string indexed oldMarketId, string indexed newMarketId);
 
     // Governable Events
-    event TransferGovernor(address indexed oldGovernor, address indexed newGovernor);
+    event AcceptGovernor(address indexed oldGovernor, address indexed newGovernor);
+
+    event NominateGovernor(address indexed governor, address indexed pendingGovernor);
+
+    event CancelPendingGovernor(address indexed oldPendingGovernor);
 }

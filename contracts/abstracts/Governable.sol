@@ -14,6 +14,9 @@ abstract contract Governable is IGovernable {
     /// @inheritdoc IGovernable
     address public override governor;
 
+    /// @inheritdoc IGovernable
+    address public override pendingGovernor;
+
     /*//////////////////////////////////////////////////////////////
                                MODIFIERS
     //////////////////////////////////////////////////////////////*/
@@ -31,15 +34,30 @@ abstract contract Governable is IGovernable {
     //////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IGovernable
-    function transferGovernor(address newGovernor) external virtual override onlyGovernor {
-        if (newGovernor == address(0)) {
+    function nominateGovernor(address newGovernor_) external virtual override onlyGovernor {
+        if (newGovernor_ == address(0)) {
             revert Errors.GovernorZeroAddress();
         }
-        // Effects: update the governor.
-        governor = newGovernor;
 
-        // Log the transfer of the governor.
-        emit IGovernable.TransferGovernor({ oldGovernor: msg.sender, newGovernor: newGovernor });
+        pendingGovernor = newGovernor_;
+
+        emit NominateGovernor({ governor: governor, pendingGovernor: newGovernor_ });
+    }
+
+    function acceptGovernor() external virtual override {
+        if (msg.sender != pendingGovernor) {
+            revert Errors.Globals_CallerNotPendingGovernor(pendingGovernor);
+        }
+        address oldGovernor_ = governor;
+        governor = pendingGovernor;
+
+        emit AcceptGovernor({ oldGovernor: oldGovernor_, newGovernor: governor });
+    }
+
+    function cancelPendingGovenor() external virtual override onlyGovernor {
+        address oldPendingGovernor_ = pendingGovernor;
+        pendingGovernor = address(0);
+        emit CancelPendingGovernor({ oldPendingGovernor: oldPendingGovernor_ });
     }
 
     // Reserved storage space to allow for layout changes in the future.

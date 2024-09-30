@@ -5,7 +5,7 @@ import { Errors } from "contracts/libraries/Errors.sol";
 
 import { Governable_Test } from "../../../shared/governable/Governable.t.sol";
 
-contract TransferGovernor_Governable_Unit_Concrete_Test is Governable_Test {
+contract NominateGovernor_Governable_Unit_Concrete_Test is Governable_Test {
     function setUp() public virtual override(Governable_Test) {
         Governable_Test.setUp();
     }
@@ -13,20 +13,20 @@ contract TransferGovernor_Governable_Unit_Concrete_Test is Governable_Test {
     function test_RevertWhen_CallerNotGovernor() external {
         changePrank(users.eve);
         vm.expectRevert(abi.encodeWithSelector(Errors.CallerNotGovernor.selector, users.governor, users.eve));
-        mockGovernable.transferGovernor(users.eve);
+        mockGovernable.nominateGovernor(users.eve);
     }
 
     function test_RevertWhen_NewGovernorIsZeroAddress() external whenCallerGovernor {
         vm.expectRevert(Errors.GovernorZeroAddress.selector);
-        mockGovernable.transferGovernor(address(0));
+        mockGovernable.nominateGovernor(address(0));
     }
 
     function test_TransferGovernor() external whenGovernorNotZeroAddress whenCallerGovernor {
         vm.expectEmit(true, true, false, false);
-        emit TransferGovernor(users.governor, users.eve);
+        emit NominateGovernor(users.governor, users.eve);
 
-        mockGovernable.transferGovernor(users.eve);
-        assertEq(mockGovernable.governor(), users.eve);
+        mockGovernable.nominateGovernor(users.eve);
+        assertEq(mockGovernable.pendingGovernor(), users.eve);
     }
 
     modifier whenGovernorNotZeroAddress() {
