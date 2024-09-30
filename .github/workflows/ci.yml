@@ -5,7 +5,7 @@ concurrency:
     group: ${{github.workflow}}-${{github.ref}}
 
 env:
-    # FOUNDRY_PROFILE: "default"
+    FOUNDRY_PROFILE: "default"
     # API_KEY_INFURA: ${{ secrets.API_KEY_INFURA }}
     API_KEY_ALCHEMY: ${{ secrets.API_KEY_ALCHEMY }}
     API_KEY_ETHERSCAN: ${{ secrets.API_KEY_ETHERSCAN }}
@@ -84,7 +84,7 @@ jobs:
               run: "./shell/prepare-artifacts.sh"
 
             - name: "Build the test contracts"
-              run: "FOUNDRY_PROFILE=test-optimized forge build"
+              run: "forge build"
 
             - name: "Cache the build so that it can be re-used by the other jobs"
               uses: "actions/cache/save@v3"
@@ -137,7 +137,7 @@ jobs:
                   )" >> $GITHUB_ENV
 
             - name: "Run the tests against the optimized build"
-              run: "FOUNDRY_PROFILE=test-optimized forge test"
+              run: "forge test"
 
             - name: "Add test summary"
               run: |
@@ -156,8 +156,18 @@ jobs:
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
+            - name: "Restore the cached build"
+              uses: "actions/cache/restore@v3"
+              with:
+                  fail-on-cache-miss: true
+                  key: "foundry-build-${{ github.sha }}"
+                  path: |
+                      out
+                      out-optimized
+                      cache
+
             - name: "Generate the coverage report using the unit and the integration tests"
-              run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov --ir-minimum --via-ir'
+              run: 'forge coverage --match-path "tests/{unit,integration}/**/*.sol" --report lcov --ir-minimum'
 
             - name: "Upload coverage report to Codecov"
               uses: "codecov/codecov-action@v3"
