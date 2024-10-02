@@ -36,11 +36,8 @@ jobs:
 
             - name: "Update the accounting of the specified pool"
               run: >-
-                  forge script scripts/updateAccounting.s.sol
-                    --broadcast
-                    --rpc-url "${{ matrix.chain }}"
-                    --sig "run(address)" "${{ matrix.poolAddressesProvider }}"
-                    -vvvv
+                  forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ matrix.chain }}" --sig
+                  "run(address)" "${{ matrix.poolAddressesProvider }}" -vvvv
 
             - name: "Add workflow summary"
               run: |
