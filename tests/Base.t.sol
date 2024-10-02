@@ -135,15 +135,15 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     /// @dev Deploy isle Globals as an UUPS proxy
     function deployGlobals() internal returns (IIsleGlobals isleGlobals_) {
-        isleGlobals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), "")));
-        isleGlobals_.initialize(users.governor);
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", users.governor);
+        isleGlobals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), initializeData_)));
     }
 
     /// @dev Deploy receivable as an UUPS proxy
     function deployReceivable(IIsleGlobals isleGlobals_) internal returns (IReceivable receivable_) {
         // notice here we use Receivable instead of its interface IReceivable, since we want to call function
-        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(address(isleGlobals_));
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", address(isleGlobals_));
+        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), initializeData_)));
     }
 
     /// @dev Deploy pool addresses provider
