@@ -9,46 +9,38 @@ env:
 
 on:
     workflow_dispatch:
-        inputs:
-            poolAddressesProvider:
-                default: "0x51b235a5511e7c25a3f610081f096101cca72f99"
-                description: "Address of the Pool Addresses Provider to Update"
-                required: false
-            chain:
-                default: "https://devnet-rpc.plumenetwork.xyz"
-                description: "Chain name as defined in foundry.toml"
-                required: false
     schedule:
         - cron: "00 10 * * *" # Scheduled trigger at 6 PM GMT+8
 
 jobs:
     update_accounting:
         runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - poolAddressesProvider: "0x51b235a5511e7c25a3f610081f096101cca72f99"
+                      chain: "https://devnet-rpc.plumenetwork.xyz"
         steps:
             - name: "Check out the repo"
               uses: "actions/checkout@v3"
               with:
                   submodules: "recursive"
 
-            - name: Set default values for schedule
-              if: github.event_name == 'schedule'
+            - name: "Execution PoolAddressesProvider & chain"
               run: |
-                  echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider || '0x51b235a5511e7c25a3f610081f096101cca72f99' }}" >> $GITHUB_ENV
-                  echo "CHAIN=${{ github.event.inputs.chain || 'https://devnet-rpc.plumenetwork.xyz' }}" >> $GITHUB_ENV
-
-            - name: Set default values for workflow_dispatch
-              if: github.event_name == 'workflow_dispatch'
-              run: |
-                  echo "POOL_ADDRESSES_PROVIDER=${{ github.event.inputs.poolAddressesProvider }}" >> $GITHUB_ENV
-                  echo "CHAIN=${{ github.event.inputs.chain }}" >> $GITHUB_ENV
+                  echo "POOL_ADDRESSES_PROVIDER=${{ matrix.poolAddressesProvider }}"
+                  echo "CHAIN=${{ matrix.chain }}"
 
             - name: "Install Foundry"
               uses: "foundry-rs/foundry-toolchain@v1"
 
             - name: "Update the accounting of the specified pool"
               run: >-
-                  forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ env.CHAIN }}" --sig
-                  "run(address)" "${{ env.POOL_ADDRESSES_PROVIDER }}" -vvvv
+                  forge script scripts/updateAccounting.s.sol
+                    --broadcast
+                    --rpc-url "${{ matrix.chain }}"
+                    --sig "run(address)" "${{ matrix.poolAddressesProvider }}"
+                    -vvvv
 
             - name: "Add workflow summary"
               run: |
