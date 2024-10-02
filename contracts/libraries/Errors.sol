@@ -36,6 +36,9 @@ library Errors {
     /// @notice Thrown when the address is zero address.
     error ZeroAddress();
 
+    /// @notice Thrown when a reentrancy lock is already set.
+    error ReentrancyGuardReentrantCall();
+
     /*//////////////////////////////////////////////////////////////
                            POOL CONFIGURATOR
     //////////////////////////////////////////////////////////////*/
