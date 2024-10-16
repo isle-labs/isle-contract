@@ -10,7 +10,7 @@ import { Loan } from "../contracts/libraries/types/DataTypes.sol";
 
 import { BaseScript } from "./Base.s.sol";
 
-contract repayLoan is BaseScript {
+contract UpdateAccounting is BaseScript {
     function run(IPoolAddressesProvider poolAddressesProvider_) public broadcast(governor) {
         ILoanManager loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
         loanManager_.updateAccounting();
