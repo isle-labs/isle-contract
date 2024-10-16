@@ -18,11 +18,11 @@ jobs:
         strategy:
             matrix:
                 include:
-                    - poolAddressesProvider: "0x51b235a5511e7c25a3f610081f096101cca72f99"
-                      chain: "https://devnet-rpc.plumenetwork.xyz"
+                    - poolAddressesProvider: "0x51b235a5511e7c25A3F610081f096101CCA72F99"
+                      chain: "https://test-rpc.plumenetwork.xyz"
         steps:
             - name: "Check out the repo"
-              uses: "actions/checkout@v3"
+              uses: "actions/checkout@v4"
               with:
                   submodules: "recursive"
 
@@ -35,9 +35,12 @@ jobs:
               uses: "foundry-rs/foundry-toolchain@v1"
 
             - name: "Update the accounting of the specified pool"
-              run: >-
-                  forge script scripts/updateAccounting.s.sol --broadcast --rpc-url "${{ matrix.chain }}" --sig
-                  "run(address)" "${{ matrix.poolAddressesProvider }}" -vvvv
+              run: |
+                  forge script scripts/updateAccounting.s.sol \
+                    --broadcast \
+                    --rpc-url "${{ matrix.chain }}" \
+                    --sig "run(address)" "${{ matrix.poolAddressesProvider }}" \
+                    --legacy --skip-simulation -vvvv
 
             - name: "Add workflow summary"
               run: |
