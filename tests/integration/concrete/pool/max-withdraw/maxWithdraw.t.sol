@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
@@ -11,7 +11,7 @@ contract MaxWithdraw_Pool_Integration_Concrete_Test is Pool_Integration_Shared_T
     }
 
     function test_MaxWithdraw() external {
-        vm.expectRevert(Errors.Pool_WithdrawalNotImplemented.selector);
-        pool.maxWithdraw({ owner: users.receiver });
+        uint256 maxAssets_ = pool.maxWithdraw({ owner: users.receiver });
+        assertEq(maxAssets_, 0);
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -50,7 +50,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
     }
 
     function test_RepayLoan_WhenLoanImpaired() external whenNotPaused whenHasLoanRequested {
-        createDefaultLoan();
+        fundDefaultLoan();
 
         changePrank(users.poolAdmin);
         loanManager.impairLoan(1);
@@ -65,7 +65,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
     function test_RepayLoan_WhenAfterDueDate() external whenNotPaused whenHasLoanRequested whenLoanNotImpaired {
         uint256 dueDate_ = defaults.REPAYMENT_TIMESTAMP();
 
-        createDefaultLoan();
+        fundDefaultLoan();
 
         vm.warp(dueDate_ + 1);
 
@@ -87,7 +87,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
-        createDefaultLoan();
+        fundDefaultLoan();
 
         vm.warp(defaults.MAY_31_2023());
 
@@ -137,7 +137,7 @@ contract RepayLoan_LoanManager_Integration_Concrete_Test is
 
         uint256 poolBalanceBefore = usdc.balanceOf(address(pool));
 
-        createDefaultLoan();
+        fundDefaultLoan();
         IERC721 receivable = IERC721(address(receivable));
 
         changePrank(users.seller);

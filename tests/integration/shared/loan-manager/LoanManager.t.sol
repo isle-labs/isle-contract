@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { Base_Test } from "../../../Base.t.sol";
 
@@ -19,14 +19,14 @@ abstract contract LoanManager_Integration_Shared_Test is Base_Test {
         loanManager.fundLoan(loanId_);
     }
 
-    modifier whenLoanCreated() {
-        createDefaultLoan();
+    modifier whenLoanFunded() {
+        fundDefaultLoan();
         _;
     }
 
-    modifier whenTwoLoansCreated() {
-        createDefaultLoan();
-        createDefaultLoan();
+    modifier whenTwoLoansFunded() {
+        fundDefaultLoan();
+        fundDefaultLoan();
         _;
     }
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity 0.8.19;
 
 library Errors {
     /*//////////////////////////////////////////////////////////////
@@ -29,6 +29,15 @@ library Errors {
 
     /// @notice Thrown when pool addresses provider is set to 0.
     error AddressesProviderZeroAddress();
+
+    /// @notice Thrown when the new governor is zero address.
+    error GovernorZeroAddress();
+
+    /// @notice Thrown when the address is zero address.
+    error ZeroAddress();
+
+    /// @notice Thrown when a reentrancy lock is already set.
+    error ReentrancyGuardReentrantCall();
 
     /*//////////////////////////////////////////////////////////////
                            POOL CONFIGURATOR
@@ -84,12 +93,12 @@ library Errors {
     /// @notice Thrown when vault is set to 0.
     error Globals_InvalidVault(address vault);
 
+    /// @notice Thrown when the caller is not penging governor
+    error Globals_CallerNotPendingGovernor(address pendingGovernor_);
+
     /*//////////////////////////////////////////////////////////////
                               LOAN MANAGER
     //////////////////////////////////////////////////////////////*/
-
-    /// @notice Thrown when `msg.sender` is not the seller.
-    error LoanManager_CallerNotSeller(address expectedSeller_);
 
     /// @notice Thrown when buyer approves an invalid receivable (either buyer or seller is not whitelisted or repayment
     /// timestamp is in the past).
@@ -124,6 +133,9 @@ library Errors {
 
     /// @notice Thrown when an asset address is set to 0 for a loan manager.
     error LoanManager_AssetZeroAddress();
+
+    /// @notice Thrown when the seller withraw fund before the loan be funded.
+    error LoanManager_LoanNotFunded();
 
     /*//////////////////////////////////////////////////////////////
                            WITHDRAWAL MANAGER

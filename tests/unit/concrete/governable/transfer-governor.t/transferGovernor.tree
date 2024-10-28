@@ -1,7 +1,0 @@
-transferGovernor.t.sol
-├── when the caller is not governor
-│  └── it should revert
-└── when the caller is governor
-   ├── it should transfer to newGovernor
-   └── it should emit a {TransferGovernor} event
-      

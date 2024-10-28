@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
@@ -130,8 +130,8 @@ contract ProcessExit_Integration_Concrete_Test is WithdrawalManager_Integration_
         changePrank(users.poolAdmin);
         poolConfigurator.depositCover(defaults.COVER_AMOUNT());
 
-        // create loan
-        createDefaultLoan();
+        // create and fund loan
+        fundDefaultLoan();
 
         // seller withdraw fund
         changePrank(users.seller);

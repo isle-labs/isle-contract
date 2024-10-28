@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
-import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { IERC721Receiver } from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import { Errors } from "./libraries/Errors.sol";
 import { VersionedInitializable } from "./libraries/upgradability/VersionedInitializable.sol";
+import { ReentrancyGuardUpgradeable } from "./libraries/ReentrancyGuard.sol";
 import { Receivable, Loan } from "./libraries/types/DataTypes.sol";
 
 import { IIsleGlobals } from "./interfaces/IIsleGlobals.sol";
@@ -19,7 +19,13 @@ import { IReceivable } from "./interfaces/IReceivable.sol";
 
 import { LoanManagerStorage } from "./LoanManagerStorage.sol";
 
-contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, ReentrancyGuard, VersionedInitializable {
+contract LoanManager is
+    ILoanManager,
+    IERC721Receiver,
+    LoanManagerStorage,
+    VersionedInitializable,
+    ReentrancyGuardUpgradeable
+{
     uint256 public constant LOAN_MANAGER_REVISION = 0x1;
 
     uint256 public constant HUNDRED_PERCENT = 1e6; // 100.0000%
@@ -48,6 +54,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         if (asset_ == address(0)) {
             revert Errors.LoanManager_AssetZeroAddress();
         }
+        __ReentrancyGuard_init();
         emit Initialized({ poolAddressesProvider_: address(ADDRESSES_PROVIDER), asset_: asset = asset_ });
     }
 
@@ -291,12 +298,11 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
     function withdrawFunds(uint16 loanId_, address destination_) external override whenNotPaused {
         Loan.Info storage loan_ = _loans[loanId_];
 
-        // Only the seller can drawdown funds
-        if (msg.sender != loan_.seller) {
-            revert Errors.LoanManager_CallerNotSeller({ expectedSeller_: loan_.seller });
-        }
-
         uint256 drawableFunds_ = loan_.drawableFunds;
+
+        if (drawableFunds_ == 0) {
+            revert Errors.LoanManager_LoanNotFunded();
+        }
 
         loan_.drawableFunds = 0;
 
@@ -417,6 +423,7 @@ contract LoanManager is ILoanManager, IERC721Receiver, LoanManagerStorage, Reent
         }
 
         _loans[loanId_].dueDate = originalDueDate_;
+        _loans[loanId_].isImpaired = false;
         delete _loans[loanId_].originalDueDate;
 
         emit ImpairmentRemoved(loanId_, originalDueDate_);

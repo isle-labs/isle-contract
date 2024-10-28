@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { Errors } from "contracts/libraries/Errors.sol";
 
@@ -10,7 +10,7 @@ contract TriggerDefault_Integration_Concrete_Test is PoolConfigurator_Integratio
         PoolConfigurator_Integration_Shared_Test.setUp();
 
         poolConfigurator.depositCover(defaults.COVER_AMOUNT());
-        createDefaultLoan();
+        fundDefaultLoan();
     }
 
     function test_RevertWhen_PoolConfiguratorPaused_ProtocolPaused() external {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity 0.8.19;
 
 import { Script } from "@forge-std/Script.sol";
 
@@ -120,12 +120,12 @@ abstract contract BaseScript is Script {
     }
 
     function deployGlobals() internal broadcast(deployer) returns (IsleGlobals globals_) {
-        globals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), "")));
-        globals_.initialize(governor);
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", governor);
+        globals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), initializeData_)));
     }
 
-    function deployReceivable() internal broadcast(deployer) returns (Receivable receivable_) {
-        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(governor);
+    function deployReceivable(address isleGlobal_) internal broadcast(deployer) returns (Receivable receivable_) {
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", isleGlobal_);
+        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), initializeData_)));
     }
 }

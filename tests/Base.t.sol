@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { StdCheats } from "@forge-std/StdCheats.sol";
 import { console } from "@forge-std/console.sol";
@@ -113,8 +113,8 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         changePrank(users.governor);
 
         // Deploy globals and receivable
-        receivable = deployReceivable();
         isleGlobals = deployGlobals();
+        receivable = deployReceivable(isleGlobals);
 
         // Deploy pool side contracts
         poolAddressesProvider = deployPoolAddressesProvider(isleGlobals);
@@ -135,15 +135,15 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
 
     /// @dev Deploy isle Globals as an UUPS proxy
     function deployGlobals() internal returns (IIsleGlobals isleGlobals_) {
-        isleGlobals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), "")));
-        isleGlobals_.initialize(users.governor);
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", users.governor);
+        isleGlobals_ = IsleGlobals(address(new UUPSProxy(address(new IsleGlobals()), initializeData_)));
     }
 
     /// @dev Deploy receivable as an UUPS proxy
-    function deployReceivable() internal returns (IReceivable receivable_) {
+    function deployReceivable(IIsleGlobals isleGlobals_) internal returns (IReceivable receivable_) {
         // notice here we use Receivable instead of its interface IReceivable, since we want to call function
-        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), "")));
-        receivable_.initialize(users.governor);
+        bytes memory initializeData_ = abi.encodeWithSignature("initialize(address)", address(isleGlobals_));
+        receivable_ = Receivable(address(new UUPSProxy(address(new Receivable()), initializeData_)));
     }
 
     /// @dev Deploy pool addresses provider
@@ -270,18 +270,20 @@ abstract contract Base_Test is StdCheats, Events, Constants, Utils {
         tokenId_ = receivable.createReceivable(defaults.createReceivable());
     }
 
-    function createDefaultLoan() internal {
-        uint256 receivablesTokenId_ = createDefaultReceivable();
+    function requestDefaultLoan(uint256 tokenId_) internal returns (uint16 loanId_) {
         changePrank(users.buyer);
-
-        // request loan
-        uint16 loanId_ = loanManager.requestLoan(
+        loanId_ = loanManager.requestLoan(
             address(receivable),
-            receivablesTokenId_,
+            tokenId_,
             defaults.GRACE_PERIOD(),
             defaults.PRINCIPAL_REQUESTED(),
             [defaults.INTEREST_RATE(), defaults.LATE_INTEREST_PREMIUM_RATE()]
         );
+    }
+
+    function fundDefaultLoan() internal {
+        uint256 receivablesTokenId_ = createDefaultReceivable();
+        uint16 loanId_ = requestDefaultLoan(receivablesTokenId_);
 
         changePrank(users.poolAdmin);
         loanManager.fundLoan(loanId_);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.19;
+pragma solidity 0.8.19;
 
 import { Base_Test } from "../../../Base.t.sol";
 
@@ -20,7 +20,8 @@ abstract contract Receivable_Unit_Shared_Test is Base_Test {
 
     function deployAndLabelContract() internal {
         changePrank(users.governor);
-        receivable = deployReceivable();
+        isleGlobals = deployGlobals();
+        receivable = deployReceivable(isleGlobals);
     }
 
     modifier whenCallerPoolAdmin() {

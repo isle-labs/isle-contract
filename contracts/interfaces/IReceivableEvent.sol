@@ -19,4 +19,9 @@ interface IReceivableEvent {
     /// @notice Emitted when burn a receivable.
     /// @param tokenId_ The id of the receivable.
     event AssetBurned(uint256 indexed tokenId_);
+
+    /// @notice Emitted when the governor is transferred.
+    /// @param oldGovernor The address of the old governor.
+    /// @param newGovernor The address of the new governor.
+    event TransferGovernor(address indexed oldGovernor, address indexed newGovernor);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { Loan } from "contracts/libraries/types/DataTypes.sol";
 
@@ -20,7 +20,7 @@ contract GetLoanInfo_LoanManager_Integration_Concrete_Test is
     {
         LoanManager_Integration_Concrete_Test.setUp();
 
-        createDefaultLoan();
+        fundDefaultLoan();
 
         LOAN_INFO = Loan.Info({
             buyer: users.buyer,

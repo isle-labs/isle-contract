@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { ERC20, IERC20, IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
@@ -63,7 +63,8 @@ contract Pool is IPool, ERC20Permit {
 
         _asset.permit(_msgSender(), address(this), assets_, deadline_, v_, r_, s_);
 
-        shares_ = deposit(assets_, receiver_);
+        shares_ = previewDeposit(assets_);
+        _deposit(_msgSender(), receiver_, assets_, shares_);
     }
 
     /// @inheritdoc IPool
@@ -221,8 +222,7 @@ contract Pool is IPool, ERC20Permit {
     /// @inheritdoc IERC4626
     function maxWithdraw(address owner_) public pure override returns (uint256 maxAssets_) {
         owner_;
-        maxAssets_; // Not implemented
-        revert Errors.Pool_WithdrawalNotImplemented();
+        maxAssets_ = 0;
     }
 
     /// @inheritdoc IERC4626

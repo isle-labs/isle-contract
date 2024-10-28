@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { WithdrawalManager } from "../libraries/types/DataTypes.sol";
 
@@ -155,12 +155,11 @@ interface IWithdrawalManager is IWithdrawalManagerStorage {
     /// @param owner_ The address of the owner.
     /// @return redeemableShares_ The amount of redeemable shares.
     /// @return resultingAssets_ The corresponding amount of assets with the redeemable shares.
-    /// @return partialLiquidity_ True if there is only partial liquidity.
     function getRedeemableAmounts(
         uint256 lockedShares_,
         address owner_
     )
         external
         view
-        returns (uint256 redeemableShares_, uint256 resultingAssets_, bool partialLiquidity_);
+        returns (uint256 redeemableShares_, uint256 resultingAssets_);
 }

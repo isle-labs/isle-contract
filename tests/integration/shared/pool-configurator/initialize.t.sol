@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { PoolConfigurator } from "contracts/PoolConfigurator.sol";
 import { IPoolAddressesProvider } from "contracts/interfaces/IPoolAddressesProvider.sol";

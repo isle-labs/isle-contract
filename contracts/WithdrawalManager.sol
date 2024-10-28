@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.19;
+pragma solidity 0.8.19;
 
 import { SafeCast } from "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import { IERC20, SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -249,11 +249,9 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             revert Errors.WithdrawalManager_NoRequest(owner_);
         }
 
-        if (requestedShares_ != lockedShares_) {
+        if (requestedShares_ > lockedShares_) {
             revert Errors.WithdrawalManager_InvalidShares(owner_, requestedShares_, lockedShares_);
         }
-
-        bool partialLiquidity_;
 
         (uint64 windowStart_, uint64 windowEnd_) = getWindowAtId(exitCycleId_);
 
@@ -261,7 +259,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             revert Errors.WithdrawalManager_NotInWindow(block.timestamp, windowStart_, windowEnd_);
         }
 
-        (redeemableShares_, resultingAssets_, partialLiquidity_) = getRedeemableAmounts(lockedShares_, owner_);
+        (redeemableShares_, resultingAssets_) = getRedeemableAmounts(lockedShares_, owner_);
 
         // Transfer redeemable shares back to the owner in order to be burned in the pool, re-lock remaining shares
         IERC20(_pool()).transfer(owner_, redeemableShares_);
@@ -273,7 +271,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         // If there are any remaining shares, move them to the next cycle
         // In case of partial liquidity, move shares only one cycle forward (instead of two)
         if (lockedShares_ != 0) {
-            exitCycleId_ = getCurrentCycleId() + (partialLiquidity_ ? 1 : 2);
+            exitCycleId_ = getCurrentCycleId() + 1;
             totalCycleShares[exitCycleId_] += lockedShares_;
         } else {
             exitCycleId_ = 0; // User without exit cycle id has no withdrawal request
@@ -342,7 +340,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
             return (redeemableShares_, resultingAssets_);
         }
 
-        (redeemableShares_, resultingAssets_,) = getRedeemableAmounts(lockedShares_, owner_);
+        (redeemableShares_, resultingAssets_) = getRedeemableAmounts(lockedShares_, owner_);
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -410,7 +408,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         public
         view
         override
-        returns (uint256 redeemableShares_, uint256 resultingAssets_, bool partialLiquidity_)
+        returns (uint256 redeemableShares_, uint256 resultingAssets_)
     {
         IPoolConfigurator poolConfigurator_ = IPoolConfigurator(_poolConfigurator());
 
@@ -419,7 +417,7 @@ contract WithdrawalManager is WithdrawalManagerStorage, IWithdrawalManager, Vers
         uint256 totalSupply_ = IPool(_pool()).totalSupply();
         uint256 totalRequestedLiquidity_ = totalCycleShares[exitCycleId[owner_]] * totalAssetsWithLosses_ / totalSupply_;
 
-        partialLiquidity_ = availableLiquidity_ < totalRequestedLiquidity_;
+        bool partialLiquidity_ = availableLiquidity_ < totalRequestedLiquidity_;
 
         // Calculate maximum redeemable shares while maintaining a pro-rata distribution
         redeemableShares_ =

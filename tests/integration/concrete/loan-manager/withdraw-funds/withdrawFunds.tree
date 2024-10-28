@@ -2,9 +2,9 @@ withdrawFunds.t.sol
 ├── when the function is paused
 │  └── it should revert
 └── when the function is not paused
-   ├── when the caller is not the seller
+   ├── when the loan not be funded
    │  └── it should revert
-   └── when the caller is the seller
+   └── when the loan been funded
       ├── when the buyer is not repay the loan
       │  ├── it should transfer the collateral receivable from the seller to the loanManager
       │  ├── it should transfer the drawable amount from loanManager to the seller
