@@ -20,6 +20,8 @@ jobs:
                 include:
                     - poolAddressesProvider: "0x51b235a5511e7c25A3F610081f096101CCA72F99"
                       chain: "https://test-rpc.plumenetwork.xyz"
+                    - poolAddressesProvider: "0xade655BeF7D298d282958B6983B4B7cFc2928AD4"
+                      chain: "https://phoenix-rpc.plumenetwork.xyz"
         steps:
             - name: "Check out the repo"
               uses: "actions/checkout@v4"

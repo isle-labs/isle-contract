@@ -26,6 +26,7 @@ abstract contract BaseScript is Script {
     address internal governor;
     address internal lender;
     address internal vault;
+    address internal dailyTrigger;
 
     /// @dev Initializes the participants like this:
     ///
@@ -110,6 +111,17 @@ abstract contract BaseScript is Script {
             vault = vault_;
         } else {
             (vault,) = deriveRememberKey({ mnemonic: mnemonic, index: 6 });
+        }
+
+        address dailyTrigger_ = vm.envOr({ name: "DAILY_TRIGGER", defaultValue: address(0) });
+        uint256 dailyTriggerKey_ = vm.envOr({ name: "DAILY_TRIGGER_KEY", defaultValue: uint256(0) });
+
+        if (dailyTriggerKey_ != 0) {
+            dailyTrigger = vm.rememberKey({ privateKey: dailyTriggerKey_ });
+        } else if (dailyTrigger_ != address(0)) {
+            dailyTrigger = dailyTrigger_;
+        } else {
+            (dailyTrigger,) = deriveRememberKey({ mnemonic: mnemonic, index: 7 });
         }
     }
 
