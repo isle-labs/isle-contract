@@ -11,8 +11,10 @@ import { Loan } from "../contracts/libraries/types/DataTypes.sol";
 import { BaseScript } from "./Base.s.sol";
 
 contract UpdateAccounting is BaseScript {
-    function run(IPoolAddressesProvider poolAddressesProvider_) public broadcast(dailyTrigger) {
+    function run(IPoolAddressesProvider poolAddressesProvider_) public {
+        vm.startBroadcast();
         ILoanManager loanManager_ = ILoanManager(poolAddressesProvider_.getLoanManager());
         loanManager_.updateAccounting();
+        vm.stopBroadcast();
     }
 }
