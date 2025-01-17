@@ -23,6 +23,8 @@ jobs:
                       chain: "https://test-rpc.plumenetwork.xyz"
                     - poolAddressesProvider: "0x9A2555840098aD13f497B9cCda6e16F606c3C94f"
                       chain: "https://phoenix-rpc.plumenetwork.xyz"
+                    - poolAddressesProvider: "0x51b235a5511e7c25A3F610081f096101CCA72F99"
+                      chain: "https://rpc.monad-testnet.category.xyz/rpc/SPa4TbSgMJxz5ywmzYvvc9O5nkAVGTgOcsi7yErG"
         steps:
             - name: "Check out the repo"
               uses: "actions/checkout@v4"
